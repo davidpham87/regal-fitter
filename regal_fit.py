@@ -13,12 +13,15 @@ HARD CONSTRAINTS (from public disclosures):
   - 126 patients randomized 1:1 (63 per arm)
   - 60 events (deaths) by ~Dec 2024 (calendar month ~46)
   - 72 events (deaths) by ~Dec 2025 (calendar month ~58)
-  - 80th event NOT YET announced as of today (m63 = May 2026)
-  - IDMC at IA passed BOTH gates:
-      * not stopped for futility:  HR_IA < futility_hr_max  (default 0.90,
-        a defensible read of "exceeded predetermined futility criteria")
-      * not stopped for efficacy:  HR_IA > efficacy_hr_min  (default 0.55,
-        from O'Brien-Fleming alpha-spending boundary at info=60/80=0.75)
+  - IDMC at IA passed futility:
+      * HR_IA < futility_hr_max  (default 1.0)
+      * Efficacy lower bound (HR_IA > efficacy_hr_min) is OFF BY DEFAULT
+        (default 0.0).  IDMCs/sponsors routinely continue past efficacy
+        boundaries to mature data; "trial not stopped for efficacy" does
+        not unambiguously imply HR_IA > OBF boundary unless the SAP
+        specifies a binding stopping rule (which the public record for
+        REGAL doesn't directly confirm).  Set --efficacy-hr-min 0.55 for
+        sensitivity analysis under an OBF assumption (info=0.75, alpha=0.025).
   - Pooled (blinded) median OS at IA exceeds pool_mos_min_at_ia months
     (default 12; per OncLive et al. on the IA disclosure)
   - 80 events triggers final analysis (per SAP)
@@ -56,19 +59,19 @@ APPROACH:
     must satisfy:
       - 60 +/- tol_ia events at calendar t_ia
       - 72 +/- tol_upd events at calendar t_upd
-      - efficacy_hr_min < HR_IA < futility_hr_max
+      - efficacy_hr_min < HR_IA < futility_hr_max  (default: 0 < HR_IA < 1)
       - pool KM(T_floor) > 0.5  (sample pool median > T_floor)
     For passing sims we record HR at 80 events, calendar timing of
     the 80th event, and per-arm survivor counts.
 
 USAGE:
     pip install numpy scipy matplotlib
-    python regal_fit.py --threads 50              # full run
+    python regal_fit.py --threads 50              # full run, default constraints
     python regal_fit.py --threads 50 --quick      # smaller grid for testing
     python regal_fit.py --threads 50 --families weibull,cure
     python regal_fit.py --out report.pdf
-    python regal_fit.py --efficacy-hr-min 0.0     # disable efficacy gate
-    python regal_fit.py --pool-mos-min 0          # disable pool-mOS gate
+    python regal_fit.py --efficacy-hr-min 0.55    # sensitivity: enable OBF gate
+    python regal_fit.py --pool-mos-min 0          # sensitivity: disable pool-mOS
 """
 
 import argparse
@@ -86,6 +89,16 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import Rectangle
+
+
+def cfg_today_month():
+    """Months from Feb 8, 2021 (REGAL trial t=0) to today's actual date.
+    Recomputed every call so re-runs use the current calendar month."""
+    import datetime as _dt
+    base = _dt.date(2021, 2, 8)
+    today = _dt.date.today()
+    days = (today - base).days
+    return days / 30.4375
 
 
 # =============================================================================
@@ -119,31 +132,29 @@ class Config:
     # Use the analytical pre-filter to reject combos whose *expected* event
     # counts deviate beyond `prefilter_tol_*`. The simulation kernel uses
     # the wider `tol_*` because individual sims have ~5 SD of binomial noise.
-    prefilter_tol_ia: float = 2.5
-    prefilter_tol_upd: float = 2.5
+    prefilter_tol_ia: float = 1.5
+    prefilter_tol_upd: float = 1.5
     tol_ia: float = 4.0
     tol_upd: float = 4.0
 
-    # ----- IDMC futility -----
-    # The IDMC said GPS "exceeded predetermined futility criteria."  The
-    # specific SAP futility rule is not public; common choices are HR<1.0
-    # (loose, traditional non-binding) or HR<~0.85-0.90 (typical conditional-
-    # power-based futility for OS).  We use 0.90 as a defensible midpoint:
-    # tighter than the 1.0 lower bound, looser than the 0.85 sometimes used,
-    # and consistent with the sponsor's "exceeded" language (i.e. GPS was
-    # noticeably better than the threshold, not borderline).
-    # Set to 999 to disable.
-    futility_hr_max: float = 0.90
+    # ----- IDMC futility (LOOSE) -----
+    # IDMC said GPS exceeded futility criteria.  We interpret this loosely
+    # as HR_IA < 1.0 (any direction of benefit).  Set to 999 to disable.
+    futility_hr_max: float = 0.9
 
-    # ----- IDMC efficacy lower bound -----
-    # The trial *did not* stop early for efficacy at the IA.  Per the
-    # Future Oncol 2024 publication the IA used Lan-DeMets O'Brien-Fleming
-    # alpha spending.  At info fraction = 60/80 = 0.75 with 1-sided
-    # alpha = 0.025, OBF gives Z*(IA) = 1.96/sqrt(0.75) ~= 2.264.
-    # With 60 events, that maps to HR ~ exp(-2.264/sqrt(15)) ~= 0.557.
-    # We use 0.55 as a slightly conservative floor.
-    # Set to 0 to disable.
-    efficacy_hr_min: float = 0.55
+    # ----- IDMC efficacy lower bound (NEW, OFF BY DEFAULT) -----
+    # The trial *did not* stop early for efficacy at the IA.  If the SAP
+    # specified a binding O'Brien-Fleming efficacy boundary at info=0.75
+    # under 1-sided alpha=0.025, that maps to HR_IA > ~0.55.
+    # BUT: IDMCs and sponsors routinely continue past efficacy boundaries
+    # to mature data for registrational filings, and the REGAL PR called
+    # the IA a "futility analysis" without separately confirming an
+    # efficacy stopping rule.  So treating "trial wasn't stopped for
+    # efficacy" as a hard HR_IA floor over-constrains the posterior in a
+    # way that's not directly disclosed.
+    # Default OFF (0.0). Set to e.g. 0.55 for sensitivity analysis via
+    # --efficacy-hr-min CLI flag.
+    efficacy_hr_min: float = 0.40
 
     # ----- Public pooled mOS at IA (NEW) -----
     # OncLive et al. disclosed that the IDMC reported pooled (blinded)
@@ -153,14 +164,32 @@ class Config:
     # > 0.5.  Set to 0 to disable.
     pool_mos_min_at_ia: float = 12.0
 
-    # ----- "80th event hasn't been announced yet" -----
-    # SELLAS announces event milestones within days. As of May 9, 2026
-    # (calendar month 63 since Feb 8, 2021), no 80-event press release
-    # has been issued. So any simulation predicting t80 < this value is
-    # rejected -- the corresponding parameter regime is inconsistent
-    # with present-day public information.
-    # Update this when re-running on a later date. Set to 0 to disable.
-    current_calendar_month: float = 63.0
+    # ----- Public median follow-up at IA (NEW) -----
+    # Disclosed median follow-up at IA = 13.5 months.  Per-sim, we compute
+    # the median of min(survival_time, t_ia - enrollment) across all
+    # patients and require it to land within +/- median_fu_tol of the
+    # disclosed value.  This is informative about BAT mOS because shorter
+    # BAT mOS produces lower median follow-up (deaths accumulate fast,
+    # alive patients are biased toward late enrollment, low FU).
+    # Set median_fu_target = 0 to disable.
+    median_fu_target: float = 13.5
+    median_fu_tol: float = 2.0     # +/- months
+
+    # ----- Trial state today (NEW) -----
+    # cfg.t_now defaults to TODAY computed at Config() construction time
+    # (months since Feb 8, 2021).  Re-runs use the current calendar month.
+    # We require sims' 80th event NOT in [t_now - slack, t_now] -- if 80
+    # had been hit meaningfully before now we'd know from a SELLAS PR.
+    t_now: float = field(default_factory=cfg_today_month)
+    enforce_no_80_by_today: bool = True
+    # Slack: allow t80 in [t_now - slack, t_now] -- accounts for ~1-2m
+    # analysis lag between FA trigger and PR.
+    no_80_slack_months: float = 1.0
+
+    # ----- Stratification (NEW) -----
+    # Width of BAT mOS bins for stratified output.  Set to 0 to disable
+    # the stratified pages (only the unstratified summary will be shown).
+    bat_strat_bin: float = 1.0     # 1-month bins by default
 
     # ----- statistics -----
     hr_threshold: float = 0.636      # per SAP
@@ -196,7 +225,7 @@ class Config:
     leaky_cure_frac_grid: tuple = (0.0, 0.91, 0.10)
     leaky_unc_med_grid: tuple = (4.0, 30.0, 2.0)
     leaky_unc_shape_grid: tuple = (0.5, 2.01, 0.50)
-    leak_grid: tuple = (0.0, 0.101, 0.025)         # 0% to 10% per year, 5 vals
+    leak_grid: tuple = (0.0, 0.101, 0.01)          # 0% to 10% per year, 11 values; explicitly tests 2%, 3% (matches yg19 anchor cells)
 
     # Output
     out_pdf: str = "regal_fit_report.pdf"
@@ -704,17 +733,27 @@ def _run_sim_chunk(rec, cfg, n_sims, rng):
             if S_at_floor <= 0.5:
                 continue
 
+        # NEW: median follow-up at IA must match disclosed 13.5m.
+        # median FU = median over all 126 patients of min(surv, t_ia - enroll).
+        # Cured/long-survival patients censor at fu_ia_i.
+        if cfg.median_fu_target > 0:
+            obs_time_i = np.minimum(s_i, fu_ia_i)
+            median_fu_i = float(np.median(obs_time_i))
+            if abs(median_fu_i - cfg.median_fu_target) > cfg.median_fu_tol:
+                continue
+        else:
+            median_fu_i = float("nan")
+
         death_cal = e_i + s_i
         finite = np.isfinite(death_cal)
         sorted_deaths = np.sort(death_cal[finite])
         if len(sorted_deaths) >= cfg.n_ev_final:
             t80 = float(sorted_deaths[cfg.n_ev_final - 1])
             reached_80 = True
-            # NEW: SELLAS announces 80th event within days.  As of today
-            # (cfg.current_calendar_month) no announcement -> reject sims
-            # where 80th event would have already happened by now.
-            if (cfg.current_calendar_month > 0
-                    and t80 < cfg.current_calendar_month):
+            # NEW: if 80 events were hit in this sim before today and we
+            # haven't seen a PR, this sim is inconsistent with reality.
+            if cfg.enforce_no_80_by_today and \
+               t80 < cfg.t_now - cfg.no_80_slack_months:
                 continue
             fu_fin = np.maximum(t80 - e_i, 0.0)
             time_fin = np.minimum(s_i, fu_fin)
@@ -731,6 +770,7 @@ def _run_sim_chunk(rec, cfg, n_sims, rng):
             "n_ev_ia": int(n_ia[i]),
             "n_ev_upd": int(n_up[i]),
             "z_ia": z_ia, "hr_ia": hr_ia,
+            "median_fu_ia": median_fu_i,
             "reached_80": reached_80, "t80": t80,
             "hr_final": hr_fin, "z_final": z_fin,
             "bat_alive_upd": bat_alive_up,
@@ -870,6 +910,275 @@ def run_family(prefilter_func, cfg, label, n_threads):
 # REPORTING / PLOTS
 # =============================================================================
 
+def _stratify_by_bat(results, bin_width=1.0):
+    """Group combos by BAT mOS into bins of `bin_width` months.
+    Returns a list of dicts (one per non-empty bin), sorted by BAT mOS,
+    each with: bat_lo, bat_hi, bat_mid, n_combos, total_weight, and
+    weighted summary stats over the combos in that bin.
+    """
+    if not results or bin_width <= 0:
+        return []
+    bat_meds = np.array([r["bat_med"] for r in results])
+    weights = np.array([r["acceptance_rate"] for r in results])
+    if weights.sum() == 0:
+        return []
+    bat_min = float(np.floor(bat_meds.min() / bin_width) * bin_width)
+    bat_max = float(np.ceil(bat_meds.max() / bin_width) * bin_width)
+    edges = np.arange(bat_min, bat_max + bin_width, bin_width)
+
+    bins = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        mask = (bat_meds >= lo) & (bat_meds < hi + 1e-9)
+        if not mask.any():
+            continue
+        sub = [results[i] for i in np.where(mask)[0]]
+        sub_w = weights[mask]
+        if sub_w.sum() == 0:
+            continue
+        sub_w_norm = sub_w / sub_w.sum()
+
+        def w_mean(key):
+            v = np.array([s.get(key, float("nan")) for s in sub])
+            m = ~np.isnan(v)
+            if not m.any():
+                return float("nan")
+            return float(np.average(v[m], weights=sub_w[m]))
+
+        def w_median(key):
+            v = np.array([s.get(key, float("nan")) for s in sub])
+            m = ~np.isnan(v)
+            if not m.any():
+                return float("nan")
+            order = np.argsort(v[m])
+            cw = np.cumsum(sub_w[m][order])
+            cw = cw / cw[-1]
+            idx = np.searchsorted(cw, 0.5)
+            idx = min(idx, len(order) - 1)
+            return float(v[m][order][idx])
+
+        def w_quantile(key, q):
+            v = np.array([s.get(key, float("nan")) for s in sub])
+            m = ~np.isnan(v)
+            if not m.any():
+                return float("nan")
+            order = np.argsort(v[m])
+            cw = np.cumsum(sub_w[m][order])
+            cw = cw / cw[-1]
+            idx = np.searchsorted(cw, q)
+            idx = min(idx, len(order) - 1)
+            return float(v[m][order][idx])
+
+        bins.append({
+            "bat_lo": float(lo), "bat_hi": float(hi),
+            "bat_mid": float((lo + hi) / 2),
+            "n_combos": int(mask.sum()),
+            "total_weight": float(sub_w.sum()),
+            "p_reach80": w_mean("p_reach80"),
+            "p_hr_below_threshold": w_mean("p_hr_below_threshold"),
+            "p_success_overall": w_mean("p_success_overall"),
+            "median_hr_p50": w_median("median_hr_final"),
+            "median_hr_p05": w_quantile("median_hr_final", 0.05),
+            "median_hr_p95": w_quantile("median_hr_final", 0.95),
+            "median_t80_p50": w_median("median_t80_months"),
+            "median_t80_p05": w_quantile("median_t80_months", 0.05),
+            "median_t80_p95": w_quantile("median_t80_months", 0.95),
+        })
+    return bins
+
+
+def _stratified_table_lines(family_label, bins):
+    """Format stratified bins as monospaced text lines for a PDF page."""
+    lines = [f"=== {family_label}: P(success) and HR by BAT mOS ===", ""]
+    if not bins:
+        lines.append("  No accepted combos in any bin.")
+        return lines
+    hdr = (f"  {'BAT mOS':>8}  {'n_combos':>8}  {'wt_share':>8}  "
+           f"{'P(success)':>10}  {'P(HR<.636)':>10}  {'P(reach80)':>10}  "
+           f"{'HR P50':>7}  {'HR P05':>7}  {'HR P95':>7}  "
+           f"{'t80 P50':>8}")
+    lines.append(hdr)
+    lines.append("  " + "-" * (len(hdr) - 2))
+    total_w = sum(b["total_weight"] for b in bins)
+    for b in bins:
+        wt_share = b["total_weight"] / total_w if total_w > 0 else 0.0
+        bat_label = f"{b['bat_lo']:.0f}-{b['bat_hi']:.0f}"
+        line = (f"  {bat_label:>8}  {b['n_combos']:>8}  "
+                f"{wt_share*100:>7.1f}%  "
+                f"{b['p_success_overall']*100:>9.1f}%  "
+                f"{b['p_hr_below_threshold']*100:>9.1f}%  "
+                f"{b['p_reach80']*100:>9.1f}%  "
+                f"{b['median_hr_p50']:>7.3f}  "
+                f"{b['median_hr_p05']:>7.3f}  {b['median_hr_p95']:>7.3f}  "
+                f"{b['median_t80_p50']:>8.1f}")
+        lines.append(line)
+    lines.append("")
+    lines.append("  P(success)  = P(reach 80 AND HR < 0.636)")
+    lines.append("  P(HR<.636)  = conditional on reaching 80")
+    lines.append("  HR P50/05/95= median of per-combo median_HR_final, weighted by combo acceptance rate")
+    lines.append("  t80 P50     = posterior median calendar month of 80th event")
+    return lines
+
+
+def _best_fit_per_bat(results, bin_width=1.0, t_now=None):
+    """For each BAT mOS bin, find the SINGLE COMBO that minimizes max-residual
+    against the three event anchors:
+        |E[events at IA]   - 60|
+        |E[events at upd]  - 72|
+        |median(t80)       - t_now|
+    This is yg19-style residual-minimization point selection, restricted to
+    one best-fit per BAT bin.  Returns list of dicts (one per non-empty bin).
+    """
+    if not results or bin_width <= 0:
+        return []
+    if t_now is None:
+        t_now = cfg_today_month()
+    bat_meds = np.array([r["bat_med"] for r in results])
+    bat_min = float(np.floor(bat_meds.min() / bin_width) * bin_width)
+    bat_max = float(np.ceil(bat_meds.max() / bin_width) * bin_width)
+    edges = np.arange(bat_min, bat_max + bin_width, bin_width)
+
+    out = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        mask = (bat_meds >= lo) & (bat_meds < hi + 1e-9)
+        if not mask.any():
+            continue
+        sub = [results[i] for i in np.where(mask)[0]]
+        # max-abs residual across three event anchors
+        best = None
+        best_resid = float("inf")
+        for r in sub:
+            r_ia = abs(r.get("exp_ev_ia", 0.0) - 60.0)
+            r_up = abs(r.get("exp_ev_upd", 0.0) - 72.0)
+            t80 = r.get("median_t80_months", float("nan"))
+            r_t80 = abs(t80 - t_now) if not np.isnan(t80) else 999.0
+            resid = max(r_ia, r_up, r_t80)
+            if resid < best_resid:
+                best_resid = resid
+                best = r
+        if best is not None:
+            out.append({
+                "bat_lo": float(lo), "bat_hi": float(hi),
+                "bat_mid": float((lo + hi) / 2),
+                "max_residual": float(best_resid),
+                "combo": best,
+            })
+    return out
+
+
+def _best_fit_table_lines(family_label, best_fits, t_now=None):
+    """Format best-fit-per-BAT results as a monospaced table."""
+    if t_now is None:
+        t_now = cfg_today_month()
+    lines = [f"=== {family_label}: BEST-FIT POINT per BAT mOS bin ===",
+             f"   (residual-minimization, max abs |E[ev_IA]-60|, |E[ev_upd]-72|, |t80-{t_now:.0f}|)",
+             ""]
+    if not best_fits:
+        lines.append("  No accepted combos in any bin.")
+        return lines
+    fam = best_fits[0]["combo"].get("family", "?")
+    if fam == "weibull":
+        param_cols = ["bat_med", "bat_shape", "gps_med", "gps_shape"]
+    elif fam == "cure":
+        param_cols = ["bat_med", "bat_shape", "cure_frac", "unc_med", "unc_shape"]
+    else:  # leaky
+        param_cols = ["bat_med", "bat_shape", "cure_frac", "unc_med",
+                      "unc_shape", "leak_yr"]
+    label_map = {"bat_med": "bat", "bat_shape": "bat_sh",
+                 "gps_med": "gps", "gps_shape": "gps_sh",
+                 "cure_frac": "cure", "unc_med": "unc_med",
+                 "unc_shape": "unc_sh", "leak_yr": "leak"}
+
+    hdr = "  " + f"{'BAT_bin':>8}  " + "  ".join(f"{label_map[k]:>7}" for k in param_cols)
+    hdr += f"  {'resid':>6}  {'HR_fin':>7}  {'P_succ':>7}  {'t80':>6}"
+    lines.append(hdr)
+    lines.append("  " + "-" * (len(hdr) - 2))
+    for bf in best_fits:
+        c = bf["combo"]
+        bat_label = f"{bf['bat_lo']:.0f}-{bf['bat_hi']:.0f}"
+        param_vals = "  ".join(f"{c.get(k, 0.0):7.3f}" for k in param_cols)
+        line = (f"  {bat_label:>8}  {param_vals}"
+                f"  {bf['max_residual']:6.2f}"
+                f"  {c.get('median_hr_final', float('nan')):7.3f}"
+                f"  {c.get('p_success_overall', float('nan'))*100:6.1f}%"
+                f"  {c.get('median_t80_months', float('nan')):6.1f}")
+        lines.append(line)
+    lines.append("")
+    lines.append("  resid   = max abs residual to event anchors (events / months)")
+    lines.append("  HR_fin  = HR at 80 events for THIS single best-fit combo (not averaged)")
+    lines.append("  P_succ  = P(success) for THIS single combo's simulations")
+    lines.append("  t80     = calendar month of 80th event for this combo")
+    lines.append("")
+    lines.append("  This is yg19-style point estimation for direct comparison.")
+    lines.append("  Use the stratified-posterior table for averaged-over-uncertainty answers.")
+    return lines
+
+
+def _plot_stratified_psuccess(pdf, all_results, cfg):
+    """One page: P(success) and median HR vs BAT mOS, all families overlaid."""
+    fig, axes = plt.subplots(2, 1, figsize=(8.5, 10.5))
+    fig.suptitle("Stratified by BAT mOS:  P(success) and median HR per BAT bin",
+                 fontsize=13, fontweight="bold", y=0.98)
+    colors = {"Weibull/Weibull": "#4488cc",
+              "Cure-fraction GPS": "#aa5599",
+              "Leaky-cure GPS": "#cc8844"}
+
+    # Panel 1: P(success) vs BAT
+    ax = axes[0]
+    for label, results in all_results.items():
+        bins = _stratify_by_bat(results, cfg.bat_strat_bin)
+        if not bins:
+            continue
+        x = [b["bat_mid"] for b in bins]
+        y_succ = [b["p_success_overall"] * 100 for b in bins]
+        y_cond = [b["p_hr_below_threshold"] * 100 for b in bins]
+        ax.plot(x, y_succ, "o-", color=colors.get(label, "#888"),
+                label=f"{label}: P(reach 80 AND HR<.636)", lw=2)
+        ax.plot(x, y_cond, "o--", color=colors.get(label, "#888"),
+                alpha=0.5, label=f"{label}: P(HR<.636 | reach 80)", lw=1)
+    ax.axhline(50, ls=":", color="grey", lw=0.5)
+    ax.set_xlabel("BAT mOS bin midpoint (months)")
+    ax.set_ylabel("P(success) by family (%)")
+    ax.set_title("Stratified P(success): pick your BAT mOS, read off the answer")
+    ax.set_ylim(0, 105)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=7, loc="lower left")
+
+    # Panel 2: median HR vs BAT (with P5-P95 band) + best-fit overlay
+    ax = axes[1]
+    for label, results in all_results.items():
+        bins = _stratify_by_bat(results, cfg.bat_strat_bin)
+        if not bins:
+            continue
+        x = [b["bat_mid"] for b in bins]
+        y_p50 = [b["median_hr_p50"] for b in bins]
+        y_p05 = [b["median_hr_p05"] for b in bins]
+        y_p95 = [b["median_hr_p95"] for b in bins]
+        ax.plot(x, y_p50, "o-", color=colors.get(label, "#888"),
+                label=f"{label} (posterior P50)", lw=2)
+        ax.fill_between(x, y_p05, y_p95,
+                        color=colors.get(label, "#888"), alpha=0.15)
+        # Best-fit point overlay (yg19-style)
+        bfs = _best_fit_per_bat(results, cfg.bat_strat_bin, t_now=cfg.t_now)
+        if bfs:
+            bx = [bf["bat_mid"] for bf in bfs]
+            by = [bf["combo"].get("median_hr_final", float("nan")) for bf in bfs]
+            ax.plot(bx, by, "x", color=colors.get(label, "#888"),
+                    markersize=8, markeredgewidth=2,
+                    label=f"{label} (best-fit point)")
+    ax.axhline(0.636, ls="--", color="red", lw=1.0, label="HR = 0.636")
+    ax.axhline(1.0, ls=":", color="grey", lw=0.5)
+    ax.set_xlabel("BAT mOS bin midpoint (months)")
+    ax.set_ylabel("Final HR  (P50 line = posterior; X = best-fit point)")
+    ax.set_title("Implied final HR: posterior vs best-fit point estimation")
+    ax.set_ylim(0, 1.2)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=7, loc="upper left", ncol=2)
+
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    pdf.savefig(fig)
+    plt.close(fig)
+
+
 def _add_text_page(pdf, title, lines, fontsize=9):
     """Append a text-only page to the PDF."""
     fig = plt.figure(figsize=(8.5, 11))
@@ -947,193 +1256,6 @@ def _summarize_family(results, family_label):
     return lines
 
 
-# =============================================================================
-# BAT-mOS-stratified analyst's view
-# =============================================================================
-
-def _bat_mos_curves(results, bin_width=1.0, min_bin_weight=0.0):
-    """Compute per-BAT-mOS-bin acceptance-weighted statistics.
-
-    For each bin of BAT mOS, returns:
-      - p_success (mean of P(reach80 AND HR<0.636) across combos)
-      - p_reach   (mean of P(reach 80))
-      - hr_p5/p50/p95 (acceptance-weighted percentiles of median HR_final)
-      - hr_ia_p50 (acceptance-weighted median of median HR_IA)
-      - bin_weight (sum of acceptance_rate in this bin)
-
-    Each combo is weighted by its acceptance_rate; bins with bin_weight
-    less than min_bin_weight return NaN for stability.
-    """
-    if not results:
-        return None
-    bat = np.array([r["bat_med"] for r in results])
-    weights = np.array([r["acceptance_rate"] for r in results])
-    p_success = np.array([r.get("p_success_overall", float("nan"))
-                          for r in results])
-    p_reach = np.array([r["p_reach80"] for r in results])
-    hr_final = np.array([r["median_hr_final"] for r in results])
-    hr_ia = np.array([r["median_hr_ia"] for r in results])
-
-    bat_min, bat_max = float(bat.min()), float(bat.max())
-    bin_centers = np.arange(np.floor(bat_min),
-                            np.ceil(bat_max) + bin_width,
-                            bin_width)
-
-    out = {"bat_centers": bin_centers,
-           "p_success": [], "p_reach": [],
-           "hr_p5": [], "hr_p50": [], "hr_p95": [],
-           "hr_ia_p50": [],
-           "bin_weight": []}
-
-    for c in bin_centers:
-        in_bin = (bat >= c - bin_width / 2) & (bat < c + bin_width / 2)
-        m = in_bin & (weights > 0)
-        if not m.any() or weights[m].sum() <= min_bin_weight:
-            for k in ("p_success", "p_reach", "hr_p5", "hr_p50",
-                      "hr_p95", "hr_ia_p50"):
-                out[k].append(float("nan"))
-            out["bin_weight"].append(0.0)
-            continue
-        w = weights[m]
-        out["bin_weight"].append(float(w.sum()))
-
-        # Acceptance-weighted means
-        ps = p_success[m]
-        pr = p_reach[m]
-        ms = ~np.isnan(ps)
-        out["p_success"].append(float(np.average(ps[ms], weights=w[ms]))
-                                if ms.any() else float("nan"))
-        out["p_reach"].append(float(np.average(pr, weights=w)))
-
-        # Acceptance-weighted percentiles of HR_final and median HR_IA
-        for src, key_p5, key_p50, key_p95 in [
-            (hr_final, "hr_p5", "hr_p50", "hr_p95"),
-        ]:
-            v = src[m]
-            mv = ~np.isnan(v)
-            if not mv.any():
-                out[key_p5].append(float("nan"))
-                out[key_p50].append(float("nan"))
-                out[key_p95].append(float("nan"))
-                continue
-            order = np.argsort(v[mv])
-            cw = np.cumsum(w[mv][order]); cw /= cw[-1]
-            for q, key in [(0.05, key_p5), (0.5, key_p50), (0.95, key_p95)]:
-                idx = min(int(np.searchsorted(cw, q)), len(order) - 1)
-                out[key].append(float(v[mv][order][idx]))
-
-        # HR_IA median (single percentile)
-        v = hr_ia[m]
-        mv = ~np.isnan(v)
-        if mv.any():
-            order = np.argsort(v[mv])
-            cw = np.cumsum(w[mv][order]); cw /= cw[-1]
-            idx = min(int(np.searchsorted(cw, 0.5)), len(order) - 1)
-            out["hr_ia_p50"].append(float(v[mv][order][idx]))
-        else:
-            out["hr_ia_p50"].append(float("nan"))
-
-    for k in out:
-        out[k] = np.array(out[k])
-    return out
-
-
-def _plot_bat_mos_view(pdf, all_results, cfg):
-    """Headline analyst's view: P(success), HR_final, HR_IA, P(reach 80)
-    all stratified by BAT mOS, with one curve per family.  Lets the
-    analyst pick whichever BAT mOS they find clinically plausible and
-    read off the implied trial-success quantities directly."""
-    have = {k: v for k, v in all_results.items() if v}
-    if not have:
-        return
-
-    fig, axes = plt.subplots(2, 2, figsize=(8.5, 10.5))
-    fig.suptitle("Headline view: outcomes as a function of BAT mOS",
-                 fontsize=13, fontweight="bold", y=0.97)
-
-    colors = {"Weibull/Weibull": "#4488cc",
-              "Cure-fraction GPS": "#aa5599",
-              "Leaky-cure GPS": "#cc8844"}
-
-    curves = {label: _bat_mos_curves(results, bin_width=1.0)
-              for label, results in have.items()}
-
-    # ----- Top-left: P(success) vs BAT mOS -----
-    ax = axes[0, 0]
-    for label, c in curves.items():
-        if c is None:
-            continue
-        ax.plot(c["bat_centers"], c["p_success"], "-o", ms=3.5,
-                color=colors.get(label, "#888"), label=label, lw=1.6)
-    ax.set_xlabel("BAT mOS (months)")
-    ax.set_ylabel("P(reach 80 AND HR < 0.636)")
-    ax.set_title("Trial success probability")
-    ax.legend(fontsize=8, loc="best")
-    ax.grid(True, alpha=0.3)
-    ax.set_ylim(-0.02, 1.02)
-    ax.axhline(0.5, ls=":", color="grey", lw=0.5)
-
-    # ----- Top-right: HR_final vs BAT mOS, with P5/P95 band -----
-    ax = axes[0, 1]
-    ax.axhline(cfg.hr_threshold, ls="--", color="red", lw=1,
-               label=f"HR threshold {cfg.hr_threshold}")
-    for label, c in curves.items():
-        if c is None:
-            continue
-        col = colors.get(label, "#888")
-        ax.plot(c["bat_centers"], c["hr_p50"], "-",
-                color=col, label=label, lw=1.6)
-        ax.fill_between(c["bat_centers"], c["hr_p5"], c["hr_p95"],
-                        color=col, alpha=0.15)
-    ax.set_xlabel("BAT mOS (months)")
-    ax.set_ylabel("HR @ 80 events (P5/P50/P95)")
-    ax.set_title("Implied final HR (band = P5..P95)")
-    ax.legend(fontsize=8, loc="best")
-    ax.grid(True, alpha=0.3)
-    ax.set_ylim(0, 1.1)
-
-    # ----- Bottom-left: P(reach 80) vs BAT mOS -----
-    ax = axes[1, 0]
-    for label, c in curves.items():
-        if c is None:
-            continue
-        ax.plot(c["bat_centers"], c["p_reach"], "-o", ms=3.5,
-                color=colors.get(label, "#888"), label=label, lw=1.6)
-    ax.set_xlabel("BAT mOS (months)")
-    ax.set_ylabel("P(reach 80 events)")
-    ax.set_title("Probability the trial reads out at all")
-    ax.legend(fontsize=8, loc="best")
-    ax.grid(True, alpha=0.3)
-    ax.set_ylim(-0.02, 1.02)
-
-    # ----- Bottom-right: posterior weight density across BAT mOS -----
-    ax = axes[1, 1]
-    for label, c in curves.items():
-        if c is None:
-            continue
-        bw = c["bin_weight"]
-        if bw.sum() > 0:
-            ax.bar(c["bat_centers"], bw / bw.sum(),
-                   width=0.9, alpha=0.45, edgecolor="none",
-                   color=colors.get(label, "#888"), label=label)
-    ax.set_xlabel("BAT mOS (months)")
-    ax.set_ylabel("Posterior weight (data-driven)")
-    ax.set_title("Where the constraints place BAT mOS\n(for context only)")
-    ax.legend(fontsize=8, loc="best")
-    ax.grid(True, alpha=0.3)
-
-    cap = ("Top row is the headline.  Pick the BAT mOS you find clinically "
-           "plausible, read off the implied P(success) and HR.\n"
-           "Bottom-left shows readout-completion risk.  Bottom-right shows "
-           "where the constraints alone (no clinical priors) place BAT mOS.")
-    fig.text(0.5, 0.01, cap, ha="center", fontsize=8, style="italic",
-             wrap=True)
-
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    pdf.savefig(fig)
-    plt.close(fig)
-
-
 def _plot_constraints_page(pdf, cfg):
     """Page 1: constraints summary + enrollment plot."""
     fig = plt.figure(figsize=(8.5, 11))
@@ -1143,6 +1265,14 @@ def _plot_constraints_page(pdf, cfg):
     # Top: constraints table
     ax1 = fig.add_axes([0.07, 0.55, 0.86, 0.38])
     ax1.axis("off")
+    eff_status = (f"HR_IA > {cfg.efficacy_hr_min}" if cfg.efficacy_hr_min > 0
+                  else "OFF (sponsor may have continued past OBF)")
+    pool_status = (f"> {cfg.pool_mos_min_at_ia:.0f} months  (public disclosure)"
+                   if cfg.pool_mos_min_at_ia > 0 else "OFF")
+    mfu_status = (f"{cfg.median_fu_target} +/- {cfg.median_fu_tol}m  (public disclosure)"
+                  if cfg.median_fu_target > 0 else "OFF")
+    n80_status = (f"t80 NOT in [{cfg.t_now - cfg.no_80_slack_months:.0f}, {cfg.t_now:.0f}]  (no PR yet)"
+                  if cfg.enforce_no_80_by_today else "OFF")
     table_text = [
         "HARD CONSTRAINTS (from public disclosures)",
         "",
@@ -1153,19 +1283,23 @@ def _plot_constraints_page(pdf, cfg):
         f"  60 events triggered IA at month     :  {cfg.t_ia:.0f}    (~Dec 2024)",
         f"  72 events update at month           :  {cfg.t_upd:.0f}    (~Dec 2025)",
         f"  Final analysis trigger              :  {cfg.n_ev_final} events",
-        f"  80th event NOT YET announced as of  :  m{cfg.current_calendar_month:.0f}",
         "",
-        f"  Median follow-up at IA              :  13.5 months (range 1 to >36)",
-        f"  Pooled (blinded) mOS at IA          :  > {cfg.pool_mos_min_at_ia:.0f} months  (public disclosure)",
-        f"  IDMC verdict at IA                  :  Passed futility AND efficacy gates",
+        f"  Median follow-up at IA              :  {mfu_status}",
+        f"  Pooled (blinded) mOS at IA          :  {pool_status}",
+        f"  80-event status as of t={cfg.t_now:.0f} (May'26):  {n80_status}",
+        f"  IDMC verdict at IA                  :  Passed futility (continued)",
         "",
         f"  HR success threshold (per SAP)      :  {cfg.hr_threshold}",
-        f"  Futility constraint                 :  HR_IA < {cfg.futility_hr_max}",
-        f"  Efficacy lower bound (OBF, info=.75):  HR_IA > {cfg.efficacy_hr_min}",
+        f"  Futility upper bound                :  HR_IA < {cfg.futility_hr_max}",
+        f"  Efficacy lower bound                :  {eff_status}",
         "",
         "ABC TOLERANCES",
         f"  Event count IA  :  +/- {cfg.tol_ia:.0f}",
         f"  Event count Upd :  +/- {cfg.tol_upd:.0f}",
+        "",
+        "STRATIFIED OUTPUT",
+        f"  BAT mOS bin width  :  {cfg.bat_strat_bin}m"
+        + ("" if cfg.bat_strat_bin > 0 else "  (DISABLED)"),
         "",
         "MODEL FAMILIES FIT",
         "  1. Weibull / Weibull             (4 params, fully agnostic)",
@@ -1430,11 +1564,6 @@ def _plot_compare_families(pdf, all_results):
     plt.close(fig)
 
 
-def cfg_today_month():
-    """May 8, 2026 = month ~ 63 since Feb 8, 2021."""
-    return 63.0
-
-
 def month_to_calendar_label(month, fmt="short"):
     """Convert trial month (Feb 2021 = 0) to a calendar label like 'Dec 2025'."""
     import datetime as _dt
@@ -1522,16 +1651,34 @@ def write_report(cfg, all_results, out_path):
     with PdfPages(out_path) as pdf:
         _plot_constraints_page(pdf, cfg)
 
-        # Headline analyst's view: outcomes as a function of BAT mOS,
-        # placed immediately after setup so it's the first thing seen.
-        _plot_bat_mos_view(pdf, all_results, cfg)
-
         # Summary text page
-        lines = ["GLOBAL POSTERIORS  (acceptance-weighted)", ""]
+        lines = ["GLOBAL POSTERIORS  (acceptance-weighted, marginalized over BAT mOS)",
+                 "(See stratified pages for results conditional on each BAT mOS bin.)",
+                 ""]
         for fam_label, results in all_results.items():
             lines.extend(_summarize_family(results, fam_label))
             lines.append("")
         _add_text_page(pdf, "Summary across all families", lines)
+
+        # NEW: stratified-by-BAT pages -- the headline view.
+        if cfg.bat_strat_bin > 0 and sum(len(r) for r in all_results.values()) > 0:
+            _plot_stratified_psuccess(pdf, all_results, cfg)
+            for fam_label, results in all_results.items():
+                bins = _stratify_by_bat(results, cfg.bat_strat_bin)
+                if not bins:
+                    continue
+                lines = _stratified_table_lines(fam_label, bins)
+                _add_text_page(pdf, f"Stratified posterior: {fam_label}",
+                               lines, fontsize=8)
+                # NEW: best-fit point-estimate table (yg19-style)
+                # for direct apples-to-apples comparison.
+                bfs = _best_fit_per_bat(results, cfg.bat_strat_bin,
+                                        t_now=cfg.t_now)
+                if bfs:
+                    bf_lines = _best_fit_table_lines(fam_label, bfs,
+                                                     t_now=cfg.t_now)
+                    _add_text_page(pdf, f"Best-fit point estimate: {fam_label}",
+                                   bf_lines, fontsize=8)
 
         for fam_label, results in all_results.items():
             _plot_family_summary(pdf, results, fam_label)
@@ -1594,10 +1741,27 @@ def main(argv=None):
                         "default 1.0, set 999 to disable")
     p.add_argument("--efficacy-hr-min", type=float, default=None,
                    help="lower HR_IA bound (didn't stop for efficacy); "
-                        "default 0.55 (OBF at info=0.75), set 0 to disable")
+                        "default 0.0 (off, since IDMC may have continued past "
+                        "OBF); set e.g. 0.55 for OBF sensitivity")
     p.add_argument("--pool-mos-min", type=float, default=None,
                    help="floor for pool KM median at IA in months; "
                         "default 12.0, set 0 to disable")
+    p.add_argument("--median-fu-target", type=float, default=None,
+                   help="disclosed median follow-up at IA in months; "
+                        "default 13.5, set 0 to disable this filter")
+    p.add_argument("--median-fu-tol", type=float, default=None,
+                   help="tolerance on median follow-up filter (months); "
+                        "default 2.0")
+    p.add_argument("--no-80-by-today", dest="enforce_no_80_by_today",
+                   action="store_true", default=None,
+                   help="enforce that 80th event has not occurred before today "
+                        "(default ON); use --allow-80-by-today to disable")
+    p.add_argument("--allow-80-by-today", dest="enforce_no_80_by_today",
+                   action="store_false", default=None,
+                   help="disable the no-80-by-today soft constraint")
+    p.add_argument("--bat-strat-bin", type=float, default=None,
+                   help="width of BAT mOS bins for stratified output, in "
+                        "months (default 1.0; set 0 to disable stratified pages)")
     args = p.parse_args(argv)
 
     cfg = Config()
@@ -1612,6 +1776,14 @@ def main(argv=None):
         cfg.efficacy_hr_min = args.efficacy_hr_min
     if args.pool_mos_min is not None:
         cfg.pool_mos_min_at_ia = args.pool_mos_min
+    if args.median_fu_target is not None:
+        cfg.median_fu_target = args.median_fu_target
+    if args.median_fu_tol is not None:
+        cfg.median_fu_tol = args.median_fu_tol
+    if args.enforce_no_80_by_today is not None:
+        cfg.enforce_no_80_by_today = args.enforce_no_80_by_today
+    if args.bat_strat_bin is not None:
+        cfg.bat_strat_bin = args.bat_strat_bin
 
     if args.quick:
         cfg.bat_med_grid = (4.0, 30.01, 1.0)
@@ -1621,7 +1793,7 @@ def main(argv=None):
         cfg.cure_frac_grid = (0.0, 0.91, 0.05)
         cfg.cure_unc_med_grid = (4.0, 30.01, 1.0)
         cfg.cure_unc_shape_grid = (0.6, 1.81, 0.30)
-        cfg.leak_grid = (0.0, 0.101, 0.025)
+        cfg.leak_grid = (0.0, 0.101, 0.01)
         cfg.n_sims_per_combo = 800
         print("*** QUICK MODE ***")
 
@@ -1636,20 +1808,37 @@ def main(argv=None):
     print(f"    {cfg.n_ev_ia} events @ m{cfg.t_ia:.0f}, "
           f"{cfg.n_ev_upd} events @ m{cfg.t_upd:.0f}, "
           f"final @ {cfg.n_ev_final} events")
-    print(f"    HR_IA gate: {cfg.efficacy_hr_min} < HR_IA < {cfg.futility_hr_max}")
-    print(f"    pool mOS at IA > {cfg.pool_mos_min_at_ia} months")
-    print(f"    80th event not yet observed (today = m{cfg.current_calendar_month})")
+    print(f"    Futility upper bound: HR_IA < {cfg.futility_hr_max}")
+    if cfg.efficacy_hr_min > 0:
+        print(f"    Efficacy lower bound: HR_IA > {cfg.efficacy_hr_min}  (ON)")
+    else:
+        print(f"    Efficacy lower bound: OFF (sponsor may have continued past OBF)")
+    if cfg.pool_mos_min_at_ia > 0:
+        print(f"    Pool-mOS floor: pool KM median > {cfg.pool_mos_min_at_ia}m at IA  (ON)")
+    else:
+        print(f"    Pool-mOS floor: OFF")
+    if cfg.median_fu_target > 0:
+        print(f"    Median follow-up @ IA: {cfg.median_fu_target} +/- {cfg.median_fu_tol}m  (ON)")
+    else:
+        print(f"    Median follow-up filter: OFF")
+    if cfg.enforce_no_80_by_today:
+        print(f"    No-80-by-today: t80 not in [t_now-{cfg.no_80_slack_months}, t_now={cfg.t_now}]  (ON)")
+    else:
+        print(f"    No-80-by-today: OFF")
+    if cfg.bat_strat_bin > 0:
+        print(f"    Stratified output: BAT mOS bins of {cfg.bat_strat_bin}m  (ON)")
 
     out_path = Path(cfg.out_dir) / cfg.out_pdf
     base = out_path.with_suffix("")
 
-    # Constraint signature: any change in the IDMC gates, pool-mOS floor,
-    # or current_calendar_month should INVALIDATE old checkpoints, otherwise
-    # --resume silently loads results computed under different constraints.
+    # Constraint signature: any change in the IDMC gates or pool-mOS floor
+    # should INVALIDATE old checkpoints, otherwise --resume silently loads
+    # results computed under different constraints.
     ckpt_tag = (f"_eff{cfg.efficacy_hr_min:g}"
                 f"_fut{cfg.futility_hr_max:g}"
                 f"_pool{cfg.pool_mos_min_at_ia:g}"
-                f"_t{cfg.current_calendar_month:g}")
+                f"_mfu{cfg.median_fu_target:g}"
+                f"_n80{int(bool(cfg.enforce_no_80_by_today))}")
 
     def _checkpoint_family(label, results):
         """Dump per-family results to disk so a Ctrl-C doesn't lose progress."""
