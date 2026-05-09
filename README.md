@@ -2,7 +2,7 @@
 
 A constraint-based ABC (Approximate Bayesian Computation) model that estimates the probability of trial success in the REGAL Phase 3 trial of galinpepimut-S (GPS) in AML CR2 maintenance, using only publicly disclosed information.
 
-This is an independent rebuild inspired by [CW/yg19's published analysis](https://x.com/IH_Cap/status/1968712117552435578). To my knowledge his source code isn't public; this is what I came up with from scratch trying to replicate his approach. **I am not affiliated with him, SELLAS, or any related party. I am long SLS shares, which is why I built this. Treat as an analytical exercise, not financial advice.**
+This is an independent rebuild inspired by [CW/yg19's published analysis]. To my knowledge his source code isn't public; this is what I came up with from scratch trying to replicate his approach. **I am not affiliated with him, SELLAS, or any related party. I am long SLS shares, which is why I built this. Treat as an analytical exercise, not financial advice.**
 
 ## What it does
 
