@@ -57,8 +57,11 @@ APPROACH:
     For accepted (params_B, params_G) combos, simulate full trials
     including stochastic enrollment-arm assignment.  Each simulation
     must satisfy:
-      - 60 +/- tol_ia events at calendar t_ia
-      - 72 +/- tol_upd events at calendar t_upd
+      - 60 +/- tol_ia events at calendar t_ia (Dec 2024)
+      - 72 +/- tol_upd events at calendar t_upd (Dec 2025)
+      - 78 +/- tol_pr3 events at calendar t_pr3 (May 11 2026) [optional]
+      - Observed increments: 12 events (m46->m58), 6 events (m58->m63)
+        bounded by tol_increment_*
       - efficacy_hr_min < HR_IA < futility_hr_max  (default: 0 < HR_IA < 1)
       - pool KM(T_floor) > 0.5  (sample pool median > T_floor)
     For passing sims we record HR at 80 events, calendar timing of
@@ -124,9 +127,14 @@ class Config:
     # Calendar months from first enrollment (t=0 = Feb 8, 2021)
     t_ia: float = 46.0           # ~Dec 2024  -> 60 events
     t_upd: float = 58.0          # ~Dec 2025  -> 72 events
+    t_pr3: float = 62.97         # May 11 2026 -> 78 events (PR May 12 2026)
     n_ev_ia: int = 60
     n_ev_upd: int = 72
+    n_ev_pr3: int = 78
     n_ev_final: int = 80
+
+    # Toggle the third anchor on/off. Default ON since the PR is public.
+    use_pr3_anchor: bool = True
 
     # ABC tolerances on event counts (count units).
     # Use the analytical pre-filter to reject combos whose *expected* event
@@ -134,13 +142,25 @@ class Config:
     # the wider `tol_*` because individual sims have ~5 SD of binomial noise.
     prefilter_tol_ia: float = 1.5
     prefilter_tol_upd: float = 1.5
+    prefilter_tol_pr3: float = 1.5
     tol_ia: float = 4.0
     tol_upd: float = 4.0
+    tol_pr3: float = 2.0   # tighter -- only 2 events from terminal anchor
+
+    # Increment-tolerance constraints. Addresses the concern (raised by
+    # neo2551 on Reddit) that independent +/-tol on each anchor allows
+    # implausible implied increments. The OBSERVED increments are exactly:
+    #   m46 -> m58 : 12 events
+    #   m58 -> m63 : 6 events  (only if use_pr3_anchor=True)
+    # We require the modeled increments to fall within tol_increment of
+    # the observed values.  Set to a large number to disable.
+    tol_increment_ia_upd: float = 3.0   # |events between m46 and m58 - 12| <= 3
+    tol_increment_upd_pr3: float = 2.0  # |events between m58 and m63 - 6|  <= 2
 
     # ----- IDMC futility (LOOSE) -----
     # IDMC said GPS exceeded futility criteria.  We interpret this loosely
     # as HR_IA < 1.0 (any direction of benefit).  Set to 999 to disable.
-    futility_hr_max: float = 0.9
+    futility_hr_max: float = 0.83
 
     # ----- IDMC efficacy lower bound (NEW, OFF BY DEFAULT) -----
     # The trial *did not* stop early for efficacy at the IA.  If the SAP
@@ -356,7 +376,9 @@ def abc_prefilter_weibull(cfg):
         - exp_total_t1, exp_total_t2 (expected total events at t_ia, t_upd)
     """
     e_pts, e_weights = expected_enrollment_times(cfg)
-    t_pts = np.array([cfg.t_ia, cfg.t_upd], dtype=np.float64)
+    t_pts = (np.array([cfg.t_ia, cfg.t_upd, cfg.t_pr3], dtype=np.float64)
+             if cfg.use_pr3_anchor
+             else np.array([cfg.t_ia, cfg.t_upd], dtype=np.float64))
 
     # BAT grid
     bat_meds = np.arange(*cfg.bat_med_grid)
@@ -409,7 +431,9 @@ def abc_prefilter_weibull(cfg):
 def abc_prefilter_cure(cfg):
     """Stage-1 prefilter for Weibull-BAT + cure-fraction GPS family."""
     e_pts, e_weights = expected_enrollment_times(cfg)
-    t_pts = np.array([cfg.t_ia, cfg.t_upd], dtype=np.float64)
+    t_pts = (np.array([cfg.t_ia, cfg.t_upd, cfg.t_pr3], dtype=np.float64)
+             if cfg.use_pr3_anchor
+             else np.array([cfg.t_ia, cfg.t_upd], dtype=np.float64))
 
     bat_meds = np.arange(*cfg.bat_med_grid)
     bat_shapes = np.arange(*cfg.bat_shape_grid)
@@ -457,7 +481,9 @@ def abc_prefilter_cure(cfg):
 def abc_prefilter_leaky(cfg):
     """Stage-1 prefilter for Weibull-BAT + leaky-cure GPS family."""
     e_pts, e_weights = expected_enrollment_times(cfg)
-    t_pts = np.array([cfg.t_ia, cfg.t_upd], dtype=np.float64)
+    t_pts = (np.array([cfg.t_ia, cfg.t_upd, cfg.t_pr3], dtype=np.float64)
+             if cfg.use_pr3_anchor
+             else np.array([cfg.t_ia, cfg.t_upd], dtype=np.float64))
 
     bat_meds = np.arange(*cfg.bat_med_grid)
     bat_shapes = np.arange(*cfg.bat_shape_grid)
@@ -514,26 +540,52 @@ def _cross_filter(cfg, bat_ev, gps_ev, bat_params, gps_params, family,
     NEW: also applies a population-true pool-mOS pre-filter when
     bat_S_T and gps_S_T are provided.  Pool true median >= T iff
     0.5 * S_BAT(T) + 0.5 * S_GPS(T) >= 0.5  iff  S_BAT(T) + S_GPS(T) >= 1.
+
+    NEW: if cfg.use_pr3_anchor, also requires expected events at t_pr3
+    within +/- prefilter_tol_pr3 of n_ev_pr3, AND requires implied
+    increments to be within tol_increment_*.
     """
-    # bat_ev: (Gb, 2)   gps_ev: (Gg, 2)
-    # Total at t_ia: Gb x Gg
-    Gb, _ = bat_ev.shape
+    # bat_ev: (Gb, K)   gps_ev: (Gg, K)   K = 2 or 3 depending on pr3 anchor
+    Gb, K = bat_ev.shape
     Gg, _ = gps_ev.shape
 
     apply_pool_mos = (bat_S_T is not None and gps_S_T is not None
                       and cfg.pool_mos_min_at_ia > 0)
+    apply_pr3 = cfg.use_pr3_anchor and (K >= 3)
 
     # Compute totals in chunks to control memory
     accepted = []
     n_drop_pool = 0
+    n_drop_pr3 = 0
+    n_drop_increment = 0
     chunk = 2048
     for s in range(0, Gb, chunk):
         e = min(s + chunk, Gb)
-        # (chunk, Gg, 2) totals
+        # (chunk, Gg, K) totals
         tot = bat_ev[s:e, None, :] + gps_ev[None, :, :]
         d_ia = np.abs(tot[..., 0] - cfg.n_ev_ia)
         d_up = np.abs(tot[..., 1] - cfg.n_ev_upd)
         mask = (d_ia <= cfg.prefilter_tol_ia) & (d_up <= cfg.prefilter_tol_upd)
+
+        # Increment tolerance: m46 -> m58 expected difference vs observed (12)
+        inc_ia_up = tot[..., 1] - tot[..., 0]
+        d_inc_ia_up = np.abs(inc_ia_up - (cfg.n_ev_upd - cfg.n_ev_ia))
+        mask_inc = d_inc_ia_up <= cfg.tol_increment_ia_upd
+        n_drop_increment += int((mask & ~mask_inc).sum())
+        mask = mask & mask_inc
+
+        if apply_pr3:
+            d_pr3 = np.abs(tot[..., 2] - cfg.n_ev_pr3)
+            mask_pr3 = d_pr3 <= cfg.prefilter_tol_pr3
+            n_drop_pr3 += int((mask & ~mask_pr3).sum())
+            mask = mask & mask_pr3
+
+            # Increment tolerance: m58 -> m63 expected difference vs observed (6)
+            inc_up_pr3 = tot[..., 2] - tot[..., 1]
+            d_inc_up_pr3 = np.abs(inc_up_pr3 - (cfg.n_ev_pr3 - cfg.n_ev_upd))
+            mask_inc2 = d_inc_up_pr3 <= cfg.tol_increment_upd_pr3
+            n_drop_increment += int((mask & ~mask_inc2).sum())
+            mask = mask & mask_inc2
 
         if apply_pool_mos:
             # S_pool(T) >= 0.5 iff S_BAT(T) + S_GPS(T) >= 1
@@ -549,6 +601,8 @@ def _cross_filter(cfg, bat_ev, gps_ev, bat_params, gps_params, family,
                 rec = {"family": family,
                        "exp_ev_ia": float(tot[ib - s, ig, 0]),
                        "exp_ev_upd": float(tot[ib - s, ig, 1])}
+                if apply_pr3:
+                    rec["exp_ev_pr3"] = float(tot[ib - s, ig, 2])
                 for k, v in bat_params.items():
                     rec[k] = float(v[ib])
                 for k, v in gps_params.items():
@@ -557,6 +611,11 @@ def _cross_filter(cfg, bat_ev, gps_ev, bat_params, gps_params, family,
     if apply_pool_mos and n_drop_pool > 0:
         print(f"  pool-mOS prefilter (S_BAT+S_GPS at T={cfg.pool_mos_min_at_ia:g} >= 1) "
               f"dropped {n_drop_pool:,} combos")
+    if apply_pr3 and n_drop_pr3 > 0:
+        print(f"  pr3 anchor prefilter ({cfg.n_ev_pr3} +/- {cfg.prefilter_tol_pr3:g} "
+              f"at m{cfg.t_pr3:.2f}) dropped {n_drop_pr3:,} combos")
+    if n_drop_increment > 0:
+        print(f"  increment-tolerance prefilter dropped {n_drop_increment:,} combos")
     return accepted
 
 
@@ -705,6 +764,24 @@ def _run_sim_chunk(rec, cfg, n_sims, rng):
 
     keep = (np.abs(n_ia - cfg.n_ev_ia) <= cfg.tol_ia) & \
            (np.abs(n_up - cfg.n_ev_upd) <= cfg.tol_upd)
+
+    # NEW: increment tolerance between m46 and m58
+    keep = keep & (np.abs((n_up - n_ia) - (cfg.n_ev_upd - cfg.n_ev_ia))
+                   <= cfg.tol_increment_ia_upd)
+
+    # NEW: third anchor at t_pr3 (78 events at May 11 2026)
+    if cfg.use_pr3_anchor:
+        fu_pr3 = np.maximum(cfg.t_pr3 - enroll, 0.0)
+        ev_pr3 = surv <= fu_pr3
+        n_pr3 = ev_pr3.sum(axis=1)
+        keep = keep & (np.abs(n_pr3 - cfg.n_ev_pr3) <= cfg.tol_pr3)
+        # Increment tolerance between m58 and m63
+        keep = keep & (np.abs((n_pr3 - n_up) - (cfg.n_ev_pr3 - cfg.n_ev_upd))
+                       <= cfg.tol_increment_upd_pr3)
+    else:
+        fu_pr3 = None
+        n_pr3 = None
+
     n_pass_events = int(keep.sum())
     if n_pass_events == 0:
         return [], 0
@@ -766,7 +843,7 @@ def _run_sim_chunk(rec, cfg, n_sims, rng):
         bat_alive_up = int(((s_i > fu_up_i) & (a_i == 0)).sum())
         gps_alive_up = int((((s_i > fu_up_i) | np.isinf(s_i)) & (a_i == 1)).sum())
 
-        accepted_stats.append({
+        stats_dict = {
             "n_ev_ia": int(n_ia[i]),
             "n_ev_upd": int(n_up[i]),
             "z_ia": z_ia, "hr_ia": hr_ia,
@@ -775,7 +852,10 @@ def _run_sim_chunk(rec, cfg, n_sims, rng):
             "hr_final": hr_fin, "z_final": z_fin,
             "bat_alive_upd": bat_alive_up,
             "gps_alive_upd": gps_alive_up,
-        })
+        }
+        if cfg.use_pr3_anchor and n_pr3 is not None:
+            stats_dict["n_ev_pr3"] = int(n_pr3[i])
+        accepted_stats.append(stats_dict)
 
     return accepted_stats, n_pass_events
 
@@ -1296,6 +1376,11 @@ def _plot_constraints_page(pdf, cfg):
         "ABC TOLERANCES",
         f"  Event count IA  :  +/- {cfg.tol_ia:.0f}",
         f"  Event count Upd :  +/- {cfg.tol_upd:.0f}",
+        (f"  Event count PR3 :  +/- {cfg.tol_pr3:.0f}  ({cfg.n_ev_pr3} events at m{cfg.t_pr3:.2f})"
+         if cfg.use_pr3_anchor else "  PR3 anchor (78 events @ m62.97) :  DISABLED"),
+        f"  Increment IA->Upd  :  +/- {cfg.tol_increment_ia_upd:.0f}  (observed: 12)",
+        (f"  Increment Upd->PR3 :  +/- {cfg.tol_increment_upd_pr3:.0f}  (observed: 6)"
+         if cfg.use_pr3_anchor else ""),
         "",
         "STRATIFIED OUTPUT",
         f"  BAT mOS bin width  :  {cfg.bat_strat_bin}m"
@@ -1326,7 +1411,10 @@ def _plot_constraints_page(pdf, cfg):
     ax2.set_title("Enrollment pattern (from PR data, hard constraint)")
     ax2.axvline(cfg.t_ia, ls="--", color="red", label=f"IA: 60 events @ m{cfg.t_ia:.0f}")
     ax2.axvline(cfg.t_upd, ls="--", color="orange", label=f"Upd: 72 events @ m{cfg.t_upd:.0f}")
-    ax2.set_xlim(-2, 70)
+    if cfg.use_pr3_anchor:
+        ax2.axvline(cfg.t_pr3, ls="--", color="green",
+                    label=f"PR3: {cfg.n_ev_pr3} events @ m{cfg.t_pr3:.2f}")
+    ax2.set_xlim(-2, 75)
     ax2.legend()
     ax2.grid(True, alpha=0.3)
 
@@ -1762,6 +1850,18 @@ def main(argv=None):
     p.add_argument("--bat-strat-bin", type=float, default=None,
                    help="width of BAT mOS bins for stratified output, in "
                         "months (default 1.0; set 0 to disable stratified pages)")
+    p.add_argument("--no-pr3", dest="use_pr3_anchor",
+                   action="store_false", default=None,
+                   help="disable the May 2026 PR3 anchor (78 events at m62.97). "
+                        "Default ON; use to reproduce pre-PR3 results.")
+    p.add_argument("--tol-pr3", type=float, default=None,
+                   help="tolerance on 78-event anchor count (default 2.0)")
+    p.add_argument("--tol-increment-ia-upd", type=float, default=None,
+                   help="tolerance on m46->m58 event increment vs observed 12 "
+                        "(default 3.0)")
+    p.add_argument("--tol-increment-upd-pr3", type=float, default=None,
+                   help="tolerance on m58->m63 event increment vs observed 6 "
+                        "(default 2.0)")
     args = p.parse_args(argv)
 
     cfg = Config()
@@ -1784,6 +1884,14 @@ def main(argv=None):
         cfg.enforce_no_80_by_today = args.enforce_no_80_by_today
     if args.bat_strat_bin is not None:
         cfg.bat_strat_bin = args.bat_strat_bin
+    if args.use_pr3_anchor is not None:
+        cfg.use_pr3_anchor = args.use_pr3_anchor
+    if args.tol_pr3 is not None:
+        cfg.tol_pr3 = args.tol_pr3
+    if args.tol_increment_ia_upd is not None:
+        cfg.tol_increment_ia_upd = args.tol_increment_ia_upd
+    if args.tol_increment_upd_pr3 is not None:
+        cfg.tol_increment_upd_pr3 = args.tol_increment_upd_pr3
 
     if args.quick:
         cfg.bat_med_grid = (4.0, 30.01, 1.0)
@@ -1805,9 +1913,18 @@ def main(argv=None):
     print(f"  Families: {args.families}")
     print(f"  Output:  {cfg.out_pdf}")
     print(f"  Constraints:")
-    print(f"    {cfg.n_ev_ia} events @ m{cfg.t_ia:.0f}, "
-          f"{cfg.n_ev_upd} events @ m{cfg.t_upd:.0f}, "
-          f"final @ {cfg.n_ev_final} events")
+    if cfg.use_pr3_anchor:
+        print(f"    {cfg.n_ev_ia} events @ m{cfg.t_ia:.0f}, "
+              f"{cfg.n_ev_upd} events @ m{cfg.t_upd:.0f}, "
+              f"{cfg.n_ev_pr3} events @ m{cfg.t_pr3:.2f}, "
+              f"final @ {cfg.n_ev_final} events")
+        print(f"    Increment tolerances: m46->m58 +/-{cfg.tol_increment_ia_upd:.0f}, "
+              f"m58->m63 +/-{cfg.tol_increment_upd_pr3:.0f}")
+    else:
+        print(f"    {cfg.n_ev_ia} events @ m{cfg.t_ia:.0f}, "
+              f"{cfg.n_ev_upd} events @ m{cfg.t_upd:.0f}, "
+              f"final @ {cfg.n_ev_final} events")
+        print(f"    PR3 anchor (78 events @ m62.97): DISABLED")
     print(f"    Futility upper bound: HR_IA < {cfg.futility_hr_max}")
     if cfg.efficacy_hr_min > 0:
         print(f"    Efficacy lower bound: HR_IA > {cfg.efficacy_hr_min}  (ON)")
@@ -1838,7 +1955,11 @@ def main(argv=None):
                 f"_fut{cfg.futility_hr_max:g}"
                 f"_pool{cfg.pool_mos_min_at_ia:g}"
                 f"_mfu{cfg.median_fu_target:g}"
-                f"_n80{int(bool(cfg.enforce_no_80_by_today))}")
+                f"_n80{int(bool(cfg.enforce_no_80_by_today))}"
+                f"_pr3{int(bool(cfg.use_pr3_anchor))}"
+                f"{cfg.n_ev_pr3 if cfg.use_pr3_anchor else 0}"
+                f"_inc{cfg.tol_increment_ia_upd:g}"
+                f"-{cfg.tol_increment_upd_pr3:g}")
 
     def _checkpoint_family(label, results):
         """Dump per-family results to disk so a Ctrl-C doesn't lose progress."""
