@@ -150,3 +150,5 @@ Inspired by CW/yg19's published REGAL analysis. Constraints, anchors, and genera
 ## License
 
 MIT.
+# clojure_base_template
+My own default clojure template in order to built new stuff.
