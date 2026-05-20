@@ -3,7 +3,7 @@
  {:app {:target :browser
         :output-dir "public/js"
         :asset-path "/js"
-        :modules {:main {:entries [example.core] :init-fn example.core/main}}}
+        :modules {:main {:entries [app.core] :init-fn app.core/init}}}
   :test {:target :browser-test
          :test-dir "out/test"
          :ns-regexp "-test$"}}}

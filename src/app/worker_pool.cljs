@@ -6,6 +6,8 @@
 (def job-callbacks (atom {}))
 (def job-counter (atom 0))
 
+(declare process-queue!)
+
 (defn create-worker! []
   (let [worker (js/Worker. "/pyodide_worker.js")]
     (set! (.-onmessage worker)

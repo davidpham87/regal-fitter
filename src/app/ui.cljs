@@ -123,8 +123,3 @@
        :config-json [config-json]
        :results [results-view])]))
 
-(defn ^:export init []
-  (js/console.log "App init")
-  (wp/init-pool! nil)
-  (pyo/init!)
-  (rdom/render [main-view] (js/document.getElementById "app")))
