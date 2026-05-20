@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, master ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   clojure-test:
     runs-on: ubuntu-latest
@@ -68,4 +71,4 @@ jobs:
     - name: Install npm dependencies
       run: npm ci
     - name: Compile shadow-cljs app
-      run: clojure -M:shadow-cljs compile app
+      run: clojure -M:cljs:shadow-cljs compile app
