@@ -17,3 +17,5 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .cpcache/
+public/js
+out/
