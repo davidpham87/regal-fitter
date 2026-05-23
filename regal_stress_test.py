@@ -27,6 +27,7 @@ Output:
 import numpy as np
 import json
 import os
+import gzip
 import argparse
 import sys
 from concurrent.futures import ProcessPoolExecutor
@@ -209,6 +210,11 @@ def main():
     # Save summary of best-fit k parameters
     with open("public/sims/summary.json", "w") as f:
         json.dump(summary, f, indent=2)
+
+    # Save all results concatenated and gzipped
+    all_results_path = "public/sims/all_results.json.gz"
+    with gzip.open(all_results_path, "wt", encoding="utf-8") as f:
+        json.dump(results, f)
 
     print(f"\nDone. Results saved in public/sims/")
     print(f"{'mOS':>5} | {'Best k':>6} | {'p_joint':>8} | {'E[IA]':>6} | {'E[Upd]':>6} | {'E[PR3]':>6}")
