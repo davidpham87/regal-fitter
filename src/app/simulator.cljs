@@ -1,4 +1,4 @@
-(ns app.pyodide
+(ns app.simulator
   (:require [app.state :as state]
             [app.worker-pool :as wp]
             [app.regal-fit :as regal-fit]

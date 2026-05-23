@@ -1,4 +1,4 @@
-(ns numpy-ts.core
+(ns cljs.numpy
   (:require ["numpy-ts" :as np-ts]
             ["numpy-ts/core" :as np-core]))
 

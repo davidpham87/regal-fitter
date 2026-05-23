@@ -1,6 +1,7 @@
 (ns app.state
   (:require [reagent.core :as r]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [malli.core :as m]))
 
 ;; --- Default Config ---
 (def default-config
@@ -65,6 +66,66 @@
 
    :families ["weibull" "cure" "leaky"]
    })
+
+(def config-schema
+  [:map
+   [:n_total :int]
+   [:n_per_arm :int]
+   [:enroll_bands [:vector [:vector :number]]]
+   [:t_ia :number]
+   [:t_upd :number]
+   [:t_pr3 :number]
+   [:n_ev_ia :int]
+   [:n_ev_upd :int]
+   [:n_ev_pr3 :int]
+   [:n_ev_final :int]
+   [:use_pr3_anchor :boolean]
+
+   [:prefilter_tol_ia :number]
+   [:prefilter_tol_upd :number]
+   [:prefilter_tol_pr3 :number]
+   [:tol_ia :number]
+   [:tol_upd :number]
+   [:tol_pr3 :number]
+
+   [:tol_increment_ia_upd :number]
+   [:tol_increment_upd_pr3 :number]
+
+   [:futility_hr_max :number]
+   [:efficacy_hr_min :number]
+
+   [:pool_mos_min_at_ia :number]
+   [:median_fu_target :number]
+   [:median_fu_tol :number]
+
+   [:enforce_no_80_by_today :boolean]
+   [:no_80_slack_months :number]
+   [:bat_strat_bin :number]
+
+   [:hr_threshold :number]
+
+   [:n_sims_per_combo :int]
+   [:n_sims_screen :int]
+   [:n_screen_min_pass :int]
+   [:seed :int]
+
+   [:bat_med_grid [:vector :number]]
+   [:bat_shape_grid [:vector :number]]
+   [:gps_med_grid_lo :number]
+   [:gps_med_grid_hi :number]
+   [:gps_med_grid_n :int]
+   [:gps_shape_grid [:vector :number]]
+
+   [:cure_frac_grid [:vector :number]]
+   [:cure_unc_med_grid [:vector :number]]
+   [:cure_unc_shape_grid [:vector :number]]
+
+   [:leaky_cure_frac_grid [:vector :number]]
+   [:leaky_unc_med_grid [:vector :number]]
+   [:leaky_unc_shape_grid [:vector :number]]
+   [:leak_grid [:vector :number]]
+
+   [:families [:vector :string]]])
 
 ;; --- State atom ---
 (defonce app-state

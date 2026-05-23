@@ -13,4 +13,7 @@
                               :web-worker true}}}
   :test {:target :browser-test
          :test-dir "out/test"
-         :ns-regexp "-test$"}}}
+         :ns-regexp "-test$"}
+  :test-node {:target :node-test
+              :output-to "out/test-node.js"
+              :ns-regexp "-test$"}}}

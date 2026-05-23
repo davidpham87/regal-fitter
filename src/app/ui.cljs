@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [reagent.dom :as rdom]
             [app.state :as state]
-            [app.pyodide :as pyo]
+            [app.simulator :as sim]
             [app.worker-pool :as wp]
             [app.vega :as vega]
             [clojure.string :as str]
@@ -54,7 +54,7 @@
       ]
 
      [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
-      {:on-click #(pyo/start-simulation!)}
+      {:on-click #(sim/start-simulation!)}
       "Run Simulation"]]))
 
 ;; Config JSON View
@@ -76,7 +76,7 @@
                           (state/update-config! parsed))
                         (catch js/Error _)))}]]
        [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
-        {:on-click #(pyo/start-simulation!)}
+        {:on-click #(sim/start-simulation!)}
         "Run Simulation"]])))
 
 ;; Results View (Vega-Lite charts)
