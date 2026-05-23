@@ -1,6 +1,6 @@
 (ns app.regal-fit
-  (:require [numpy-ts.core :as np]
-            [numpy-ts.random :as np-random]
+  (:require [cljs.numpy :as np]
+            [cljs.numpy-random :as np-random]
             [app.state :as state]))
 
 (defn weibull-S [t scale shape]
