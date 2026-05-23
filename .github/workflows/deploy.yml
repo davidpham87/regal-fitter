@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - gh-pages
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+
+    - name: Prepare java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    - name: Install clojure tools
+      uses: DeLaGuardo/setup-clojure@13.6.0
+      with:
+        cli: 'latest'
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Cache deps.edn, .shadow-cljs and node modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          .shadow-cljs
+          ~/.m2/repository
+          ~/.gitlibs
+          ~/.deps.clj
+          .cpcache
+          node_modules
+        key: ${{ runner.os }}-shadow-cljs-${{ hashFiles('deps.edn', 'package-lock.json')}}
+        restore-keys: |
+          ${{ runner.os }}-shadow-cljs-
+
+    - name: Install npm dependencies
+      run: npm ci
+
+    - name: Build app
+      run: clojure -M:cljs:shadow-cljs release app
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public
