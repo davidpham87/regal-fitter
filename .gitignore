@@ -18,4 +18,5 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 public/js
+public/sims/
 out/
