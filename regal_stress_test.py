@@ -10,11 +10,11 @@ Inspired by regal_fit.py
 
 Parameters:
 - Grid search mOS: 11 to 20 months, increment 0.5
-- Shape k: 0.5 to 2.5, increment 0.1
+- Shape k: 0.8, 0.9, 1.0
 - Trials: 100,000 simulations per combination
 
 Information being seen:
-1. Passed IA: HR_IA < 0.83 and pooled median OS at IA > 12 months.
+1. Passed IA: HR_IA < 1.0 and pooled median OS at IA > 12 months.
 2. Count of deaths at IA (month 46): <= 60 events.
 3. Deceleration of event rate at Dec 2025 (m46->m58): <= 12 events.
 4. Return to the mean by May 2026 (m58->m63): <= 6 events.
@@ -31,15 +31,39 @@ import argparse
 import sys
 from concurrent.futures import ProcessPoolExecutor
 
+def get_s_curve_enrollment_bands(n_total, total_months, median_month, k=0.3):
+    """
+    Generate monthly enrollment bands following an S-curve (logistic).
+    Returns list of (lo, hi, n).
+    """
+    def logistic(t):
+        return 1.0 / (1.0 + np.exp(-k * (t - median_month)))
+
+    t = np.arange(total_months + 1)
+    c = logistic(t)
+    # Normalize to [0, n_total]
+    c = (c - c[0]) / (c[-1] - c[0]) * n_total
+
+    # Monthly increments
+    n_monthly = np.diff(c)
+
+    # Ensure they sum to n_total exactly due to rounding
+    n_int = np.round(n_monthly).astype(int)
+    diff = n_total - n_int.sum()
+    if diff != 0:
+        # Adjust the largest month or last month
+        n_int[-1] += diff
+
+    bands = []
+    for i in range(len(n_int)):
+        if n_int[i] > 0:
+            bands.append((float(i), float(i+1), int(n_int[i])))
+    return bands
+
 # --- Configuration (from regal_fit.py) ---
 N_TOTAL = 126
 N_PER_ARM = 63
-ENROLL_BANDS = [
-    (0.0, 12.0, 15),
-    (12.0, 24.0, 50),
-    (24.0, 36.0, 56),
-    (36.0, 38.0, 5),
-]
+ENROLL_BANDS = get_s_curve_enrollment_bands(N_TOTAL, 38.0, 31.0)
 T_IA = 46.0      # month 46 (~Dec 2024)
 T_UPD = 58.0     # month 58 (~Dec 2025)
 T_PR3 = 62.97    # month 63 (~May 2026)
@@ -48,7 +72,7 @@ T_PR3 = 62.97    # month 63 (~May 2026)
 OBS_EV_IA = 60
 OBS_INC_UPD = 12
 OBS_INC_PR3 = 6
-FUTILITY_HR_MAX = 0.83
+FUTILITY_HR_MAX = 1.0
 POOL_MOS_MIN = 12.0
 
 def weibull_scale_from_median(median, shape):
@@ -167,11 +191,11 @@ def main():
 
     if args.quick:
         mos_grid = np.arange(11.0, 20.1, 2.0)
-        k_grid = np.arange(0.5, 2.51, 0.5)
+        k_grid = np.array([0.8, 0.9, 1.0])
         n_sims = 1000
     else:
         mos_grid = np.arange(11.0, 20.1, 0.5)
-        k_grid = np.arange(0.5, 2.51, 0.1)
+        k_grid = np.array([0.8, 0.9, 1.0])
         n_sims = args.sims
 
     print(f"Starting Stress Test: {len(mos_grid) * len(k_grid)} combinations")
