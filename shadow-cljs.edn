@@ -3,7 +3,14 @@
  {:app {:target :browser
         :output-dir "public/js"
         :asset-path "/js"
+        :js-options {:resolve {"node:fs" false "node:fs/promises" false}}
         :modules {:main {:entries [app.core] :init-fn app.core/init}}}
+  :worker {:target :browser
+           :output-dir "public/js"
+           :asset-path "/js"
+           :js-options {:resolve {"node:fs" false "node:fs/promises" false}}
+           :modules {:worker {:entries [app.worker]
+                              :web-worker true}}}
   :test {:target :browser-test
          :test-dir "out/test"
          :ns-regexp "-test$"}}}
