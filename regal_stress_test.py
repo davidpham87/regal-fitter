@@ -27,7 +27,6 @@ Output:
 import numpy as np
 import json
 import os
-import gzip
 import argparse
 import sys
 from concurrent.futures import ProcessPoolExecutor
@@ -198,11 +197,6 @@ def main():
 
     summary = []
     for m in sorted(by_mos.keys()):
-        # Save per-mOS detailed results
-        filename = f"public/sims/mos_{m:.1f}.json"
-        with open(filename, "w") as f:
-            json.dump(by_mos[m], f, indent=2)
-
         # Find best-fit k for this mOS
         best = min(by_mos[m], key=lambda x: x["residual"])
         summary.append(best)
@@ -211,9 +205,9 @@ def main():
     with open("public/sims/summary.json", "w") as f:
         json.dump(summary, f, indent=2)
 
-    # Save all results concatenated and gzipped
-    all_results_path = "public/sims/all_results.json.gz"
-    with gzip.open(all_results_path, "wt", encoding="utf-8") as f:
+    # Save all results concatenated
+    all_results_path = "public/sims/all_results.json"
+    with open(all_results_path, "w") as f:
         json.dump(results, f)
 
     print(f"\nDone. Results saved in public/sims/")
