@@ -1,7 +1,7 @@
 (ns app.simulator
   (:require [app.state :as state]
             [app.worker-pool :as wp]
-            [app.regal-fit :as regal-fit]
+            [app.regal-fit.prefilter :as prefilter]
             [cljs.core.async :refer [go <! >! timeout chan]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 
@@ -14,9 +14,9 @@
 (defn run-stage1! [family cfg]
   (try
     (cond
-      (= family "weibull") (regal-fit/apply-prefilter-weibull cfg)
-      (= family "cure")    (regal-fit/apply-prefilter-cure cfg)
-      (= family "leaky")   (regal-fit/apply-prefilter-leaky cfg))
+      (= family "weibull") (prefilter/apply-prefilter-weibull cfg)
+      (= family "cure")    (prefilter/apply-prefilter-cure cfg)
+      (= family "leaky")   (prefilter/apply-prefilter-leaky cfg))
     (catch js/Error e
       (js/console.error "Stage 1 Error:" e)
       (throw e))))
