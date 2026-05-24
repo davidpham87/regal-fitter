@@ -161,51 +161,67 @@
                     (sim/start-stress-test!))}
        "Run Stress Test"]]]))
 
+(defn- sortable-header [label k sort-state]
+  (let [{curr-key :key desc? :desc?} @sort-state]
+    [:th.px-4.py-2.text-left.cursor-pointer.select-none.hover:bg-gray-100
+     {:on-click (fn []
+                  (if (= curr-key k)
+                    (swap! sort-state update :desc? not)
+                    (reset! sort-state {:key k :desc? false})))}
+     (str label
+          (when (= curr-key k)
+            (if desc? " ↓" " ↑")))]))
+
 (defn- stress-test-results-view []
-  (let [st @state/app-state
-        results (:stress-test-results st)
-        status (:stress-test-status st)
-        progress (:stress-test-progress st)]
-    [:div
-     (when (= status :running)
-       [:div.mb-6
-        [:p.text-sm.mb-1
-         (str "Running simulations: "
-              (:completed progress) " / " (:total progress))]
-        [:div.w-full.bg-gray-200.rounded-full.h-2
-         [:div.bg-blue-600.h-2.rounded-full
-          {:style {:width (str (if (pos? (:total progress))
-                                 (* 100 (/ (:completed progress)
-                                           (:total progress)))
-                                 0)
-                               "%")}}]]])
-     (when (seq results)
-       [:div
-        [:h2.text-xl.font-bold.mb-4 "Results Summary"]
-        [vega/stress-test-charts results]
-        [:div.overflow-x-auto.border.rounded-lg.shadow-sm.mt-8
-         [:table.min-w-full.divide-y.divide-gray-200.text-sm
-          [:thead.bg-gray-50
-           [:tr
-            [:th.px-4.py-2.text-left "mOS"]
-            [:th.px-4.py-2.text-left "k"]
-            [:th.px-4.py-2.text-left "p_joint"]
-            [:th.px-4.py-2.text-left "E[IA]"]
-            [:th.px-4.py-2.text-left "E[Upd]"]
-            [:th.px-4.py-2.text-left "E[PR3]"]
-            [:th.px-4.py-2.text-left "Residual"]]]
-          [:tbody.divide-y.divide-gray-200.bg-white
-           (doall
-            (for [r (sort-by :mos results)]
-              ^{:key (str (:mos r) "-" (:k r))}
-              [:tr
-               [:td.px-4.py-2 (:mos r)]
-               [:td.px-4.py-2 (:k r)]
-               [:td.px-4.py-2 (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
-               [:td.px-4.py-2 (.toFixed (:expected_ev_ia r) 1)]
-               [:td.px-4.py-2 (.toFixed (:expected_inc_upd r) 1)]
-               [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
-               [:td.px-4.py-2 (.toFixed (:residual r) 2)]]))]]]])]))
+  (let [sort-state (r/atom {:key :mos :desc? false})]
+    (fn []
+      (let [st @state/app-state
+            results (:stress-test-results st)
+            status (:stress-test-status st)
+            progress (:stress-test-progress st)
+            {curr-key :key desc? :desc?} @sort-state
+            sorted-results (let [sorted (sort-by curr-key results)]
+                             (if desc? (reverse sorted) sorted))]
+        [:div
+         (when (= status :running)
+           [:div.mb-6
+            [:p.text-sm.mb-1
+             (str "Running simulations: "
+                  (:completed progress) " / " (:total progress))]
+            [:div.w-full.bg-gray-200.rounded-full.h-2
+             [:div.bg-blue-600.h-2.rounded-full
+              {:style {:width (str (if (pos? (:total progress))
+                                     (* 100 (/ (:completed progress)
+                                               (:total progress)))
+                                     0)
+                                   "%")}}]]])
+         (when (seq results)
+           [:div
+            [:h2.text-xl.font-bold.mb-4 "Results Summary"]
+            [vega/stress-test-charts results]
+            [:div.overflow-x-auto.border.rounded-lg.shadow-sm.mt-8
+             [:table.min-w-full.divide-y.divide-gray-200.text-sm
+              [:thead.bg-gray-50
+               [:tr
+                [sortable-header "mOS" :mos sort-state]
+                [sortable-header "k" :k sort-state]
+                [sortable-header "p_joint" :p_joint sort-state]
+                [sortable-header "E[IA]" :expected_ev_ia sort-state]
+                [sortable-header "E[Upd]" :expected_inc_upd sort-state]
+                [sortable-header "E[PR3]" :expected_inc_pr3 sort-state]
+                [sortable-header "Residual" :residual sort-state]]]
+              [:tbody.divide-y.divide-gray-200.bg-white
+               (doall
+                (for [r sorted-results]
+                  ^{:key (str (:mos r) "-" (:k r))}
+                  [:tr
+                   [:td.px-4.py-2 (:mos r)]
+                   [:td.px-4.py-2 (:k r)]
+                   [:td.px-4.py-2 (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
+                   [:td.px-4.py-2 (.toFixed (:expected_ev_ia r) 1)]
+                   [:td.px-4.py-2 (.toFixed (:expected_inc_upd r) 1)]
+                   [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
+                   [:td.px-4.py-2 (.toFixed (:residual r) 2)]]))]]]])]))))
 
 (defn placebo-stress-view []
   [:div.p-6.max-w-6xl.mx-auto
