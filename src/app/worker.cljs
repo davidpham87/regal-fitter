@@ -1,5 +1,6 @@
 (ns app.worker
   (:require [app.regal-fit.simulate :as simulate]
+            [app.stress-test.simulate :as stress-test]
             [clojure.walk :as walk]))
 
 (js/console.log "CLJS Worker: Initializing")
@@ -14,7 +15,9 @@
           (when (= type "RUN_SIMULATION")
             (try
               (let [args (js->clj payload :keywordize-keys true)
-                    res (simulate/simulate-one-combo args)
+                    res (if (= (:type args) "RUN_STRESS_TEST")
+                          (stress-test/simulate-one-combo args)
+                          (simulate/simulate-one-combo args))
                     clj-res (if res (walk/keywordize-keys res) nil)]
                 (.postMessage js/self (clj->js {:id id
                                                 :type "SIMULATION_RESULT"
