@@ -87,7 +87,11 @@
                      :y {:field "p-bat"
                          :type "quantitative"
                          :title "Probability (%)"}
-                     :color {:value "#44aa77"}}}]
+                     :color {:value "#44aa77"}
+                     :tooltip [{:field "bat-mid" :type "quantitative"
+                                :title "BAT mOS (months)"}
+                               {:field "p-bat" :type "quantitative"
+                                :title "Probability (%)"}]}}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "P(success) by BAT mOS"
@@ -99,7 +103,11 @@
                                   :type "quantitative"
                                   :title "P(success) %"
                                   :scale {:domain [0 100]}}
-                              :color {:value "#4488cc"}}}
+                              :color {:value "#4488cc"}
+                              :tooltip [{:field "bat-mid" :type "quantitative"
+                                         :title "BAT mOS (months)"}
+                                        {:field "success" :type "quantitative"
+                                         :title "P(success) %"}]}}
                   {:mark "rule" :data {:values [{:y 50}]}
                    :encoding {:y {:field "y" :type "quantitative"}
                               :color {:value "gray"}
@@ -115,7 +123,11 @@
                                   :type "quantitative"
                                   :title "Final HR"
                                   :scale {:domain [0 1.2]}}
-                              :color {:value "#aa5599"}}}
+                              :color {:value "#aa5599"}
+                              :tooltip [{:field "bat-mid" :type "quantitative"
+                                         :title "BAT mOS (months)"}
+                                        {:field "hr-final" :type "quantitative"
+                                         :title "Final HR"}]}}
                   {:mark "rule" :data {:values [{:y 0.636}]}
                    :encoding {:y {:field "y" :type "quantitative"}
                               :color {:value "red"}
@@ -135,7 +147,11 @@
                                :range ["#4488cc" "#55bb88" "#ee6677"]}}
                :strokeDash {:field "group" :type "nominal"
                             :scale {:domain ["Pooled" "GPS" "BAT"]
-                                    :range [[] [4 4] [2 2]]}}}
+                                    :range [[] [4 4] [2 2]]}}
+               :tooltip [{:field "time" :type "quantitative" :title "Months"}
+                         {:field "survival" :type "quantitative"
+                          :title "Survival"}
+                         {:field "group" :type "nominal" :title "Group"}]}
     :config {:view {:stroke "transparent"}
              :legend {:orient "bottom"}}}])
 
@@ -165,14 +181,32 @@
                                                   "#ee6677"]}}
                           :strokeDash {:field "group" :type "nominal"
                                        :scale {:domain ["Total" "GPS" "BAT"]
-                                               :range [[] [4 4] [2 2]]}}}}
+                                               :range [[] [4 4] [2 2]]}}
+                          :tooltip [{:field "time" :type "quantitative"
+                                     :title "Months"}
+                                    {:field "events" :type "quantitative"
+                                     :title "Expected Events"}
+                                    {:field "group" :type "nominal"
+                                     :title "Group"}]}}
               {:data {:values markers}
                :mark {:type "point" :size 100 :color "black" :shape "cross"}
                :encoding {:x {:field "time" :type "quantitative"}
-                          :y {:field "target" :type "quantitative"}}}
+                          :y {:field "target" :type "quantitative"}
+                          :tooltip [{:field "label" :type "nominal"
+                                     :title "Milestone"}
+                                    {:field "time" :type "quantitative"
+                                     :title "Months"}
+                                    {:field "target" :type "quantitative"
+                                     :title "Target Events"}]}}
               {:data {:values markers}
                :mark {:type "point" :size 60 :color "red"}
                :encoding {:x {:field "time" :type "quantitative"}
-                          :y {:field "expected" :type "quantitative"}}}]
+                          :y {:field "expected" :type "quantitative"}
+                          :tooltip [{:field "label" :type "nominal"
+                                     :title "Milestone"}
+                                    {:field "time" :type "quantitative"
+                                     :title "Months"}
+                                    {:field "expected" :type "quantitative"
+                                     :title "Expected Events"}]}}]
       :config {:view {:stroke "transparent"}
                :legend {:orient "bottom"}}}]))
