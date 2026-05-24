@@ -5,6 +5,7 @@
             [app.regal-fit.survival :as survival]
             [app.regal-fit.enrollment :as enrollment]
             [app.vega :as vega]
+            [app.simulator :as sim]
             [cljs.numpy :as np]))
 
 (defn- get-discovery-state []
@@ -28,6 +29,8 @@
                      checked? (assoc :cure-frac 0.0
                                      :gps-med (:bat-med params)))]
     (swap! state/app-state assoc-in [:discovery :params] new-params)
+    (swap! state/app-state update :discovery
+           dissoc :sim-status :sim-result)
     (debounced-calc-update new-params)))
 
 (defn- update-discovery-param! [param-key value]
@@ -36,10 +39,14 @@
                      (and (:placebo-mode? params) (= param-key :bat-med))
                      (assoc :gps-med value))]
     (swap! state/app-state assoc-in [:discovery :params] new-params)
+    (swap! state/app-state update :discovery
+           dissoc :sim-status :sim-result)
     (debounced-calc-update new-params)))
 
 (defn- set-active-family! [family]
-  (swap! state/app-state assoc-in [:discovery :active-family] family))
+  (swap! state/app-state assoc-in [:discovery :active-family] family)
+  (swap! state/app-state update :discovery
+         dissoc :sim-status :sim-result))
 
 (defn- param-input
   ([param-key label min max step]
@@ -312,7 +319,63 @@
          [:<>
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
           [param-input :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]
-          [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]]
+          [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
+
+       [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
+        {:class "justify-between"}
+        [:div.flex.items-center.gap-3
+         [:button.rounded-lg.shadow-sm.transition-colors
+          {:class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
+                   "text-white" "text-xs" "font-bold"]
+           :on-click #(sim/run-discovery-simulation! active-family
+                                                     calc-params)
+           :disabled (= (:sim-status state) :running)}
+          (if (= (:sim-status state) :running)
+            "Simulating..."
+            "Run Simulation")]
+         (when (= (:sim-status state) :running)
+           [:span.text-xs.text-gray-500.animate-pulse
+            (str "Running " (:n-sims-per-combo config)
+                 " trial simulations...")])]
+
+        [:div.flex.items-center.gap-6
+         (case (:sim-status state)
+           :done
+           (let [res (:sim-result state)
+                 p-suc (:p-success-overall res)
+                 acc-rate (:acceptance-rate res)
+                 med-hr (:median-hr-final res)
+                 med-t80 (:median-t80-months res)]
+             [:<>
+              [:div.text-center
+               [:div.text-xs.text-gray-400.font-semibold "P(Success)"]
+               [:div.text-lg.font-bold.text-blue-600
+                (str (.toFixed (* 100 p-suc) 1) "%")]]
+              [:div.text-center
+               [:div.text-xs.text-gray-400.font-semibold "Acceptance Rate"]
+               [:div.text-sm.font-semibold.text-gray-700
+                (str (.toFixed (* 100 acc-rate) 1) "%")]]
+              [:div.text-center
+               [:div.text-xs.text-gray-400.font-semibold "Median HR"]
+               [:div.text-sm.font-semibold.text-gray-700
+                (if (js/isNaN med-hr) "N/A" (.toFixed med-hr 3))]]
+              [:div.text-center
+               [:div.text-xs.text-gray-400.font-semibold "Median T80"]
+               [:div.text-sm.font-semibold.text-gray-700
+                (if (js/isNaN med-t80)
+                  "N/A"
+                  (str (.toFixed med-t80 1) "m"))]]])
+
+           :failed-prefilter
+           [:span.text-xs.font-semibold.text-red-500
+            (str "Prefilter check failed: 0% of "
+                 "trials passed event pre-screening.")]
+
+           :error
+           [:span.text-xs.font-semibold.text-red-500
+            (str "Error: " (:sim-result state))]
+
+           nil)]]]
 
      ;; Results & Charts in 2 columns
      ^{:key (str params)}

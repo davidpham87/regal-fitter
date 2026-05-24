@@ -123,7 +123,7 @@
 
 (defn discovery-survival-chart [data]
   [vega-lite
-   {:width 350 :height 300
+   {:width 300 :height 300
     :title "Survival Curves"
     :data {:values data}
     :mark {:type "line" :strokeWidth 2}
@@ -150,7 +150,7 @@
                               :label (:label s)})
                       event-stats)]
     [vega-lite
-     {:width 350 :height 300
+     {:width 300 :height 300
       :title "Expected Event Accrual"
       :layer [{:data {:values curve-data}
                :mark {:type "line" :strokeWidth 2}
