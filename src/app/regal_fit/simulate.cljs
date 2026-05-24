@@ -1,338 +1,211 @@
 (ns app.regal-fit.simulate
-  "Core simulation execution.
-  Handles full trial simulations, applying event counting, logrank tests, and extracting trial stats."
+  "Core simulation execution."
   (:require [cljs.numpy :as np]
             [cljs.numpy-random :as np-random]
             [app.regal-fit.stats :as stats]
-            [app.regal-fit.random :as rnd]))
+            [app.regal-fit.random :as rnd]
+            [malli.core :as m]))
+
+(defn- count-events-at-times
+  "Counts events at IA, UPD, and PR3 timepoints."
+  [config enroll-times survival-times n-total]
+  (let [counts {:n-ia (atom 0) :n-up (atom 0) :n-pr3 (atom 0)}]
+    (dotimes [i n-total]
+      (let [enroll (aget enroll-times i)
+            survival (aget survival-times i)]
+        (when (<= survival (js/Math.max (- (:t-ia config) enroll) 0.0))
+          (swap! (:n-ia counts) inc))
+        (when (<= survival (js/Math.max (- (:t-upd config) enroll) 0.0))
+          (swap! (:n-up counts) inc))
+        (when (:use-pr3-anchor config)
+          (when (<= survival (js/Math.max (- (:t-pr3 config) enroll) 0.0))
+            (swap! (:n-pr3 counts) inc)))))
+    {:n-ia @(:n-ia counts) :n-up @(:n-up counts) :n-pr3 @(:n-pr3 counts)}))
+
+(defn- pass-events-tolerance?
+  "Checks if event counts are within configured tolerances."
+  [config {:keys [n-ia n-up n-pr3]}]
+  (let [keep-ia (<= (js/Math.abs (- n-ia (:n-ev-ia config))) (:tol-ia config))
+        keep-up (<= (js/Math.abs (- n-up (:n-ev-upd config))) (:tol-upd config))
+        increment-ia-up (- n-up n-ia)
+        target-increment (- (:n-ev-upd config) (:n-ev-ia config))
+        diff-increment (js/Math.abs (- increment-ia-up target-increment))
+        pass-pr3 (if-not (:use-pr3-anchor config) true
+                   (and (<= (js/Math.abs (- n-pr3 (:n-ev-pr3 config))) (:tol-pr3 config))
+                        (<= (js/Math.abs (- (- n-pr3 n-up) (- (:n-ev-pr3 config) (:n-ev-upd config)))) (:tol-increment-upd-pr3 config))))]
+    (and keep-ia keep-up (<= diff-increment (:tol-increment-ia-upd config)) pass-pr3)))
+
+(defn- interim-analysis-data
+  "Extracts data for interim analysis."
+  [config enroll-times survival-times arms-array n-total]
+  (let [time-ia (js/Float64Array. n-total)
+        event-ia (js/Int32Array. n-total)
+        alive-bat (atom 0)
+        alive-gps (atom 0)]
+    (dotimes [i n-total]
+      (let [fu-ia (js/Math.max (- (:t-ia config) (aget enroll-times i)) 0.0)
+            fu-up (js/Math.max (- (:t-upd config) (aget enroll-times i)) 0.0)
+            survival (aget survival-times i)
+            arm (aget arms-array i)]
+        (aset time-ia i (js/Math.min survival fu-ia))
+        (aset event-ia i (if (<= survival fu-ia) 1 0))
+        (when (> survival fu-up)
+          (if (== arm 0) (swap! alive-bat inc) (swap! alive-gps inc)))))
+    {:time-ia time-ia :event-ia event-ia :alive-bat @alive-bat :alive-gps @alive-gps}))
+
+(defn- analyze-interim
+  "Performs log-rank analysis for the interim analysis (IA)."
+  [config enroll-times survival-times arms-array n-total]
+  (let [{:keys [time-ia event-ia alive-bat alive-gps]} (interim-analysis-data config enroll-times survival-times arms-array n-total)
+        [z-ia hr-ia] (stats/logrank-z (np/array time-ia) (np/array event-ia) (np/array arms-array))]
+    {:z-ia z-ia :hr-ia hr-ia :time-ia time-ia :ev-ia event-ia :alive-bat alive-bat :alive-gps alive-gps}))
+
+(defn- pass-interim-gates?
+  "Checks interim results against futility and efficacy gates."
+  [config {:keys [hr-ia time-ia ev-ia]}]
+  (let [time-nd (np/array time-ia)
+        ev-nd (np/array ev-ia)]
+    (and (< hr-ia (:futility-hr-max config))
+         (> hr-ia (:efficacy-hr-min config))
+         (if (> (:pool-mos-min-at-ia config) 0)
+           (> (stats/km-survival-at-time time-nd ev-nd (:pool-mos-min-at-ia config)) 0.5)
+           true)
+         (if (> (:median-fu-target config) 0)
+           (let [median-fu (np/median time-nd)]
+             (<= (js/Math.abs (- median-fu (:median-fu-target config))) (:median-fu-tol config)))
+           true))))
+
+(defn- calculate-final-times
+  "Calculates survival and event status at T80."
+  [t80 n-total enroll-times survival-times]
+  (let [time-fin (js/Float64Array. n-total)
+        ev-fin (js/Int32Array. n-total)]
+    (dotimes [i n-total]
+      (let [f (js/Math.max (- t80 (aget enroll-times i)) 0.0)
+            s (aget survival-times i)]
+        (aset time-fin i (js/Math.min s f))
+        (aset ev-fin i (if (<= s f) 1 0))))
+    {:time-fin time-fin :ev-fin ev-fin}))
+
+(defn- analyze-final
+  "Performs final analysis once target events are reached."
+  [config enroll-times survival-times arms-array n-total]
+  (let [valid-deaths (js/Array.)]
+    (dotimes [i n-total]
+      (let [d (+ (aget enroll-times i) (aget survival-times i))]
+        (when (js/Number.isFinite d) (.push valid-deaths d))))
+    (.sort valid-deaths (fn [a b] (- a b)))
+    (let [reached (>= (.-length valid-deaths) (:n-ev-final config))
+          t80 (if reached (aget valid-deaths (dec (:n-ev-final config))) js/NaN)
+          today (if (and (:enforce-no-80-by-today config) reached)
+                  (>= t80 (- (or (:t-now config) 63) (:no-80-slack-months config)))
+                  true)]
+      (if-not (and reached today)
+        {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN}
+        (let [{:keys [time-fin ev-fin]} (calculate-final-times t80 n-total enroll-times survival-times)
+              [z-fin hr-fin] (stats/logrank-z (np/array time-fin) (np/array ev-fin) (np/array arms-array))]
+          {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin})))))
 
 (defn- calculate-trial-stats
-  "Calculates trial statistics for a single simulation run.
-  Arguments:
-    cfg: Configuration map
-    e-i: Array of enrollment times
-    s-i: Array of survival times
-    a-i: Array of arm assignments
-    n-total: Total subjects
-  Returns:
-    A map of trial statistics if it passes the futility/efficacy checks, otherwise nil."
-  [cfg e-i s-i a-i n-total]
-  (let [n-ia (atom 0)
-        n-up (atom 0)
-        n-pr3 (atom 0)]
-    (dotimes [i n-total]
-      (let [fu-ia-val (js/Math.max (- (:t_ia cfg) (aget e-i i)) 0.0)
-            fu-up-val (js/Math.max (- (:t_upd cfg) (aget e-i i)) 0.0)
-            sv (aget s-i i)]
-        (when (<= sv fu-ia-val) (swap! n-ia inc))
-        (when (<= sv fu-up-val) (swap! n-up inc))
-        (when (:use_pr3_anchor cfg)
-          (let [fu-pr3-val (js/Math.max (- (:t_pr3 cfg) (aget e-i i)) 0.0)]
-            (when (<= sv fu-pr3-val) (swap! n-pr3 inc))))))
+  "Computes all statistics for a successfully screened trial."
+  [config enroll-times survival-times arms-array n-total]
+  (let [counts (count-events-at-times config enroll-times survival-times n-total)]
+    (when (pass-events-tolerance? config counts)
+      (let [interim-res (analyze-interim config enroll-times survival-times arms-array n-total)]
+        (when (pass-interim-gates? config interim-res)
+          (let [final-res (analyze-final config enroll-times survival-times arms-array n-total)]
+            (merge {:n-ev-ia (:n-ia counts) :n-ev-upd (:n-up counts) :z-ia (:z-ia interim-res) :hr-ia (:hr-ia interim-res)
+                    :reached-80 (:reached final-res) :t80 (:t80 final-res) :hr-final (:hr-final final-res) :z-final (:z-final final-res)
+                    :bat-alive-upd (:alive-bat interim-res) :gps-alive-upd (:alive-gps interim-res)}
+                   (when (:use-pr3-anchor config) {:n-ev-pr3 (:n-pr3 counts)}))))))))
 
-    (let [keep-ia (<= (js/Math.abs (- @n-ia (:n_ev_ia cfg))) (:tol_ia cfg))
-          keep-up (<= (js/Math.abs (- @n-up (:n_ev_upd cfg))) (:tol_upd cfg))
-          inc-ia-up (- @n-up @n-ia)
-          keep-inc-ia-up (<= (js/Math.abs (- inc-ia-up (- (:n_ev_upd cfg) (:n_ev_ia cfg)))) (:tol_increment_ia_upd cfg))]
-      (when (and keep-ia keep-up keep-inc-ia-up)
-        (let [pass-pr3 (if (:use_pr3_anchor cfg)
-                         (and (<= (js/Math.abs (- @n-pr3 (:n_ev_pr3 cfg))) (:tol_pr3 cfg))
-                              (<= (js/Math.abs (- (- @n-pr3 @n-up) (- (:n_ev_pr3 cfg) (:n_ev_upd cfg)))) (:tol_increment_upd_pr3 cfg)))
-                         true)]
-          (when pass-pr3
-            (let [time-ia-i (js/Float64Array. n-total)
-                  ev-ia-i (js/Int32Array. n-total)
-                  alive-bat-up (atom 0)
-                  alive-gps-up (atom 0)]
-              (dotimes [i n-total]
-                (let [fu-ia-val (js/Math.max (- (:t_ia cfg) (aget e-i i)) 0.0)
-                      fu-up-val (js/Math.max (- (:t_upd cfg) (aget e-i i)) 0.0)
-                      sv (aget s-i i)
-                      av (aget a-i i)]
-                  (aset time-ia-i i (js/Math.min sv fu-ia-val))
-                  (aset ev-ia-i i (if (<= sv fu-ia-val) 1 0))
-                  (when (> sv fu-up-val)
-                    (if (== av 0) (swap! alive-bat-up inc) (swap! alive-gps-up inc)))))
+(defn- assign-arms
+  "Assigns arms to subjects based on assignment order."
+  [arms-array assignment-order n-per-arm]
+  (dotimes [i (count assignment-order)]
+    (when (< i n-per-arm) (aset arms-array (aget assignment-order i) 1))))
 
-              (let [z-hr-ia (stats/logrank-z (np/array time-ia-i) (np/array ev-ia-i) (np/array a-i))
-                    z-ia (first z-hr-ia)
-                    hr-ia (second z-hr-ia)]
-                (when (and (< hr-ia (:futility_hr_max cfg))
-                           (> hr-ia (:efficacy_hr_min cfg)))
-                  (let [pool-mos-pass (if (> (:pool_mos_min_at_ia cfg) 0)
-                                        (> (stats/km-S-at-T (np/array time-ia-i) (np/array ev-ia-i) (:pool_mos_min_at_ia cfg)) 0.5)
-                                        true)]
-                    (when pool-mos-pass
-                      (let [median-fu-pass (if (> (:median_fu_target cfg) 0)
-                                             (let [obs-time (.toArray (np/array time-ia-i))
-                                                   median-fu (np/median (np/array obs-time))]
-                                               (<= (js/Math.abs (- median-fu (:median_fu_target cfg))) (:median_fu_tol cfg)))
-                                             true)]
-                        (when median-fu-pass
-                          (let [death-cal (js/Float64Array. n-total)
-                                valid-deaths (js/Array.)]
-                            (dotimes [i n-total]
-                              (let [d (+ (aget e-i i) (aget s-i i))]
-                                (aset death-cal i d)
-                                (when (js/Number.isFinite d)
-                                  (.push valid-deaths d))))
-                            (.sort valid-deaths (fn [a b] (- a b)))
+(defn- populate-survival-times
+  "Fills survival times based on arm assignment."
+  [n-total arms bat-draws gps-draws survival]
+  (loop [i 0 b 0 g 0]
+    (when (< i n-total)
+      (if (== (aget arms i) 0)
+        (do (aset survival i (aget bat-draws b)) (recur (inc i) (inc b) g))
+        (do (aset survival i (aget gps-draws g)) (recur (inc i) b (inc g)))))))
 
-                            (let [reached-80 (>= (.-length valid-deaths) (:n_ev_final cfg))
-                                  t80 (if reached-80 (aget valid-deaths (dec (:n_ev_final cfg))) js/NaN)
-                                  today-pass (if (and (:enforce_no_80_by_today cfg) reached-80)
-                                               (>= t80 (- (if (:t_now cfg) (:t_now cfg) 63) (:no_80_slack_months cfg)))
-                                               true)]
-                              (when today-pass
-                                (let [z-fin (atom js/NaN)
-                                      hr-fin (atom js/NaN)]
-                                  (when reached-80
-                                    (let [fu-fin (js/Float64Array. n-total)
-                                          time-fin (js/Float64Array. n-total)
-                                          ev-fin (js/Int32Array. n-total)]
-                                      (dotimes [i n-total]
-                                        (let [f (js/Math.max (- t80 (aget e-i i)) 0.0)
-                                              sv (aget s-i i)]
-                                          (aset fu-fin i f)
-                                          (aset time-fin i (js/Math.min sv f))
-                                          (aset ev-fin i (if (<= sv f) 1 0))))
-                                      (let [z-hr-f (stats/logrank-z (np/array time-fin) (np/array ev-fin) (np/array a-i))]
-                                        (reset! z-fin (first z-hr-f))
-                                        (reset! hr-fin (second z-hr-f)))))
-
-                                  (let [trial-stats {:n_ev_ia @n-ia
-                                                     :n_ev_upd @n-up
-                                                     :z_ia z-ia
-                                                     :hr_ia hr-ia
-                                                     :reached_80 reached-80
-                                                     :t80 t80
-                                                     :hr_final @hr-fin
-                                                     :z_final @z-fin
-                                                     :bat_alive_upd @alive-bat-up
-                                                     :gps_alive_upd @alive-gps-up}]
-                                    (if (:use_pr3_anchor cfg)
-                                      (assoc trial-stats :n_ev_pr3 @n-pr3)
-                                      trial-stats))))))))))))))))))
-
-
-;; Re-implementing with exact pass logic
-(defn- simulate-one-trial [rec cfg rng n-total n-per-arm bands]
-  (let [e-i (js/Float64Array. n-total)
-        s-i (js/Float64Array. n-total)
-        a-i (js/Int8Array. n-total)
-        e-raw (js/Array.)]
+(defn- generate-trial-data
+  "Generates enrollment times, arm assignments, and survival times for one trial."
+  [record config random-gen n-total n-per-arm bands]
+  (let [enroll (js/Float64Array. n-total)
+        arms (js/Int8Array. n-total)
+        survival (js/Float64Array. n-total)
+        raw-enroll (js/Array.)]
     (doseq [[lo hi n] bands]
-      (when (> n 0)
-        (let [rands (.toArray (np-random/uniform rng lo hi n))]
-          (doseq [r rands] (.push e-raw r)))))
-    (.sort e-raw (fn [a b] (- a b)))
-    (dotimes [i n-total]
-      (aset e-i i (aget e-raw i)))
+      (when (> n 0) (doseq [r (np/nd-to-array (np-random/uniform random-gen lo hi n))] (.push raw-enroll r))))
+    (.sort raw-enroll (fn [a b] (- a b)))
+    (let [assignment-order (np/nd-to-array (np/argsort (np-random/random random-gen n-total)))]
+      (dotimes [i n-total] (aset enroll i (aget raw-enroll i)))
+      (assign-arms arms assignment-order n-per-arm))
+    (let [num-gps (reduce + arms)
+          num-bat (- n-total num-gps)
+          bat-draws (np/nd-to-array (rnd/draw-bat-times record num-bat random-gen))
+          gps-draws (np/nd-to-array (rnd/draw-gps-times record num-gps random-gen))]
+      (populate-survival-times n-total arms bat-draws gps-draws survival)
+      {:enroll-times enroll :arms-array arms :survival-times survival})))
 
-    (let [perm (np-random/random rng n-total)
-          order (.toArray (np/argsort perm))]
-      (dotimes [i n-per-arm]
-        (aset a-i (aget order i) 1)))
+(defn- simulate-one-trial
+  "Simulates a single trial and returns whether it passed screening and its stats."
+  [record config random-gen n-total n-per-arm bands]
+  (let [{:keys [enroll-times arms-array survival-times]} (generate-trial-data record config random-gen n-total n-per-arm bands)
+        counts (count-events-at-times config enroll-times survival-times n-total)
+        passed-screening (pass-events-tolerance? config counts)
+        stats (when passed-screening (calculate-trial-stats config enroll-times survival-times arms-array n-total))]
+    {:passed-screening passed-screening :stats stats}))
 
-    (let [n-bat (reduce + (map #(if (== % 0) 1 0) a-i))
-          n-gps (reduce + (map #(if (== % 1) 1 0) a-i))
-          bat-draws (.toArray (rnd/draw-bat-times rec n-bat rng))
-          gps-draws (.toArray (rnd/draw-gps-times rec n-gps rng))]
-      (loop [i 0 b 0 g 0]
-        (when (< i n-total)
-          (if (== (aget a-i i) 0)
-            (do (aset s-i i (aget bat-draws b))
-                (recur (inc i) (inc b) g))
-            (do (aset s-i i (aget gps-draws g))
-                (recur (inc i) b (inc g)))))))
+(defn- run-sim-chunk
+  "Runs a chunk of simulations for a single combination."
+  [record config n-sims random-gen]
+  (let [results (map (fn [_] (simulate-one-trial record config random-gen (:n-total config) (:n-per-arm config) (:enroll-bands config))) (range n-sims))]
+    [(keep :stats results) (reduce + (map #(if (:passed-screening %) 1 0) results))]))
 
-    (let [n-ia (atom 0)
-          n-up (atom 0)
-          n-pr3 (atom 0)]
-      (dotimes [i n-total]
-        (let [fu-ia-val (js/Math.max (- (:t_ia cfg) (aget e-i i)) 0.0)
-              fu-up-val (js/Math.max (- (:t_upd cfg) (aget e-i i)) 0.0)
-              sv (aget s-i i)]
-          (when (<= sv fu-ia-val) (swap! n-ia inc))
-          (when (<= sv fu-up-val) (swap! n-up inc))
-          (when (:use_pr3_anchor cfg)
-            (let [fu-pr3-val (js/Math.max (- (:t_pr3 cfg) (aget e-i i)) 0.0)]
-              (when (<= sv fu-pr3-val) (swap! n-pr3 inc))))))
+(defn- build-aggregate-map
+  "Helper to build the aggregate statistics map."
+  [all-stats num-attempts num-pass-events record to-nd finite-t80 hr-final-arr num-success num-accepted]
+  (merge record
+         {:n-attempts num-attempts :n-pass-events num-pass-events :n-pass-futility num-accepted :n-accepted num-accepted
+          :acceptance-rate (/ num-accepted num-attempts) :p-reach80 (/ (count (filter :reached-80 all-stats)) num-accepted)
+          :p-no-readout (- 1.0 (/ (count (filter :reached-80 all-stats)) num-accepted))
+          :median-hr-final (if (empty? hr-final-arr) js/NaN (np/median (to-nd hr-final-arr)))
+          :p-hr-below-threshold (if (empty? hr-final-arr) js/NaN (/ (count (filter #(< % 0.636) hr-final-arr)) (count hr-final-arr)))
+          :p-success-overall (/ num-success num-accepted)
+          :median-t80-months (if (empty? finite-t80) js/NaN (np/median (to-nd finite-t80)))
+          :median-hr-ia (np/median (to-nd (map :hr-ia all-stats)))
+          :median-z-ia (np/median (to-nd (map :z-ia all-stats)))
+          :median-bat-alive-upd (np/median (to-nd (map :bat-alive-upd all-stats)))
+          :median-gps-alive-upd (np/median (to-nd (map :gps-alive-upd all-stats)))}))
 
-      (let [keep-ia (<= (js/Math.abs (- @n-ia (:n_ev_ia cfg))) (:tol_ia cfg))
-            keep-up (<= (js/Math.abs (- @n-up (:n_ev_upd cfg))) (:tol_upd cfg))
-            inc-ia-up (- @n-up @n-ia)
-            keep-inc-ia-up (<= (js/Math.abs (- inc-ia-up (- (:n_ev_upd cfg) (:n_ev_ia cfg)))) (:tol_increment_ia_upd cfg))]
-        (if (and keep-ia keep-up keep-inc-ia-up)
-          (let [pass-pr3 (if (:use_pr3_anchor cfg)
-                           (and (<= (js/Math.abs (- @n-pr3 (:n_ev_pr3 cfg))) (:tol_pr3 cfg))
-                                (<= (js/Math.abs (- (- @n-pr3 @n-up) (- (:n_ev_pr3 cfg) (:n_ev_upd cfg)))) (:tol_increment_upd_pr3 cfg)))
-                           true)]
-            (if pass-pr3
-              (let [time-ia-i (js/Float64Array. n-total)
-                    ev-ia-i (js/Int32Array. n-total)
-                    alive-bat-up (atom 0)
-                    alive-gps-up (atom 0)]
-                (dotimes [i n-total]
-                  (let [fu-ia-val (js/Math.max (- (:t_ia cfg) (aget e-i i)) 0.0)
-                        fu-up-val (js/Math.max (- (:t_upd cfg) (aget e-i i)) 0.0)
-                        sv (aget s-i i)
-                        av (aget a-i i)]
-                    (aset time-ia-i i (js/Math.min sv fu-ia-val))
-                    (aset ev-ia-i i (if (<= sv fu-ia-val) 1 0))
-                    (when (> sv fu-up-val)
-                      (if (== av 0) (swap! alive-bat-up inc) (swap! alive-gps-up inc)))))
-
-                (let [z-hr-ia (stats/logrank-z (np/array time-ia-i) (np/array ev-ia-i) (np/array a-i))
-                      z-ia (first z-hr-ia)
-                      hr-ia (second z-hr-ia)]
-                  (if (and (< hr-ia (:futility_hr_max cfg))
-                           (> hr-ia (:efficacy_hr_min cfg)))
-                    (let [pool-mos-pass (if (> (:pool_mos_min_at_ia cfg) 0)
-                                          (> (stats/km-S-at-T (np/array time-ia-i) (np/array ev-ia-i) (:pool_mos_min_at_ia cfg)) 0.5)
-                                          true)]
-                      (if pool-mos-pass
-                        (let [median-fu-pass (if (> (:median_fu_target cfg) 0)
-                                               (let [obs-time (.toArray (np/array time-ia-i))
-                                                     median-fu (np/median (np/array obs-time))]
-                                                 (<= (js/Math.abs (- median-fu (:median_fu_target cfg))) (:median_fu_tol cfg)))
-                                               true)]
-                          (if median-fu-pass
-                            (let [death-cal (js/Float64Array. n-total)
-                                  valid-deaths (js/Array.)]
-                              (dotimes [i n-total]
-                                (let [d (+ (aget e-i i) (aget s-i i))]
-                                  (aset death-cal i d)
-                                  (when (js/Number.isFinite d)
-                                    (.push valid-deaths d))))
-                              (.sort valid-deaths (fn [a b] (- a b)))
-
-                              (let [reached-80 (>= (.-length valid-deaths) (:n_ev_final cfg))
-                                    t80 (if reached-80 (aget valid-deaths (dec (:n_ev_final cfg))) js/NaN)
-                                    today-pass (if (and (:enforce_no_80_by_today cfg) reached-80)
-                                                 (>= t80 (- (if (:t_now cfg) (:t_now cfg) 63) (:no_80_slack_months cfg)))
-                                                 true)]
-                                (if today-pass
-                                  (let [z-fin (atom js/NaN)
-                                        hr-fin (atom js/NaN)]
-                                    (when reached-80
-                                      (let [fu-fin (js/Float64Array. n-total)
-                                            time-fin (js/Float64Array. n-total)
-                                            ev-fin (js/Int32Array. n-total)]
-                                        (dotimes [i n-total]
-                                          (let [f (js/Math.max (- t80 (aget e-i i)) 0.0)
-                                                sv (aget s-i i)]
-                                            (aset fu-fin i f)
-                                            (aset time-fin i (js/Math.min sv f))
-                                            (aset ev-fin i (if (<= sv f) 1 0))))
-                                        (let [z-hr-f (stats/logrank-z (np/array time-fin) (np/array ev-fin) (np/array a-i))]
-                                          (reset! z-fin (first z-hr-f))
-                                          (reset! hr-fin (second z-hr-f)))))
-
-                                    (let [trial-stats {:n_ev_ia @n-ia
-                                                       :n_ev_upd @n-up
-                                                       :z_ia z-ia
-                                                       :hr_ia hr-ia
-                                                       :reached_80 reached-80
-                                                       :t80 t80
-                                                       :hr_final @hr-fin
-                                                       :z_final @z-fin
-                                                       :bat_alive_upd @alive-bat-up
-                                                       :gps_alive_upd @alive-gps-up}]
-                                      [{:passed-pr3 true
-                                        :stats (if (:use_pr3_anchor cfg) (assoc trial-stats :n_ev_pr3 @n-pr3) trial-stats)}]))
-                                  [{:passed-pr3 true :stats nil}]))
-                            [{:passed-pr3 true :stats nil}]))
-                        [{:passed-pr3 true :stats nil}]))
-                    [{:passed-pr3 true :stats nil}])))
-              [{:passed-pr3 false :stats nil}]))
-          [{:passed-pr3 false :stats nil}])))))
-
-(defn run-sim-chunk
-  "Runs a chunk of simulations and accumulates accepted stats.
-  Arguments:
-    rec: config record
-    cfg: Simulation configuration
-    n-sims: Number of simulations to run
-    rng: Random number generator instance
-  Returns:
-    [accepted-stats count-of-pass-events]"
-  [rec cfg n-sims rng]
-  (let [bands (:enroll_bands cfg)
-        n-total (:n_total cfg)
-        n-per-arm (:n_per_arm cfg)
-
-        results (map (fn [_] (first (simulate-one-trial rec cfg rng n-total n-per-arm bands))) (range n-sims))
-
-        n-pass-events (reduce + (map #(if (:passed-pr3 %) 1 0) results))
-        accepted-stats (keep :stats results)]
-    [accepted-stats n-pass-events]))
+(defn- summarize-results
+  "Aggregates statistics across all accepted simulations for a combo."
+  [all-stats num-attempts num-pass-events record]
+  (let [num-accepted (count all-stats)
+        finite-t80 (filter #(not (js/Number.isNaN %)) (map :t80 all-stats))
+        hr-final-arr (filter #(not (js/Number.isNaN %)) (map :hr-final all-stats))
+        num-success (count (filter #(and (:reached-80 %) (< (:hr-final %) 0.636)) all-stats))
+        to-nd (fn [coll] (np/array (cljs.core/to-array coll)))]
+    (build-aggregate-map all-stats num-attempts num-pass-events record to-nd finite-t80 hr-final-arr num-success num-accepted)))
 
 (defn simulate-one-combo
-  "Entrypoint for a single config combination simulation job.
-  Evaluates screening, applies runs, and calculates the summary statistics.
-  Arguments:
-    args: map containing :rec, :cfg_dict, :n_sims, :seed
-  Returns:
-    Summary map of the combo simulation."
-  [args]
-  (let [{:keys [rec cfg_dict n_sims seed]} args
-        cfg cfg_dict
-        rng (np-random/default-rng seed)
-        n-screen (js/Math.min (:n_sims_screen cfg) n_sims)
-        [screen-stats screen-pass] (run-sim-chunk rec cfg n-screen rng)]
-
-    (if (< (count screen-stats) (:n_screen_min_pass cfg))
-      nil
-      (let [remaining (- n_sims n-screen)
-            [more-stats more-pass] (if (> remaining 0) (run-sim-chunk rec cfg remaining rng) [[] 0])
-            all-stats (concat screen-stats more-stats)
-            n-pass-events (+ screen-pass more-pass)
-            n-done n_sims
-            n-accepted (count all-stats)]
-
-        (if (empty? all-stats)
-          nil
-          (let [finite80 (filter #(not (js/Number.isNaN %)) (map :t80 all-stats))
-                hr-arr (filter #(not (js/Number.isNaN %)) (map :hr_final all-stats))
-                n-success (count (filter #(and (:reached_80 %) (< (:hr_final %) 0.636)) all-stats))
-                p-success-overall (/ n-success n-accepted)
-
-                hr-finite (np/array (to-array hr-arr))
-                median-hr (if (empty? hr-arr) js/NaN (np/median hr-finite))
-                p-hr-below (if (empty? hr-arr) js/NaN (/ (count (filter #(< % 0.636) hr-arr)) (count hr-arr)))
-
-                t80-arr (np/array (to-array finite80))
-                median-t80 (if (empty? finite80) js/NaN (np/median t80-arr))
-
-                hr-ia-arr (np/array (to-array (map :hr_ia all-stats)))
-                median-hr-ia (np/median hr-ia-arr)
-
-                z-ia-arr (np/array (to-array (map :z_ia all-stats)))
-                median-z-ia (np/median z-ia-arr)
-
-                bat-alive-arr (np/array (to-array (map :bat_alive_upd all-stats)))
-                median-bat-alive (np/median bat-alive-arr)
-
-                gps-alive-arr (np/array (to-array (map :gps_alive_upd all-stats)))
-                median-gps-alive (np/median gps-alive-arr)
-
-                p-reach (/ (count (filter :reached_80 all-stats)) n-accepted)]
-
-            (merge rec
-                   {:n_attempts n-done
-                    :n_pass_events n-pass-events
-                    :n_pass_futility n-accepted
-                    :n_accepted n-accepted
-                    :acceptance_rate (/ n-accepted n-done)
-                    :p_reach80 p-reach
-                    :p_no_readout (- 1.0 p-reach)
-                    :median_hr_final median-hr
-                    :p_hr_below_threshold p-hr-below
-                    :p_success_overall p-success-overall
-                    :median_t80_months median-t80
-                    :median_hr_ia median-hr-ia
-                    :median_z_ia median-z-ia
-                    :median_bat_alive_upd median-bat-alive
-                    :median_gps_alive_upd median-gps-alive})))))))
-))
+  "Simulates multiple trials for a single scenario combination."
+  {:malli/schema [:=> [:cat [:map [:rec any?] [:cfg-dict any?] [:n-sims :int] [:seed :int]]] any?]}
+  [{:keys [rec cfg-dict n-sims seed]}]
+  (let [random-gen (np-random/default-rng seed)
+        config cfg-dict
+        n-screen (js/Math.min (:n-sims-screen config) n-sims)
+        [screen-stats screen-pass] (run-sim-chunk rec config n-screen random-gen)]
+    (when (>= (count screen-stats) (:n-screen-min-pass config))
+      (let [remaining (- n-sims n-screen)
+            [more-stats more-pass] (if (> remaining 0) (run-sim-chunk rec config remaining random-gen) [[] 0])
+            all-stats (concat screen-stats more-stats)]
+        (when-not (empty? all-stats)
+          (summarize-results all-stats n-sims (+ screen-pass more-pass) rec))))))
