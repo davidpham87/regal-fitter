@@ -68,12 +68,15 @@
           (aset arr j tmp)
           (recur (dec i)))))))
 
+(defn- weibull-scale-from-median [median shape]
+  (/ median (js/Math.pow (js/Math.log 2.0) (/ 1.0 shape))))
+
 (defn simulate-one-combo
   "Simulates a single (mOS, k) combination."
   [{:keys [mos k n-sims seed config]}]
   ;; Using Math.random for now for speed and stability in worker.
   ;; If reproducibility is strict, we should use a seeded PRNG.
-  (let [scale (survival/weibull-scale-from-median mos k)
+  (let [scale (weibull-scale-from-median mos k)
         n-total (reduce + (map #(nth % 2) (:enroll-bands config)))
         n-per-arm (quot n-total 2)
         
