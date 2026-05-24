@@ -66,15 +66,17 @@
       [:h3.text-lg.font-bold.text-gray-700.mb-3
        "Methodology & Model Families"]
       [:p.text-sm.text-gray-600.mb-3
-       "**Two-Stage ABC:** Combos are run through an analytical pre-filter
-        (Stage 1) to reject parameter sets that cannot mathematically meet
-        anchors. Surviving combos then run through trial simulations (Stage 2)
-        to estimate empirical success probability."]
+       [:strong "Two-Stage ABC:"]
+       " Combos are run through an analytical pre-filter "
+       "(Stage 1) to reject parameter sets that cannot mathematically meet "
+       "anchors. Surviving combos then run through trial simulations (Stage 2) "
+       "to estimate empirical success probability."]
       [:p.text-sm.text-gray-600
-       "**Three Model Families:** Fits trial data using three distinct
-        parametric assumptions: Weibull/Weibull (agnostic), standard
-        Cure-fraction GPS (explicit plateau), and Leaky Cure GPS (cure tail
-        with residual hazard rate to prevent immortality artifacts)."]]
+       [:strong "Three Model Families:"]
+       " Fits trial data using three distinct "
+       "parametric assumptions: Weibull/Weibull (agnostic), standard "
+       "Cure-fraction GPS (explicit plateau), and Leaky Cure GPS (cure tail "
+       "with residual hazard rate to prevent immortality artifacts)."]]
 
      [:div.bg-gray-50.p-4.rounded-xl.border
       [:h3.text-xs.font-bold.text-gray-500.uppercase.tracking-wider.mb-3
