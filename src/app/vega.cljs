@@ -120,3 +120,40 @@
                    :encoding {:y {:field "y" :type "quantitative"}
                               :color {:value "red"}
                               :strokeDash {:value [4 4]}}}]}]])]))
+
+(defn discovery-survival-chart [data]
+  [vega-lite
+   {:width 350 :height 300
+    :title "Pooled Survival Curve (N=126)"
+    :data {:values data}
+    :mark {:type "line" :color "#4488cc" :strokeWidth 3}
+    :encoding {:x {:field "time" :type "quantitative" :title "Months"}
+               :y {:field "survival" :type "quantitative" :title "S(t)" :scale {:domain [0 1]}}}
+    :config {:view {:stroke "transparent"}}}])
+
+(defn discovery-accrual-chart [curve-data event-stats]
+  (let [markers (mapv (fn [s] {:time (case (:label s)
+                                     "IA (46.0m)" 46.0
+                                     "UPD (58.0m)" 58.0
+                                     "PR3 (62.97m)" 62.97
+                                     0.0)
+                             :expected (:expected s)
+                             :target (:target s)
+                             :label (:label s)})
+                      event-stats)]
+    [vega-lite
+     {:width 350 :height 300
+      :title "Expected Event Accrual"
+      :layer [{:data {:values curve-data}
+               :mark {:type "line" :color "#aa5599" :strokeWidth 2}
+               :encoding {:x {:field "time" :type "quantitative"}
+                          :y {:field "events" :type "quantitative" :title "Events"}}}
+              {:data {:values markers}
+               :mark {:type "point" :size 100 :color "black" :shape "cross"}
+               :encoding {:x {:field "time" :type "quantitative"}
+                          :y {:field "target" :type "quantitative"}}}
+              {:data {:values markers}
+               :mark {:type "point" :size 60 :color "red"}
+               :encoding {:x {:field "time" :type "quantitative"}
+                          :y {:field "expected" :type "quantitative"}}}]
+      :config {:view {:stroke "transparent"}}}]))

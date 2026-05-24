@@ -74,3 +74,53 @@
                                             arm-share start end)]
         (np/set-block output-array events start)))
     output-array))
+
+(defn- calculate-events-and-var-chunk
+  "Processes a chunk of survival parameters to compute expected events and variance."
+  [survival-func params-grid follow-up-3d weights-3d arm-share start end]
+  (let [params-chunk (mapv (fn [p]
+                             (np/reshape (np/slice p start end)
+                                         #js [(- end start) 1 1]))
+                           params-grid)
+        survival-res (apply survival-func follow-up-3d params-chunk)
+        one-minus-S (np/subtract (np/array 1.0) survival-res)
+        weighted-E (np/multiply one-minus-S weights-3d)
+        events (np/multiply (np/sum weighted-E 2) arm-share)
+        ;; Variance for pooled is sum of S*(1-S). For arm, it is more complex but
+        ;; we approximate as arm-share * sum(S*(1-S)) for large n or specifically
+        ;; as n_arm * d * (1-d) which is sum(arm_share * S * (1-S)).
+        S-times-one-minus-S (np/multiply survival-res one-minus-S)
+        weighted-V (np/multiply S-times-one-minus-S weights-3d)
+        variance (np/multiply (np/sum weighted-V 2) arm-share)]
+    {:events events :variance variance}))
+
+(defn expected-arm-events-and-variance
+  "Calculates expected number of events and variance per arm."
+  {:malli/schema [:=> [:cat :function [:vector any?] any? any? any?
+                            :number :number] any?]}
+  [survival-func params-grid enroll-pts enroll-weights calendar-times
+   n-per-arm n-total]
+  (let [arm-share (/ n-per-arm n-total)
+        times-2d (np/reshape calendar-times
+                             #js [(.-size calendar-times) 1])
+        enroll-2d (np/reshape enroll-pts
+                              #js [1 (.-size enroll-pts)])
+        follow-up (np/maximum (np/subtract times-2d enroll-2d) 0.0)
+        grid-size (.-size (first params-grid))
+        time-size (.-size calendar-times)
+        ev-array (np/empty #js [grid-size time-size] "float64")
+        var-array (np/empty #js [grid-size time-size] "float64")
+        follow-up-3d (np/reshape follow-up
+                                 #js [1 time-size
+                                      (.-size enroll-pts)])
+        weights-3d (np/reshape enroll-weights #js [1 1 (.-size enroll-pts)])
+        chunk-size 256]
+    (doseq [start (range 0 grid-size chunk-size)]
+      (let [end (js/Math.min (+ start chunk-size) grid-size)
+            {:keys [events variance]} (calculate-events-and-var-chunk
+                                       survival-func params-grid
+                                       follow-up-3d weights-3d
+                                       arm-share start end)]
+        (np/set-block ev-array events start)
+        (np/set-block var-array variance start)))
+    {:events ev-array :variance var-array}))

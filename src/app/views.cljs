@@ -1,7 +1,8 @@
 (ns app.views
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [app.state :as state]))
+            [app.state :as state]
+            [app.discovery :as discovery]))
 
 (def ^:private btn-class
   (str "inline-block bg-blue-600 hover:bg-blue-700 "
@@ -55,11 +56,4 @@
      "Placebo stress testing interface will be loaded here."]]])
 
 (defn discovery-view []
-  [:div.p-6.max-w-4xl.mx-auto
-   [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
-   [:p.text-gray-600.mb-6
-    "Explore and plot survival curves and event accrual given parameters."]
-   [:div.border.border-dashed.border-gray-300.rounded-xl.p-12.text-center
-    {:class "bg-gray-50"}
-    [:p.text-gray-400.italic
-     "Survival curve and event plotting interface will be loaded here."]]])
+  [discovery/discovery-view])
