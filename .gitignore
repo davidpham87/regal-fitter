@@ -1,8 +1,5 @@
 node_modules/
 .shadow-cljs/
-public/js/main.js
-public/js/cljs-runtime/
-public/js/manifest.edn
 pom.xml
 pom.xml.asc
 *.jar
@@ -17,8 +14,6 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .cpcache/
-public/js
-public/sims/
 out/
 chat.md
 .lsp/
