@@ -158,10 +158,19 @@
                                 :nearest true
                                 :clear "mouseout"
                                 :fields ["time"]}}]
+             :transform [{:pivot "group"
+                          :value "survival"
+                          :groupby ["time"]}]
              :mark {:type "rule" :color "#bbb" :strokeWidth 1}
              :encoding {:x {:field "time" :type "quantitative"}
                         :tooltip [{:field "time" :type "quantitative"
-                                   :title "Months"}]}}]
+                                   :title "Months"}
+                                  {:field "Pooled" :type "quantitative"
+                                   :format ".3f"}
+                                  {:field "GPS" :type "quantitative"
+                                   :format ".3f"}
+                                  {:field "BAT" :type "quantitative"
+                                   :format ".3f"}]}}]
     :config {:view {:stroke "transparent"}
              :legend {:orient "bottom"}}}])
 
@@ -198,10 +207,19 @@
                                   :nearest true
                                   :clear "mouseout"
                                   :fields ["time"]}}]
+               :transform [{:pivot "group"
+                            :value "events"
+                            :groupby ["time"]}]
                :mark {:type "rule" :color "#bbb" :strokeWidth 1}
                :encoding {:x {:field "time" :type "quantitative"}
                           :tooltip [{:field "time" :type "quantitative"
-                                     :title "Months"}]}}
+                                     :title "Months"}
+                                    {:field "Total" :type "quantitative"
+                                     :format ".1f"}
+                                    {:field "GPS" :type "quantitative"
+                                     :format ".1f"}
+                                    {:field "BAT" :type "quantitative"
+                                     :format ".1f"}]}}
               {:data {:values markers}
                :mark {:type "point" :size 100 :color "black" :shape "cross"}
                :encoding {:x {:field "time" :type "quantitative"}
