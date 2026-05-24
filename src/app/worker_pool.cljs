@@ -9,7 +9,7 @@
 (declare process-queue!)
 
 (defn create-worker! []
-  (let [worker (js/Worker. "/js/worker.js")]
+  (let [worker (js/Worker. "js/worker.js")]
     (set! (.-onmessage worker)
           (fn [event]
             (let [data (.-data event)
