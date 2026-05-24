@@ -138,9 +138,9 @@
            :view :config-form ;; :config-form, :config-json, :results
            :active-page :home
            :discovery {:active-family "weibull"
-                       :params {:bat-med 8.0 :bat-shape 1.0
+                       :params {:bat-med 8.0 :weibull-k 1.0
                                 :gps-med 12.0
-                                :cure-frac 0.2 :unc-med 10.0 :unc-shape 1.0
+                                :cure-frac 0.2 :unc-med 10.0
                                 :leak-yr 0.05}}
            }))
 
