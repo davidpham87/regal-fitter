@@ -65,9 +65,9 @@ def get_manual_enrollment_bands():
     Allows users to input the exact enrollment months and patient counts.
     Format: [[start_month, end_month, n_patients], ...]
     """
-    # Example: [[0, 1, 2], [1, 5, 20]] means 2 patients in month 0-1,
-    # and 20 patients in months 1-5.
-    return [[0, 1, 2], [1, 5, 20]]
+    # Using default bands from regal_fit.py as a starting point:
+    # Year 1: 15 patients, Year 2: 50, Year 3: 56, Final 2 months: 5
+    return [[0.0, 12.0, 15], [12.0, 24.0, 50], [24.0, 36.0, 56], [36.0, 38.0, 5]]
 
 # --- Configuration (from regal_fit.py) ---
 ENROLL_BANDS = get_manual_enrollment_bands()
@@ -241,7 +241,7 @@ def main():
     # Save all results concatenated
     all_results_path = "public/sims/all_results.json"
     with open(all_results_path, "w") as f:
-        json.dump(results, f)
+        json.dump(results, f, indent=2)
 
     print(f"\nDone. Results saved in public/sims/")
     print(f"{'mOS':>5} | {'Best k':>6} | {'p_joint':>8} | {'E[IA]':>6} | {'E[Upd]':>6} | {'E[PR3]':>6}")
