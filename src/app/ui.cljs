@@ -338,49 +338,96 @@
            :median-fu-target :median-fu-tol :hr-threshold :seed :families]})
 
 (defn config-form []
-  (let [config (:config @state/app-state)]
-    [:div.p-4.max-w-6xl.mx-auto
-     [:h2.text-2xl.font-extrabold.text-gray-900.mb-6
-      "Simulation Configuration"]
+  (let [collapsed? (r/atom {:s1 true :s2 true :s3 true :s4 true})]
+    (fn []
+      (let [config (:config @state/app-state)]
+        [:div.p-4.max-w-6xl.mx-auto
+         [:h2.text-2xl.font-extrabold.text-gray-900.mb-6
+          "Simulation Configuration"]
 
-     ;; Section 1: Trial Structure & Timing
-     [:div.mb-8
-      [:h3.text-lg.font-bold.text-gray-800.border-b.pb-2.mb-4
-       "1. Trial Structure & Event Timing"]
-      [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-       [category-card :trial (get category->keys :trial) config]
-       [category-card :timing (get category->keys :timing) config]]]
+         ;; Section 1: Trial Structure & Timing
+         [:div.mb-8
+          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+           {:class "cursor-pointer select-none"
+            :on-click #(swap! collapsed? update :s1 not)}
+           [:h3.text-lg.font-bold.text-gray-800
+            "1. Trial Structure & Event Timing"]
+           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+             :on-click (fn [e]
+                         (.stopPropagation e)
+                         (swap! collapsed? update :s1 not))}
+            [:span (if (:s1 @collapsed?) "Expand" "Collapse")]
+            [:span (if (:s1 @collapsed?) "▶" "▼")]]]
+          (when-not (:s1 @collapsed?)
+            [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+             [category-card :trial (get category->keys :trial) config]
+             [category-card :timing (get category->keys :timing) config]])]
 
-     ;; Section 2: Distribution Grid Settings
-     [:div.mb-8
-      [:h3.text-lg.font-bold.text-gray-800.border-b.pb-2.mb-4
-       "2. Prior Model Distribution Grids"]
-      [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-       [category-card :bat (get category->keys :bat) config]
-       [category-card :gps (get category->keys :gps) config]
-       [category-card :cure (get category->keys :cure) config]
-       [category-card :leaky (get category->keys :leaky) config]]]
+         ;; Section 2: Distribution Grid Settings
+         [:div.mb-8
+          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+           {:class "cursor-pointer select-none"
+            :on-click #(swap! collapsed? update :s2 not)}
+           [:h3.text-lg.font-bold.text-gray-800
+            "2. Prior Model Distribution Grids"]
+           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+             :on-click (fn [e]
+                         (.stopPropagation e)
+                         (swap! collapsed? update :s2 not))}
+            [:span (if (:s2 @collapsed?) "Expand" "Collapse")]
+            [:span (if (:s2 @collapsed?) "▶" "▼")]]]
+          (when-not (:s2 @collapsed?)
+            [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+             [category-card :bat (get category->keys :bat) config]
+             [category-card :gps (get category->keys :gps) config]
+             [category-card :cure (get category->keys :cure) config]
+             [category-card :leaky (get category->keys :leaky) config]])]
 
-     ;; Section 3: ABC Tolerances & Prefilters
-     [:div.mb-8
-      [:h3.text-lg.font-bold.text-gray-800.border-b.pb-2.mb-4
-       "3. ABC Tolerances & Analytical Prefilters"]
-      [:div.grid.grid-cols-1.gap-6
-       [category-card :prefilter (get category->keys :prefilter) config]]]
+         ;; Section 3: ABC Tolerances & Prefilters
+         [:div.mb-8
+          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+           {:class "cursor-pointer select-none"
+            :on-click #(swap! collapsed? update :s3 not)}
+           [:h3.text-lg.font-bold.text-gray-800
+            "3. ABC Tolerances & Analytical Prefilters"]
+           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+             :on-click (fn [e]
+                         (.stopPropagation e)
+                         (swap! collapsed? update :s3 not))}
+            [:span (if (:s3 @collapsed?) "Expand" "Collapse")]
+            [:span (if (:s3 @collapsed?) "▶" "▼")]]]
+          (when-not (:s3 @collapsed?)
+            [:div.grid.grid-cols-1.gap-6
+             [category-card
+              :prefilter (get category->keys :prefilter) config]])]
 
-     ;; Section 4: Compute Options & SAP
-     [:div.mb-8
-      [:h3.text-lg.font-bold.text-gray-800.border-b.pb-2.mb-4
-       "4. Execution Settings & SAP Constraints"]
-      [:div.grid.grid-cols-1.gap-6
-       [category-card :other (get category->keys :other) config]]]
+         ;; Section 4: Compute Options & SAP
+         [:div.mb-8
+          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+           {:class "cursor-pointer select-none"
+            :on-click #(swap! collapsed? update :s4 not)}
+           [:h3.text-lg.font-bold.text-gray-800
+            "4. Execution Settings & SAP Constraints"]
+           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+             :on-click (fn [e]
+                         (.stopPropagation e)
+                         (swap! collapsed? update :s4 not))}
+            [:span (if (:s4 @collapsed?) "Expand" "Collapse")]
+            [:span (if (:s4 @collapsed?) "▶" "▼")]]]
+          (when-not (:s4 @collapsed?)
+            [:div.grid.grid-cols-1.gap-6
+             [category-card :other (get category->keys :other) config]])]
 
-     [:div.mt-8.flex.justify-center
-      [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
-       {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
-                    "transform hover:-translate-y-0.5")
-        :on-click #(sim/start-simulation!)}
-       "Run Simulation"]]]))
+         [:div.mt-8.flex.justify-center
+          [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
+           {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
+                        "transform hover:-translate-y-0.5")
+            :on-click #(sim/start-simulation!)}
+           "Run Simulation"]]]))))
 
 (defn- config->nested [config]
   (into {} (for [[cat ks] category->keys]
