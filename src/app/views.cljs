@@ -2,6 +2,8 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [app.state :as state]
+            [app.vega :as vega]
+            [app.simulator :as sim]
             [app.discovery :as discovery]))
 
 (def ^:private btn-class
@@ -107,15 +109,112 @@
       "Note: This is an independent analytical exercise and does not
        constitute financial advice. SLS long position held by the author."]]]])
 
+(defn- stress-test-form []
+  (let [config (:stress-test-config @state/app-state)]
+    [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-6
+     [:h2.text-xl.font-bold.mb-4 "Configuration"]
+     [:div.grid.grid-cols-1.md:grid-cols-3.gap-4
+      [:div
+       [:label.block.text-sm.font-semibold.text-gray-700
+        "mOS Grid (start, stop, step)"]
+       [:div.flex.gap-2.mt-1
+        (doall
+         (for [i (range 3)]
+           (let [v (nth (:mos-grid config) i)]
+             ^{:key (str "mos-" i)}
+             [:input.border.w-full.p-1.rounded.text-sm
+              {:type "number" :step "0.1"
+               :defaultValue (if (js/isNaN v) "" v)
+               :on-change (fn [e]
+                            (let [nv (js/parseFloat (.. e -target -value))
+                                  new-grid (assoc (:mos-grid config) i nv)]
+                              (state/set-stress-test-config!
+                               :mos-grid new-grid)))}])))]]
+      [:div
+       [:label.block.text-sm.font-semibold.text-gray-700
+        "k Grid (start, stop, step)"]
+       [:div.flex.gap-2.mt-1
+        (doall
+         (for [i (range 3)]
+           (let [v (nth (:k-grid config) i)]
+             ^{:key (str "k-" i)}
+             [:input.border.w-full.p-1.rounded.text-sm
+              {:type "number" :step "0.1"
+               :defaultValue (if (js/isNaN v) "" v)
+               :on-change (fn [e]
+                            (let [nv (js/parseFloat (.. e -target -value))
+                                  new-grid (assoc (:k-grid config) i nv)]
+                              (state/set-stress-test-config!
+                               :k-grid new-grid)))}])))]]
+      [:div
+       [:label.block.text-sm.font-semibold.text-gray-700 "Sims per Combo"]
+       [:input.border.w-full.p-1.rounded.text-sm.mt-1
+        {:type "number" :value (:n-sims config)
+         :on-change (fn [e]
+                      (state/set-stress-test-config!
+                       :n-sims (js/parseInt (.. e -target -value))))}]]]
+     [:div.mt-4.flex.justify-center
+      [:button.bg-blue-600.hover:bg-blue-700.text-white
+       {:class "font-bold px-6 py-2 rounded-lg shadow"
+        :on-click (fn []
+                    (js/console.log "UI: Clicked Run Stress Test")
+                    (sim/start-stress-test!))}
+       "Run Stress Test"]]]))
+
+(defn- stress-test-results-view []
+  (let [st @state/app-state
+        results (:stress-test-results st)
+        status (:stress-test-status st)
+        progress (:stress-test-progress st)]
+    [:div
+     (when (= status :running)
+       [:div.mb-6
+        [:p.text-sm.mb-1
+         (str "Running simulations: "
+              (:completed progress) " / " (:total progress))]
+        [:div.w-full.bg-gray-200.rounded-full.h-2
+         [:div.bg-blue-600.h-2.rounded-full
+          {:style {:width (str (if (pos? (:total progress))
+                                 (* 100 (/ (:completed progress)
+                                           (:total progress)))
+                                 0)
+                               "%")}}]]])
+     (when (seq results)
+       [:div
+        [:h2.text-xl.font-bold.mb-4 "Results Summary"]
+        [vega/stress-test-charts results]
+        [:div.overflow-x-auto.border.rounded-lg.shadow-sm.mt-8
+         [:table.min-w-full.divide-y.divide-gray-200.text-sm
+          [:thead.bg-gray-50
+           [:tr
+            [:th.px-4.py-2.text-left "mOS"]
+            [:th.px-4.py-2.text-left "k"]
+            [:th.px-4.py-2.text-left "p_joint"]
+            [:th.px-4.py-2.text-left "E[IA]"]
+            [:th.px-4.py-2.text-left "E[Upd]"]
+            [:th.px-4.py-2.text-left "E[PR3]"]
+            [:th.px-4.py-2.text-left "Residual"]]]
+          [:tbody.divide-y.divide-gray-200.bg-white
+           (doall
+            (for [r (sort-by :mos results)]
+              ^{:key (str (:mos r) "-" (:k r))}
+              [:tr
+               [:td.px-4.py-2 (:mos r)]
+               [:td.px-4.py-2 (:k r)]
+               [:td.px-4.py-2 (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
+               [:td.px-4.py-2 (.toFixed (:expected_ev_ia r) 1)]
+               [:td.px-4.py-2 (.toFixed (:expected_inc_upd r) 1)]
+               [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
+               [:td.px-4.py-2 (.toFixed (:residual r) 2)]]))]]]])]))
+
 (defn placebo-stress-view []
-  [:div.p-6.max-w-4xl.mx-auto
+  [:div.p-6.max-w-6xl.mx-auto
    [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Placebo Stress Test"]
    [:p.text-gray-600.mb-6
-    "Placeholder for calculating and showing p-values of events under stress."]
-   [:div.border.border-dashed.border-gray-300.rounded-xl.p-12.text-center
-    {:class "bg-gray-50"}
-    [:p.text-gray-400.italic
-     "Placebo stress testing interface will be loaded here."]]])
+    "Assess the likelihood of observed trial milestones under various "
+    "Null Hypothesis (H0) scenarios."]
+   [stress-test-form]
+   [stress-test-results-view]])
 
 (defn discovery-view []
   [discovery/discovery-view])
