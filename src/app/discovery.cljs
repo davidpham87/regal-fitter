@@ -215,6 +215,31 @@
      :accrual (mapv (fn [t e] {:time t :events e})
                     t-arr (first (.toArray ev-total)))}))
 
+(defn- stats-row [title stats]
+  [:div.mb-6
+   [:h4.text-sm.font-bold.text-gray-700.mb-3 title]
+   [:div.grid.grid-cols-1.sm:grid-cols-3.gap-3
+    (for [s stats]
+      ^{:key (:label s)}
+      [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+       [:h5.text-xs.font-bold.text-gray-500.uppercase (:label s)]
+       [:div.mt-1.flex.items-baseline.gap-1
+        [:span.text-xl.font-bold.text-gray-800 (.toFixed (:expected s) 1)]
+        [:span.text-xs.text-gray-400 (str " / " (:target s))]]
+       [:div.mt-1.grid.grid-cols-2.gap-1
+        [:div
+         [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"}
+          "SD"]
+         [:div.text-xs.font-semibold (.toFixed (:sd s) 2)]]
+        [:div
+         [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"}
+          "Std Dev"]
+         [:div.text-xs.font-semibold
+          {:class (if (> (js/Math.abs (:std-dev s)) 2)
+                    "text-red-600"
+                    "text-green-600")}
+          (.toFixed (:std-dev s) 2)]]]])]])
+
 (defn discovery-view []
   (let [state (get-discovery-state)
         active-family (:active-family state)
@@ -233,7 +258,7 @@
                          :cure-frac 0.0)
         stats-h0 (calculate-stats active-family h0-params config)
         curve-data-h0 (calculate-curves active-family h0-params config)]
-    [:div.p-6.max-w-6xl.mx-auto
+    [:div.p-6.max-w-7xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
      [:p.text-gray-600.mb-6
       (str "Explore survival curves and event accrual "
@@ -249,84 +274,64 @@
           :on-click #(set-active-family! fam)}
          (clojure.string/capitalize fam)])]
 
-     [:div.grid.grid-cols-1.lg:grid-cols-4.gap-8
-      ;; Controls
-      [:div.lg:col-span-1.bg-white.p-4.rounded-xl.shadow-sm.border
-       [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
-
-       [:div.mb-4.flex.items-center.gap-2.p-2.bg-gray-50.rounded-lg.border
+     ;; Controls (Full width)
+     [:div.bg-white.p-4.rounded-xl.shadow-sm.border.mb-8
+      [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
+      [:div.grid.grid-cols-1.sm:grid-cols-2.md:grid-cols-3.lg:grid-cols-6.gap-4
+       [:div.flex.items-center.p-2.bg-gray-50.rounded-lg.border.h-12
         [:input#placebo-mode
          {:type "checkbox"
           :checked placebo-mode?
           :on-change #(toggle-placebo-mode! (.. % -target -checked))}]
-        [:label.text-xs.font-bold.text-gray-700.cursor-pointer
+        [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
          {:for "placebo-mode"}
-         "Placebo Mode (GPS = BAT, Cure = 0)"]]
+         "Placebo Mode"]]
 
        [param-input :bat-med "BAT Median" 4 30 0.5]
        [param-input :weibull-k "Weibull k shape" 0.5 2.0 0.1]
 
        (case active-family
          "weibull"
-         [:div
+         [:<>
           [param-input :gps-med "GPS Median" 4 100 1.0 placebo-mode?]]
 
          "cure"
-         [:div
+         [:<>
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
           [param-input :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]]
 
          "leaky"
-         [:div
+         [:<>
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
           [param-input :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]
-          [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
+          [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]]
 
-      ;; Results and Charts
-      [:div.lg:col-span-3
-       ;; Milestone stats (Alternate hypothesis)
-       [:div.grid.grid-cols-1.md:grid-cols-3.gap-4.mb-8
-        (for [s stats]
-          ^{:key (:label s)}
-          [:div.bg-white.p-4.rounded-xl.shadow-sm.border
-           [:h4.text-xs.font-bold.text-gray-500.uppercase (:label s)]
-           [:div.mt-2.flex.items-baseline.gap-2
-            [:span.text-2xl.font-bold.text-gray-800 (.toFixed (:expected s) 1)]
-            [:span.text-xs.text-gray-400 (str " / " (:target s))]]
-           [:div.mt-1.grid.grid-cols-2.gap-2
-            [:div
-             [:div {:style {:font-size "10px"}
-                    :class "text-gray-400 uppercase"}
-              "SD"]
-             [:div.text-xs.font-semibold (.toFixed (:sd s) 2)]]
-            [:div
-             [:div {:style {:font-size "10px"}
-                    :class "text-gray-400 uppercase"}
-              "Std Dev"]
-             [:div.text-xs.font-semibold
-              {:class (if (> (js/Math.abs (:std-dev s)) 2)
-                        "text-red-600"
-                        "text-green-600")}
-              (.toFixed (:std-dev s) 2)]]]])]
-
-       ;; Alternate Hypothesis Charts
-       [:div.grid.grid-cols-1.md:grid-cols-2.gap-6.mb-8
-        [:div.bg-white.p-4.rounded-xl.shadow-sm.border
-         [:h4.text-sm.font-bold.text-gray-800.mb-2
-          "Alternate: Pooled Survival"]
+     ;; Results & Charts in 2 columns
+     [:div.grid.grid-cols-1.lg:grid-cols-2.gap-8
+      ;; Column 1: Alternate Hypothesis
+      [:div.bg-gray-50.p-4.rounded-xl.border
+       [:h3.font-extrabold.text-gray-800.mb-4 "Alternate Hypothesis (H1)"]
+       [stats-row "Milestone Stats (H1)" stats]
+       [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+         [:h4.text-xs.font-bold.text-gray-700.mb-2
+          "Alternate: Survival Curves"]
          [vega/discovery-survival-chart (:survival curve-data)]]
-        [:div.bg-white.p-4.rounded-xl.shadow-sm.border
-         [:h4.text-sm.font-bold.text-gray-800.mb-2
+        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+         [:h4.text-xs.font-bold.text-gray-700.mb-2
           "Alternate: Event Accrual"]
-         [vega/discovery-accrual-chart (:accrual curve-data) stats]]]
+         [vega/discovery-accrual-chart (:accrual curve-data) stats]]]]
 
-       ;; H0 Hypothesis Charts (Cure Fraction = 0, Shared Median mOS)
-       [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-        [:div.bg-white.p-4.rounded-xl.shadow-sm.border
-         [:h4.text-sm.font-bold.text-gray-800.mb-2
-          "Null (H0): Pooled Survival (Cure = 0, Shared Median)"]
+      ;; Column 2: Null Hypothesis (H0)
+      [:div.bg-gray-50.p-4.rounded-xl.border
+       [:h3.font-extrabold.text-gray-800.mb-4 "Null Hypothesis (H0)"]
+       [stats-row "Milestone Stats (H0)" stats-h0]
+       [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+         [:h4.text-xs.font-bold.text-gray-700.mb-2
+          "H0: Survival Curves (Cure=0, Shared Med)"]
          [vega/discovery-survival-chart (:survival curve-data-h0)]]
-        [:div.bg-white.p-4.rounded-xl.shadow-sm.border
-         [:h4.text-sm.font-bold.text-gray-800.mb-2
-          "Null (H0): Event Accrual (Cure = 0, Shared Median)"]
+        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+         [:h4.text-xs.font-bold.text-gray-700.mb-2
+          "H0: Event Accrual (Cure=0, Shared Med)"]
          [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]]]]]))
