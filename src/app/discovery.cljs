@@ -77,7 +77,7 @@
                       (:n-per-arm config) (:n-total config)))
 
                   (= family "cure")
-                  (let [med (np/array #js [(:unc-med params)])
+                  (let [med (np/array #js [(:gps-med params)])
                         shape (np/array #js [(:weibull-k params)])
                         scale (survival/weibull-scale-from-median med shape)
                         cf (np/array #js [(:cure-frac params)])]
@@ -88,7 +88,7 @@
                       (:n-per-arm config) (:n-total config)))
 
                   (= family "leaky")
-                  (let [med (np/array #js [(:unc-med params)])
+                  (let [med (np/array #js [(:gps-med params)])
                         shape (np/array #js [(:weibull-k params)])
                         scale (survival/weibull-scale-from-median med shape)
                         cf (np/array #js [(:cure-frac params)])
@@ -154,7 +154,7 @@
                (:n-per-arm config) (:n-total config))])
 
           (= family "cure")
-          (let [med (np/array #js [(:unc-med params)])
+          (let [med (np/array #js [(:gps-med params)])
                 shape (np/array #js [(:weibull-k params)])
                 scale (survival/weibull-scale-from-median med shape)
                 cf (np/array #js [(:cure-frac params)])]
@@ -166,7 +166,7 @@
                (:n-per-arm config) (:n-total config))])
 
           (= family "leaky")
-          (let [med (np/array #js [(:unc-med params)])
+          (let [med (np/array #js [(:gps-med params)])
                 shape (np/array #js [(:weibull-k params)])
                 scale (survival/weibull-scale-from-median med shape)
                 cf (np/array #js [(:cure-frac params)])
@@ -226,12 +226,12 @@
          "cure"
          [:div
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
-          [param-input :unc-med "Uncured Median" 4 50 1.0]]
+          [param-input :gps-med "Uncured Median" 4 50 1.0]]
 
          "leaky"
          [:div
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
-          [param-input :unc-med "Uncured Median" 4 50 1.0]
+          [param-input :gps-med "Uncured Median" 4 50 1.0]
           [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
 
       ;; Results and Charts
