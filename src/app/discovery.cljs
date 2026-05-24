@@ -10,8 +10,21 @@
 (defn- get-discovery-state []
   (:discovery @state/app-state))
 
+(defn- debounce [f ms]
+  (let [timer (atom nil)]
+    (fn [& args]
+      (when @timer (js/clearTimeout @timer))
+      (reset! timer (js/setTimeout #(apply f args) ms)))))
+
+(defonce ^:private debounced-calc-update
+  (debounce
+    (fn [params]
+      (swap! state/app-state assoc-in [:discovery :calc-params] params))
+    1000))
+
 (defn- update-discovery-param! [param-key value]
-  (swap! state/app-state assoc-in [:discovery :params param-key] value))
+  (swap! state/app-state assoc-in [:discovery :params param-key] value)
+  (debounced-calc-update (:params (get-discovery-state))))
 
 (defn- set-active-family! [family]
   (swap! state/app-state assoc-in [:discovery :active-family] family))
@@ -177,10 +190,11 @@
 (defn discovery-view []
   (let [state (get-discovery-state)
         active-family (:active-family state)
+        calc-params (or (:calc-params state) (:params state))
         params (:params state)
         config (:config @state/app-state)
-        stats (calculate-stats active-family params config)
-        curve-data (calculate-curves active-family params config)]
+        stats (calculate-stats active-family calc-params config)
+        curve-data (calculate-curves active-family calc-params config)]
     [:div.p-6.max-w-6xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
      [:p.text-gray-600.mb-6
