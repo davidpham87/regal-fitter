@@ -60,10 +60,62 @@ def get_s_curve_enrollment_bands(n_total, total_months, median_month, k=0.3):
             bands.append((float(i), float(i+1), int(n_int[i])))
     return bands
 
+def get_manual_enrollment_bands(total_patients):
+    """
+    Allows users to input the exact enrollment months and patient counts.
+    Format: [[start_month, end_month, n_patients], ...]
+    """
+    # Less concentrated enrollment starting at month 0 (k=0.1, median=19):
+    bands = [
+        [0.0, 1.0, 2],   # Feb 2021 to Mar 2021
+        [1.0, 2.0, 2],   # Mar 2021 to Apr 2021
+        [2.0, 3.0, 2],   # Apr 2021 to May 2021
+        [3.0, 4.0, 2],   # May 2021 to Jun 2021
+        [4.0, 5.0, 3],   # Jun 2021 to Jul 2021
+        [5.0, 6.0, 3],   # Jul 2021 to Aug 2021
+        [6.0, 7.0, 3],   # Aug 2021 to Sep 2021
+        [7.0, 8.0, 3],   # Sep 2021 to Oct 2021
+        [8.0, 9.0, 3],   # Oct 2021 to Nov 2021
+        [9.0, 10.0, 3],  # Nov 2021 to Dec 2021
+        [10.0, 11.0, 4], # Dec 2021 to Jan 2022
+        [11.0, 12.0, 4], # Jan 2022 to Feb 2022
+        [12.0, 13.0, 4], # Feb 2022 to Mar 2022
+        [13.0, 14.0, 4], # Mar 2022 to Apr 2022
+        [14.0, 15.0, 4], # Apr 2022 to May 2022
+        [15.0, 16.0, 4], # May 2022 to Jun 2022
+        [16.0, 17.0, 4], # Jun 2022 to Jul 2022
+        [17.0, 18.0, 4], # Jul 2022 to Aug 2022
+        [18.0, 19.0, 4], # Aug 2022 to Sep 2022
+        [19.0, 20.0, 4], # Sep 2022 to Oct 2022
+        [20.0, 21.0, 4], # Oct 2022 to Nov 2022
+        [21.0, 22.0, 4], # Nov 2022 to Dec 2022
+        [22.0, 23.0, 4], # Dec 2022 to Jan 2023
+        [23.0, 24.0, 4], # Jan 2023 to Feb 2023
+        [24.0, 25.0, 4], # Feb 2023 to Mar 2023
+        [25.0, 26.0, 4], # Mar 2023 to Apr 2023
+        [26.0, 27.0, 4], # Apr 2023 to May 2023
+        [27.0, 28.0, 4], # May 2023 to Jun 2023
+        [28.0, 29.0, 3], # Jun 2023 to Jul 2023
+        [29.0, 30.0, 3], # Jul 2023 to Aug 2023
+        [30.0, 31.0, 3], # Aug 2023 to Sep 2023
+        [31.0, 32.0, 3], # Sep 2023 to Oct 2023
+        [32.0, 33.0, 3], # Oct 2023 to Nov 2023
+        [33.0, 34.0, 3], # Nov 2023 to Dec 2023
+        [34.0, 35.0, 2], # Dec 2023 to Jan 2024
+        [35.0, 36.0, 2], # Jan 2024 to Feb 2024
+        [36.0, 37.0, 2], # Feb 2024 to Mar 2024
+        [37.0, 38.0, 4]  # Mar 2024 to Apr 2024
+    ]
+
+    current_total = sum(band[2] for band in bands)
+    assert current_total == total_patients, f"Total patients {current_total} != expected {total_patients}"
+
+    return bands
+
 # --- Configuration (from regal_fit.py) ---
 N_TOTAL = 126
-N_PER_ARM = 63
-ENROLL_BANDS = get_s_curve_enrollment_bands(N_TOTAL, 38.0, 31.0)
+N_PER_ARM = N_TOTAL // 2
+ENROLL_BANDS = get_manual_enrollment_bands(N_TOTAL)
 T_IA = 46.0      # month 46 (~Dec 2024)
 T_UPD = 58.0     # month 58 (~Dec 2025)
 T_PR3 = 62.97    # month 63 (~May 2026)
@@ -232,7 +284,7 @@ def main():
     # Save all results concatenated
     all_results_path = "public/sims/all_results.json"
     with open(all_results_path, "w") as f:
-        json.dump(results, f)
+        json.dump(results, f, indent=2)
 
     print(f"\nDone. Results saved in public/sims/")
     print(f"{'mOS':>5} | {'Best k':>6} | {'p_joint':>8} | {'E[IA]':>6} | {'E[Upd]':>6} | {'E[PR3]':>6}")
