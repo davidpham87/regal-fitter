@@ -237,22 +237,26 @@
     [:div
      [:h4.font-semibold.text-blue-950.mb-2 "Observed Stress Milestones:"]
      [:ul.list-disc.pl-4.space-y-1
-      [:li "**Passed IA Gate:** Blinded pooled median OS > 12m at IA, and "
+      [:li [:strong "Passed IA Gate:"]
+       " Blinded pooled median OS > 12m at IA, and "
        "estimated Hazard Ratio < 1.0 (approximated by GPS event count)."]
-      [:li "**Interim Analysis:** Event count at month 46 is ≤ 60 events."]
-      [:li "**Deceleration:** Incremental events between months 46 and 58 "
-       "is ≤ 12 events."]
-      [:li "**Extension:** Incremental events between months 58 and 63 "
-       "is ≤ 6 events."]]]
+      [:li [:strong "Interim Analysis:"]
+       " Event count at month 46 is ≤ 60 events."]
+      [:li [:strong "Deceleration:"]
+       " Incremental events between months 46 and 58 is ≤ 12 events."]
+      [:li [:strong "Extension:"]
+       " Incremental events between months 58 and 63 is ≤ 6 events."]]]
     [:div
      [:h4.font-semibold.text-blue-950.mb-2 "Key Metrics Explained:"]
      [:ul.list-disc.pl-4.space-y-1
-      [:li "**p_joint:** The probability of a trial meeting ALL five stress "
+      [:li [:strong "p_joint:"]
+       " The probability of a trial meeting ALL five stress "
        "milestones simultaneously under H0. A low value (e.g. < 5%) suggests "
        "H0 is highly unlikely."]
-      [:li "**Expected Events:** The average event counts at each milestone "
-       "across all simulations."]
-      [:li "**Residual:** The maximum absolute discrepancy between the "
+      [:li [:strong "Expected Events:"]
+       " The average event counts at each milestone across all simulations."]
+      [:li [:strong "Residual:"]
+       " The maximum absolute discrepancy between the "
        "simulated expected events and actual observed events."]]]]])
 
 (defn placebo-stress-view []
