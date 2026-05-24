@@ -140,7 +140,9 @@
     :data {:values data}
     :layer [{:mark {:type "line" :strokeWidth 2}
              :encoding {:x {:field "time" :type "quantitative"
-                            :title "Months"}
+                            :title "Months"
+                            :axis {:values [0 10 20 30 40 50
+                                            60 70 80]}}
                         :y {:field "survival" :type "quantitative"
                             :title "S(t)"
                             :scale {:domain [0 1]}}
@@ -190,7 +192,9 @@
       :data {:values curve-data}
       :layer [{:mark {:type "line" :strokeWidth 2}
                :encoding {:x {:field "time" :type "quantitative"
-                              :title "Months"}
+                              :title "Months"
+                              :axis {:values [0 10 20 30 40 50
+                                              60 70 80]}}
                           :y {:field "events" :type "quantitative"
                               :title "Events"}
                           :color {:field "group" :type "nominal"

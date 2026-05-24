@@ -303,7 +303,7 @@
          "Placebo Mode"]]
 
        [param-input :bat-med "BAT Median" 4 30 0.5]
-       [param-input :weibull-k "Weibull k shape" 0.5 2.0 0.1]
+       [param-input :weibull-k "Weibull k shape" 0.5 2.0 0.05]
 
        (case active-family
          "weibull"
