@@ -45,28 +45,29 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 1000
+   :n-sims-per-combo 500
    :n-sims-screen 20
    :n-screen-min-pass 1
    :seed 20260508
 
    :bat-med-grid [8 22 1]
    :bat-shape-grid [0.7 1.0 0.1]
-   :gps-med-grid-lo 8.0
-   :gps-med-grid-hi 50.0
+
+   :gps-med-grid-lo 15.0
+   :gps-med-grid-hi 45.0
    :gps-med-grid-n 5
-   :gps-shape-grid [0.5 1.5 0.1]
+   :gps-shape-grid [0.6 1.0 0.1]
 
    :cure-frac-grid [0.2 0.8 0.1]
-   :cure-unc-med-grid [15 45.0 2]
+   :cure-unc-med-grid [15 45.0 5]
    :cure-unc-shape-grid [0.6 1.0 0.1]
 
    :leaky-cure-frac-grid [0.2 0.8 0.1]
-   :leaky-unc-med-grid [15 45 2]
+   :leaky-unc-med-grid [15 45 5]
    :leaky-unc-shape-grid [0.6 1.0 0.1]
-   :leak-grid [0.0 0.2 0.1]
+   :leak-grid [0.05 0.08 0.01]
 
-   :families ["weibull" "leaky"]
+   :families ["weibull" "leaky" "cure"]
 })
 
 (def config-schema

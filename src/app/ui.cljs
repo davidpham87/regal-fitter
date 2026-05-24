@@ -463,7 +463,7 @@
                     (sim/start-simulation!)
                     (swap! state/app-state
                            assoc :view :results))}
-         "Run Simulation"]]))
+         "Run Simulation"]])))
 
 (defn- stage2-progress [progress]
   [:div
@@ -626,48 +626,52 @@
         label])]]])
 
 (defn fitter-page []
-  (let [state @state/app-state
-        view (:view state)
-        status (:status state)]
-    [:div
-     [:div.flex.gap-4.mb-4
-      [:button.px-4.py-2.rounded
-       {:class (if (= view :config-form)
-                 "bg-gray-800 text-white"
-                 "bg-gray-200")
-        :on-click #(swap! state/app-state assoc :view :config-form)}
-       "Form View"]
-      [:button.px-4.py-2.rounded
-       {:class (if (= view :config-json)
-                 "bg-gray-800 text-white"
-                 "bg-gray-200")
-        :on-click #(swap! state/app-state assoc :view :config-json)}
-       "JSON View"]
-      [:button.px-4.py-2.rounded
-       {:class (if (= view :results)
-                 "bg-gray-800 text-white"
-                 "bg-gray-200")
-        :on-click #(swap! state/app-state assoc :view :results)}
-       "Results"]]
-     (when (= status :running-stage1)
-       [:div.bg-yellow-100.p-4.mb-4
-        "Running Stage 1 (Analytical Pre-filter)..."])
-     (when (= status :error)
-       [:div.bg-red-100.text-red-800.p-4.mb-4 (:error-message state)])
-     (case view
-       :config-form [config-form]
-       :config-json [config-json]
-       :results [results-view])]))
+  (let [state state/app-state]
+    (fn []
+      (let [view (:view @state)
+            status (:status @state)]
+        ^{:key view}
+        [:div
+         [:div.flex.gap-4.mb-4
+          [:button.px-4.py-2.rounded
+           {:class (if (= view :config-form)
+                     "bg-gray-800 text-white"
+                     "bg-gray-200")
+            :on-click #(swap! state/app-state assoc :view :config-form)}
+           "Form View"]
+          [:button.px-4.py-2.rounded
+           {:class (if (= view :config-json)
+                     "bg-gray-800 text-white"
+                     "bg-gray-200")
+            :on-click #(swap! state/app-state assoc :view :config-json)}
+           "JSON View"]
+          [:button.px-4.py-2.rounded
+           {:class (if (= view :results)
+                     "bg-gray-800 text-white"
+                     "bg-gray-200")
+            :on-click #(swap! state/app-state assoc :view :results)}
+           "Results"]]
+         (when (= status :running-stage1)
+           [:div.bg-yellow-100.p-4.mb-4
+            "Running Stage 1 (Analytical Pre-filter)..."])
+         (when (= status :error)
+           [:div.bg-red-100.text-red-800.p-4.mb-4 (:error-message state)])
+         ^{:key view}
+         (case view
+           :config-form [config-form]
+           :config-json [config-json]
+           :results [results-view])]))))
 
 (defn main-view []
   (let [state @state/app-state
-        active-page (:active-page state)]
+        active-page (:active-page state)
+        view (:view state)]
     [:div.min-h-screen.bg-gray-50
      [navigation-bar active-page]
      [:div.container.mx-auto.p-4
       (case active-page
         :home [views/home-view]
-        :fitter [fitter-page]
+        :fitter ^{:key view} [fitter-page]
         :placebo-stress [views/placebo-stress-view]
         :discovery [views/discovery-view]
         [views/home-view])]]))
