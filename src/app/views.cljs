@@ -66,15 +66,17 @@
       [:h3.text-lg.font-bold.text-gray-700.mb-3
        "Methodology & Model Families"]
       [:p.text-sm.text-gray-600.mb-3
-       "**Two-Stage ABC:** Combos are run through an analytical pre-filter
-        (Stage 1) to reject parameter sets that cannot mathematically meet
-        anchors. Surviving combos then run through trial simulations (Stage 2)
-        to estimate empirical success probability."]
+       [:strong "Two-Stage ABC:"]
+       " Combos are run through an analytical pre-filter "
+       "(Stage 1) to reject parameter sets that cannot mathematically meet "
+       "anchors. Surviving combos then run through trial simulations (Stage 2) "
+       "to estimate empirical success probability."]
       [:p.text-sm.text-gray-600
-       "**Three Model Families:** Fits trial data using three distinct
-        parametric assumptions: Weibull/Weibull (agnostic), standard
-        Cure-fraction GPS (explicit plateau), and Leaky Cure GPS (cure tail
-        with residual hazard rate to prevent immortality artifacts)."]]
+       [:strong "Three Model Families:"]
+       " Fits trial data using three distinct "
+       "parametric assumptions: Weibull/Weibull (agnostic), standard "
+       "Cure-fraction GPS (explicit plateau), and Leaky Cure GPS (cure tail "
+       "with residual hazard rate to prevent immortality artifacts)."]]
 
      [:div.bg-gray-50.p-4.rounded-xl.border
       [:h3.text-xs.font-bold.text-gray-500.uppercase.tracking-wider.mb-3
@@ -161,51 +163,103 @@
                     (sim/start-stress-test!))}
        "Run Stress Test"]]]))
 
+(defn- sortable-header [label k sort-state]
+  (let [{curr-key :key desc? :desc?} @sort-state]
+    [:th.px-4.py-2.text-left.cursor-pointer.select-none.hover:bg-gray-100
+     {:on-click (fn []
+                  (if (= curr-key k)
+                    (swap! sort-state update :desc? not)
+                    (reset! sort-state {:key k :desc? false})))}
+     (str label
+          (when (= curr-key k)
+            (if desc? " ↓" " ↑")))]))
+
 (defn- stress-test-results-view []
-  (let [st @state/app-state
-        results (:stress-test-results st)
-        status (:stress-test-status st)
-        progress (:stress-test-progress st)]
+  (let [sort-state (r/atom {:key :mos :desc? false})]
+    (fn []
+      (let [st @state/app-state
+            results (:stress-test-results st)
+            status (:stress-test-status st)
+            progress (:stress-test-progress st)
+            {curr-key :key desc? :desc?} @sort-state
+            sorted-results (let [sorted (sort-by curr-key results)]
+                             (if desc? (reverse sorted) sorted))]
+        [:div
+         (when (= status :running)
+           [:div.mb-6
+            [:p.text-sm.mb-1
+             (str "Running simulations: "
+                  (:completed progress) " / " (:total progress))]
+            [:div.w-full.bg-gray-200.rounded-full.h-2
+             [:div.bg-blue-600.h-2.rounded-full
+              {:style {:width (str (if (pos? (:total progress))
+                                     (* 100 (/ (:completed progress)
+                                               (:total progress)))
+                                     0)
+                                   "%")}}]]])
+         (when (seq results)
+           [:div
+            [:h2.text-xl.font-bold.mb-4 "Results Summary"]
+            [vega/stress-test-charts results]
+            [:div.overflow-x-auto.border.rounded-lg.shadow-sm.mt-8
+             [:table.min-w-full.divide-y.divide-gray-200.text-sm
+              [:thead.bg-gray-50
+               [:tr
+                [sortable-header "mOS" :mos sort-state]
+                [sortable-header "k" :k sort-state]
+                [sortable-header "p_joint" :p_joint sort-state]
+                [sortable-header "E[IA]" :expected_ev_ia sort-state]
+                [sortable-header "E[Upd]" :expected_inc_upd sort-state]
+                [sortable-header "E[PR3]" :expected_inc_pr3 sort-state]
+                [sortable-header "Residual" :residual sort-state]]]
+              [:tbody.divide-y.divide-gray-200.bg-white
+               (doall
+                (for [r sorted-results]
+                  ^{:key (str (:mos r) "-" (:k r))}
+                  [:tr
+                   [:td.px-4.py-2 (:mos r)]
+                   [:td.px-4.py-2 (:k r)]
+                   [:td.px-4.py-2 (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
+                   [:td.px-4.py-2 (.toFixed (:expected_ev_ia r) 1)]
+                   [:td.px-4.py-2 (.toFixed (:expected_inc_upd r) 1)]
+                   [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
+                   [:td.px-4.py-2 (.toFixed (:residual r) 2)]]))]]]])]))))
+
+(defn- placebo-explanation-view []
+  [:div.p-6.rounded-xl.border.mb-6
+   {:class ["bg-gradient-to-r" "from-blue-50" "to-indigo-50"
+            "border-blue-100"]}
+   [:h3.text-lg.font-bold.text-blue-900.mb-3
+    "Methodology & Interpretation Guide"]
+   [:p.text-sm.text-blue-950.mb-4
+    "This stress test evaluates the likelihood of observed clinical trial "
+    "milestones under the Null Hypothesis (H0) that both treatment (GPS) and "
+    "control (BAT) arms have identical survival profiles."]
+   [:div.grid.grid-cols-1.md:grid-cols-2.gap-6.text-xs.text-blue-900
     [:div
-     (when (= status :running)
-       [:div.mb-6
-        [:p.text-sm.mb-1
-         (str "Running simulations: "
-              (:completed progress) " / " (:total progress))]
-        [:div.w-full.bg-gray-200.rounded-full.h-2
-         [:div.bg-blue-600.h-2.rounded-full
-          {:style {:width (str (if (pos? (:total progress))
-                                 (* 100 (/ (:completed progress)
-                                           (:total progress)))
-                                 0)
-                               "%")}}]]])
-     (when (seq results)
-       [:div
-        [:h2.text-xl.font-bold.mb-4 "Results Summary"]
-        [vega/stress-test-charts results]
-        [:div.overflow-x-auto.border.rounded-lg.shadow-sm.mt-8
-         [:table.min-w-full.divide-y.divide-gray-200.text-sm
-          [:thead.bg-gray-50
-           [:tr
-            [:th.px-4.py-2.text-left "mOS"]
-            [:th.px-4.py-2.text-left "k"]
-            [:th.px-4.py-2.text-left "p_joint"]
-            [:th.px-4.py-2.text-left "E[IA]"]
-            [:th.px-4.py-2.text-left "E[Upd]"]
-            [:th.px-4.py-2.text-left "E[PR3]"]
-            [:th.px-4.py-2.text-left "Residual"]]]
-          [:tbody.divide-y.divide-gray-200.bg-white
-           (doall
-            (for [r (sort-by :mos results)]
-              ^{:key (str (:mos r) "-" (:k r))}
-              [:tr
-               [:td.px-4.py-2 (:mos r)]
-               [:td.px-4.py-2 (:k r)]
-               [:td.px-4.py-2 (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
-               [:td.px-4.py-2 (.toFixed (:expected_ev_ia r) 1)]
-               [:td.px-4.py-2 (.toFixed (:expected_inc_upd r) 1)]
-               [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
-               [:td.px-4.py-2 (.toFixed (:residual r) 2)]]))]]]])]))
+     [:h4.font-semibold.text-blue-950.mb-2 "Observed Stress Milestones:"]
+     [:ul.list-disc.pl-4.space-y-1
+      [:li [:strong "Passed IA Gate:"]
+       " Blinded pooled median OS > 12m at IA, and "
+       "estimated Hazard Ratio < 1.0 (approximated by GPS event count)."]
+      [:li [:strong "Interim Analysis:"]
+       " Event count at month 46 is ≤ 60 events."]
+      [:li [:strong "Deceleration:"]
+       " Incremental events between months 46 and 58 is ≤ 12 events."]
+      [:li [:strong "Extension:"]
+       " Incremental events between months 58 and 63 is ≤ 6 events."]]]
+    [:div
+     [:h4.font-semibold.text-blue-950.mb-2 "Key Metrics Explained:"]
+     [:ul.list-disc.pl-4.space-y-1
+      [:li [:strong "p_joint:"]
+       " The probability of a trial meeting ALL five stress "
+       "milestones simultaneously under H0. A low value (e.g. < 5%) suggests "
+       "H0 is highly unlikely."]
+      [:li [:strong "Expected Events:"]
+       " The average event counts at each milestone across all simulations."]
+      [:li [:strong "Residual:"]
+       " The maximum absolute discrepancy between the "
+       "simulated expected events and actual observed events."]]]]])
 
 (defn placebo-stress-view []
   [:div.p-6.max-w-6xl.mx-auto
@@ -213,6 +267,7 @@
    [:p.text-gray-600.mb-6
     "Assess the likelihood of observed trial milestones under various "
     "Null Hypothesis (H0) scenarios."]
+   [placebo-explanation-view]
    [stress-test-form]
    [stress-test-results-view]])
 
