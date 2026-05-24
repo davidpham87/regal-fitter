@@ -11,6 +11,7 @@
                   [12.0 24.0 50]
                   [24.0 36.0 56]
                   [36.0 38.0 5]]
+
    :t-ia 46.0
    :t-upd 58.0
    :t-pr3 62.97
@@ -23,17 +24,17 @@
    :prefilter-tol-ia 2.5
    :prefilter-tol-upd 2.5
    :prefilter-tol-pr3 2.5
-   :tol-ia 5.0
-   :tol-upd 5.0
+   :tol-ia 2.0
+   :tol-upd 2.0
    :tol-pr3 3.0
 
    :tol-increment-ia-upd 5.0
    :tol-increment-upd-pr3 4.0
 
-   :futility-hr-max 0.99
+   :futility-hr-max 0.9
    :efficacy-hr-min 0.00
 
-   :pool-mos-min-at-ia 10.0
+   :pool-mos-min-at-ia 13.5
    :median-fu-target 13.5
    :median-fu-tol 3.0
 
@@ -43,29 +44,29 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 50
-   :n-sims-screen 10
+   :n-sims-per-combo 1000
+   :n-sims-screen 100
    :n-screen-min-pass 1
    :seed 20260508
 
-   :bat-med-grid [4.0 30.01 5.0]
-   :bat-shape-grid [0.6 1.81 0.50]
+   :bat-med-grid [8 22 1]
+   :bat-shape-grid [0.7 1.0 0.1]
    :gps-med-grid-lo 8.0
-   :gps-med-grid-hi 250.0
+   :gps-med-grid-hi 50.0
    :gps-med-grid-n 5
-   :gps-shape-grid [0.6 1.81 0.50]
+   :gps-shape-grid [0.5 1.5 0.1]
 
-   :cure-frac-grid [0.0 0.91 0.20]
-   :cure-unc-med-grid [4.0 30.01 5.0]
-   :cure-unc-shape-grid [0.6 1.81 0.50]
+   :cure-frac-grid [0.0 0.8 0.1]
+   :cure-unc-med-grid [10 50.0 1.0]
+   :cure-unc-shape-grid [0.6 1.81 0.4]
 
-   :leaky-cure-frac-grid [0.0 0.91 0.20]
-   :leaky-unc-med-grid [4.0 30.0 5.0]
-   :leaky-unc-shape-grid [0.5 2.01 0.50]
-   :leak-grid [0.0 0.101 0.05]
+   :leaky-cure-frac-grid [0.0 0.8 0.1]
+   :leaky-unc-med-grid [10 50 2.0]
+   :leaky-unc-shape-grid [0.6 1.2 0.1]
+   :leak-grid [0.0 0.2 0.1]
 
-   :families ["weibull" "cure" "leaky"]
-   })
+   :families ["weibull" "leaky"]
+})
 
 (def config-schema
   [:map
@@ -135,9 +136,16 @@
            :results {} ;; family -> list of combos
            :error-message nil
            :view :config-form ;; :config-form, :config-json, :results
+           :active-page :home
            }))
 
 ;; --- DB Subscriptions / Event Handlers (using re-frame or manual swaps) ---
+
+(rf/reg-event-db
+  :navigate
+  (fn [db [_ page]]
+    (swap! app-state assoc :active-page page)
+    db))
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v))
