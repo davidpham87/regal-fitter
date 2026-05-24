@@ -138,12 +138,10 @@
            :view :config-form ;; :config-form, :config-json, :results
            :active-page :home
            :discovery {:active-family "weibull"
-                       :params {"weibull" {:bat-med 8.0 :bat-shape 1.0
-                                           :gps-med 12.0 :gps-shape 1.0}
-                                "cure"    {:bat-med 8.0 :bat-shape 1.0
-                                           :cure-frac 0.2 :unc-med 10.0 :unc-shape 1.0}
-                                "leaky"   {:bat-med 8.0 :bat-shape 1.0
-                                           :cure-frac 0.2 :unc-med 10.0 :unc-shape 1.0 :leak-yr 0.05}}}
+                       :params {:bat-med 8.0 :bat-shape 1.0
+                                :gps-med 12.0
+                                :cure-frac 0.2 :unc-med 10.0 :unc-shape 1.0
+                                :leak-yr 0.05}}
            }))
 
 ;; --- DB Subscriptions / Event Handlers (using re-frame or manual swaps) ---
