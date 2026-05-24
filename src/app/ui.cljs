@@ -426,7 +426,10 @@
           [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
            {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
                         "transform hover:-translate-y-0.5")
-            :on-click #(sim/start-simulation!)}
+            :on-click (fn []
+                        (sim/start-simulation!)
+                        (swap! state/app-state
+                               assoc :view :results))}
            "Run Simulation"]]]))))
 
 (defn- config->nested [config]
@@ -456,7 +459,11 @@
                                      (nested->config nested)))
                                   (catch js/Error _)))}]]
        [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
-        {:on-click #(sim/start-simulation!)} "Run Simulation"]])))
+        {:on-click (fn []
+                    (sim/start-simulation!)
+                    (swap! state/app-state
+                           assoc :view :results))}
+         "Run Simulation"]]))
 
 (defn- stage2-progress [progress]
   [:div
