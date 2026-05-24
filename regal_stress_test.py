@@ -65,9 +65,31 @@ def get_manual_enrollment_bands():
     Allows users to input the exact enrollment months and patient counts.
     Format: [[start_month, end_month, n_patients], ...]
     """
-    # Using default bands from regal_fit.py as a starting point:
-    # Year 1: 15 patients, Year 2: 50, Year 3: 56, Final 2 months: 5
-    return [[0.0, 12.0, 15], [12.0, 24.0, 50], [24.0, 36.0, 56], [36.0, 38.0, 5]]
+    # Evaluated get_s_curve_enrollment_bands(126, 38, 31):
+    return [
+        [16.0, 17.0, 1],
+        [17.0, 18.0, 1],
+        [18.0, 19.0, 1],
+        [19.0, 20.0, 1],
+        [20.0, 21.0, 2],
+        [21.0, 22.0, 2],
+        [22.0, 23.0, 3],
+        [23.0, 24.0, 4],
+        [24.0, 25.0, 5],
+        [25.0, 26.0, 6],
+        [26.0, 27.0, 7],
+        [27.0, 28.0, 8],
+        [28.0, 29.0, 9],
+        [29.0, 30.0, 10],
+        [30.0, 31.0, 11],
+        [31.0, 32.0, 11],
+        [32.0, 33.0, 10],
+        [33.0, 34.0, 9],
+        [34.0, 35.0, 8],
+        [35.0, 36.0, 7],
+        [36.0, 37.0, 6],
+        [37.0, 38.0, 4]
+    ]
 
 # --- Configuration (from regal_fit.py) ---
 ENROLL_BANDS = get_manual_enrollment_bands()
