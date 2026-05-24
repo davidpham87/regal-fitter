@@ -212,8 +212,16 @@
                             t-arr s-gps-arr)
                       (mapv (fn [t s] {:time t :survival s :group "BAT"})
                             t-arr s-bat-arr)))
-     :accrual (mapv (fn [t e] {:time t :events e})
-                    t-arr (first (.toArray ev-total)))}))
+     :accrual (vec (concat
+                     (mapv (fn [t e]
+                             {:time t :events e :group "Total"})
+                           t-arr (first (.toArray ev-total)))
+                     (mapv (fn [t e]
+                             {:time t :events e :group "GPS"})
+                           t-arr (first (.toArray ev-gps)))
+                     (mapv (fn [t e]
+                             {:time t :events e :group "BAT"})
+                           t-arr (first (.toArray ev-bat)))))}))
 
 (defn- stats-row [title stats]
   [:div.mb-6
@@ -307,10 +315,11 @@
           [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]]
 
      ;; Results & Charts in 2 columns
-     [:div.grid.grid-cols-1.lg:grid-cols-2.gap-8
+     ^{:key (str params)}
+     [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
       ;; Column 1: Alternate Hypothesis
       [:div.bg-gray-50.p-4.rounded-xl.border
-       [:h3.font-extrabold.text-gray-800.mb-4 "Alternate Hypothesis (H1)"]
+       [:h3.font-extrabold.text-gray-800.mb-4 "Alternate Hypothesis (H1): GPS is effective"]
        [stats-row "Milestone Stats (H1)" stats]
        [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
@@ -324,7 +333,7 @@
 
       ;; Column 2: Null Hypothesis (H0)
       [:div.bg-gray-50.p-4.rounded-xl.border
-       [:h3.font-extrabold.text-gray-800.mb-4 "Null Hypothesis (H0)"]
+       [:h3.font-extrabold.text-gray-800.mb-4 "Null Hypothesis (H0): GPS is placebo"]
        [stats-row "Milestone Stats (H0)" stats-h0]
        [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
         [:div.bg-white.p-3.rounded-xl.shadow-sm.border

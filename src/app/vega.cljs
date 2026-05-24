@@ -136,25 +136,36 @@
                :strokeDash {:field "group" :type "nominal"
                             :scale {:domain ["Pooled" "GPS" "BAT"]
                                     :range [[] [4 4] [2 2]]}}}
-    :config {:view {:stroke "transparent"}}}])
+    :config {:view {:stroke "transparent"}
+             :legend {:orient "bottom"}}}])
 
 (defn discovery-accrual-chart [curve-data event-stats]
   (let [markers (mapv (fn [s] {:time (case (:label s)
-                                     "IA (46.0m)" 46.0
-                                     "UPD (58.0m)" 58.0
-                                     "PR3 (62.97m)" 62.97
-                                     0.0)
-                             :expected (:expected s)
-                             :target (:target s)
-                             :label (:label s)})
+                                      "IA (46.0m)" 46.0
+                                      "UPD (58.0m)" 58.0
+                                      "PR3 (62.97m)" 62.97
+                                      0.0)
+                              :expected (:expected s)
+                              :target (:target s)
+                              :label (:label s)})
                       event-stats)]
     [vega-lite
      {:width 350 :height 300
       :title "Expected Event Accrual"
       :layer [{:data {:values curve-data}
-               :mark {:type "line" :color "#aa5599" :strokeWidth 2}
-               :encoding {:x {:field "time" :type "quantitative"}
-                          :y {:field "events" :type "quantitative" :title "Events"}}}
+               :mark {:type "line" :strokeWidth 2}
+               :encoding {:x {:field "time" :type "quantitative"
+                              :title "Months"}
+                          :y {:field "events" :type "quantitative"
+                              :title "Events"}
+                          :color {:field "group" :type "nominal"
+                                  :scale {:domain ["Total" "GPS" "BAT"]
+                                          :range ["#aa5599"
+                                                  "#55bb88"
+                                                  "#ee6677"]}}
+                          :strokeDash {:field "group" :type "nominal"
+                                       :scale {:domain ["Total" "GPS" "BAT"]
+                                               :range [[] [4 4] [2 2]]}}}}
               {:data {:values markers}
                :mark {:type "point" :size 100 :color "black" :shape "cross"}
                :encoding {:x {:field "time" :type "quantitative"}
@@ -163,4 +174,5 @@
                :mark {:type "point" :size 60 :color "red"}
                :encoding {:x {:field "time" :type "quantitative"}
                           :y {:field "expected" :type "quantitative"}}}]
-      :config {:view {:stroke "transparent"}}}]))
+      :config {:view {:stroke "transparent"}
+               :legend {:orient "bottom"}}}]))

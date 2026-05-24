@@ -6,7 +6,10 @@
         :output-dir "public/js"
         :asset-path "/js"
         :js-options {:resolve {"node:fs" false "node:fs/promises" false}}
-        :modules {:main {:entries [app.core] :init-fn app.core/init}}}
+        :modules {:main {:entries [app.core] :init-fn app.core/init}}
+        :devtools {:autobuild true
+                   :after-load app.core/reload!
+                   :preload [devtools.preload]}}
   :worker {:target :browser
            :output-dir "public/js"
            :asset-path "/js"
