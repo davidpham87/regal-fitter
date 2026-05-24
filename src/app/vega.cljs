@@ -163,7 +163,7 @@
              :transform [{:pivot "group"
                           :value "survival"
                           :groupby ["time"]}]
-             :mark {:type "rule" :color "#bbb" :strokeWidth 1}
+             :mark {:type "rule" :color "#bbb" :strokeWidth 0}
              :encoding {:x {:field "time" :type "quantitative"}
                         :tooltip [{:field "time" :type "quantitative"
                                    :title "Months"}
@@ -214,7 +214,7 @@
                :transform [{:pivot "group"
                             :value "events"
                             :groupby ["time"]}]
-               :mark {:type "rule" :color "#bbb" :strokeWidth 1}
+               :mark {:type "rule" :color "#bbb" :strokeWidth 0}
                :encoding {:x {:field "time" :type "quantitative"}
                           :tooltip [{:field "time" :type "quantitative"
                                      :title "Months"}
