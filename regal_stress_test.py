@@ -60,10 +60,19 @@ def get_s_curve_enrollment_bands(n_total, total_months, median_month, k=0.3):
             bands.append((float(i), float(i+1), int(n_int[i])))
     return bands
 
+def get_manual_enrollment_bands():
+    """
+    Allows users to input the exact enrollment months and patient counts.
+    Format: [[start_month, end_month, n_patients], ...]
+    """
+    # Example: [[0, 1, 2], [1, 5, 20]] means 2 patients in month 0-1,
+    # and 20 patients in months 1-5.
+    return [[0, 1, 2], [1, 5, 20]]
+
 # --- Configuration (from regal_fit.py) ---
-N_TOTAL = 126
-N_PER_ARM = 63
-ENROLL_BANDS = get_s_curve_enrollment_bands(N_TOTAL, 38.0, 31.0)
+ENROLL_BANDS = get_manual_enrollment_bands()
+N_TOTAL = sum(band[2] for band in ENROLL_BANDS)
+N_PER_ARM = N_TOTAL // 2
 T_IA = 46.0      # month 46 (~Dec 2024)
 T_UPD = 58.0     # month 58 (~Dec 2025)
 T_PR3 = 62.97    # month 63 (~May 2026)
