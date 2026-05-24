@@ -41,7 +41,7 @@
                                     (:t-pr3 config)] "float64")
 
         bat-med-arr (np/array #js [(:bat-med params)])
-        bat-shape-arr (np/array #js [(:bat-shape params)])
+        bat-shape-arr (np/array #js [(:weibull-k params)])
         bat-scale (survival/weibull-scale-from-median
                     bat-med-arr bat-shape-arr)
         bat-shape bat-shape-arr
@@ -55,7 +55,7 @@
         gps-res (cond
                   (= family "weibull")
                   (let [med (np/array #js [(:gps-med params)])
-                        shape (np/array #js [(:bat-shape params)])
+                        shape (np/array #js [(:weibull-k params)])
                         scale (survival/weibull-scale-from-median med shape)]
                     (enrollment/expected-arm-events-and-variance
                       survival/weibull-survival-probability
@@ -65,7 +65,7 @@
 
                   (= family "cure")
                   (let [med (np/array #js [(:unc-med params)])
-                        shape (np/array #js [(:unc-shape params)])
+                        shape (np/array #js [(:weibull-k params)])
                         scale (survival/weibull-scale-from-median med shape)
                         cf (np/array #js [(:cure-frac params)])]
                     (enrollment/expected-arm-events-and-variance
@@ -76,7 +76,7 @@
 
                   (= family "leaky")
                   (let [med (np/array #js [(:unc-med params)])
-                        shape (np/array #js [(:unc-shape params)])
+                        shape (np/array #js [(:weibull-k params)])
                         scale (survival/weibull-scale-from-median med shape)
                         cf (np/array #js [(:cure-frac params)])
                         leak (np/array #js [(:leak-yr params)])]
@@ -114,7 +114,7 @@
                                       config)
 
         bat-med-arr (np/array #js [(:bat-med params)])
-        bat-shape-arr (np/array #js [(:bat-shape params)])
+        bat-shape-arr (np/array #js [(:weibull-k params)])
         bat-scale (survival/weibull-scale-from-median
                     bat-med-arr bat-shape-arr)
         bat-shape bat-shape-arr
@@ -131,7 +131,7 @@
         (cond
           (= family "weibull")
           (let [med (np/array #js [(:gps-med params)])
-                shape (np/array #js [(:bat-shape params)])
+                shape (np/array #js [(:weibull-k params)])
                 scale (survival/weibull-scale-from-median med shape)]
             [(survival/weibull-survival-probability t-pts scale shape)
              (enrollment/expected-arm-events
@@ -142,7 +142,7 @@
 
           (= family "cure")
           (let [med (np/array #js [(:unc-med params)])
-                shape (np/array #js [(:unc-shape params)])
+                shape (np/array #js [(:weibull-k params)])
                 scale (survival/weibull-scale-from-median med shape)
                 cf (np/array #js [(:cure-frac params)])]
             [(survival/cure-survival-probability t-pts cf scale shape)
@@ -154,7 +154,7 @@
 
           (= family "leaky")
           (let [med (np/array #js [(:unc-med params)])
-                shape (np/array #js [(:unc-shape params)])
+                shape (np/array #js [(:weibull-k params)])
                 scale (survival/weibull-scale-from-median med shape)
                 cf (np/array #js [(:cure-frac params)])
                 leak (np/array #js [(:leak-yr params)])]
@@ -202,11 +202,7 @@
       [:div.lg:col-span-1.bg-white.p-4.rounded-xl.shadow-sm.border
        [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
        [param-input :bat-med "BAT Median" 4 30 0.5]
-       [param-input :bat-shape
-                    (if (= active-family "weibull")
-                      "Weibull Shape"
-                      "BAT Shape")
-                    0.5 2.0 0.1]
+       [param-input :weibull-k "Weibull k shape" 0.5 2.0 0.1]
 
        (case active-family
          "weibull"
@@ -216,14 +212,12 @@
          "cure"
          [:div
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
-          [param-input :unc-med "Uncured Median" 4 50 1.0]
-          [param-input :unc-shape "Uncured Shape" 0.5 2.0 0.1]]
+          [param-input :unc-med "Uncured Median" 4 50 1.0]]
 
          "leaky"
          [:div
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
           [param-input :unc-med "Uncured Median" 4 50 1.0]
-          [param-input :unc-shape "Uncured Shape" 0.5 2.0 0.1]
           [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
 
       ;; Results and Charts
