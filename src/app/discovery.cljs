@@ -22,48 +22,31 @@
       (swap! state/app-state assoc-in [:discovery :calc-params] params))
     200))
 
-(defn- toggle-placebo-mode! [checked?]
-  (let [params (:params (get-discovery-state))
-        new-params (cond-> (assoc params :placebo-mode? checked?)
-                     checked? (assoc :cure-frac 0.0
-                                     :gps-med (:bat-med params)))]
-    (swap! state/app-state assoc-in [:discovery :params] new-params)
-    (debounced-calc-update new-params)))
-
 (defn- update-discovery-param! [param-key value]
   (let [params (:params (get-discovery-state))
-        new-params (cond-> (assoc params param-key value)
-                     (and (:placebo-mode? params) (= param-key :bat-med))
-                     (assoc :gps-med value))]
+        new-params (assoc params param-key value)]
     (swap! state/app-state assoc-in [:discovery :params] new-params)
     (debounced-calc-update new-params)))
 
 (defn- set-active-family! [family]
   (swap! state/app-state assoc-in [:discovery :active-family] family))
 
-(defn- param-input
-  ([param-key label min max step]
-   (param-input param-key label min max step false))
-  ([param-key label min max step disabled?]
-   (let [val (get-in (get-discovery-state) [:params param-key])]
-     [:div.mb-2
-      [:label.block.text-xs.font-semibold
-       {:class (if disabled? "text-gray-400" "text-gray-600")}
-       label]
-      [:div.flex.items-center.gap-2
-       [:input.w-full
-        {:type "range" :min min :max max :step step
-         :value val
-         :disabled disabled?
-         :on-change (fn [e]
-                      (let [v (js/parseFloat (.. e -target -value))]
-                        (update-discovery-param! param-key v)))}]
-       [:input.border.rounded.p-1.text-xs.w-16
-        {:type "number" :value val :step step
-         :disabled disabled?
-         :on-change (fn [e]
-                      (let [v (js/parseFloat (.. e -target -value))]
-                        (update-discovery-param! param-key v)))}]]])))
+(defn- param-input [param-key label min max step]
+  (let [val (get-in (get-discovery-state) [:params param-key])]
+    [:div.mb-2
+     [:label.block.text-xs.font-semibold.text-gray-600 label]
+     [:div.flex.items-center.gap-2
+      [:input.w-full
+       {:type "range" :min min :max max :step step
+        :value val
+        :on-change (fn [e]
+                     (let [v (js/parseFloat (.. e -target -value))]
+                       (update-discovery-param! param-key v)))}]
+      [:input.border.rounded.p-1.text-xs.w-16
+       {:type "number" :value val :step step
+        :on-change (fn [e]
+                     (let [v (js/parseFloat (.. e -target -value))]
+                       (update-discovery-param! param-key v)))}]]]))
 
 (defn- calculate-stats [family params config]
   (let [[enroll-pts enroll-weights] (enrollment/expected-enrollment-times
@@ -211,10 +194,18 @@
         active-family (:active-family state)
         calc-params (or (:calc-params state) (:params state))
         params (:params state)
-        placebo-mode? (:placebo-mode? params)
         config (:config @state/app-state)
         stats (calculate-stats active-family calc-params config)
-        curve-data (calculate-curves active-family calc-params config)]
+        curve-data (calculate-curves active-family calc-params config)
+
+        ;; Calculate H0: cure fraction = 0, mOS = average(gps, bat)
+        avg-med (/ (+ (:gps-med calc-params) (:bat-med calc-params)) 2.0)
+        h0-params (assoc calc-params
+                         :bat-med avg-med
+                         :gps-med avg-med
+                         :cure-frac 0.0)
+        stats-h0 (calculate-stats active-family h0-params config)
+        curve-data-h0 (calculate-curves active-family h0-params config)]
     [:div.p-6.max-w-6xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
      [:p.text-gray-600.mb-6
@@ -235,37 +226,28 @@
       ;; Controls
       [:div.lg:col-span-1.bg-white.p-4.rounded-xl.shadow-sm.border
        [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
-
-       [:div.mb-4.flex.items-center.gap-2.p-2.bg-gray-50.rounded-lg.border
-        [:input#placebo-mode
-         {:type "checkbox"
-          :checked placebo-mode?
-          :on-change #(toggle-placebo-mode! (.. % -target -checked))}]
-        [:label.text-xs.font-bold.text-gray-700.cursor-pointer
-         {:for "placebo-mode"}
-         "Placebo Mode (GPS = BAT, Cure = 0)"]]
-
        [param-input :bat-med "BAT Median" 4 30 0.5]
        [param-input :weibull-k "Weibull k shape" 0.5 2.0 0.1]
 
        (case active-family
          "weibull"
          [:div
-          [param-input :gps-med "GPS Median" 4 100 1.0 placebo-mode?]]
+          [param-input :gps-med "GPS Median" 4 100 1.0]]
 
          "cure"
          [:div
-          [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
-          [param-input :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]]
+          [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
+          [param-input :gps-med "Uncured Median" 4 50 1.0]]
 
          "leaky"
          [:div
-          [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
-          [param-input :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]
+          [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
+          [param-input :gps-med "Uncured Median" 4 50 1.0]
           [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
 
       ;; Results and Charts
       [:div.lg:col-span-3
+       ;; Milestone stats (Alternate hypothesis)
        [:div.grid.grid-cols-1.md:grid-cols-3.gap-4.mb-8
         (for [s stats]
           ^{:key (:label s)}
@@ -290,8 +272,24 @@
                         "text-green-600")}
               (.toFixed (:std-dev s) 2)]]]])]
 
-       [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+       ;; Alternate Hypothesis Charts
+       [:div.grid.grid-cols-1.md:grid-cols-2.gap-6.mb-8
         [:div.bg-white.p-4.rounded-xl.shadow-sm.border
+         [:h4.text-sm.font-bold.text-gray-800.mb-2
+          "Alternate: Pooled Survival"]
          [vega/discovery-survival-chart (:survival curve-data)]]
         [:div.bg-white.p-4.rounded-xl.shadow-sm.border
-         [vega/discovery-accrual-chart (:accrual curve-data) stats]]]]]]))
+         [:h4.text-sm.font-bold.text-gray-800.mb-2
+          "Alternate: Event Accrual"]
+         [vega/discovery-accrual-chart (:accrual curve-data) stats]]]
+
+       ;; H0 Hypothesis Charts (Cure Fraction = 0, Shared Median mOS)
+       [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+        [:div.bg-white.p-4.rounded-xl.shadow-sm.border
+         [:h4.text-sm.font-bold.text-gray-800.mb-2
+          "Null (H0): Pooled Survival (Cure = 0, Shared Median)"]
+         [vega/discovery-survival-chart (:survival curve-data-h0)]]
+        [:div.bg-white.p-4.rounded-xl.shadow-sm.border
+         [:h4.text-sm.font-bold.text-gray-800.mb-2
+          "Null (H0): Event Accrual (Cure = 0, Shared Median)"]
+         [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]]]]]))
