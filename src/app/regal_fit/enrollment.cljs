@@ -1,66 +1,54 @@
 (ns app.regal-fit.enrollment
   "Functions for calculating expected enrollment times and events."
-  (:require [cljs.numpy :as np]))
+  (:require [cljs.numpy :as np]
+            [app.regal-fit.survival :as survival]))
+
+(defn- calculate-band-data
+  "Computes enrollment points and their associated weights for a single time band.
+   Accepts a band [low high count] and subjects-per-unit density."
+  [[low high count] subjects-per-unit]
+  (let [n-sub-samples (js/Math.max 2 (js/Math.floor (* (- high low) subjects-per-unit)))
+        enroll-points (np/add (np/linspace low high n-sub-samples false)
+                              (/ (- high low) (* 2 n-sub-samples)))
+        enroll-weights (np/full n-sub-samples (/ count n-sub-samples) "float64")]
+    {:points enroll-points :weights enroll-weights}))
 
 (defn expected-enrollment-times
-  "Calculates expected enrollment times and their weights based on configuration bands.
-  Arguments:
-    cfg: Configuration dictionary containing :enroll_bands
-  Returns:
-    [enrollment-points enrollment-weights] as numpy arrays."
+  "Calculates expected enrollment times and their weights based on configuration bands."
+  {:malli/schema [:=> [:cat [:map [:enroll-bands [:vector [:vector :number]]]]] [:tuple any? any?]]}
   [cfg]
-  (let [sub-per-unit 8
-        bands (:enroll_bands cfg)
+  (let [subjects-per-unit 8
+        bands (:enroll-bands cfg)
+        band-data (map #(calculate-band-data % subjects-per-unit) bands)
+        all-points (to-array (map :points band-data))
+        all-weights (to-array (map :weights band-data))]
+    (if (empty? all-points)
+      [(np/array #js [] "float64") (np/array #js [] "float64")]
+      [(np/concatenate all-points) (np/concatenate all-weights)])))
 
-        ;; Map over bands to compute points and weights
-        band-data (map (fn [[lo hi n]]
-                         (let [n-sub (js/Math.max 2 (js/Math.floor (* (- hi lo) sub-per-unit)))
-                               e (np/add (np/linspace lo hi n-sub false) (/ (- hi lo) (* 2 n-sub)))
-                               w (np/full n-sub (/ n n-sub))]
-                           {:e e :w w}))
-                       bands)
-
-        ;; Extract and concatenate all points and weights
-        pieces (to-array (map :e band-data))
-        weights (to-array (map :w band-data))]
-    [(np/concatenate pieces) (np/concatenate weights)]))
+(defn- calculate-events-chunk
+  "Processes a chunk of survival parameters to compute expected events."
+  [survival-func params-grid follow-up-3d weights-3d arm-share start end]
+  (let [params-chunk (mapv (fn [p] (np/reshape (.slice p start end) [(- end start) 1 1])) params-grid)
+        survival-res (apply survival-func follow-up-3d params-chunk)
+        events (np/multiply (np/sum (np/multiply (np/subtract 1.0 survival-res) weights-3d) 2) arm-share)]
+    events))
 
 (defn expected-arm-events
-  "Calculates expected number of events per arm using the provided survival function.
-  Refactored to map over chunks instead of using `loop/recur`.
-  Arguments:
-    survival-func: Function computing survival probability
-    params-grid: List of parameter grids for the survival function
-    e-pts: Enrollment points array
-    e-weights: Weights associated with enrollment points
-    cal-times: Calendar times to evaluate events at
-    n-per-arm: Target subjects per arm
-    n-total: Total subjects
-  Returns:
-    numpy array of expected events of shape [grid_size calendar_times_size]."
-  [survival-func params-grid e-pts e-weights cal-times n-per-arm n-total]
+  "Calculates expected number of events per arm using the provided survival function."
+  {:malli/schema [:=> [:cat :function [:vector any?] any? any? any? :number :number] any?]}
+  [survival-func params-grid enroll-pts enroll-weights calendar-times n-per-arm n-total]
   (let [arm-share (/ n-per-arm n-total)
-        e-pts-2d (np/reshape e-pts [1 (.-size e-pts)])
-        cal-times-2d (np/reshape cal-times [(.-size cal-times) 1])
-        ;; fu is (T, E)
-        fu (np/maximum (np/subtract cal-times-2d e-pts-2d) 0.0)
-        g-size (.-size (first params-grid))
-        t-size (.-size cal-times)
-        out (np/empty [g-size t-size] "float64")
-        chunk-size 4096
-
-        ;; Calculate chunk start indices
-        starts (range 0 g-size chunk-size)]
-
-    (doseq [start starts]
-      (let [end (js/Math.min (+ start chunk-size) g-size)
-            ;; Reshape params to (chunk, 1, 1)
-            params-chunk (mapv (fn [p]
-                                 (np/reshape (.slice p start end) [(- end start) 1 1]))
-                               params-grid)
-            fu-3d (np/reshape fu [1 t-size (.-size e-pts)])
-            s-res (apply survival-func fu-3d params-chunk)
-            e-weights-3d (np/reshape e-weights [1 1 (.-size e-pts)])
-            ev (np/multiply (np/sum (np/multiply (np/subtract 1.0 s-res) e-weights-3d) 2) arm-share)]
-        (.set out ev start)))
-    out))
+        follow-up (np/maximum (np/subtract (np/reshape calendar-times [(.-size calendar-times) 1])
+                                          (np/reshape enroll-pts [1 (.-size enroll-pts)])) 0.0)
+        grid-size (.-size (first params-grid))
+        time-size (.-size calendar-times)
+        output-array (np/empty [grid-size time-size] "float64")
+        follow-up-3d (np/reshape follow-up [1 time-size (.-size enroll-pts)])
+        weights-3d (np/reshape enroll-weights [1 1 (.-size enroll-pts)])
+        chunk-size 4096]
+    (doseq [start (range 0 grid-size chunk-size)]
+      (let [end (js/Math.min (+ start chunk-size) grid-size)
+            events (calculate-events-chunk survival-func params-grid follow-up-3d weights-3d arm-share start end)]
+        (.set output-array events start)))
+    output-array))
