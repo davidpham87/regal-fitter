@@ -18,4 +18,7 @@
          :ns-regexp "-test$"}
   :test-node {:target :node-test
               :output-to "out/test-node.js"
-              :ns-regexp "-test$"}}}
+              :ns-regexp "-test$"}
+  :compare-node {:target :node-script
+                 :main app.compare-node/main
+                 :output-to "out/compare-node.js"}}}
