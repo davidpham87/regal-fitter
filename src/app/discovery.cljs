@@ -20,7 +20,7 @@
   (debounce
     (fn [params]
       (swap! state/app-state assoc-in [:discovery :calc-params] params))
-    1000))
+    200))
 
 (defn- update-discovery-param! [param-key value]
   (swap! state/app-state assoc-in [:discovery :params param-key] value)
