@@ -124,11 +124,18 @@
 (defn discovery-survival-chart [data]
   [vega-lite
    {:width 350 :height 300
-    :title "Pooled Survival Curve (N=126)"
+    :title "Survival Curves"
     :data {:values data}
-    :mark {:type "line" :color "#4488cc" :strokeWidth 3}
+    :mark {:type "line" :strokeWidth 2}
     :encoding {:x {:field "time" :type "quantitative" :title "Months"}
-               :y {:field "survival" :type "quantitative" :title "S(t)" :scale {:domain [0 1]}}}
+               :y {:field "survival" :type "quantitative" :title "S(t)"
+                   :scale {:domain [0 1]}}
+               :color {:field "group" :type "nominal"
+                       :scale {:domain ["Pooled" "GPS" "BAT"]
+                               :range ["#4488cc" "#55bb88" "#ee6677"]}}
+               :strokeDash {:field "group" :type "nominal"
+                            :scale {:domain ["Pooled" "GPS" "BAT"]
+                                    :range [[] [4 4] [2 2]]}}}
     :config {:view {:stroke "transparent"}}}])
 
 (defn discovery-accrual-chart [curve-data event-stats]
