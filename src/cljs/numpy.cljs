@@ -3,51 +3,51 @@
                              clip maximum minimum where isinf isfinite isnan
                              sum mean median percentile average prod cumsum unique argsort sort
                              concatenate size shape empty])
-  (:require ["numpy-ts" :as np_ts]))
+  (:require ["numpy-ts" :as np-ts]))
 
-(def array np_ts/array)
-(def zeros np_ts/zeros)
-(def ones np_ts/ones)
-(def arange np_ts/arange)
-(def linspace np_ts/linspace)
-(def full np_ts/full)
-(def empty np_ts/empty)
-(def meshgrid-raw np_ts/meshgrid)
-(def geomspace np_ts/geomspace)
-(def reshape np_ts/reshape)
+(def array np-ts/array)
+(def zeros np-ts/zeros)
+(def ones np-ts/ones)
+(def arange np-ts/arange)
+(def linspace np-ts/linspace)
+(def full np-ts/full)
+(def empty np-ts/empty)
+(def meshgrid-raw np-ts/meshgrid)
+(def geomspace np-ts/geomspace)
+(def reshape np-ts/reshape)
 
-(def add np_ts/add)
-(def subtract np_ts/subtract)
-(def multiply np_ts/multiply)
-(def divide np_ts/divide)
-(def exp np_ts/exp)
-(def power np_ts/power)
-(def log np_ts/log)
-(def sqrt np_ts/sqrt)
-(def abs np_ts/abs)
+(def add np-ts/add)
+(def subtract np-ts/subtract)
+(def multiply np-ts/multiply)
+(def divide np-ts/divide)
+(def exp np-ts/exp)
+(def power np-ts/power)
+(def log np-ts/log)
+(def sqrt np-ts/sqrt)
+(def abs np-ts/abs)
 
-(def clip np_ts/clip)
-(def maximum np_ts/maximum)
-(def minimum np_ts/minimum)
-(def where np_ts/where)
-(def isinf np_ts/isinf)
-(def isfinite np_ts/isfinite)
-(def isnan np_ts/isnan)
+(def clip np-ts/clip)
+(def maximum np-ts/maximum)
+(def minimum np-ts/minimum)
+(def where np-ts/where)
+(def isinf np-ts/isinf)
+(def isfinite np-ts/isfinite)
+(def isnan np-ts/isnan)
 
-(def sum np_ts/sum)
-(def mean np_ts/mean)
-(def median np_ts/median)
-(def percentile np_ts/percentile)
-(def average np_ts/average)
-(def prod np_ts/prod)
-(def cumsum np_ts/cumsum)
-(def unique np_ts/unique)
-(def argsort np_ts/argsort)
-(def sort np_ts/sort)
+(def sum np-ts/sum)
+(def mean np-ts/mean)
+(def median np-ts/median)
+(def percentile np-ts/percentile)
+(def average np-ts/average)
+(def prod np-ts/prod)
+(def cumsum np-ts/cumsum)
+(def unique np-ts/unique)
+(def argsort np-ts/argsort)
+(def sort np-ts/sort)
 
-(def concatenate np_ts/concatenate)
-(def np-size np_ts/size)
-(def np-shape np_ts/shape)
+(def concatenate np-ts/concatenate)
+(def np-size np-ts/size)
+(def np-shape np-ts/shape)
 
 (def inf js/Infinity)
 
@@ -61,27 +61,35 @@
   (if (and arr (fn? (.-toArray arr))) (.toArray ^js arr) arr))
 
 (defn slice [arr start end]
-  (if (and arr (fn? (.-slice arr))) (.slice ^js arr start end) arr))
+  (cond
+    (nil? arr) nil
+    (and (fn? (.-slice arr)) (.-shape arr))
+    (.slice ^js arr (str start ":" end))
+    (fn? (.-slice arr)) (.slice ^js arr start end)
+    :else arr))
 
 (defn item [arr idx]
   (if (and arr (fn? (.-item arr))) (.item ^js arr idx) (aget arr idx)))
 
 (defn set-block [target src start-idx]
-  (if (and target (fn? (.-set target)))
-    (.set ^js target src start-idx)
-    (let [s (nd-size src)]
-      (dotimes [i s] (aset target (+ start-idx i) (aget src i))))))
+  (let [target-data (.-data target)
+        src-data (.-data src)
+        shape (.-shape target)
+        row-size (if (> (.-length shape) 1) (last (vec shape)) 1)
+        offset (* start-idx row-size)]
+    (.set target-data src-data offset)
+    target))
 
 (defn empty-float64 [shape]
   (let [sz (reduce * (vec shape))
         flat (js/Float64Array. sz)]
-    (np_ts/reshape (np_ts/array flat) (clj->js shape))))
+    (np-ts/reshape (np-ts/array flat) (clj->js shape))))
 
 (defn full-float64 [shape val]
   (let [arr (empty-float64 shape)]
     (if (== val 0)
       arr
-      (np_ts/add arr val))))
+      (np-ts/add arr val))))
 
 (defn meshgrid [arrays options]
-  (np_ts/meshgrid (cljs.core/to-array arrays) (clj->js options)))
+  (apply np-ts/meshgrid (conj (cljs.core/vec arrays) (cljs.core/clj->js options))))

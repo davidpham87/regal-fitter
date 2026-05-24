@@ -5,6 +5,6 @@
 (deftest numpy-test
   (testing "numpy core equivalence"
     (let [arr (np/arange 5)]
-      (is (= 5 (.-length arr)))
+      (is (= 5 (.-size arr)))
       (is (= 0 (.item arr 0)))
       (is (= 4 (.item arr 4))))))

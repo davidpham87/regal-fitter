@@ -8,9 +8,11 @@
    Accepts a band [low high count] and subjects-per-unit density."
   [[low high count] subjects-per-unit]
   (let [n-sub-samples (js/Math.max 2 (js/Math.floor (* (- high low) subjects-per-unit)))
-        enroll-points (np/add (np/linspace low high n-sub-samples false)
-                              (/ (- high low) (* 2 n-sub-samples)))
-        enroll-weights (np/full n-sub-samples (/ count n-sub-samples) "float64")]
+        h (/ (- high low) n-sub-samples)
+        start (+ low (/ h 2.0))
+        stop (- high (/ h 2.0))
+        enroll-points (np/linspace start stop n-sub-samples)
+        enroll-weights (np/full #js [n-sub-samples] (/ count n-sub-samples) "float64")]
     {:points enroll-points :weights enroll-weights}))
 
 (defn expected-enrollment-times
@@ -29,9 +31,12 @@
 (defn- calculate-events-chunk
   "Processes a chunk of survival parameters to compute expected events."
   [survival-func params-grid follow-up-3d weights-3d arm-share start end]
-  (let [params-chunk (mapv (fn [p] (np/reshape (.slice p start end) [(- end start) 1 1])) params-grid)
+  (let [params-chunk (mapv (fn [p]
+                             (np/reshape (np/slice p start end)
+                                         #js [(- end start) 1 1]))
+                           params-grid)
         survival-res (apply survival-func follow-up-3d params-chunk)
-        events (np/multiply (np/sum (np/multiply (np/subtract 1.0 survival-res) weights-3d) 2) arm-share)]
+        events (np/multiply (np/sum (np/multiply (np/subtract (np/array 1.0) survival-res) weights-3d) 2) arm-share)]
     events))
 
 (defn expected-arm-events
@@ -39,16 +44,16 @@
   {:malli/schema [:=> [:cat :function [:vector any?] any? any? any? :number :number] any?]}
   [survival-func params-grid enroll-pts enroll-weights calendar-times n-per-arm n-total]
   (let [arm-share (/ n-per-arm n-total)
-        follow-up (np/maximum (np/subtract (np/reshape calendar-times [(.-size calendar-times) 1])
-                                          (np/reshape enroll-pts [1 (.-size enroll-pts)])) 0.0)
+        follow-up (np/maximum (np/subtract (np/reshape calendar-times #js [(.-size calendar-times) 1])
+                                          (np/reshape enroll-pts #js [1 (.-size enroll-pts)])) 0.0)
         grid-size (.-size (first params-grid))
         time-size (.-size calendar-times)
-        output-array (np/empty [grid-size time-size] "float64")
-        follow-up-3d (np/reshape follow-up [1 time-size (.-size enroll-pts)])
-        weights-3d (np/reshape enroll-weights [1 1 (.-size enroll-pts)])
+        output-array (np/empty #js [grid-size time-size] "float64")
+        follow-up-3d (np/reshape follow-up #js [1 time-size (.-size enroll-pts)])
+        weights-3d (np/reshape enroll-weights #js [1 1 (.-size enroll-pts)])
         chunk-size 4096]
     (doseq [start (range 0 grid-size chunk-size)]
       (let [end (js/Math.min (+ start chunk-size) grid-size)
             events (calculate-events-chunk survival-func params-grid follow-up-3d weights-3d arm-share start end)]
-        (.set output-array events start)))
+        (np/set-block output-array events start)))
     output-array))

@@ -4,4 +4,4 @@
 
 (deftest config-test
   (testing "Can read default config"
-    (is (= 126 (:n_total state/default-config)))))
+    (is (= 126 (:n-total state/default-config)))))

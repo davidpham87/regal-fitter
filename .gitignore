@@ -21,3 +21,5 @@ public/js
 public/sims/
 out/
 chat.md
+.lsp/
+.clj-kondo/  

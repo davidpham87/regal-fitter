@@ -1,7 +1,7 @@
 (ns app.simulator
   (:require [app.state :as state]
             [app.worker-pool :as wp]
-            [app.regal-fit.prefilter : as prefilter]
+            [app.regal-fit.prefilter :as prefilter]
             [cljs.core.async :refer [go <! >! timeout chan]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 
