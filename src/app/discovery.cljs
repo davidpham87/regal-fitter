@@ -182,12 +182,21 @@
                (:n-per-arm config) (:n-total config))]))
 
         s-pool (np/multiply (np/add s-bat s-gps) 0.5)
-        ev-total (np/add ev-bat ev-gps)]
+        ev-total (np/add ev-bat ev-gps)
+        t-arr (.toArray t-pts)
+        s-bat-arr (.toArray s-bat)
+        s-gps-arr (.toArray s-gps)
+        s-pool-arr (.toArray s-pool)]
 
-    {:survival (mapv (fn [t s] {:time t :survival s})
-                     (.toArray t-pts) (.toArray s-pool))
+    {:survival (vec (concat
+                      (mapv (fn [t s] {:time t :survival s :group "Pooled"})
+                            t-arr s-pool-arr)
+                      (mapv (fn [t s] {:time t :survival s :group "GPS"})
+                            t-arr s-gps-arr)
+                      (mapv (fn [t s] {:time t :survival s :group "BAT"})
+                            t-arr s-bat-arr)))
      :accrual (mapv (fn [t e] {:time t :events e})
-                    (.toArray t-pts) (first (.toArray ev-total)))}))
+                    t-arr (first (.toArray ev-total)))}))
 
 (defn discovery-view []
   (let [state (get-discovery-state)
