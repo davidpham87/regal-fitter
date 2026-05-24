@@ -15,19 +15,30 @@
             (let [data (.-data event)
                   job-id (.-id data)
                   type (.-type data)
-                  result (js->clj (.-result data) :keywordize-keys true)
+                  result (js->clj
+                          (.-result data)
+                          :keywordize-keys true)
                   success? (.-success data)
                   error (.-error data)]
 
               (when (= type "SIMULATION_RESULT")
-                (when-let [cb (get @job-callbacks job-id)]
+                (when-let [cb (get @job-callbacks
+                                   job-id)]
                   (swap! job-callbacks dissoc job-id)
-                  (cb {:success? success? :result result :error error}))
+                  (cb {:success? success?
+                       :result result
+                       :error error}))
 
                 (swap! busy-workers disj worker)
                 (swap! pool conj worker)
-                ;; process next job
                 (app.worker-pool/process-queue!)))))
+    (set! (.-onerror worker)
+          (fn [err]
+            (js/console.error
+             "Worker error:" (.-message err))
+            (swap! busy-workers disj worker)
+            (swap! pool conj worker)
+            (process-queue!)))
     worker))
 
 (defn init-pool! [size]
