@@ -130,8 +130,8 @@
    [:families [:vector :string]]])
 
 (def default-stress-test-config
-  {:mos-grid [11.0 20.1 0.5]
-   :k-grid [0.8 1.1 0.1]
+  {:mos-grid [8 25 1]
+   :k-grid [0.8 1.0 0.05]
    :n-sims 1000
    :obs-ev-ia 60
    :obs-inc-upd 12
