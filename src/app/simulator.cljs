@@ -150,3 +150,59 @@
                    [:discovery :sim-status] :error)
             (swap! state/app-state assoc-in
                    [:discovery :sim-result] error)))))))
+
+(defn- arange [start stop step]
+  (let [eps 1e-9]
+    (loop [curr start
+           acc []]
+      (if (< curr (- stop eps))
+        (recur (+ curr step) (conj acc curr))
+        acc))))
+
+(defn start-stress-test! []
+  (let [config (:stress-test-config @state/app-state)
+        mos-grid-cfg (:mos-grid config)
+        k-grid-cfg (:k-grid config)
+        mos-vals (arange (nth mos-grid-cfg 0)
+                         (nth mos-grid-cfg 1)
+                         (nth mos-grid-cfg 2))
+        k-vals (arange (nth k-grid-cfg 0)
+                       (nth k-grid-cfg 1)
+                       (nth k-grid-cfg 2))
+        combos (for [mos mos-vals
+                     k k-vals]
+                 {:type "RUN_STRESS_TEST"
+                  :mos mos
+                  :k k
+                  :n-sims (:n-sims config)
+                  :seed (+ (:seed config)
+                           (js/Math.floor (* (js/Math.random) 100000)))
+                  :config config})
+        total-combos (count combos)]
+    (swap! state/app-state assoc :stress-test-status :running
+                                 :stress-test-results []
+                                 :stress-test-progress {:total total-combos
+                                                        :completed 0}
+                                 :error-message nil)
+    (wp/clear-queue!)
+    (if (= total-combos 0)
+      (swap! state/app-state assoc :stress-test-status :done)
+      (let [completed (atom 0)
+            results (atom [])
+            start-time (js/Date.now)]
+        (doseq [combo combos]
+          (wp/submit-job!
+           combo
+           (fn [{:keys [success? result error]}]
+             (swap! completed inc)
+             (swap! state/app-state assoc-in
+                    [:stress-test-progress :completed] @completed)
+             (when (and success? result)
+               (swap! results conj result))
+             (when (= @completed total-combos)
+               (log (str "Stress test simulations done in "
+                         (/ (- (js/Date.now) start-time) 1000) "s"))
+               (swap! state/app-state
+                      assoc
+                      :stress-test-status :done
+                      :stress-test-results @results)))))))))
