@@ -1,0 +1,304 @@
+shadow-cljs - HTTP server available at http://localhost:8080
+shadow-cljs - server version: 3.2.1 running at http://localhost:9630
+shadow-cljs - nREPL server started on port 34399
+shadow-cljs - watching build :app
+shadow-cljs - watching build :worker
+[:app] Configuring build.
+[:worker] Configuring build.
+[:worker] Compiling ...
+[:app] Compiling ...
+[2026-05-24 13:31:35.499 - INFO] :shadow.build.npm/js-invalid-requires - {:resource-name "node_modules/@monaco-editor/loader/lib/cjs/loader/index.js", :requires [{:line 132, :column 2}]}
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[:worker] Build completed. (134 files, 73 compiled, 11 warnings, 16.16s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/cljs/numpy.cljs:61:21
+--------------------------------------------------------------------------------
+[2m  58 |   (if arr (or (.-shape arr) #js [(.-length arr)]) #js [0]))[0m
+[2m  59 | [0m
+[2m  60 | (defn nd-to-array [arr][0m
+[1m  61 |   (if (and arr (fn? (.-toArray arr))) (.toArray ^js arr) arr))[0m
+---------------------------^----------------------------------------------------
+ [33;1mCannot infer target type in expression (. arr -toArray)[0m
+--------------------------------------------------------------------------------
+[2m  62 | [0m
+[2m  63 | (defn slice [arr start end][0m
+[2m  64 |   (cond[0m
+[2m  65 |     (nil? arr) nil[0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #2 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/stats.cljs:43:23
+--------------------------------------------------------------------------------
+[2m  40 |   [times events groups][0m
+[2m  41 |   (if (< (np/sum events) 3) [0.0 1.0][0m
+[2m  42 |       (let [order (np/argsort times)[0m
+[1m  43 |             times-arr (.toArray (.take times order))[0m
+-----------------------------^--------------------------------------------------
+ [33;1mCannot infer target type in expression (. (.take times order) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  44 |             events-arr (.toArray (.take events order))[0m
+[2m  45 |             groups-arr (.toArray (.take groups order))[0m
+[2m  46 |             [n-exp-arr n-control-arr is-exp-arr] (compute-risk-sets groups-arr)[0m
+[2m  47 |             event-indices (keep-indexed (fn [i e] (when e i)) events-arr)][0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #3 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/stats.cljs:44:24
+--------------------------------------------------------------------------------
+[2m  41 |   (if (< (np/sum events) 3) [0.0 1.0][0m
+[2m  42 |       (let [order (np/argsort times)[0m
+[2m  43 |             times-arr (.toArray (.take times order))[0m
+[1m  44 |             events-arr (.toArray (.take events order))[0m
+------------------------------^-------------------------------------------------
+ [33;1mCannot infer target type in expression (. (.take events order) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  45 |             groups-arr (.toArray (.take groups order))[0m
+[2m  46 |             [n-exp-arr n-control-arr is-exp-arr] (compute-risk-sets groups-arr)[0m
+[2m  47 |             event-indices (keep-indexed (fn [i e] (when e i)) events-arr)][0m
+[2m  48 |         (if (empty? event-indices) [0.0 1.0][0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #4 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/stats.cljs:45:24
+--------------------------------------------------------------------------------
+[2m  42 |       (let [order (np/argsort times)[0m
+[2m  43 |             times-arr (.toArray (.take times order))[0m
+[2m  44 |             events-arr (.toArray (.take events order))[0m
+[1m  45 |             groups-arr (.toArray (.take groups order))[0m
+------------------------------^-------------------------------------------------
+ [33;1mCannot infer target type in expression (. (.take groups order) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  46 |             [n-exp-arr n-control-arr is-exp-arr] (compute-risk-sets groups-arr)[0m
+[2m  47 |             event-indices (keep-indexed (fn [i e] (when e i)) events-arr)][0m
+[2m  48 |         (if (empty? event-indices) [0.0 1.0][0m
+[2m  49 |             (let [grouped-indices (partition-by #(aget times-arr %) event-indices)[0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #5 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/stats.cljs:63:25
+--------------------------------------------------------------------------------
+[2m  60 |   (let [n-subjects (.-size time-observed)][0m
+[2m  61 |     (if (== n-subjects 0) 1.0[0m
+[2m  62 |         (let [order (np/argsort time-observed)[0m
+[1m  63 |               times-arr (.toArray (.take time-observed order))[0m
+-------------------------------^------------------------------------------------
+ [33;1mCannot infer target type in expression (. (.take time-observed order) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  64 |               events-arr (.toArray (.take event-flag order))[0m
+[2m  65 |               relevant-events (filter (fn [[t ev i]] (and ev (<= t target-time))) (map vector times-arr events-arr (range n-subjects)))][0m
+[2m  66 |           (reduce (fn [multiplier [_ _ i]] (* multiplier (- 1.0 (/ 1.0 (- n-subjects i))))) 1.0 relevant-events)))))[0m
+[2m  67 | [0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #6 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/stats.cljs:64:26
+--------------------------------------------------------------------------------
+[2m  61 |     (if (== n-subjects 0) 1.0[0m
+[2m  62 |         (let [order (np/argsort time-observed)[0m
+[2m  63 |               times-arr (.toArray (.take time-observed order))[0m
+[1m  64 |               events-arr (.toArray (.take event-flag order))[0m
+--------------------------------^-----------------------------------------------
+ [33;1mCannot infer target type in expression (. (.take event-flag order) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  65 |               relevant-events (filter (fn [[t ev i]] (and ev (<= t target-time))) (map vector times-arr events-arr (range n-subjects)))][0m
+[2m  66 |           (reduce (fn [multiplier [_ _ i]] (* multiplier (- 1.0 (/ 1.0 (- n-subjects i))))) 1.0 relevant-events)))))[0m
+[2m  67 | [0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #7 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/random.cljs:25:27
+--------------------------------------------------------------------------------
+[2m  22 | (defn- draw-cure-samples[0m
+[2m  23 |   "Draws random survival times based on a cure model."[0m
+[2m  24 |   [{:keys [cure-frac unc-scale unc-shape]} n-samples random-gen][0m
+[1m  25 |   (let [random-cure-flags (.toArray (np-random/random random-gen n-samples))[0m
+---------------------------------^----------------------------------------------
+ [33;1mCannot infer target type in expression (. (np-random/random random-gen n-samples) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  26 |         uncured-times (draw-weibull-samples n-samples random-gen unc-scale unc-shape)[0m
+[2m  27 |         uncured-times-arr (.toArray uncured-times)[0m
+[2m  28 |         output-seq (map (fn [r u] (if (< r cure-frac) np/inf u))[0m
+[2m  29 |                         random-cure-flags uncured-times-arr)][0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #8 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/random.cljs:27:27
+--------------------------------------------------------------------------------
+[2m  24 |   [{:keys [cure-frac unc-scale unc-shape]} n-samples random-gen][0m
+[2m  25 |   (let [random-cure-flags (.toArray (np-random/random random-gen n-samples))[0m
+[2m  26 |         uncured-times (draw-weibull-samples n-samples random-gen unc-scale unc-shape)[0m
+[1m  27 |         uncured-times-arr (.toArray uncured-times)[0m
+---------------------------------^----------------------------------------------
+ [33;1mCannot infer target type in expression (. uncured-times toArray)[0m
+--------------------------------------------------------------------------------
+[2m  28 |         output-seq (map (fn [r u] (if (< r cure-frac) np/inf u))[0m
+[2m  29 |                         random-cure-flags uncured-times-arr)][0m
+[2m  30 |     (np/array (to-array output-seq))))[0m
+[2m  31 | [0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #9 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/regal_fit/random.cljs:35:27
+--------------------------------------------------------------------------------
+[2m  32 | (defn- draw-leaky-samples[0m
+[2m  33 |   "Draws random survival times based on a leaky cure model."[0m
+[2m  34 |   [{:keys [cure-frac unc-scale unc-shape leak-yr]} n-samples random-gen][0m
+[1m  35 |   (let [random-cure-flags (.toArray (np-random/random random-gen n-samples))[0m
+---------------------------------^----------------------------------------------
+ [33;1mCannot infer target type in expression (. (np-random/random random-gen n-samples) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  36 |         uncured-times-arr (.toArray (draw-weibull-samples n-samples random-gen unc-scale unc-shape))[0m
+[2m  37 |         leak-rate-monthly (/ leak-yr 12.0)[0m
+[2m  38 |         random-leak-vals (.toArray (np-random/random random-gen n-samples))[0m
+[2m  39 |         output-seq (map (fn [r u l][0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #10 - :infer-warning --------------------------------------------[0m
+ File: /app/src/app/regal_fit/random.cljs:36:27
+--------------------------------------------------------------------------------
+[2m  33 |   "Draws random survival times based on a leaky cure model."[0m
+[2m  34 |   [{:keys [cure-frac unc-scale unc-shape leak-yr]} n-samples random-gen][0m
+[2m  35 |   (let [random-cure-flags (.toArray (np-random/random random-gen n-samples))[0m
+[1m  36 |         uncured-times-arr (.toArray (draw-weibull-samples n-samples random-gen unc-scale unc-shape))[0m
+---------------------------------^----------------------------------------------
+ [33;1mCannot infer target type in expression (. (draw-weibull-samples n-samples random-gen unc-scale unc-shape) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  37 |         leak-rate-monthly (/ leak-yr 12.0)[0m
+[2m  38 |         random-leak-vals (.toArray (np-random/random random-gen n-samples))[0m
+[2m  39 |         output-seq (map (fn [r u l][0m
+[2m  40 |                           (if (< r cure-frac)[0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #11 - :infer-warning --------------------------------------------[0m
+ File: /app/src/app/regal_fit/random.cljs:38:26
+--------------------------------------------------------------------------------
+[2m  35 |   (let [random-cure-flags (.toArray (np-random/random random-gen n-samples))[0m
+[2m  36 |         uncured-times-arr (.toArray (draw-weibull-samples n-samples random-gen unc-scale unc-shape))[0m
+[2m  37 |         leak-rate-monthly (/ leak-yr 12.0)[0m
+[1m  38 |         random-leak-vals (.toArray (np-random/random random-gen n-samples))[0m
+--------------------------------^-----------------------------------------------
+ [33;1mCannot infer target type in expression (. (np-random/random random-gen n-samples) toArray)[0m
+--------------------------------------------------------------------------------
+[2m  39 |         output-seq (map (fn [r u l][0m
+[2m  40 |                           (if (< r cure-frac)[0m
+[2m  41 |                             (if (> leak-rate-monthly 0) (/ (- (js/Math.log l)) leak-rate-monthly) np/inf)[0m
+[2m  42 |                             u))[0m
+--------------------------------------------------------------------------------
+[:app] Build completed. (798 files, 49 compiled, 1 warnings, 16.88s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/worker_pool.cljs:19:28
+--------------------------------------------------------------------------------
+[2m  16 |                   job-id (.-id data)[0m
+[2m  17 |                   type (.-type data)[0m
+[2m  18 |                   result (js->clj (.-result data) :keywordize-keys true)[0m
+[1m  19 |                   success? (.-success data)[0m
+----------------------------------^---------------------------------------------
+ [33;1mCannot infer target type in expression (. data -success)[0m
+--------------------------------------------------------------------------------
+[2m  20 |                   error (.-error data)][0m
+[2m  21 | [0m
+[2m  22 |               (when (= type "SIMULATION_RESULT")[0m
+[2m  23 |                 (when-let [cb (get @job-callbacks job-id)][0m
+--------------------------------------------------------------------------------
+[:app] Compiling ...
+[:app] Build completed. (798 files, 3 compiled, 1 warnings, 0.49s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/worker_pool.cljs:19:28
+--------------------------------------------------------------------------------
+[2m  16 |                   job-id (.-id data)[0m
+[2m  17 |                   type (.-type data)[0m
+[2m  18 |                   result (js->clj (.-result data) :keywordize-keys true)[0m
+[1m  19 |                   success? (.-success data)[0m
+----------------------------------^---------------------------------------------
+ [33;1mCannot infer target type in expression (. data -success)[0m
+--------------------------------------------------------------------------------
+[2m  20 |                   error (.-error data)][0m
+[2m  21 | [0m
+[2m  22 |               (when (= type "SIMULATION_RESULT")[0m
+[2m  23 |                 (when-let [cb (get @job-callbacks job-id)][0m
+--------------------------------------------------------------------------------
+[:app] Compiling ...
+[:app] Build completed. (798 files, 3 compiled, 1 warnings, 0.57s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/worker_pool.cljs:19:28
+--------------------------------------------------------------------------------
+[2m  16 |                   job-id (.-id data)[0m
+[2m  17 |                   type (.-type data)[0m
+[2m  18 |                   result (js->clj (.-result data) :keywordize-keys true)[0m
+[1m  19 |                   success? (.-success data)[0m
+----------------------------------^---------------------------------------------
+ [33;1mCannot infer target type in expression (. data -success)[0m
+--------------------------------------------------------------------------------
+[2m  20 |                   error (.-error data)][0m
+[2m  21 | [0m
+[2m  22 |               (when (= type "SIMULATION_RESULT")[0m
+[2m  23 |                 (when-let [cb (get @job-callbacks job-id)][0m
+--------------------------------------------------------------------------------
+[:app] Compiling ...
+[:app] Build completed. (798 files, 2 compiled, 1 warnings, 0.35s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/worker_pool.cljs:19:28
+--------------------------------------------------------------------------------
+[2m  16 |                   job-id (.-id data)[0m
+[2m  17 |                   type (.-type data)[0m
+[2m  18 |                   result (js->clj (.-result data) :keywordize-keys true)[0m
+[1m  19 |                   success? (.-success data)[0m
+----------------------------------^---------------------------------------------
+ [33;1mCannot infer target type in expression (. data -success)[0m
+--------------------------------------------------------------------------------
+[2m  20 |                   error (.-error data)][0m
+[2m  21 | [0m
+[2m  22 |               (when (= type "SIMULATION_RESULT")[0m
+[2m  23 |                 (when-let [cb (get @job-callbacks job-id)][0m
+--------------------------------------------------------------------------------
+[:app] Compiling ...
+[:app] Build completed. (798 files, 2 compiled, 1 warnings, 0.37s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/worker_pool.cljs:19:28
+--------------------------------------------------------------------------------
+[2m  16 |                   job-id (.-id data)[0m
+[2m  17 |                   type (.-type data)[0m
+[2m  18 |                   result (js->clj (.-result data) :keywordize-keys true)[0m
+[1m  19 |                   success? (.-success data)[0m
+----------------------------------^---------------------------------------------
+ [33;1mCannot infer target type in expression (. data -success)[0m
+--------------------------------------------------------------------------------
+[2m  20 |                   error (.-error data)][0m
+[2m  21 | [0m
+[2m  22 |               (when (= type "SIMULATION_RESULT")[0m
+[2m  23 |                 (when-let [cb (get @job-callbacks job-id)][0m
+--------------------------------------------------------------------------------
+Worker shutdown.
+Worker shutdown.
+Exception in thread "async-mixed-3" java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.FutureTask@605c7060[Not completed, task = shadow.remote.runtime.clj.local$runtime_loop$fn__21752@2e632c15] rejected from java.util.concurrent.ThreadPoolExecutor@373639e6[Shutting down, pool size = 3, active threads = 0, queued tasks = 0, completed tasks = 92]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)
+	at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:145)
+	at shadow.remote.runtime.clj.local$runtime_loop.invokeStatic(local.clj:33)
+	at shadow.remote.runtime.clj.local$runtime_loop.invoke(local.clj:21)
+	at shadow.remote.runtime.clj.local$start$fn__21792.invoke(local.clj:95)
+	at clojure.lang.AFn.applyToHelper(AFn.java:152)
+	at clojure.lang.AFn.applyTo(AFn.java:144)
+	at clojure.core$apply.invokeStatic(core.clj:667)
+	at clojure.core$with_bindings_STAR_.invokeStatic(core.clj:1994)
+	at clojure.core$with_bindings_STAR_.doInvoke(core.clj:1994)
+	at clojure.lang.RestFn.invoke(RestFn.java:428)
+	at clojure.lang.AFn.applyToHelper(AFn.java:156)
+	at clojure.lang.RestFn.applyTo(RestFn.java:135)
+	at clojure.core$apply.invokeStatic(core.clj:671)
+	at clojure.core$bound_fn_STAR_$fn__5839.doInvoke(core.clj:2024)
+	at clojure.lang.RestFn.invoke(RestFn.java:400)
+	at clojure.core.async$thread_call$returning_to_chan__8087$fn__8088.invoke(async.clj:509)
+	at clojure.lang.AFn.run(AFn.java:22)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
