@@ -146,8 +146,7 @@
    :median-fu-tol "Tolerance for median follow-up target in months."
    :hr-threshold "Hazard ratio threshold for significance per SAP (0.636)."
    :seed "Random seed for reproducibility."
-   :families "Enabled model distribution families (e.g. \"weibull\", \"leaky\")."
-   })
+   :families "Enabled model distribution families."})
 
 (defn- parse-vector [val]
   (try
@@ -169,6 +168,94 @@
                        (when-let [parsed (parse-vector v)]
                          (state/set-config! key-name parsed))))}])))
 
+(defn- parse-float-safe [s default-val]
+  (let [p (js/parseFloat s)]
+    (if (js/isNaN p) default-val p)))
+
+(defn- grid-input [curr-val key-name]
+  (let [[start stop step] curr-val
+        start-val (r/atom (str start))
+        stop-val (r/atom (str stop))
+        step-val (r/atom (str step))]
+    (fn [curr-val key-name]
+      (let [[c-start c-stop c-step] curr-val]
+        (when-not (= (parse-float-safe @start-val nil) c-start)
+          (reset! start-val (str c-start)))
+        (when-not (= (parse-float-safe @stop-val nil) c-stop)
+          (reset! stop-val (str c-stop)))
+        (when-not (= (parse-float-safe @step-val nil) c-step)
+          (reset! step-val (str c-step))))
+      [:div.flex.gap-2.mt-1
+       [:div.flex-1
+        [:span.text-xs.text-gray-500 "Start"]
+        [:input.border.w-full.p-1.rounded.text-sm
+         {:type "number"
+          :step "0.01"
+          :value @start-val
+          :on-change (fn [e]
+                       (let [v (.. e -target -value)
+                             parsed (js/parseFloat v)]
+                         (reset! start-val v)
+                         (when-not (js/isNaN parsed)
+                           (state/set-config!
+                            key-name
+                            [parsed
+                             (parse-float-safe @stop-val 0.0)
+                             (parse-float-safe @step-val 0.0)]))))}]]
+       [:div.flex-1
+        [:span.text-xs.text-gray-500 "Stop"]
+        [:input.border.w-full.p-1.rounded.text-sm
+         {:type "number"
+          :step "0.01"
+          :value @stop-val
+          :on-change (fn [e]
+                       (let [v (.. e -target -value)
+                             parsed (js/parseFloat v)]
+                         (reset! stop-val v)
+                         (when-not (js/isNaN parsed)
+                           (state/set-config!
+                            key-name
+                            [(parse-float-safe @start-val 0.0)
+                             parsed
+                             (parse-float-safe @step-val 0.0)]))))}]]
+       [:div.flex-1
+        [:span.text-xs.text-gray-500 "Step"]
+        [:input.border.w-full.p-1.rounded.text-sm
+         {:type "number"
+          :step "0.01"
+          :value @step-val
+          :on-change (fn [e]
+                       (let [v (.. e -target -value)
+                             parsed (js/parseFloat v)]
+                         (reset! step-val v)
+                         (when-not (js/isNaN parsed)
+                           (state/set-config!
+                            key-name
+                            [(parse-float-safe @start-val 0.0)
+                             (parse-float-safe @stop-val 0.0)
+                             parsed]))))}]]])))
+
+(defn- families-input [curr-val key-name]
+  (let [all-families ["weibull" "leaky" "cure"]
+        active-set (set curr-val)]
+    [:div.flex.flex-col.gap-2.mt-1
+     (for [fam all-families]
+       (let [checked? (contains? active-set fam)]
+         ^{:key fam}
+         [:label.inline-flex.items-center.text-sm.text-gray-700.cursor-pointer
+          [:input.rounded.border-gray-300.text-blue-600.focus:ring-blue-500
+           {:type "checkbox"
+            :checked checked?
+            :on-change (fn [e]
+                         (let [checked (.. e -target -checked)
+                               new-set (if checked
+                                         (conj active-set fam)
+                                         (disj active-set fam))
+                               new-val (filterv (partial contains? new-set)
+                                                all-families)]
+                           (state/set-config! key-name new-val)))}]
+          [:span.ml-2.capitalize fam]]))]))
+
 (defn- field-input [config key-name]
   (let [show-help? (r/atom false)]
     (fn [config key-name]
@@ -180,23 +267,34 @@
           [:label.block.text-sm.font-semibold.text-gray-700
            label-text]
           (when (seq help-text)
-            [:button.inline-flex.items-center.justify-center.w-5.h-5.text-xs.font-bold.rounded-full.transition-colors
+            [:button.inline-flex.items-center.justify-center
              {:type "button"
-              :class (if @show-help?
-                       "bg-blue-600 text-white hover:bg-blue-700"
-                       "bg-gray-100 text-gray-500 hover:bg-gray-200")
+              :class (str "w-5 h-5 text-xs font-bold rounded-full "
+                          "transition-colors "
+                          (if @show-help?
+                            "bg-blue-600 text-white hover:bg-blue-700"
+                            "bg-gray-100 text-gray-500 hover:bg-gray-200"))
               :on-click #(swap! show-help? not)}
              "?"])]
          (when (and @show-help? (seq help-text))
-           [:div.text-xs.text-blue-900.bg-blue-50.p-2.rounded.mb-2.border.border-blue-200.leading-relaxed
+           [:div.text-xs.text-blue-900.bg-blue-50.p-2.rounded.mb-2
+            {:class "border border-blue-200 leading-relaxed"}
             help-text])
          (cond
+           (= key-name :families)
+           [families-input curr-val key-name]
+
            (boolean? curr-val)
            [:input.mt-1 {:type "checkbox"
                          :checked curr-val
                          :on-change #(state/set-config!
                                       key-name
                                       (.. % -target -checked))}]
+
+           (and (vector? curr-val)
+                (= (count curr-val) 3)
+                (every? number? curr-val))
+           [grid-input curr-val key-name]
 
            (vector? curr-val)
            [vector-input curr-val key-name]
@@ -278,8 +376,10 @@
        [category-card :other (get category->keys :other) config]]]
 
      [:div.mt-8.flex.justify-center
-      [:button.bg-blue-600.hover:bg-blue-700.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg.transition-all.transform.hover:-translate-y-0.5
-       {:on-click #(sim/start-simulation!)}
+      [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
+       {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
+                    "transform hover:-translate-y-0.5")
+        :on-click #(sim/start-simulation!)}
        "Run Simulation"]]]))
 
 (defn- config->nested [config]
