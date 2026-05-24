@@ -138,20 +138,30 @@
    {:width 300 :height 300
     :title "Survival Curves"
     :data {:values data}
-    :mark {:type "line" :strokeWidth 2}
-    :encoding {:x {:field "time" :type "quantitative" :title "Months"}
-               :y {:field "survival" :type "quantitative" :title "S(t)"
-                   :scale {:domain [0 1]}}
-               :color {:field "group" :type "nominal"
-                       :scale {:domain ["Pooled" "GPS" "BAT"]
-                               :range ["#4488cc" "#55bb88" "#ee6677"]}}
-               :strokeDash {:field "group" :type "nominal"
-                            :scale {:domain ["Pooled" "GPS" "BAT"]
-                                    :range [[] [4 4] [2 2]]}}
-               :tooltip [{:field "time" :type "quantitative" :title "Months"}
-                         {:field "survival" :type "quantitative"
-                          :title "Survival"}
-                         {:field "group" :type "nominal" :title "Group"}]}
+    :layer [{:mark {:type "line" :strokeWidth 2}
+             :encoding {:x {:field "time" :type "quantitative"
+                            :title "Months"}
+                        :y {:field "survival" :type "quantitative"
+                            :title "S(t)"
+                            :scale {:domain [0 1]}}
+                        :color {:field "group" :type "nominal"
+                                :scale {:domain ["Pooled" "GPS" "BAT"]
+                                        :range ["#4488cc"
+                                                "#55bb88"
+                                                "#ee6677"]}}
+                        :strokeDash {:field "group" :type "nominal"
+                                     :scale {:domain ["Pooled" "GPS" "BAT"]
+                                             :range [[] [4 4] [2 2]]}}}}
+            {:params [{:name "hover"
+                       :select {:type "point"
+                                :on "mouseover"
+                                :nearest true
+                                :clear "mouseout"
+                                :fields ["time"]}}]
+             :mark {:type "rule" :color "#bbb" :strokeWidth 1}
+             :encoding {:x {:field "time" :type "quantitative"}
+                        :tooltip [{:field "time" :type "quantitative"
+                                   :title "Months"}]}}]
     :config {:view {:stroke "transparent"}
              :legend {:orient "bottom"}}}])
 
@@ -168,8 +178,8 @@
     [vega-lite
      {:width 300 :height 300
       :title "Expected Event Accrual"
-      :layer [{:data {:values curve-data}
-               :mark {:type "line" :strokeWidth 2}
+      :data {:values curve-data}
+      :layer [{:mark {:type "line" :strokeWidth 2}
                :encoding {:x {:field "time" :type "quantitative"
                               :title "Months"}
                           :y {:field "events" :type "quantitative"
@@ -181,32 +191,24 @@
                                                   "#ee6677"]}}
                           :strokeDash {:field "group" :type "nominal"
                                        :scale {:domain ["Total" "GPS" "BAT"]
-                                               :range [[] [4 4] [2 2]]}}
+                                               :range [[] [4 4] [2 2]]}}}}
+              {:params [{:name "hover"
+                         :select {:type "point"
+                                  :on "mouseover"
+                                  :nearest true
+                                  :clear "mouseout"
+                                  :fields ["time"]}}]
+               :mark {:type "rule" :color "#bbb" :strokeWidth 1}
+               :encoding {:x {:field "time" :type "quantitative"}
                           :tooltip [{:field "time" :type "quantitative"
-                                     :title "Months"}
-                                    {:field "events" :type "quantitative"
-                                     :title "Expected Events"}
-                                    {:field "group" :type "nominal"
-                                     :title "Group"}]}}
+                                     :title "Months"}]}}
               {:data {:values markers}
                :mark {:type "point" :size 100 :color "black" :shape "cross"}
                :encoding {:x {:field "time" :type "quantitative"}
-                          :y {:field "target" :type "quantitative"}
-                          :tooltip [{:field "label" :type "nominal"
-                                     :title "Milestone"}
-                                    {:field "time" :type "quantitative"
-                                     :title "Months"}
-                                    {:field "target" :type "quantitative"
-                                     :title "Target Events"}]}}
+                          :y {:field "target" :type "quantitative"}}}
               {:data {:values markers}
                :mark {:type "point" :size 60 :color "red"}
                :encoding {:x {:field "time" :type "quantitative"}
-                          :y {:field "expected" :type "quantitative"}
-                          :tooltip [{:field "label" :type "nominal"
-                                     :title "Milestone"}
-                                    {:field "time" :type "quantitative"
-                                     :title "Months"}
-                                    {:field "expected" :type "quantitative"
-                                     :title "Expected Events"}]}}]
+                          :y {:field "expected" :type "quantitative"}}}]
       :config {:view {:stroke "transparent"}
                :legend {:orient "bottom"}}}]))
