@@ -10,31 +10,41 @@
 (defn- get-discovery-state []
   (:discovery @state/app-state))
 
-(defn- update-discovery-param! [family param-key value]
-  (swap! state/app-state assoc-in [:discovery :params family param-key] value))
+(defn- update-discovery-param! [param-key value]
+  (swap! state/app-state assoc-in [:discovery :params param-key] value))
 
 (defn- set-active-family! [family]
   (swap! state/app-state assoc-in [:discovery :active-family] family))
 
-(defn- param-input [family param-key label min max step]
-  (let [val (get-in (get-discovery-state) [:params family param-key])]
+(defn- param-input [param-key label min max step]
+  (let [val (get-in (get-discovery-state) [:params param-key])]
     [:div.mb-2
      [:label.block.text-xs.font-semibold.text-gray-600 label]
      [:div.flex.items-center.gap-2
       [:input.w-full
        {:type "range" :min min :max max :step step
         :value val
-        :on-change #(update-discovery-param! family param-key (js/parseFloat (.. % -target -value)))}]
+        :on-change (fn [e]
+                     (let [v (js/parseFloat (.. e -target -value))]
+                       (update-discovery-param! param-key v)))}]
       [:input.border.rounded.p-1.text-xs.w-16
        {:type "number" :value val :step step
-        :on-change #(update-discovery-param! family param-key (js/parseFloat (.. % -target -value)))}]]]))
+        :on-change (fn [e]
+                     (let [v (js/parseFloat (.. e -target -value))]
+                       (update-discovery-param! param-key v)))}]]]))
 
 (defn- calculate-stats [family params config]
-  (let [[enroll-pts enroll-weights] (enrollment/expected-enrollment-times config)
-        target-times (np/array #js [(:t-ia config) (:t-upd config) (:t-pr3 config)] "float64")
+  (let [[enroll-pts enroll-weights] (enrollment/expected-enrollment-times
+                                      config)
+        target-times (np/array #js [(:t-ia config)
+                                    (:t-upd config)
+                                    (:t-pr3 config)] "float64")
 
-        bat-scale (survival/weibull-scale-from-median (np/array #js [(:bat-med params)]) (np/array #js [(:bat-shape params)]))
-        bat-shape (np/array #js [(:bat-shape params)])
+        bat-med-arr (np/array #js [(:bat-med params)])
+        bat-shape-arr (np/array #js [(:bat-shape params)])
+        bat-scale (survival/weibull-scale-from-median
+                    bat-med-arr bat-shape-arr)
+        bat-shape bat-shape-arr
 
         bat-res (enrollment/expected-arm-events-and-variance
                   survival/weibull-survival-probability
@@ -44,8 +54,9 @@
 
         gps-res (cond
                   (= family "weibull")
-                  (let [scale (survival/weibull-scale-from-median (np/array #js [(:gps-med params)]) (np/array #js [(:gps-shape params)]))
-                        shape (np/array #js [(:gps-shape params)])]
+                  (let [med (np/array #js [(:gps-med params)])
+                        shape (np/array #js [(:bat-shape params)])
+                        scale (survival/weibull-scale-from-median med shape)]
                     (enrollment/expected-arm-events-and-variance
                       survival/weibull-survival-probability
                       [scale shape]
@@ -53,8 +64,9 @@
                       (:n-per-arm config) (:n-total config)))
 
                   (= family "cure")
-                  (let [scale (survival/weibull-scale-from-median (np/array #js [(:unc-med params)]) (np/array #js [(:unc-shape params)]))
+                  (let [med (np/array #js [(:unc-med params)])
                         shape (np/array #js [(:unc-shape params)])
+                        scale (survival/weibull-scale-from-median med shape)
                         cf (np/array #js [(:cure-frac params)])]
                     (enrollment/expected-arm-events-and-variance
                       survival/cure-survival-probability
@@ -63,8 +75,9 @@
                       (:n-per-arm config) (:n-total config)))
 
                   (= family "leaky")
-                  (let [scale (survival/weibull-scale-from-median (np/array #js [(:unc-med params)]) (np/array #js [(:unc-shape params)]))
+                  (let [med (np/array #js [(:unc-med params)])
                         shape (np/array #js [(:unc-shape params)])
+                        scale (survival/weibull-scale-from-median med shape)
                         cf (np/array #js [(:cure-frac params)])
                         leak (np/array #js [(:leak-yr params)])]
                     (enrollment/expected-arm-events-and-variance
@@ -91,45 +104,67 @@
                :expected expected
                :sd sd
                :std-dev std-dev}))
-          labels targets (first exp-bat) (first var-bat) (first exp-gps) (first var-gps))))
+          labels targets (first exp-bat) (first var-bat)
+          (first exp-gps) (first var-gps))))
 
 (defn- calculate-curves [family params config]
   (let [t-max 80
         t-pts (np/linspace 0 t-max 200)
-        [enroll-pts enroll-weights] (enrollment/expected-enrollment-times config)
+        [enroll-pts enroll-weights] (enrollment/expected-enrollment-times
+                                      config)
 
-        bat-scale (survival/weibull-scale-from-median (np/array #js [(:bat-med params)]) (np/array #js [(:bat-shape params)]))
-        bat-shape (np/array #js [(:bat-shape params)])
+        bat-med-arr (np/array #js [(:bat-med params)])
+        bat-shape-arr (np/array #js [(:bat-shape params)])
+        bat-scale (survival/weibull-scale-from-median
+                    bat-med-arr bat-shape-arr)
+        bat-shape bat-shape-arr
 
         s-bat (survival/weibull-survival-probability t-pts bat-scale bat-shape)
 
-        ev-bat (enrollment/expected-arm-events survival/weibull-survival-probability
-                                               [bat-scale bat-shape]
-                                               enroll-pts enroll-weights t-pts
-                                               (:n-per-arm config) (:n-total config))
+        ev-bat (enrollment/expected-arm-events
+                 survival/weibull-survival-probability
+                 [bat-scale bat-shape]
+                 enroll-pts enroll-weights t-pts
+                 (:n-per-arm config) (:n-total config))
 
         [s-gps ev-gps]
         (cond
           (= family "weibull")
-          (let [scale (survival/weibull-scale-from-median (np/array #js [(:gps-med params)]) (np/array #js [(:gps-shape params)]))
-                shape (np/array #js [(:gps-shape params)])]
+          (let [med (np/array #js [(:gps-med params)])
+                shape (np/array #js [(:bat-shape params)])
+                scale (survival/weibull-scale-from-median med shape)]
             [(survival/weibull-survival-probability t-pts scale shape)
-             (enrollment/expected-arm-events survival/weibull-survival-probability [scale shape] enroll-pts enroll-weights t-pts (:n-per-arm config) (:n-total config))])
+             (enrollment/expected-arm-events
+               survival/weibull-survival-probability
+               [scale shape]
+               enroll-pts enroll-weights t-pts
+               (:n-per-arm config) (:n-total config))])
 
           (= family "cure")
-          (let [scale (survival/weibull-scale-from-median (np/array #js [(:unc-med params)]) (np/array #js [(:unc-shape params)]))
+          (let [med (np/array #js [(:unc-med params)])
                 shape (np/array #js [(:unc-shape params)])
+                scale (survival/weibull-scale-from-median med shape)
                 cf (np/array #js [(:cure-frac params)])]
             [(survival/cure-survival-probability t-pts cf scale shape)
-             (enrollment/expected-arm-events survival/cure-survival-probability [cf scale shape] enroll-pts enroll-weights t-pts (:n-per-arm config) (:n-total config))])
+             (enrollment/expected-arm-events
+               survival/cure-survival-probability
+               [cf scale shape]
+               enroll-pts enroll-weights t-pts
+               (:n-per-arm config) (:n-total config))])
 
           (= family "leaky")
-          (let [scale (survival/weibull-scale-from-median (np/array #js [(:unc-med params)]) (np/array #js [(:unc-shape params)]))
+          (let [med (np/array #js [(:unc-med params)])
                 shape (np/array #js [(:unc-shape params)])
+                scale (survival/weibull-scale-from-median med shape)
                 cf (np/array #js [(:cure-frac params)])
                 leak (np/array #js [(:leak-yr params)])]
-            [(survival/leaky-cure-survival-probability t-pts cf scale shape leak)
-             (enrollment/expected-arm-events survival/leaky-cure-survival-probability [cf scale shape leak] enroll-pts enroll-weights t-pts (:n-per-arm config) (:n-total config))]))
+            [(survival/leaky-cure-survival-probability
+               t-pts cf scale shape leak)
+             (enrollment/expected-arm-events
+               survival/leaky-cure-survival-probability
+               [cf scale shape leak]
+               enroll-pts enroll-weights t-pts
+               (:n-per-arm config) (:n-total config))]))
 
         s-pool (np/multiply (np/add s-bat s-gps) 0.5)
         ev-total (np/add ev-bat ev-gps)]
@@ -142,14 +177,15 @@
 (defn discovery-view []
   (let [state (get-discovery-state)
         active-family (:active-family state)
-        params (get-in state [:params active-family])
+        params (:params state)
         config (:config @state/app-state)
         stats (calculate-stats active-family params config)
         curve-data (calculate-curves active-family params config)]
     [:div.p-6.max-w-6xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
      [:p.text-gray-600.mb-6
-      "Explore survival curves and event accrual given parametric assumptions."]
+      (str "Explore survival curves and event accrual "
+           "given parametric assumptions.")]
 
      [:div.flex.gap-2.mb-6.border-b
       (for [fam ["weibull" "cure" "leaky"]]
@@ -165,27 +201,30 @@
       ;; Controls
       [:div.lg:col-span-1.bg-white.p-4.rounded-xl.shadow-sm.border
        [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
-       [param-input active-family :bat-med "BAT Median" 4 30 0.5]
-       [param-input active-family :bat-shape "BAT Shape" 0.5 2.0 0.1]
+       [param-input :bat-med "BAT Median" 4 30 0.5]
+       [param-input :bat-shape
+                    (if (= active-family "weibull")
+                      "Weibull Shape"
+                      "BAT Shape")
+                    0.5 2.0 0.1]
 
        (case active-family
          "weibull"
          [:div
-          [param-input active-family :gps-med "GPS Median" 4 100 1.0]
-          [param-input active-family :gps-shape "GPS Shape" 0.5 2.0 0.1]]
+          [param-input :gps-med "GPS Median" 4 100 1.0]]
 
          "cure"
          [:div
-          [param-input active-family :cure-frac "Cure Fraction" 0.0 0.95 0.05]
-          [param-input active-family :unc-med "Uncured Median" 4 50 1.0]
-          [param-input active-family :unc-shape "Uncured Shape" 0.5 2.0 0.1]]
+          [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
+          [param-input :unc-med "Uncured Median" 4 50 1.0]
+          [param-input :unc-shape "Uncured Shape" 0.5 2.0 0.1]]
 
          "leaky"
          [:div
-          [param-input active-family :cure-frac "Cure Fraction" 0.0 0.95 0.05]
-          [param-input active-family :unc-med "Uncured Median" 4 50 1.0]
-          [param-input active-family :unc-shape "Uncured Shape" 0.5 2.0 0.1]
-          [param-input active-family :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
+          [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05]
+          [param-input :unc-med "Uncured Median" 4 50 1.0]
+          [param-input :unc-shape "Uncured Shape" 0.5 2.0 0.1]
+          [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
 
       ;; Results and Charts
       [:div.lg:col-span-3
@@ -199,12 +238,18 @@
             [:span.text-xs.text-gray-400 (str " / " (:target s))]]
            [:div.mt-1.grid.grid-cols-2.gap-2
             [:div
-             [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"} "SD"]
+             [:div {:style {:font-size "10px"}
+                    :class "text-gray-400 uppercase"}
+              "SD"]
              [:div.text-xs.font-semibold (.toFixed (:sd s) 2)]]
             [:div
-             [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"} "Std Dev"]
+             [:div {:style {:font-size "10px"}
+                    :class "text-gray-400 uppercase"}
+              "Std Dev"]
              [:div.text-xs.font-semibold
-              {:class (if (> (js/Math.abs (:std-dev s)) 2) "text-red-600" "text-green-600")}
+              {:class (if (> (js/Math.abs (:std-dev s)) 2)
+                        "text-red-600"
+                        "text-green-600")}
               (.toFixed (:std-dev s) 2)]]]])]
 
        [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
