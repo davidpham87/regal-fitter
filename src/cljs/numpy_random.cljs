@@ -1,4 +1,4 @@
-(ns numpy-ts.random
+(ns cljs.numpy-random
   (:require ["numpy-ts" :as np-ts]))
 
 (defn default-rng

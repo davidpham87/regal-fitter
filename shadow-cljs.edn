@@ -1,10 +1,15 @@
-{:deps {:aliases [:cljs]}
+{:deps {:aliases [:cljs :test]}
+ :paths ["src" "test"]
+ :dev-http {8080 "public"}
  :builds
  {:app {:target :browser
         :output-dir "public/js"
         :asset-path "/js"
         :js-options {:resolve {"node:fs" false "node:fs/promises" false}}
-        :modules {:main {:entries [app.core] :init-fn app.core/init}}}
+        :modules {:main {:entries [app.core] :init-fn app.core/init}}
+        :devtools {:autobuild true
+                   :after-load app.core/reload!
+                   :preload [devtools.preload]}}
   :worker {:target :browser
            :output-dir "public/js"
            :asset-path "/js"
@@ -13,4 +18,10 @@
                               :web-worker true}}}
   :test {:target :browser-test
          :test-dir "out/test"
-         :ns-regexp "-test$"}}}
+         :ns-regexp "-test$"}
+  :test-node {:target :node-test
+              :output-to "out/test-node.js"
+              :ns-regexp "-test$"}
+  :compare-node {:target :node-script
+                 :main app.compare-node/main
+                 :output-to "out/compare-node.js"}}}

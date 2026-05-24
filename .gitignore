@@ -15,3 +15,7 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 out/
+chat.md
+.lsp/
+.clj-kondo/  
+public/js
