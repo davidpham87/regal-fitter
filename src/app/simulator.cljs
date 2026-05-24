@@ -72,3 +72,46 @@
         (catch js/Error e
           (swap! state/app-state assoc :status :error
                                        :error-message (.-message e)))))))
+
+(defn- submit-stress-test-jobs! [config grid results completed total start-time]
+  (wp/clear-queue!)
+  (if (= total 0)
+    (swap! state/app-state assoc :stress-test-status :done)
+    (doseq [[idx [mos k]] (map-indexed vector grid)]
+      (wp/submit-job!
+       {:mos mos
+        :k k
+        :n-sims (:n-sims config)
+        :seed (+ (:seed config) (* idx 7919))
+        :config config
+        :type "RUN_STRESS_TEST"}
+       (fn [{:keys [success? result error]}]
+         (swap! completed inc)
+         (log (str "Job completed: " @completed "/" total))
+         (swap! state/app-state assoc-in
+                [:stress-test-progress :completed] @completed)
+         (when (and success? result)
+           (swap! results conj result))
+         (when (= @completed total)
+           (log (str "Stress test simulations done in "
+                     (/ (- (js/Date.now) start-time) 1000) "s"))
+           (swap! state/app-state assoc :stress-test-status :done
+                                        :stress-test-results (vec (sort-by :mos @results)))))))))
+
+(defn start-stress-test! []
+  (log "Starting stress test...")
+  (let [config (:stress-test-config @state/app-state)
+        [mos-start mos-stop mos-step] (:mos-grid config)
+        [k-start k-stop k-step] (:k-grid config)
+        ;; range can be tricky if step is 0 or start > stop with positive step
+        mos-vals (if (> mos-step 0) (range mos-start mos-stop mos-step) [mos-start])
+        k-vals (if (> k-step 0) (range k-start k-stop k-step) [k-start])
+        grid (for [m mos-vals k k-vals] [m k])
+        total-combos (count grid)]
+    (log (str "Grid size: " total-combos))
+    (swap! state/app-state assoc :stress-test-status :running
+                                 :stress-test-results []
+                                 :error-message nil
+                                 :stress-test-progress {:total total-combos
+                                                        :completed 0})
+    (submit-stress-test-jobs! config grid (atom []) (atom 0) total-combos (js/Date.now))))

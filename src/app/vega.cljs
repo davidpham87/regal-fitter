@@ -120,3 +120,19 @@
                    :encoding {:y {:field "y" :type "quantitative"}
                               :color {:value "red"}
                               :strokeDash {:value [4 4]}}}]}]])]))
+
+(defn stress-test-charts [results]
+  (let [vdata (map (fn [r]
+                     {:mos (:mos r)
+                      :k (:k r)
+                      :p_joint (* 100 (:p_joint r))
+                      :label (str (:mos r) " (k=" (:k r) ")")})
+                   results)]
+    [:div.flex.flex-wrap.gap-4
+     [vega-lite
+      {:width 600 :height 300 :data {:values vdata}
+       :title "Joint Probability (p_joint) by mOS and k"
+       :mark {:type "line" :point true}
+       :encoding {:x {:field "mos" :type "quantitative" :title "mOS"}
+                  :y {:field "p_joint" :type "quantitative" :title "p_joint (%)"}
+                  :color {:field "k" :type "nominal" :title "k"}}}]]))
