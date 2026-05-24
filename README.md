@@ -132,14 +132,14 @@ python regal_fit.py --median-fu-target 0     # disable FU filter
 
 **Leaky-cure P(success) by BAT mOS:**
 
-| BAT mOS | Posterior P(success) | HR P50 | Best-fit HR | Best-fit P(success) |
-|---|---|---|---|---|
-| 11-12 | 94% | 0.45 | 0.25 | 100% |
-| 13-14 | 91% | 0.45 | 0.22 | 100% |
-| 15-16 | 84% | 0.49 | 0.29 | 100% |
-| **16-17** | **78%** | **0.52** | **0.32** | **100%** |
-| 18-19 | 65% | 0.58 | 0.64 | 51% |
-| 20-21 | 50% | 0.65 | 0.52 | 87% |
+| BAT mOS   | Posterior P(success) | HR P50   | Best-fit HR | Best-fit P(success) |
+|-----------|----------------------|----------|-------------|---------------------|
+| 11-12     | 94%                  | 0.45     | 0.25        | 100%                |
+| 13-14     | 91%                  | 0.45     | 0.22        | 100%                |
+| 15-16     | 84%                  | 0.49     | 0.29        | 100%                |
+| **16-17** | **78%**              | **0.52** | **0.32**    | **100%**            |
+| 18-19     | 65%                  | 0.58     | 0.64        | 51%                 |
+| 20-21     | 50%                  | 0.65     | 0.52        | 87%                 |
 
 Numbers vary 1-3 points run-to-run based on stochastic seed.
 
@@ -147,12 +147,12 @@ Numbers vary 1-3 points run-to-run based on stochastic seed.
 
 Same architecture and constraints, but four methodological choices differ:
 
-| Choice | This script | yg19/CW |
-|---|---|---|
-| Selection rule | Posterior across all combos within tolerance + best-fit cell reported | Best-fit single combo per (BAT, leak) cell |
-| 80-event anchor | "Not yet observed" (one-sided) | "At May 2026" exact (two-sided fitting target) |
-| GPS shape | Three families, analyst weights | Leaky-cure variants only |
-| ABC tolerance | Explicit ±4 events per-sim, ±2.5 analytical prefilter | Implicit (residual minimization) |
+| Choice          | This script                                                           | yg19/CW                                        |
+|-----------------|-----------------------------------------------------------------------|------------------------------------------------|
+| Selection rule  | Posterior across all combos within tolerance + best-fit cell reported | Best-fit single combo per (BAT, leak) cell     |
+| 80-event anchor | "Not yet observed" (one-sided)                                        | "At May 2026" exact (two-sided fitting target) |
+| GPS shape       | Three families, analyst weights                                       | Leaky-cure variants only                       |
+| ABC tolerance   | Explicit ±4 events per-sim, ±2.5 analytical prefilter                 | Implicit (residual minimization)               |
 
 ### Empirical sensitivity tests
 
@@ -168,13 +168,13 @@ Same architecture and constraints, but four methodological choices differ:
 
 Point estimation vs posterior averaging. Not anything tractable as a code bug:
 
-| Framework | P(success) at BAT=16 leaky-cure |
-|---|---|
-| yg19/CW point fit | ~99% |
-| This script point fit | **~100%** (matches) |
-| Posterior subset to yg19/CW's cure regime | ~95% |
-| Posterior, full leaky-cure family | **~78%** |
-| Posterior, all three families | **~66%** |
+| Framework                                 | P(success) at BAT=16 leaky-cure |
+|-------------------------------------------|---------------------------------|
+| yg19/CW point fit                         | ~99%                            |
+| This script point fit                     | **~100%** (matches)             |
+| Posterior subset to yg19/CW's cure regime | ~95%                            |
+| Posterior, full leaky-cure family         | **~78%**                        |
+| Posterior, all three families             | **~66%**                        |
 
 yg19/CW's 99% is conditionally correct under his biological commitments
 (strong-cure regime + point estimation). The marginal at 78% averages across
@@ -200,8 +200,8 @@ Inspired by CW/yg19's published REGAL analysis. Constraints, anchors, and
 general approach follow his lead. All methodology choices, numerical results,
 and any errors are mine.
 
+Forked from Confidend Ad python files and translated into cljs for webapp.
+
 ## License
 
 MIT.
-# clojure_base_template
-My own default clojure template in order to built new stuff.
