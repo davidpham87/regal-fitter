@@ -223,12 +223,45 @@
                    [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
                    [:td.px-4.py-2 (.toFixed (:residual r) 2)]]))]]]])]))))
 
+(defn- placebo-explanation-view []
+  [:div.p-6.rounded-xl.border.mb-6
+   {:class ["bg-gradient-to-r" "from-blue-50" "to-indigo-50"
+            "border-blue-100"]}
+   [:h3.text-lg.font-bold.text-blue-900.mb-3
+    "Methodology & Interpretation Guide"]
+   [:p.text-sm.text-blue-950.mb-4
+    "This stress test evaluates the likelihood of observed clinical trial "
+    "milestones under the Null Hypothesis (H0) that both treatment (GPS) and "
+    "control (BAT) arms have identical survival profiles."]
+   [:div.grid.grid-cols-1.md:grid-cols-2.gap-6.text-xs.text-blue-900
+    [:div
+     [:h4.font-semibold.text-blue-950.mb-2 "Observed Stress Milestones:"]
+     [:ul.list-disc.pl-4.space-y-1
+      [:li "**Passed IA Gate:** Blinded pooled median OS > 12m at IA, and "
+       "estimated Hazard Ratio < 1.0 (approximated by GPS event count)."]
+      [:li "**Interim Analysis:** Event count at month 46 is ≤ 60 events."]
+      [:li "**Deceleration:** Incremental events between months 46 and 58 "
+       "is ≤ 12 events."]
+      [:li "**Extension:** Incremental events between months 58 and 63 "
+       "is ≤ 6 events."]]]
+    [:div
+     [:h4.font-semibold.text-blue-950.mb-2 "Key Metrics Explained:"]
+     [:ul.list-disc.pl-4.space-y-1
+      [:li "**p_joint:** The probability of a trial meeting ALL five stress "
+       "milestones simultaneously under H0. A low value (e.g. < 5%) suggests "
+       "H0 is highly unlikely."]
+      [:li "**Expected Events:** The average event counts at each milestone "
+       "across all simulations."]
+      [:li "**Residual:** The maximum absolute discrepancy between the "
+       "simulated expected events and actual observed events."]]]]])
+
 (defn placebo-stress-view []
   [:div.p-6.max-w-6xl.mx-auto
    [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Placebo Stress Test"]
    [:p.text-gray-600.mb-6
     "Assess the likelihood of observed trial milestones under various "
     "Null Hypothesis (H0) scenarios."]
+   [placebo-explanation-view]
    [stress-test-form]
    [stress-test-results-view]])
 
