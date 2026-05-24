@@ -43,7 +43,6 @@
           (.sort indices
                  (fn [a b]
                    (- (aget obs-t-arr a) (aget obs-t-arr b))))
-          
           (loop [i 0
                  surv 1.0]
             (if (< i n)
@@ -79,57 +78,57 @@
   (let [scale (weibull-scale-from-median mos k)
         n-total (reduce + (map #(nth % 2) (:enroll-bands config)))
         n-per-arm (quot n-total 2)
-        
+
         enroll-arr (generate-enrollment n-sims n-total (:enroll-bands config))
-        
+
         ev-ia (js/Int32Array. n-sims)
         ev-upd (js/Int32Array. n-sims)
         ev-pr3 (js/Int32Array. n-sims)
         gps-ev-ia (js/Int32Array. n-sims)
         pass-pool (js/Uint8Array. n-sims)
-        
+
         t-ia (:t-ia config)
         t-upd (:t-upd config)
         t-pr3 (:t-pr3 config)
         pool-mos-min (:pool-mos-min config)
         inv-k (/ 1.0 k)]
-    
+
     (dotimes [s n-sims]
       (let [offset (* s n-total)
             trial-obs-t (js/Float64Array. n-total)
             trial-is-ev (js/Int8Array. n-total)
-            
+
             is-gps (js/Int8Array. n-total)]
         (dotimes [i n-per-arm] (aset is-gps i 1))
         (shuffle-array is-gps)
-        
+
         (dotimes [i n-total]
           (let [idx (+ offset i)
                 e-val (aget enroll-arr idx)
-                ;; surv = scale * (-log(1-rand))^(1/k) 
+                ;; surv = scale * (-log(1-rand))^(1/k)
                 ;; Math.random is [0, 1), so 1-Math.random is (0, 1]
                 s-val (* scale
                          (js/Math.pow
                           (- (js/Math.log (- 1.0 (js/Math.random))))
                           inv-k))
-                
+
                 f-ia (js/Math.max (- t-ia e-val) 0.0)
                 f-upd (js/Math.max (- t-upd e-val) 0.0)
                 f-pr3 (js/Math.max (- t-pr3 e-val) 0.0)]
-            
+
             (when (<= s-val f-ia)
               (aset ev-ia s (inc (aget ev-ia s)))
               (when (== (aget is-gps i) 1)
                 (aset gps-ev-ia s (inc (aget gps-ev-ia s)))))
-            
+
             (when (<= s-val f-upd)
               (aset ev-upd s (inc (aget ev-upd s))))
             (when (<= s-val f-pr3)
               (aset ev-pr3 s (inc (aget ev-pr3 s))))
-            
+
             (aset trial-obs-t i (js/Math.min s-val f-ia))
             (aset trial-is-ev i (if (<= s-val f-ia) 1 0))))
-        
+
         ;; KM for pooled median at IA
         (let [s-at-12 (km-survival-single
                        trial-obs-t trial-is-ev pool-mos-min)]
@@ -140,38 +139,38 @@
           obs-inc-upd (:obs-inc-upd config)
           obs-inc-pr3 (:obs-inc-pr3 config)
           futility-hr-max (:futility-hr-max config)
-          
+
           joint-pass-count (atom 0)
           total-passed-ia (atom 0)
           total-ev-ia-le-60 (atom 0)
           total-inc-upd-le-12 (atom 0)
           total-inc-pr3-le-6 (atom 0)
-          
+
           sum-ev-ia (atom 0)
           sum-inc-upd (atom 0)
           sum-inc-pr3 (atom 0)]
-      
+
       (dotimes [s n-sims]
         (let [e-ia (aget ev-ia s)
               e-upd (aget ev-upd s)
               e-pr3 (aget ev-pr3 s)
               g-ia (aget gps-ev-ia s)
               p-pool (== (aget pass-pool s) 1)
-              
+
               i-upd (- e-upd e-ia)
               i-pr3 (- e-pr3 e-upd)
-              
+
               pass-hr (< g-ia
                          (* futility-hr-max
                             (/ e-ia (inc futility-hr-max))))
               passed-ia (and pass-hr p-pool)]
-          
+
           (swap! sum-ev-ia + e-ia)
           (swap! sum-inc-upd + i-upd)
           (swap! sum-inc-pr3 + i-pr3)
-          
+
           (when passed-ia (swap! total-passed-ia inc))
-          
+
           (let [c1 (<= e-ia obs-ev-ia)
                 c2 (<= i-upd obs-inc-upd)
                 c3 (<= i-pr3 obs-inc-pr3)]
