@@ -141,7 +141,11 @@
                        :params {:bat-med 8.0 :weibull-k 1.0
                                 :gps-med 12.0
                                 :cure-frac 0.2 :unc-med 10.0
-                                :leak-yr 0.05}}
+                                :leak-yr 0.05}
+                       :calc-params {:bat-med 8.0 :weibull-k 1.0
+                                     :gps-med 12.0
+                                     :cure-frac 0.2 :unc-med 10.0
+                                     :leak-yr 0.05}}
            }))
 
 ;; --- DB Subscriptions / Event Handlers (using re-frame or manual swaps) ---
