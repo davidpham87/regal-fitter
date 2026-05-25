@@ -320,23 +320,23 @@
                            (fn [k v]
                              (when (and placebo-mode? (= k :bat-med))
                                (set-values {:gps-med v}))))
-        :bat-med "BAT Median" 4 30 0.5]
+        :bat-med "BAT Median" 4 25 0.5]
        [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
 
        (case active-family
          "weibull"
          [:<>
-          [param-input props :gps-med "GPS Median" 4 100 1.0 placebo-mode?]]
+          [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]]
 
          "cure"
          [:<>
-          [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
-          [param-input props :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]]
+          [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]
+          [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]]
 
          "leaky"
          [:<>
+          [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]
           [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
-          [param-input props :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]
           [param-input props :leak-yr "Leak Rate / Year" 0.0 0.1 0.01]])]
 
       [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
@@ -416,7 +416,7 @@
        ;; Column 2: Null Hypothesis (H0)
        [:div.bg-gray-50.p-4.rounded-xl.border
         [:h3.font-extrabold.text-gray-800.mb-4
-         "Null Hypothesis (H0): GPS is placebo"]
+         "Null Hypothesis (H0): GPS is placebo (" avg-med " mOS" ")"]
         [stats-row "Milestone Stats (H0)" stats-h0]
         [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border

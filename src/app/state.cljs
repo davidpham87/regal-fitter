@@ -205,16 +205,18 @@
            :error-message nil
            :view :config-form ;; :config-form, :config-json, :results
            :active-page :home
-           :discovery {:active-family "weibull"
-                       :params {:bat-med 8.0 :weibull-k 1.0
+           :discovery {:active-family "leaky"
+                       :params {:bat-med 8.0
+                                :weibull-k 1.0
                                 :gps-med 12.0
                                 :cure-frac 0.2
-                                :leak-yr 0.05 :placebo-mode? false}
-                       :calc-params {:bat-med 8.0 :weibull-k 1.0
+                                :leak-yr 0.07 :placebo-mode? false}
+                       :calc-params {:bat-med 8.0
+                                     :weibull-k 1.0
                                      :gps-med 12.0
                                      :cure-frac 0.2
-                                     :leak-yr 0.05 :placebo-mode? false}}
-           }))
+                                     :leak-yr 0.07
+                                     :placebo-mode? false}}}))
 
 ;; --- DB Subscriptions / Event Handlers (using re-frame or manual swaps) ---
 
