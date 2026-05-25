@@ -18,4 +18,9 @@
     nil: Re-renders the app."
   []
   (js/console.log "reload")
-  (rdom/render [ui/main-view] (js/document.getElementById "app")))
+  (rdom/render [:h1 "Hello"]
+               #_[ui/main-view] (js/document.getElementById "app")))
+
+(comment
+  "hello"
+  )

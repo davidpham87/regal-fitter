@@ -2,23 +2,30 @@
  :paths ["src" "test"]
  :dev-http {8080 "public"}
  :builds
- {:app {:target :browser
-        :output-dir "public/js"
-        :asset-path "/js"
-        :js-options {:resolve {"node:fs" false
-                               "node:fs/promises" false}}
-        :modules
-        {:shared {:entries []}
-         :main {:entries [app.core]
-                :init-fn app.core/init
-                :depends-on #{:shared}
-                :default true}
-         :worker {:entries [app.worker]
-                  :depends-on #{:shared}
-                  :web-worker true}}
-        :devtools {:autobuild true
-                   :after-load app.core/reload!
-                   :preload [devtools.preload]}}
+ {:app
+  {:target :browser
+   :output-dir "public/js"
+   :asset-path "/js"
+   :js-options {:resolve {"node:fs" false
+                          "node:fs/promises" false}}
+
+   :dev {:compiler-options {:source-map true
+                            :pretty-print true
+                            :pseudo-names true}}
+
+   :modules
+   {:shared {:entries []}
+    :main {:entries [app.core]
+           :init-fn app.core/init
+           :depends-on #{:shared}
+           :default true}
+    :worker {:entries [app.worker]
+             :depends-on #{:shared}
+             :web-worker true}}
+
+   :devtools {:autobuild true
+              :after-load app.core/reload!
+              :preload [devtools.preload]}}
 
   :test {:target :browser-test
          :test-dir "out/test"
