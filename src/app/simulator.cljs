@@ -1,6 +1,7 @@
 (ns app.simulator
   (:require [app.state :as state]
             [app.worker-pool :as wp]
+            [app.db :as db]
             [app.regal-fit.prefilter :as prefilter]
             [app.regal-fit.survival :as survival]
             [cljs.numpy :as np]
@@ -23,6 +24,19 @@
       (js/console.error "Stage 1 Error:" e)
       (throw e))))
 
+(defn- cached-submit-job! [data callback]
+  (go
+    (let [k (db/hash-key data)
+          cached (<! (db/get-cache k))]
+      (if cached
+        (callback {:success? true :result cached})
+        (wp/submit-job!
+          data
+          (fn [res]
+            (when (and (:success? res) (:result res))
+              (db/set-cache k (:result res)))
+            (callback res)))))))
+
 (defn- submit-simulation-jobs! [config all-accepted families results completed
                                  total start-time]
   (wp/clear-queue!)
@@ -31,7 +45,7 @@
     (doseq [fam families]
       (let [fam-kw (keyword fam)]
         (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
-          (wp/submit-job!
+          (cached-submit-job!
            {:rec rec
             :cfg-dict config
             :n-sims (:n-sims-per-combo config)
@@ -127,7 +141,7 @@
         rec (build-discovery-rec family params)]
     (swap! state/app-state assoc-in [:discovery :sim-status] :running)
     (swap! state/app-state assoc-in [:discovery :sim-result] nil)
-    (wp/submit-job!
+    (cached-submit-job!
       {:rec rec
        :cfg-dict config
        :n-sims (:n-sims-per-combo config)
@@ -191,7 +205,7 @@
             results (atom [])
             start-time (js/Date.now)]
         (doseq [combo combos]
-          (wp/submit-job!
+          (cached-submit-job!
            combo
            (fn [{:keys [success? result error]}]
              (swap! completed inc)

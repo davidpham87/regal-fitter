@@ -70,6 +70,15 @@
    :families ["weibull" "leaky" "cure"]
 })
 
+(def light-config
+  (assoc default-config
+         :bat-med-grid [8 22 2]
+         :bat-shape-grid [0.7 1.0 0.15]
+         :gps-med-grid-n 3
+         :n-sims-per-combo 100
+         :n-sims-screen 10
+         :families ["weibull"]))
+
 (def config-schema
   [:map
    [:n-total :int]
