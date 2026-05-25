@@ -10,6 +10,7 @@
             [cljs.pprint :refer [pprint]]
             [re-frame.core :as rf]
             [fork.reagent :as fork]
+            [app.db :as db]
             ["@monaco-editor/react" :default Editor]))
 
 (def ^:private key->label
@@ -439,9 +440,16 @@
         [:div.grid.grid-cols-1.gap-6
          [category-card :other (get category->keys :other) props]])]
 
-     [:div.mt-8.flex.justify-center
+     [:div.mt-8.flex.justify-center.gap-4
+      [:button.text-gray-700.font-bold.px-6.py-4.rounded-xl.shadow-md.border
+       {:type "button"
+        :class "bg-white hover:bg-gray-100 transition-all border-gray-300"
+        :on-click (fn []
+                    (db/clear-cache))}
+       "Clear Cache"]
       [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
-       {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
+       {:type "button"
+        :class (str "bg-blue-600 hover:bg-blue-700 transition-all "
                     "transform hover:-translate-y-0.5")
         :on-click (fn []
                     (state/update-config! values)

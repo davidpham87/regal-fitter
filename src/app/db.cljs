@@ -66,3 +66,22 @@
 
 (defn hash-key [data]
   (hash (str data)))
+
+(defn clear-cache []
+  (let [out (chan)]
+    (go
+      (let [db (<! (open-db))]
+        (if db
+          (let [transaction (.transaction db
+                                          (clj->js [store-name])
+                                          "readwrite")
+                store (.objectStore transaction store-name)
+                request (.clear store)]
+            (set! (.-onsuccess request)
+                  (fn [event]
+                    (put! out true)))
+            (set! (.-onerror request)
+                  (fn [event]
+                    (put! out false))))
+          (put! out false))))
+    out))
