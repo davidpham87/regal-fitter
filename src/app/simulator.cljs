@@ -173,9 +173,9 @@
         (recur (+ curr step) (conj acc curr))
         acc))))
 
-(defn start-stress-test! []
+(defn start-stress-test! [form-values]
   (let [main-config (:config @state/app-state)
-        stress-config (:stress-test-config @state/app-state)
+        stress-config form-values
         config (merge main-config
                       stress-config
                       {:obs-ev-ia (:n-ev-ia main-config)
