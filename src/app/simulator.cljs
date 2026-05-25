@@ -143,7 +143,7 @@
     (swap! state/app-state assoc-in [:discovery :sim-result] nil)
     (cached-submit-job!
       {:rec rec
-       :cfg-dict config
+       :cfg-dict (assoc config :ignore-prefilter? true)
        :n-sims (or (:n-sims params) (:n-sims-per-combo config))
        :seed (:seed config)}
       (fn [{:keys [success? result error]}]

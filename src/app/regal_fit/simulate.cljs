@@ -157,10 +157,15 @@
 (defn- simulate-one-trial
   "Simulates a single trial and returns whether it passed screening and its stats."
   [record config random-gen n-total n-per-arm bands]
-  (let [{:keys [enroll-times arms-array survival-times]} (generate-trial-data record config random-gen n-total n-per-arm bands)
-        counts (count-events-at-times config enroll-times survival-times n-total)
-        passed-screening (pass-events-tolerance? config counts)
-        stats (when passed-screening (calculate-trial-stats config enroll-times survival-times arms-array n-total))]
+  (let [{:keys [enroll-times arms-array survival-times]}
+        (generate-trial-data record config random-gen n-total n-per-arm bands)
+        counts (count-events-at-times
+                 config enroll-times survival-times n-total)
+        passed-screening (or (:ignore-prefilter? config)
+                             (pass-events-tolerance? config counts))
+        stats (when passed-screening
+                (calculate-trial-stats config enroll-times survival-times
+                                       arms-array n-total))]
     {:passed-screening passed-screening :stats stats}))
 
 (defn- run-sim-chunk
