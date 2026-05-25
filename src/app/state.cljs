@@ -178,6 +178,7 @@
 ;; --- State atom ---
 (defonce app-state
   (r/atom {:config default-config
+           :config-version 0
            :stress-test-config default-stress-test-config
            :power-config default-power-config
            :status :idle ;; :idle, :running-stage1, :running-stage2, :done, :error
@@ -215,6 +216,12 @@
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v))
+
+(defn reset-config! [new-config]
+  (swap! app-state (fn [state]
+                     (-> state
+                         (assoc :config new-config)
+                         (update :config-version (fnil inc 0))))))
 
 (defn update-config! [new-config]
   (swap! app-state assoc :config new-config))
