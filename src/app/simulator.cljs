@@ -174,7 +174,15 @@
         acc))))
 
 (defn start-stress-test! []
-  (let [config (:stress-test-config @state/app-state)
+  (let [main-config (:config @state/app-state)
+        stress-config (:stress-test-config @state/app-state)
+        config (merge main-config
+                      stress-config
+                      {:obs-ev-ia (:n-ev-ia main-config)
+                       :obs-inc-upd (- (:n-ev-upd main-config)
+                                       (:n-ev-ia main-config))
+                       :obs-inc-pr3 (- (:n-ev-pr3 main-config)
+                                       (:n-ev-upd main-config))})
         mos-grid-cfg (:mos-grid config)
         k-grid-cfg (:k-grid config)
         mos-vals (arange (nth mos-grid-cfg 0)
