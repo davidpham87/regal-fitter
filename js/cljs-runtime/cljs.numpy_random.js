@@ -1,8 +1,8 @@
 goog.provide('cljs.numpy_random');
 var module$node_modules$numpy_ts$dist$numpy_ts_browser=shadow.js.require("module$node_modules$numpy_ts$dist$numpy_ts_browser", {});
 cljs.numpy_random.default_rng = (function cljs$numpy_random$default_rng(var_args){
-var G__28938 = arguments.length;
-switch (G__28938) {
+var G__28968 = arguments.length;
+switch (G__28968) {
 case 0:
 return cljs.numpy_random.default_rng.cljs$core$IFn$_invoke$arity$0();
 

@@ -63,9 +63,9 @@ app.regal_fit.survival.leaky_cure_survival_probability = (function app$regal_fit
 var leak_rate_monthly = (cljs.numpy.divide.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.divide.cljs$core$IFn$_invoke$arity$2(leak_rate_yearly,12.0) : cljs.numpy.divide.call(null,leak_rate_yearly,12.0));
 var cured_part = app.regal_fit.survival.calculate_leaky_cured(time_values,cure_fraction,leak_rate_monthly);
 var uncured_survival = app.regal_fit.survival.weibull_survival_probability(time_values,unc_scale,unc_shape);
-var one_minus_cf = (function (){var G__26511 = (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(1.0) : cljs.numpy.array.call(null,1.0));
-var G__26512 = cure_fraction;
-return (cljs.numpy.subtract.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.subtract.cljs$core$IFn$_invoke$arity$2(G__26511,G__26512) : cljs.numpy.subtract.call(null,G__26511,G__26512));
+var one_minus_cf = (function (){var G__26506 = (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(1.0) : cljs.numpy.array.call(null,1.0));
+var G__26507 = cure_fraction;
+return (cljs.numpy.subtract.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.subtract.cljs$core$IFn$_invoke$arity$2(G__26506,G__26507) : cljs.numpy.subtract.call(null,G__26506,G__26507));
 })();
 var uncured_part = (cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2(uncured_survival,one_minus_cf) : cljs.numpy.multiply.call(null,uncured_survival,one_minus_cf));
 return (cljs.numpy.add.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.add.cljs$core$IFn$_invoke$arity$2(cured_part,uncured_part) : cljs.numpy.add.call(null,cured_part,uncured_part));
