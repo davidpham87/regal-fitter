@@ -158,10 +158,10 @@
         nil))
     (catch js/Error _ nil)))
 
-(defn- vector-input [values set-values key-name]
-  (let [curr-val (get values key-name)
+(defn- vector-input [props key-name]
+  (let [curr-val (get (:values props) key-name)
         text-val (r/atom (js/JSON.stringify (clj->js curr-val)))]
-    (fn [values set-values key-name]
+    (fn [{:keys [values set-values]} key-name]
       (let [c-val (get values key-name)]
         (when-not (= (parse-vector @text-val) c-val)
           (reset! text-val (js/JSON.stringify (clj->js c-val)))))
@@ -178,13 +178,13 @@
   (let [p (js/parseFloat s)]
     (if (js/isNaN p) default-val p)))
 
-(defn- grid-input [values set-values key-name]
-  (let [curr-val (get values key-name)
+(defn- grid-input [props key-name]
+  (let [curr-val (get (:values props) key-name)
         [start stop step] curr-val
         start-val (r/atom (str start))
         stop-val (r/atom (str stop))
         step-val (r/atom (str step))]
-    (fn [values set-values key-name]
+    (fn [{:keys [values set-values]} key-name]
       (let [[c-start c-stop c-step] (get values key-name)]
         (when-not (= (parse-float-safe @start-val nil) c-start)
           (reset! start-val (str c-start)))
@@ -239,27 +239,28 @@
                                        (parse-float-safe @stop-val 0.0)
                                        parsed]}))))}]]])))
 
-(defn- families-input [values set-values key-name]
-  (let [curr-val (get values key-name)
+(defn- families-input [props key-name]
+  (let [curr-val (get (:values props) key-name)
         all-families ["weibull" "leaky" "cure"]
         active-set (set curr-val)]
-    [:div.flex.flex-col.gap-2.mt-1
-     (for [fam all-families]
-       (let [checked? (contains? active-set fam)]
-         ^{:key fam}
-         [:label.inline-flex.items-center.text-sm.text-gray-700.cursor-pointer
-          [:input.rounded.border-gray-300.text-blue-600.focus:ring-blue-500
-           {:type "checkbox"
-            :checked checked?
-            :on-change (fn [e]
-                         (let [checked (.. e -target -checked)
-                               new-set (if checked
-                                         (conj active-set fam)
-                                         (disj active-set fam))
-                               new-val (filterv (partial contains? new-set)
-                                                all-families)]
-                           (set-values {key-name new-val})))}]
-          [:span.ml-2.capitalize fam]]))]))
+    (fn [{:keys [set-values]} key-name]
+      [:div.flex.flex-col.gap-2.mt-1
+       (for [fam all-families]
+         (let [checked? (contains? active-set fam)]
+           ^{:key fam}
+           [:label.inline-flex.items-center.text-sm.text-gray-700.cursor-pointer
+            [:input.rounded.border-gray-300.text-blue-600.focus:ring-blue-500
+             {:type "checkbox"
+              :checked checked?
+              :on-change (fn [e]
+                           (let [checked (.. e -target -checked)
+                                 new-set (if checked
+                                           (conj active-set fam)
+                                           (disj active-set fam))
+                                 new-val (filterv (partial contains? new-set)
+                                                  all-families)]
+                             (set-values {key-name new-val})))}]
+            [:span.ml-2.capitalize fam]]))])))
 
 (defn- field-wrapper [key-name child-el]
   (let [show-help? (r/atom false)]
@@ -330,7 +331,7 @@
              :on-change (fn [{:keys [values]}]
                           (let [curr (:config @state/app-state)]
                             (state/update-config! (merge curr values))))}
-            (fn [{:keys [values set-values handle-change]}]
+            (fn [{:keys [values set-values handle-change] :as props}]
               [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
                [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
                 [:h3.font-bold.text-lg.text-gray-800 "Trial Structure"]
@@ -348,7 +349,7 @@
                     :value (:n-per-arm values)
                     :on-change handle-change}]]
                  [field-wrapper :enroll-bands
-                  [vector-input values set-values :enroll-bands]]
+                  [vector-input props :enroll-bands]]
                  [field-wrapper :enforce-no-80-by-today
                   [:input.mt-1
                    {:type "checkbox"
@@ -437,15 +438,15 @@
              :on-change (fn [{:keys [values]}]
                           (let [curr (:config @state/app-state)]
                             (state/update-config! (merge curr values))))}
-            (fn [{:keys [values set-values handle-change]}]
+            (fn [{:keys [values set-values handle-change] :as props}]
               [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
                [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
                 [:h3.font-bold.text-lg.text-gray-800 "BAT Grid Settings"]
                 [:div.grid.grid-cols-1.gap-3.mt-2
                  [field-wrapper :bat-med-grid
-                  [grid-input values set-values :bat-med-grid]]
+                  [grid-input props :bat-med-grid]]
                  [field-wrapper :bat-shape-grid
-                  [grid-input values set-values :bat-shape-grid]]
+                  [grid-input props :bat-shape-grid]]
                  [field-wrapper :bat-strat-bin
                   [:input.border.w-full.p-1.rounded.text-sm
                    {:type "number"
@@ -474,27 +475,27 @@
                     :value (:gps-med-grid-n values)
                     :on-change handle-change}]]
                  [field-wrapper :gps-shape-grid
-                  [grid-input values set-values :gps-shape-grid]]]]
+                  [grid-input props :gps-shape-grid]]]]
                [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
                 [:h3.font-bold.text-lg.text-gray-800 "Cure Grid Settings"]
                 [:div.grid.grid-cols-1.gap-3.mt-2
                  [field-wrapper :cure-frac-grid
-                  [grid-input values set-values :cure-frac-grid]]
+                  [grid-input props :cure-frac-grid]]
                  [field-wrapper :cure-unc-med-grid
-                  [grid-input values set-values :cure-unc-med-grid]]
+                  [grid-input props :cure-unc-med-grid]]
                  [field-wrapper :cure-unc-shape-grid
-                  [grid-input values set-values :cure-unc-shape-grid]]]]
+                  [grid-input props :cure-unc-shape-grid]]]]
                [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
                 [:h3.font-bold.text-lg.text-gray-800 "Leaky Grid Settings"]
                 [:div.grid.grid-cols-1.gap-3.mt-2
                  [field-wrapper :leaky-cure-frac-grid
-                  [grid-input values set-values :leaky-cure-frac-grid]]
+                  [grid-input props :leaky-cure-frac-grid]]
                  [field-wrapper :leaky-unc-med-grid
-                  [grid-input values set-values :leaky-unc-med-grid]]
+                  [grid-input props :leaky-unc-med-grid]]
                  [field-wrapper :leaky-unc-shape-grid
-                  [grid-input values set-values :leaky-unc-shape-grid]]
+                  [grid-input props :leaky-unc-shape-grid]]
                  [field-wrapper :leak-grid
-                  [grid-input values set-values :leak-grid]]]]])])]))))
+                  [grid-input props :leak-grid]]]]])])]))))
 
 (defn- tolerances-section []
   (let [collapsed? (r/atom true)
@@ -592,7 +593,7 @@
              :on-change (fn [{:keys [values]}]
                           (let [curr (:config @state/app-state)]
                             (state/update-config! (merge curr values))))}
-            (fn [{:keys [values set-values handle-change]}]
+            (fn [{:keys [values set-values handle-change] :as props}]
               [:div.grid.grid-cols-1.gap-6
                [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
                 [:h3.font-bold.text-lg.text-gray-800 "Execution Settings"]
@@ -676,7 +677,7 @@
                     :value (:seed values)
                     :on-change handle-change}]]
                  [field-wrapper :families
-                  [families-input values set-values :families]]]]])])]))))
+                  [families-input props :families]]]]])])]))))
 
 (defn config-form []
   [:div.p-4.max-w-6xl.mx-auto
