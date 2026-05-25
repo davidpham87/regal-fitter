@@ -341,133 +341,176 @@
            :n-ev-final :n-screen-min-pass :efficacy-hr-min :futility-hr-max
            :median-fu-target :median-fu-tol :hr-threshold :seed :families]})
 
-(defn- config-form-content
-  [{:keys [values set-values] :as props} collapsed?]
-  (let [config (:config @state/app-state)]
-    [:div.p-4.max-w-6xl.mx-auto
-     [:div.flex.justify-between.items-center.mb-6
-      [:h2.text-2xl.font-extrabold.text-gray-900
-       "Simulation Configuration"]
-      [:div.flex.gap-2
-       [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
-       [:button.px-3.py-1.text-xs.font-bold.rounded.border
-        {:class "bg-white hover:bg-gray-100 text-gray-700"
-         :on-click (fn []
-                     (state/update-config! state/default-config)
-                     (set-values state/default-config))}
-        "Default"]
-       [:button.px-3.py-1.text-xs.font-bold.rounded.border
-        {:class "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-         :on-click (fn []
-                     (state/update-config! state/light-config)
-                     (set-values state/light-config))}
-        "Light"]]]
+(defn- trial-timing-section []
+  (let [collapsed? (r/atom true)
+        keys-list (concat (get category->keys :trial)
+                          (get category->keys :timing))]
+    (fn []
+      (let [config (:config @state/app-state)
+            section-vals (select-keys config keys-list)]
+        [:div.mb-8
+         [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+          {:class "cursor-pointer select-none"
+           :on-click #(swap! collapsed? not)}
+          [:h3.text-lg.font-bold.text-gray-800
+           "1. Trial Structure & Event Timing"]
+          [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+           {:type "button"
+            :class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+            :on-click (fn [e]
+                        (.stopPropagation e)
+                        (swap! collapsed? not))}
+           [:span (if @collapsed? "Expand" "Collapse")]
+           [:span (if @collapsed? "▶" "▼")]]]
+         (when-not @collapsed?
+           [fork/form
+            {:initial-values section-vals
+             :keywordize-keys true
+             :on-change (fn [{:keys [values]}]
+                          (let [curr (:config @state/app-state)]
+                            (state/update-config! (merge curr values))))}
+            (fn [props]
+              [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+               [category-card :trial (get category->keys :trial) props]
+               [category-card :timing (get category->keys :timing) props]])])]))))
 
-     ;; Section 1: Trial Structure & Timing
-     [:div.mb-8
-      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-       {:class "cursor-pointer select-none"
-        :on-click #(swap! collapsed? update :s1 not)}
-       [:h3.text-lg.font-bold.text-gray-800
-        "1. Trial Structure & Event Timing"]
-       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-         :on-click (fn [e]
-                     (.stopPropagation e)
-                     (swap! collapsed? update :s1 not))}
-        [:span (if (:s1 @collapsed?) "Expand" "Collapse")]
-        [:span (if (:s1 @collapsed?) "▶" "▼")]]]
-      (when-not (:s1 @collapsed?)
-        [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-         [category-card :trial (get category->keys :trial) props]
-         [category-card :timing (get category->keys :timing) props]])]
+(defn- grids-section []
+  (let [collapsed? (r/atom true)
+        keys-list (concat (get category->keys :bat)
+                          (get category->keys :gps)
+                          (get category->keys :cure)
+                          (get category->keys :leaky))]
+    (fn []
+      (let [config (:config @state/app-state)
+            section-vals (select-keys config keys-list)]
+        [:div.mb-8
+         [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+          {:class "cursor-pointer select-none"
+           :on-click #(swap! collapsed? not)}
+          [:h3.text-lg.font-bold.text-gray-800
+           "2. Prior Model Distribution Grids"]
+          [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+           {:type "button"
+            :class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+            :on-click (fn [e]
+                        (.stopPropagation e)
+                        (swap! collapsed? not))}
+           [:span (if @collapsed? "Expand" "Collapse")]
+           [:span (if @collapsed? "▶" "▼")]]]
+         (when-not @collapsed?
+           [fork/form
+            {:initial-values section-vals
+             :keywordize-keys true
+             :on-change (fn [{:keys [values]}]
+                          (let [curr (:config @state/app-state)]
+                            (state/update-config! (merge curr values))))}
+            (fn [props]
+              [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+               [category-card :bat (get category->keys :bat) props]
+               [category-card :gps (get category->keys :gps) props]
+               [category-card :cure (get category->keys :cure) props]
+               [category-card :leaky (get category->keys :leaky) props]])])]))))
 
-     ;; Section 2: Distribution Grid Settings
-     [:div.mb-8
-      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-       {:class "cursor-pointer select-none"
-        :on-click #(swap! collapsed? update :s2 not)}
-       [:h3.text-lg.font-bold.text-gray-800
-        "2. Prior Model Distribution Grids"]
-       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-         :on-click (fn [e]
-                     (.stopPropagation e)
-                     (swap! collapsed? update :s2 not))}
-        [:span (if (:s2 @collapsed?) "Expand" "Collapse")]
-        [:span (if (:s2 @collapsed?) "▶" "▼")]]]
-      (when-not (:s2 @collapsed?)
-        [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-         [category-card :bat (get category->keys :bat) props]
-         [category-card :gps (get category->keys :gps) props]
-         [category-card :cure (get category->keys :cure) props]
-         [category-card :leaky (get category->keys :leaky) props]])]
+(defn- tolerances-section []
+  (let [collapsed? (r/atom true)
+        keys-list (get category->keys :prefilter)]
+    (fn []
+      (let [config (:config @state/app-state)
+            section-vals (select-keys config keys-list)]
+        [:div.mb-8
+         [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+          {:class "cursor-pointer select-none"
+           :on-click #(swap! collapsed? not)}
+          [:h3.text-lg.font-bold.text-gray-800
+           "3. ABC Tolerances & Analytical Prefilters"]
+          [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+           {:type "button"
+            :class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+            :on-click (fn [e]
+                        (.stopPropagation e)
+                        (swap! collapsed? not))}
+           [:span (if @collapsed? "Expand" "Collapse")]
+           [:span (if @collapsed? "▶" "▼")]]]
+         (when-not @collapsed?
+           [fork/form
+            {:initial-values section-vals
+             :keywordize-keys true
+             :on-change (fn [{:keys [values]}]
+                          (let [curr (:config @state/app-state)]
+                            (state/update-config! (merge curr values))))}
+            (fn [props]
+              [:div.grid.grid-cols-1.gap-6
+               [category-card :prefilter keys-list props]])])]))))
 
-     ;; Section 3: ABC Tolerances & Prefilters
-     [:div.mb-8
-      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-       {:class "cursor-pointer select-none"
-        :on-click #(swap! collapsed? update :s3 not)}
-       [:h3.text-lg.font-bold.text-gray-800
-        "3. ABC Tolerances & Analytical Prefilters"]
-       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-         :on-click (fn [e]
-                     (.stopPropagation e)
-                     (swap! collapsed? update :s3 not))}
-        [:span (if (:s3 @collapsed?) "Expand" "Collapse")]
-        [:span (if (:s3 @collapsed?) "▶" "▼")]]]
-      (when-not (:s3 @collapsed?)
-        [:div.grid.grid-cols-1.gap-6
-         [category-card
-          :prefilter (get category->keys :prefilter) props]])]
-
-     ;; Section 4: Compute Options & SAP
-     [:div.mb-8
-      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-       {:class "cursor-pointer select-none"
-        :on-click #(swap! collapsed? update :s4 not)}
-       [:h3.text-lg.font-bold.text-gray-800
-        "4. Execution Settings & SAP Constraints"]
-       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-         :on-click (fn [e]
-                     (.stopPropagation e)
-                     (swap! collapsed? update :s4 not))}
-        [:span (if (:s4 @collapsed?) "Expand" "Collapse")]
-        [:span (if (:s4 @collapsed?) "▶" "▼")]]]
-      (when-not (:s4 @collapsed?)
-        [:div.grid.grid-cols-1.gap-6
-         [category-card :other (get category->keys :other) props]])]
-
-     [:div.mt-8.flex.justify-center.gap-4
-      [:button.text-gray-700.font-bold.px-6.py-4.rounded-xl.shadow-md.border
-       {:type "button"
-        :class "bg-white hover:bg-gray-100 transition-all border-gray-300"
-        :on-click (fn []
-                    (db/clear-cache))}
-       "Clear Cache"]
-      [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
-       {:type "button"
-        :class (str "bg-blue-600 hover:bg-blue-700 transition-all "
-                    "transform hover:-translate-y-0.5")
-        :on-click (fn []
-                    (state/update-config! values)
-                    (sim/start-simulation!)
-                    (swap! state/app-state
-                           assoc :view :results))}
-       "Run Simulation"]]]))
+(defn- execution-section []
+  (let [collapsed? (r/atom true)
+        keys-list (get category->keys :other)]
+    (fn []
+      (let [config (:config @state/app-state)
+            section-vals (select-keys config keys-list)]
+        [:div.mb-8
+         [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+          {:class "cursor-pointer select-none"
+           :on-click #(swap! collapsed? not)}
+          [:h3.text-lg.font-bold.text-gray-800
+           "4. Execution Settings & SAP Constraints"]
+          [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+           {:type "button"
+            :class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+            :on-click (fn [e]
+                        (.stopPropagation e)
+                        (swap! collapsed? not))}
+           [:span (if @collapsed? "Expand" "Collapse")]
+           [:span (if @collapsed? "▶" "▼")]]]
+         (when-not @collapsed?
+           [fork/form
+            {:initial-values section-vals
+             :keywordize-keys true
+             :on-change (fn [{:keys [values]}]
+                          (let [curr (:config @state/app-state)]
+                            (state/update-config! (merge curr values))))}
+            (fn [props]
+              [:div.grid.grid-cols-1.gap-6
+               [category-card :other keys-list props]])])]))))
 
 (defn config-form []
-  (let [collapsed? (r/atom {:s1 true :s2 true :s3 true :s4 true})]
-    (fn []
-      (let [config (:config @state/app-state)]
-        [fork/form
-         {:initial-values config
-          :keywordize-keys true
-          :on-change (fn [{:keys [values]}]
-                       (state/update-config! values))}
-         #(config-form-content % collapsed?)]))))
+  [:div.p-4.max-w-6xl.mx-auto
+   [:div.flex.justify-between.items-center.mb-6
+    [:h2.text-2xl.font-extrabold.text-gray-900
+     "Simulation Configuration"]
+    [:div.flex.gap-2
+     [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
+     [:button.px-3.py-1.text-xs.font-bold.rounded.border
+      {:type "button"
+       :class "bg-white hover:bg-gray-100 text-gray-700"
+       :on-click #(state/update-config! state/default-config)}
+      "Default"]
+     [:button.px-3.py-1.text-xs.font-bold.rounded.border
+      {:type "button"
+       :class "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+       :on-click #(state/update-config! state/light-config)}
+      "Light"]]]
+
+   [trial-timing-section]
+   [grids-section]
+   [tolerances-section]
+   [execution-section]
+
+   [:div.mt-8.flex.justify-center.gap-4
+    [:button.text-gray-700.font-bold.px-6.py-4.rounded-xl.shadow-md.border
+     {:type "button"
+      :class "bg-white hover:bg-gray-100 transition-all border-gray-300"
+      :on-click (fn []
+                  (db/clear-cache))}
+     "Clear Cache"]
+    [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
+     {:type "button"
+      :class (str "bg-blue-600 hover:bg-blue-700 transition-all "
+                  "transform hover:-translate-y-0.5")
+      :on-click (fn []
+                  (sim/start-simulation!)
+                  (swap! state/app-state assoc :view :results))}
+     "Run Simulation"]]])
 
 (defn- config->nested [config]
   (into {} (for [[cat ks] category->keys]
