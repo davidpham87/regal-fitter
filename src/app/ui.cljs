@@ -239,28 +239,27 @@
                                        (parse-float-safe @stop-val 0.0)
                                        parsed]}))))}]]])))
 
-(defn- families-input [props key-name]
-  (let [curr-val (get (:values props) key-name)
+(defn- families-input [{:keys [values set-values]} key-name]
+  (let [curr-val (get values key-name)
         all-families ["weibull" "leaky" "cure"]
         active-set (set curr-val)]
-    (fn [{:keys [set-values]} key-name]
-      [:div.flex.flex-col.gap-2.mt-1
-       (for [fam all-families]
-         (let [checked? (contains? active-set fam)]
-           ^{:key fam}
-           [:label.inline-flex.items-center.text-sm.text-gray-700.cursor-pointer
-            [:input.rounded.border-gray-300.text-blue-600.focus:ring-blue-500
-             {:type "checkbox"
-              :checked checked?
-              :on-change (fn [e]
-                           (let [checked (.. e -target -checked)
-                                 new-set (if checked
-                                           (conj active-set fam)
-                                           (disj active-set fam))
-                                 new-val (filterv (partial contains? new-set)
-                                                  all-families)]
-                             (set-values {key-name new-val})))}]
-            [:span.ml-2.capitalize fam]]))])))
+    [:div.flex.flex-col.gap-2.mt-1
+     (for [fam all-families]
+       (let [checked? (contains? active-set fam)]
+         ^{:key fam}
+         [:label.inline-flex.items-center.text-sm.text-gray-700.cursor-pointer
+          [:input.rounded.border-gray-300.text-blue-600.focus:ring-blue-500
+           {:type "checkbox"
+            :checked checked?
+            :on-change (fn [e]
+                         (let [checked (.. e -target -checked)
+                               new-set (if checked
+                                         (conj active-set fam)
+                                         (disj active-set fam))
+                               new-val (filterv (partial contains? new-set)
+                                                all-families)]
+                           (set-values {key-name new-val})))}]
+          [:span.ml-2.capitalize fam]]))]))
 
 (defn- field-wrapper [key-name child-el]
   (let [show-help? (r/atom false)]
