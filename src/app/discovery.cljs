@@ -241,11 +241,12 @@
 (defn- discovery-view-content
   [{:keys [values set-values] :as props}]
   (let [state (get-discovery-state)
+        config (:config @state/app-state)
         active-family (:active-family state)
-        calc-params (or (:calc-params state) (:params state))
+        calc-params (merge (:calc-params state) values)
         params values
         placebo-mode? (:placebo-mode? params)
-        config (:config @state/app-state)
+
         stats (calculate-stats active-family calc-params config)
         curve-data (calculate-curves active-family calc-params config)
 
@@ -257,6 +258,7 @@
                          :cure-frac 0.0)
         stats-h0 (calculate-stats active-family h0-params config)
         curve-data-h0 (calculate-curves active-family h0-params config)]
+
     [:div.p-6.max-w-7xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
      [:p.text-gray-600.mb-6
@@ -315,64 +317,64 @@
           [param-input props :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]
           [param-input props :leak-yr "Leak Rate / Year" 0.0 0.1 0.01]])]
 
-       [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
-        {:class "justify-between"}
-        [:div.flex.items-center.gap-3
-         [:button.rounded-lg.shadow-sm.transition-colors
-          {:class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
-                   "text-white" "text-xs" "font-bold"]
-           :on-click #(sim/run-discovery-simulation! active-family
-                                                     calc-params)
-           :disabled (= (:sim-status state) :running)}
-          (if (= (:sim-status state) :running)
-            "Simulating..."
-            "Run Simulation")]
-         (when (= (:sim-status state) :running)
-           [:span.text-xs.text-gray-500.animate-pulse
-            (str "Running " (:n-sims-per-combo config)
-                 " trial simulations...")])]
+      #_[:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
+       {:class "justify-between"}
+       [:div.flex.items-center.gap-3
+        [:button.rounded-lg.shadow-sm.transition-colors
+         {:class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
+                  "text-white" "text-xs" "font-bold"]
+          :on-click #(sim/run-discovery-simulation! active-family
+                                                    calc-params)
+          :disabled (= (:sim-status state) :running)}
+         (if (= (:sim-status state) :running)
+           "Simulating..."
+           "Run Simulation")]
+        (when (= (:sim-status state) :running)
+          [:span.text-xs.text-gray-500.animate-pulse
+           (str "Running " (:n-sims-per-combo config)
+                " trial simulations...")])]
 
-        [:div.flex.items-center.gap-6
-         (case (:sim-status state)
-           :done
-           (let [res (:sim-result state)
-                 p-suc (:p-success-overall res)
-                 acc-rate (:acceptance-rate res)
-                 med-hr (:median-hr-final res)
-                 med-t80 (:median-t80-months res)]
-             [:<>
-              [:div.text-center
-               [:div.text-xs.text-gray-400.font-semibold "P(Success)"]
-               [:div.text-lg.font-bold.text-blue-600
-                (str (.toFixed (* 100 p-suc) 1) "%")]]
-              [:div.text-center
-               [:div.text-xs.text-gray-400.font-semibold "Acceptance Rate"]
-               [:div.text-sm.font-semibold.text-gray-700
-                (str (.toFixed (* 100 acc-rate) 1) "%")]]
-              [:div.text-center
-               [:div.text-xs.text-gray-400.font-semibold "Median HR"]
-               [:div.text-sm.font-semibold.text-gray-700
-                (if (js/isNaN med-hr) "N/A" (.toFixed med-hr 3))]]
-              [:div.text-center
-               [:div.text-xs.text-gray-400.font-semibold "Median T80"]
-               [:div.text-sm.font-semibold.text-gray-700
-                (if (js/isNaN med-t80)
-                  "N/A"
-                  (str (.toFixed med-t80 1) "m"))]]])
+       [:div.flex.items-center.gap-6
+        (case (:sim-status state)
+          :done
+          (let [res (:sim-result state)
+                p-suc (:p-success-overall res)
+                acc-rate (:acceptance-rate res)
+                med-hr (:median-hr-final res)
+                med-t80 (:median-t80-months res)]
+            [:<>
+             [:div.text-center
+              [:div.text-xs.text-gray-400.font-semibold "P(Success)"]
+              [:div.text-lg.font-bold.text-blue-600
+               (str (.toFixed (* 100 p-suc) 1) "%")]]
+             [:div.text-center
+              [:div.text-xs.text-gray-400.font-semibold "Acceptance Rate"]
+              [:div.text-sm.font-semibold.text-gray-700
+               (str (.toFixed (* 100 acc-rate) 1) "%")]]
+             [:div.text-center
+              [:div.text-xs.text-gray-400.font-semibold "Median HR"]
+              [:div.text-sm.font-semibold.text-gray-700
+               (if (js/isNaN med-hr) "N/A" (.toFixed med-hr 3))]]
+             [:div.text-center
+              [:div.text-xs.text-gray-400.font-semibold "Median T80"]
+              [:div.text-sm.font-semibold.text-gray-700
+               (if (js/isNaN med-t80)
+                 "N/A"
+                 (str (.toFixed med-t80 1) "m"))]]])
 
-           :failed-prefilter
-           [:span.text-xs.font-semibold.text-red-500
-            (str "Prefilter check failed: 0% of "
-                 "trials passed event pre-screening.")]
+          :failed-prefilter
+          [:span.text-xs.font-semibold.text-red-500
+           (str "Prefilter check failed: 0% of "
+                "trials passed event pre-screening.")]
 
-           :error
-           [:span.text-xs.font-semibold.text-red-500
-            (str "Error: " (:sim-result state))]
+          :error
+          [:span.text-xs.font-semibold.text-red-500
+           (str "Error: " (:sim-result state))]
 
-           nil)]]]
+          nil)]]]
 
      ;; Results & Charts in 2 columns
-     ^{:key (str active-family)}
+     ^{:key (str params)}
      [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
       ;; Column 1: Alternate Hypothesis
       [:div.bg-gray-50.p-4.rounded-xl.border
