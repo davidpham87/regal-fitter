@@ -32,7 +32,7 @@
 (defn- param-input
   ([props param-key label min max step]
    (param-input props param-key label min max step false))
-  ([{:keys [values set-value on-change]} param-key label min max step disabled?]
+  ([{:keys [values set-values on-change]} param-key label min max step disabled?]
    (let [val (get values param-key)]
      [:div.mb-2
       [:label.block.text-xs.font-semibold
@@ -45,14 +45,14 @@
          :disabled disabled?
          :on-change (fn [e]
                       (let [v (js/parseFloat (.. e -target -value))]
-                        (set-value param-key v)
+                        (set-values {param-key v})
                         (when on-change (on-change param-key v))))}]
        [:input.border.rounded.p-1.text-xs.w-16
         {:type "number" :value val :step step
          :disabled disabled?
          :on-change (fn [e]
                       (let [v (js/parseFloat (.. e -target -value))]
-                        (set-value param-key v)
+                        (set-values {param-key v})
                         (when on-change (on-change param-key v))))}]]])))
 
 (defn- calculate-stats [family params config]
@@ -239,7 +239,7 @@
           (.toFixed (:std-dev s) 2)]]]])]])
 
 (defn- discovery-view-content
-  [{:keys [values set-value set-values] :as props}]
+  [{:keys [values set-values] :as props}]
   (let [state (get-discovery-state)
         active-family (:active-family state)
         calc-params (or (:calc-params state) (:params state))
@@ -284,11 +284,10 @@
           :on-change (fn [e]
                        (let [checked? (.. e -target -checked)]
                          (if checked?
-                           (set-values (assoc values
-                                              :placebo-mode? true
-                                              :cure-frac 0.0
-                                              :gps-med (:bat-med values)))
-                           (set-value :placebo-mode? false))))}]
+                           (set-values {:placebo-mode? true
+                                        :cure-frac 0.0
+                                        :gps-med (:bat-med values)})
+                           (set-values {:placebo-mode? false}))))}]
         [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
          {:for "placebo-mode"}
          "Placebo Mode"]]
@@ -296,7 +295,7 @@
        [param-input (assoc props :on-change
                            (fn [k v]
                              (when (and placebo-mode? (= k :bat-med))
-                               (set-value :gps-med v))))
+                               (set-values {:gps-med v}))))
         :bat-med "BAT Median" 4 30 0.5]
        [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
 
