@@ -261,12 +261,11 @@
                            (set-values {key-name new-val})))}]
           [:span.ml-2.capitalize fam]]))]))
 
-(defn- field-input [props key-name]
+(defn- field-wrapper [key-name child-el]
   (let [show-help? (r/atom false)]
-    (fn [{:keys [values set-values] :as props} key-name]
-      (let [curr-val (get values key-name)
-            help-text (get key->help key-name "")
-            label-text (get key->label key-name (name key-name))]
+    (fn [key-name child-el]
+      (let [label-text (get key->label key-name (name key-name))
+            help-text (get key->help key-name "")]
         [:div.mt-3
          [:div.flex.items-center.justify-between.mb-1
           [:label.block.text-sm.font-semibold.text-gray-700
@@ -285,45 +284,7 @@
            [:div.text-xs.text-blue-900.bg-blue-50.p-2.rounded.mb-2
             {:class "border border-blue-200 leading-relaxed"}
             help-text])
-         (cond
-           (= key-name :families)
-           [families-input values set-values key-name]
-
-           (boolean? curr-val)
-           [:input.mt-1 {:type "checkbox"
-                         :checked curr-val
-                         :on-change #(set-values {key-name
-                                                  (.. % -target -checked)})}]
-
-           (and (vector? curr-val)
-                (= (count curr-val) 3)
-                (every? number? curr-val))
-           [grid-input values set-values key-name]
-
-           (vector? curr-val)
-           [vector-input values set-values key-name]
-
-           :else
-           [:input.border.w-full.p-1.rounded.text-sm
-            {:type (if (number? curr-val) "number" "text")
-             :step (if (float? curr-val) "0.01" "1")
-             :value curr-val
-             :on-change (fn [e]
-                          (let [v (.. e -target -value)]
-                            (set-values
-                              {key-name
-                               (if (number? curr-val)
-                                 (if (float? curr-val)
-                                   (js/parseFloat v)
-                                   (js/parseInt v))
-                                 v)})))}])]))))
-
-(defn- category-card [cat-key keys-list props]
-  [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
-   [:h3.font-bold.text-lg.text-gray-800.capitalize (name cat-key)]
-   [:div.grid.grid-cols-1.gap-3.mt-2
-    (for [k keys-list]
-      ^{:key k} [field-input props k])]])
+         child-el]))))
 
 (def ^:private category->keys
   {:trial [:n-total :n-per-arm :enroll-bands :enforce-no-80-by-today
@@ -369,10 +330,82 @@
              :on-change (fn [{:keys [values]}]
                           (let [curr (:config @state/app-state)]
                             (state/update-config! (merge curr values))))}
-            (fn [props]
+            (fn [{:keys [values set-values handle-change]}]
               [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-               [category-card :trial (get category->keys :trial) props]
-               [category-card :timing (get category->keys :timing) props]])])]))))
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "Trial Structure"]
+                [:div.grid.grid-cols-1.gap-3.mt-2
+                 [field-wrapper :n-total
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-total"
+                    :value (:n-total values)
+                    :on-change handle-change}]]
+                 [field-wrapper :n-per-arm
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-per-arm"
+                    :value (:n-per-arm values)
+                    :on-change handle-change}]]
+                 [field-wrapper :enroll-bands
+                  [vector-input values set-values :enroll-bands]]
+                 [field-wrapper :enforce-no-80-by-today
+                  [:input.mt-1
+                   {:type "checkbox"
+                    :name "enforce-no-80-by-today"
+                    :checked (:enforce-no-80-by-today values)
+                    :on-change handle-change}]]
+                 [field-wrapper :no-80-slack-months
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "no-80-slack-months"
+                    :value (:no-80-slack-months values)
+                    :on-change handle-change}]]]]
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "Event Timing"]
+                [:div.grid.grid-cols-1.gap-3.mt-2
+                 [field-wrapper :t-ia
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "t-ia"
+                    :value (:t-ia values)
+                    :on-change handle-change}]]
+                 [field-wrapper :tol-ia
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "tol-ia"
+                    :value (:tol-ia values)
+                    :on-change handle-change}]]
+                 [field-wrapper :t-upd
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "t-upd"
+                    :value (:t-upd values)
+                    :on-change handle-change}]]
+                 [field-wrapper :tol-upd
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "tol-upd"
+                    :value (:tol-upd values)
+                    :on-change handle-change}]]
+                 [field-wrapper :t-pr3
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "t-pr3"
+                    :value (:t-pr3 values)
+                    :on-change handle-change}]]
+                 [field-wrapper :tol-pr3
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "tol-pr3"
+                    :value (:tol-pr3 values)
+                    :on-change handle-change}]]
+                 [field-wrapper :use-pr3-anchor
+                  [:input.mt-1
+                   {:type "checkbox"
+                    :name "use-pr3-anchor"
+                    :checked (:use-pr3-anchor values)
+                    :on-change handle-change}]]]]])])]))))
 
 (defn- grids-section []
   (let [collapsed? (r/atom true)
@@ -404,12 +437,64 @@
              :on-change (fn [{:keys [values]}]
                           (let [curr (:config @state/app-state)]
                             (state/update-config! (merge curr values))))}
-            (fn [props]
+            (fn [{:keys [values set-values handle-change]}]
               [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-               [category-card :bat (get category->keys :bat) props]
-               [category-card :gps (get category->keys :gps) props]
-               [category-card :cure (get category->keys :cure) props]
-               [category-card :leaky (get category->keys :leaky) props]])])]))))
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "BAT Grid Settings"]
+                [:div.grid.grid-cols-1.gap-3.mt-2
+                 [field-wrapper :bat-med-grid
+                  [grid-input values set-values :bat-med-grid]]
+                 [field-wrapper :bat-shape-grid
+                  [grid-input values set-values :bat-shape-grid]]
+                 [field-wrapper :bat-strat-bin
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "bat-strat-bin"
+                    :value (:bat-strat-bin values)
+                    :on-change handle-change}]]]]
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "GPS Grid Settings"]
+                [:div.grid.grid-cols-1.gap-3.mt-2
+                 [field-wrapper :gps-med-grid-lo
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "gps-med-grid-lo"
+                    :value (:gps-med-grid-lo values)
+                    :on-change handle-change}]]
+                 [field-wrapper :gps-med-grid-hi
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "gps-med-grid-hi"
+                    :value (:gps-med-grid-hi values)
+                    :on-change handle-change}]]
+                 [field-wrapper :gps-med-grid-n
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "gps-med-grid-n"
+                    :value (:gps-med-grid-n values)
+                    :on-change handle-change}]]
+                 [field-wrapper :gps-shape-grid
+                  [grid-input values set-values :gps-shape-grid]]]]
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "Cure Grid Settings"]
+                [:div.grid.grid-cols-1.gap-3.mt-2
+                 [field-wrapper :cure-frac-grid
+                  [grid-input values set-values :cure-frac-grid]]
+                 [field-wrapper :cure-unc-med-grid
+                  [grid-input values set-values :cure-unc-med-grid]]
+                 [field-wrapper :cure-unc-shape-grid
+                  [grid-input values set-values :cure-unc-shape-grid]]]]
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "Leaky Grid Settings"]
+                [:div.grid.grid-cols-1.gap-3.mt-2
+                 [field-wrapper :leaky-cure-frac-grid
+                  [grid-input values set-values :leaky-cure-frac-grid]]
+                 [field-wrapper :leaky-unc-med-grid
+                  [grid-input values set-values :leaky-unc-med-grid]]
+                 [field-wrapper :leaky-unc-shape-grid
+                  [grid-input values set-values :leaky-unc-shape-grid]]
+                 [field-wrapper :leak-grid
+                  [grid-input values set-values :leak-grid]]]]])])]))))
 
 (defn- tolerances-section []
   (let [collapsed? (r/atom true)
@@ -438,9 +523,47 @@
              :on-change (fn [{:keys [values]}]
                           (let [curr (:config @state/app-state)]
                             (state/update-config! (merge curr values))))}
-            (fn [props]
+            (fn [{:keys [values handle-change]}]
               [:div.grid.grid-cols-1.gap-6
-               [category-card :prefilter keys-list props]])])]))))
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "ABC Tolerances"]
+                [:div.grid.grid-cols-1.md:grid-cols-2.gap-4.mt-2
+                 [field-wrapper :prefilter-tol-ia
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "prefilter-tol-ia"
+                    :value (:prefilter-tol-ia values)
+                    :on-change handle-change}]]
+                 [field-wrapper :prefilter-tol-upd
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "prefilter-tol-upd"
+                    :value (:prefilter-tol-upd values)
+                    :on-change handle-change}]]
+                 [field-wrapper :prefilter-tol-pr3
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "prefilter-tol-pr3"
+                    :value (:prefilter-tol-pr3 values)
+                    :on-change handle-change}]]
+                 [field-wrapper :tol-increment-ia-upd
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "tol-increment-ia-upd"
+                    :value (:tol-increment-ia-upd values)
+                    :on-change handle-change}]]
+                 [field-wrapper :tol-increment-upd-pr3
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "tol-increment-upd-pr3"
+                    :value (:tol-increment-upd-pr3 values)
+                    :on-change handle-change}]]
+                 [field-wrapper :pool-mos-min-at-ia
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "pool-mos-min-at-ia"
+                    :value (:pool-mos-min-at-ia values)
+                    :on-change handle-change}]]]]])])]))))
 
 (defn- execution-section []
   (let [collapsed? (r/atom true)
@@ -469,9 +592,91 @@
              :on-change (fn [{:keys [values]}]
                           (let [curr (:config @state/app-state)]
                             (state/update-config! (merge curr values))))}
-            (fn [props]
+            (fn [{:keys [values set-values handle-change]}]
               [:div.grid.grid-cols-1.gap-6
-               [category-card :other keys-list props]])])]))))
+               [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
+                [:h3.font-bold.text-lg.text-gray-800 "Execution Settings"]
+                [:div.grid.grid-cols-1.md:grid-cols-2.gap-4.mt-2
+                 [field-wrapper :n-sims-screen
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-sims-screen"
+                    :value (:n-sims-screen values)
+                    :on-change handle-change}]]
+                 [field-wrapper :n-sims-per-combo
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-sims-per-combo"
+                    :value (:n-sims-per-combo values)
+                    :on-change handle-change}]]
+                 [field-wrapper :n-ev-ia
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-ev-ia"
+                    :value (:n-ev-ia values)
+                    :on-change handle-change}]]
+                 [field-wrapper :n-ev-upd
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-ev-upd"
+                    :value (:n-ev-upd values)
+                    :on-change handle-change}]]
+                 [field-wrapper :n-ev-pr3
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-ev-pr3"
+                    :value (:n-ev-pr3 values)
+                    :on-change handle-change}]]
+                 [field-wrapper :n-ev-final
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-ev-final"
+                    :value (:n-ev-final values)
+                    :on-change handle-change}]]
+                 [field-wrapper :n-screen-min-pass
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "n-screen-min-pass"
+                    :value (:n-screen-min-pass values)
+                    :on-change handle-change}]]
+                 [field-wrapper :efficacy-hr-min
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "efficacy-hr-min"
+                    :value (:efficacy-hr-min values)
+                    :on-change handle-change}]]
+                 [field-wrapper :futility-hr-max
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "futility-hr-max"
+                    :value (:futility-hr-max values)
+                    :on-change handle-change}]]
+                 [field-wrapper :median-fu-target
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "median-fu-target"
+                    :value (:median-fu-target values)
+                    :on-change handle-change}]]
+                 [field-wrapper :median-fu-tol
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "median-fu-tol"
+                    :value (:median-fu-tol values)
+                    :on-change handle-change}]]
+                 [field-wrapper :hr-threshold
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "hr-threshold"
+                    :value (:hr-threshold values)
+                    :on-change handle-change}]]
+                 [field-wrapper :seed
+                  [:input.border.w-full.p-1.rounded.text-sm
+                   {:type "number"
+                    :name "seed"
+                    :value (:seed values)
+                    :on-change handle-change}]]
+                 [field-wrapper :families
+                  [families-input values set-values :families]]]]])])]))))
 
 (defn config-form []
   [:div.p-4.max-w-6xl.mx-auto
