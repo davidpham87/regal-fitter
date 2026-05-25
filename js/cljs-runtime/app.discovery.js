@@ -55,8 +55,8 @@ var params = cljs.core.merge.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim
 return app.discovery.debounced_sim_run(family,params);
 });
 app.discovery.param_input = (function app$discovery$param_input(var_args){
-var G__27038 = arguments.length;
-switch (G__27038) {
+var G__27054 = arguments.length;
+switch (G__27054) {
 case 6:
 return app.discovery.param_input.cljs$core$IFn$_invoke$arity$6((arguments[(0)]),(arguments[(1)]),(arguments[(2)]),(arguments[(3)]),(arguments[(4)]),(arguments[(5)]));
 
@@ -75,17 +75,17 @@ throw (new Error(["Invalid arity: ",arguments.length].join("")));
 return app.discovery.param_input.cljs$core$IFn$_invoke$arity$7(props,param_key,label,min,max,step,false);
 }));
 
-(app.discovery.param_input.cljs$core$IFn$_invoke$arity$7 = (function (p__27048,param_key,label,min,max,step,disabled_QMARK_){
-var map__27049 = p__27048;
-var map__27049__$1 = cljs.core.__destructure_map(map__27049);
-var values = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27049__$1,new cljs.core.Keyword(null,"values","values",372645556));
-var set_values = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27049__$1,new cljs.core.Keyword(null,"set-values","set-values",-928640446));
-var on_change = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27049__$1,new cljs.core.Keyword(null,"on-change","on-change",-732046149));
+(app.discovery.param_input.cljs$core$IFn$_invoke$arity$7 = (function (p__27057,param_key,label,min,max,step,disabled_QMARK_){
+var map__27058 = p__27057;
+var map__27058__$1 = cljs.core.__destructure_map(map__27058);
+var values = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27058__$1,new cljs.core.Keyword(null,"values","values",372645556));
+var set_values = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27058__$1,new cljs.core.Keyword(null,"set-values","set-values",-928640446));
+var on_change = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27058__$1,new cljs.core.Keyword(null,"on-change","on-change",-732046149));
 var val = cljs.core.get.cljs$core$IFn$_invoke$arity$2(values,param_key);
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.mb-2","div.mb-2",-710047800),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"label.block.text-xs.font-semibold","label.block.text-xs.font-semibold",-110936983),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),(cljs.core.truth_(disabled_QMARK_)?"text-gray-400":"text-gray-600")], null),label], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.flex.items-center.gap-2","div.flex.items-center.gap-2",-1286016734),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input.w-full","input.w-full",-1635738475),new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"type","type",1174270348),"range",new cljs.core.Keyword(null,"min","min",444991522),min,new cljs.core.Keyword(null,"max","max",61366548),max,new cljs.core.Keyword(null,"step","step",1288888124),step,new cljs.core.Keyword(null,"value","value",305978217),val,new cljs.core.Keyword(null,"disabled","disabled",-1529784218),disabled_QMARK_,new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (e){
 var v = parseFloat(e.target.value);
-var G__27050_27137 = cljs.core.PersistentArrayMap.createAsIfByAssoc([param_key,v]);
-(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27050_27137) : set_values.call(null,G__27050_27137));
+var G__27059_27137 = cljs.core.PersistentArrayMap.createAsIfByAssoc([param_key,v]);
+(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27059_27137) : set_values.call(null,G__27059_27137));
 
 if(cljs.core.truth_(on_change)){
 return (on_change.cljs$core$IFn$_invoke$arity$2 ? on_change.cljs$core$IFn$_invoke$arity$2(param_key,v) : on_change.call(null,param_key,v));
@@ -94,8 +94,8 @@ return null;
 }
 })], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input.border.rounded.p-1.text-xs.w-16","input.border.rounded.p-1.text-xs.w-16",538660422),new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"type","type",1174270348),"number",new cljs.core.Keyword(null,"value","value",305978217),val,new cljs.core.Keyword(null,"step","step",1288888124),step,new cljs.core.Keyword(null,"disabled","disabled",-1529784218),disabled_QMARK_,new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (e){
 var v = parseFloat(e.target.value);
-var G__27051_27138 = cljs.core.PersistentArrayMap.createAsIfByAssoc([param_key,v]);
-(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27051_27138) : set_values.call(null,G__27051_27138));
+var G__27061_27138 = cljs.core.PersistentArrayMap.createAsIfByAssoc([param_key,v]);
+(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27061_27138) : set_values.call(null,G__27061_27138));
 
 if(cljs.core.truth_(on_change)){
 return (on_change.cljs$core$IFn$_invoke$arity$2 ? on_change.cljs$core$IFn$_invoke$arity$2(param_key,v) : on_change.call(null,param_key,v));
@@ -108,53 +108,53 @@ return null;
 (app.discovery.param_input.cljs$lang$maxFixedArity = 7);
 
 app.discovery.calculate_stats = (function app$discovery$calculate_stats(family,params,config){
-var vec__27055 = app.regal_fit.enrollment.expected_enrollment_times(config);
-var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27055,(0),null);
-var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27055,(1),null);
-var target_times = (function (){var G__27058 = [new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)];
-var G__27059 = "float64";
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__27058,G__27059) : cljs.numpy.array.call(null,G__27058,G__27059));
+var vec__27075 = app.regal_fit.enrollment.expected_enrollment_times(config);
+var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27075,(0),null);
+var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27075,(1),null);
+var target_times = (function (){var G__27078 = [new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)];
+var G__27079 = "float64";
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__27078,G__27079) : cljs.numpy.array.call(null,G__27078,G__27079));
 })();
-var bat_med_arr = (function (){var G__27060 = [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27060) : cljs.numpy.array.call(null,G__27060));
+var bat_med_arr = (function (){var G__27080 = [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27080) : cljs.numpy.array.call(null,G__27080));
 })();
-var bat_shape_arr = (function (){var G__27061 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27061) : cljs.numpy.array.call(null,G__27061));
+var bat_shape_arr = (function (){var G__27081 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27081) : cljs.numpy.array.call(null,G__27081));
 })();
 var bat_scale = app.regal_fit.survival.weibull_scale_from_median(bat_med_arr,bat_shape_arr);
 var bat_shape = bat_shape_arr;
 var bat_res = app.regal_fit.enrollment.expected_arm_events_and_variance(app.regal_fit.survival.weibull_survival_probability,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [bat_scale,bat_shape], null),enroll_pts,enroll_weights,target_times,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config));
-var gps_res = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"weibull"))?(function (){var med = (function (){var G__27062 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27062) : cljs.numpy.array.call(null,G__27062));
+var gps_res = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"weibull"))?(function (){var med = (function (){var G__27082 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27082) : cljs.numpy.array.call(null,G__27082));
 })();
-var shape = (function (){var G__27063 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27063) : cljs.numpy.array.call(null,G__27063));
+var shape = (function (){var G__27083 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27083) : cljs.numpy.array.call(null,G__27083));
 })();
 var scale = app.regal_fit.survival.weibull_scale_from_median(med,shape);
 return app.regal_fit.enrollment.expected_arm_events_and_variance(app.regal_fit.survival.weibull_survival_probability,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [scale,shape], null),enroll_pts,enroll_weights,target_times,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config));
-})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"cure"))?(function (){var med = (function (){var G__27067 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27067) : cljs.numpy.array.call(null,G__27067));
+})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"cure"))?(function (){var med = (function (){var G__27084 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27084) : cljs.numpy.array.call(null,G__27084));
 })();
-var shape = (function (){var G__27069 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27069) : cljs.numpy.array.call(null,G__27069));
+var shape = (function (){var G__27085 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27085) : cljs.numpy.array.call(null,G__27085));
 })();
 var scale = app.regal_fit.survival.weibull_scale_from_median(med,shape);
-var cf = (function (){var G__27070 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27070) : cljs.numpy.array.call(null,G__27070));
+var cf = (function (){var G__27086 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27086) : cljs.numpy.array.call(null,G__27086));
 })();
 return app.regal_fit.enrollment.expected_arm_events_and_variance(app.regal_fit.survival.cure_survival_probability,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cf,scale,shape], null),enroll_pts,enroll_weights,target_times,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config));
-})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"leaky"))?(function (){var med = (function (){var G__27071 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27071) : cljs.numpy.array.call(null,G__27071));
+})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"leaky"))?(function (){var med = (function (){var G__27087 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27087) : cljs.numpy.array.call(null,G__27087));
 })();
-var shape = (function (){var G__27072 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27072) : cljs.numpy.array.call(null,G__27072));
+var shape = (function (){var G__27088 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27088) : cljs.numpy.array.call(null,G__27088));
 })();
 var scale = app.regal_fit.survival.weibull_scale_from_median(med,shape);
-var cf = (function (){var G__27073 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27073) : cljs.numpy.array.call(null,G__27073));
+var cf = (function (){var G__27089 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27089) : cljs.numpy.array.call(null,G__27089));
 })();
-var leak = (function (){var G__27074 = [new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27074) : cljs.numpy.array.call(null,G__27074));
+var leak = (function (){var G__27090 = [new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27090) : cljs.numpy.array.call(null,G__27090));
 })();
 return app.regal_fit.enrollment.expected_arm_events_and_variance(app.regal_fit.survival.leaky_cure_survival_probability,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cf,scale,shape,leak], null),enroll_pts,enroll_weights,target_times,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config));
 })():null)));
@@ -175,58 +175,58 @@ return new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"la
 app.discovery.calculate_curves = (function app$discovery$calculate_curves(family,params,config){
 var t_max = (80);
 var t_pts = (cljs.numpy.linspace.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.linspace.cljs$core$IFn$_invoke$arity$3((0),t_max,(200)) : cljs.numpy.linspace.call(null,(0),t_max,(200)));
-var vec__27077 = app.regal_fit.enrollment.expected_enrollment_times(config);
-var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27077,(0),null);
-var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27077,(1),null);
-var bat_med_arr = (function (){var G__27083 = [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27083) : cljs.numpy.array.call(null,G__27083));
+var vec__27091 = app.regal_fit.enrollment.expected_enrollment_times(config);
+var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27091,(0),null);
+var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27091,(1),null);
+var bat_med_arr = (function (){var G__27097 = [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27097) : cljs.numpy.array.call(null,G__27097));
 })();
-var bat_shape_arr = (function (){var G__27084 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27084) : cljs.numpy.array.call(null,G__27084));
+var bat_shape_arr = (function (){var G__27098 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27098) : cljs.numpy.array.call(null,G__27098));
 })();
 var bat_scale = app.regal_fit.survival.weibull_scale_from_median(bat_med_arr,bat_shape_arr);
 var bat_shape = bat_shape_arr;
 var s_bat = app.regal_fit.survival.weibull_survival_probability(t_pts,bat_scale,bat_shape);
 var ev_bat = app.regal_fit.enrollment.expected_arm_events(app.regal_fit.survival.weibull_survival_probability,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [bat_scale,bat_shape], null),enroll_pts,enroll_weights,t_pts,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config));
-var vec__27080 = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"weibull"))?(function (){var med = (function (){var G__27085 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27085) : cljs.numpy.array.call(null,G__27085));
+var vec__27094 = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"weibull"))?(function (){var med = (function (){var G__27099 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27099) : cljs.numpy.array.call(null,G__27099));
 })();
-var shape = (function (){var G__27086 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27086) : cljs.numpy.array.call(null,G__27086));
+var shape = (function (){var G__27100 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27100) : cljs.numpy.array.call(null,G__27100));
 })();
 var scale = app.regal_fit.survival.weibull_scale_from_median(med,shape);
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [app.regal_fit.survival.weibull_survival_probability(t_pts,scale,shape),app.regal_fit.enrollment.expected_arm_events(app.regal_fit.survival.weibull_survival_probability,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [scale,shape], null),enroll_pts,enroll_weights,t_pts,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config))], null);
-})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"cure"))?(function (){var med = (function (){var G__27088 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27088) : cljs.numpy.array.call(null,G__27088));
+})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"cure"))?(function (){var med = (function (){var G__27101 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27101) : cljs.numpy.array.call(null,G__27101));
 })();
-var shape = (function (){var G__27089 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27089) : cljs.numpy.array.call(null,G__27089));
+var shape = (function (){var G__27102 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27102) : cljs.numpy.array.call(null,G__27102));
 })();
 var scale = app.regal_fit.survival.weibull_scale_from_median(med,shape);
-var cf = (function (){var G__27090 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27090) : cljs.numpy.array.call(null,G__27090));
+var cf = (function (){var G__27103 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27103) : cljs.numpy.array.call(null,G__27103));
 })();
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [app.regal_fit.survival.cure_survival_probability(t_pts,cf,scale,shape),app.regal_fit.enrollment.expected_arm_events(app.regal_fit.survival.cure_survival_probability,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cf,scale,shape], null),enroll_pts,enroll_weights,t_pts,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config))], null);
-})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"leaky"))?(function (){var med = (function (){var G__27092 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27092) : cljs.numpy.array.call(null,G__27092));
+})():((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(family,"leaky"))?(function (){var med = (function (){var G__27104 = [new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27104) : cljs.numpy.array.call(null,G__27104));
 })();
-var shape = (function (){var G__27093 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27093) : cljs.numpy.array.call(null,G__27093));
+var shape = (function (){var G__27105 = [new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27105) : cljs.numpy.array.call(null,G__27105));
 })();
 var scale = app.regal_fit.survival.weibull_scale_from_median(med,shape);
-var cf = (function (){var G__27094 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27094) : cljs.numpy.array.call(null,G__27094));
+var cf = (function (){var G__27106 = [new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27106) : cljs.numpy.array.call(null,G__27106));
 })();
-var leak = (function (){var G__27095 = [new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545).cljs$core$IFn$_invoke$arity$1(params)];
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27095) : cljs.numpy.array.call(null,G__27095));
+var leak = (function (){var G__27107 = [new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545).cljs$core$IFn$_invoke$arity$1(params)];
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27107) : cljs.numpy.array.call(null,G__27107));
 })();
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [app.regal_fit.survival.leaky_cure_survival_probability(t_pts,cf,scale,shape,leak),app.regal_fit.enrollment.expected_arm_events(app.regal_fit.survival.leaky_cure_survival_probability,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cf,scale,shape,leak], null),enroll_pts,enroll_weights,t_pts,new cljs.core.Keyword(null,"n-per-arm","n-per-arm",-1436178890).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"n-total","n-total",-1946555251).cljs$core$IFn$_invoke$arity$1(config))], null);
 })():null)));
-var s_gps = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27080,(0),null);
-var ev_gps = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27080,(1),null);
-var s_pool = (function (){var G__27096 = (cljs.numpy.add.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.add.cljs$core$IFn$_invoke$arity$2(s_bat,s_gps) : cljs.numpy.add.call(null,s_bat,s_gps));
-var G__27097 = 0.5;
-return (cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2(G__27096,G__27097) : cljs.numpy.multiply.call(null,G__27096,G__27097));
+var s_gps = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27094,(0),null);
+var ev_gps = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27094,(1),null);
+var s_pool = (function (){var G__27108 = (cljs.numpy.add.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.add.cljs$core$IFn$_invoke$arity$2(s_bat,s_gps) : cljs.numpy.add.call(null,s_bat,s_gps));
+var G__27109 = 0.5;
+return (cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2(G__27108,G__27109) : cljs.numpy.multiply.call(null,G__27108,G__27109));
 })();
 var ev_total = (cljs.numpy.add.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.add.cljs$core$IFn$_invoke$arity$2(ev_bat,ev_gps) : cljs.numpy.add.call(null,ev_bat,ev_gps));
 var t_arr = t_pts.toArray();
@@ -271,8 +271,8 @@ if((i__27113 < size__5648__auto__)){
 var s = cljs.core._nth(c__5647__auto__,i__27113);
 cljs.core.chunk_append(b__27114,cljs.core.with_meta(new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.bg-white.p-3.rounded-xl.shadow-sm.border","div.bg-white.p-3.rounded-xl.shadow-sm.border",-823164628),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"h5.text-xs.font-bold.text-gray-500.uppercase","h5.text-xs.font-bold.text-gray-500.uppercase",-912633632),new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.mt-1.flex.items-baseline.gap-1","div.mt-1.flex.items-baseline.gap-1",785863541),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"span.text-xl.font-bold.text-gray-800","span.text-xl.font-bold.text-gray-800",-558387944),new cljs.core.Keyword(null,"expected","expected",1583670997).cljs$core$IFn$_invoke$arity$1(s).toFixed((1))], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"span.text-xs.text-gray-400","span.text-xs.text-gray-400",-266833387),(""+" / "+cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"target","target",253001721).cljs$core$IFn$_invoke$arity$1(s)))], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.mt-1.grid.grid-cols-2.gap-1","div.mt-1.grid.grid-cols-2.gap-1",-1235441401),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"style","style",-496642736),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"font-size","font-size",-1847940346),"10px"], null),new cljs.core.Keyword(null,"class","class",-2030961996),"text-gray-400 uppercase"], null),"SD"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.text-xs.font-semibold","div.text-xs.font-semibold",592075516),new cljs.core.Keyword(null,"sd","sd",-1707124456).cljs$core$IFn$_invoke$arity$1(s).toFixed((2))], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"style","style",-496642736),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"font-size","font-size",-1847940346),"10px"], null),new cljs.core.Keyword(null,"class","class",-2030961996),"text-gray-400 uppercase"], null),"Std Dev"], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.text-xs.font-semibold","div.text-xs.font-semibold",592075516),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),(((Math.abs(new cljs.core.Keyword(null,"std-dev","std-dev",-1087996489).cljs$core$IFn$_invoke$arity$1(s)) > (2)))?"text-red-600":"text-green-600")], null),new cljs.core.Keyword(null,"std-dev","std-dev",-1087996489).cljs$core$IFn$_invoke$arity$1(s).toFixed((2))], null)], null)], null)], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s)], null)));
 
-var G__27162 = (i__27113 + (1));
-i__27113 = G__27162;
+var G__27139 = (i__27113 + (1));
+i__27113 = G__27139;
 continue;
 } else {
 return true;
@@ -339,8 +339,8 @@ return app.discovery.set_active_family_BANG_(fam);
 });})(i__27119,fam,c__5647__auto__,size__5648__auto__,b__27120,s__27118__$2,temp__5825__auto__,state,config,active_family,calc_params,params,placebo_mode_QMARK_,stats,curve_data,avg_med,h0_params,stats_h0,curve_data_h0,map__27116,map__27116__$1,props,values,set_values))
 ], null),clojure.string.capitalize(fam)], null),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"key","key",-1516042587),fam], null)));
 
-var G__27167 = (i__27119 + (1));
-i__27119 = G__27167;
+var G__27150 = (i__27119 + (1));
+i__27119 = G__27150;
 continue;
 } else {
 return true;
@@ -410,14 +410,14 @@ throw (new Error((""+"No matching clause: "+cljs.core.str.cljs$core$IFn$_invoke$
 }
 })()], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6","div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6",-1902682574),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"class","class",-2030961996),"justify-between"], null),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.flex.items-center.gap-4","div.flex.items-center.gap-4",-394801599),new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div.flex.items-center.gap-2.border-r.pr-4","div.flex.items-center.gap-2.border-r.pr-4",-662460638),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"label.text-xs.font-bold.text-gray-600.mr-1","label.text-xs.font-bold.text-gray-600.mr-1",-284158558),"Sim Count"], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input.w-24","input.w-24",1685844718),new cljs.core.PersistentArrayMap(null, 6, [new cljs.core.Keyword(null,"type","type",1174270348),"range",new cljs.core.Keyword(null,"min","min",444991522),(100),new cljs.core.Keyword(null,"max","max",61366548),(5000),new cljs.core.Keyword(null,"step","step",1288888124),(100),new cljs.core.Keyword(null,"value","value",305978217),new cljs.core.Keyword(null,"n-sims","n-sims",979948804).cljs$core$IFn$_invoke$arity$1(values),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (e){
 var v = parseFloat(e.target.value);
-var G__27125_27174 = new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"n-sims","n-sims",979948804),v], null);
-(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27125_27174) : set_values.call(null,G__27125_27174));
+var G__27125_27158 = new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"n-sims","n-sims",979948804),v], null);
+(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27125_27158) : set_values.call(null,G__27125_27158));
 
 return app.discovery.debounced_sim_run(active_family,cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(calc_params,new cljs.core.Keyword(null,"n-sims","n-sims",979948804),v));
 })], null)], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"input.border.rounded.p-1.text-xs.w-14","input.border.rounded.p-1.text-xs.w-14",-302905434),new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"type","type",1174270348),"number",new cljs.core.Keyword(null,"value","value",305978217),new cljs.core.Keyword(null,"n-sims","n-sims",979948804).cljs$core$IFn$_invoke$arity$1(values),new cljs.core.Keyword(null,"step","step",1288888124),(100),new cljs.core.Keyword(null,"on-change","on-change",-732046149),(function (e){
 var v = parseFloat(e.target.value);
-var G__27126_27175 = new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"n-sims","n-sims",979948804),v], null);
-(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27126_27175) : set_values.call(null,G__27126_27175));
+var G__27126_27159 = new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"n-sims","n-sims",979948804),v], null);
+(set_values.cljs$core$IFn$_invoke$arity$1 ? set_values.cljs$core$IFn$_invoke$arity$1(G__27126_27159) : set_values.call(null,G__27126_27159));
 
 return app.discovery.debounced_sim_run(active_family,cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(calc_params,new cljs.core.Keyword(null,"n-sims","n-sims",979948804),v));
 })], null)], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"button.rounded-lg.shadow-sm.transition-colors","button.rounded-lg.shadow-sm.transition-colors",529147465),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"class","class",-2030961996),new cljs.core.PersistentVector(null, 7, 5, cljs.core.PersistentVector.EMPTY_NODE, ["px-4","py-2","bg-blue-600","hover:bg-blue-700","text-white","text-xs","font-bold"], null),new cljs.core.Keyword(null,"on-click","on-click",1632826543),(function (){
@@ -458,11 +458,11 @@ return null;
 });
 app.discovery.discovery_view = (function app$discovery$discovery_view(){
 var with_let27128 = reagent.ratom.with_let_values(new cljs.core.Keyword(null,"with-let27128","with-let27128",1586138957));
-var temp__5829__auto___27177 = reagent.ratom._STAR_ratom_context_STAR_;
-if((temp__5829__auto___27177 == null)){
+var temp__5829__auto___27161 = reagent.ratom._STAR_ratom_context_STAR_;
+if((temp__5829__auto___27161 == null)){
 } else {
-var c__24531__auto___27178 = temp__5829__auto___27177;
-if((with_let27128.generation === c__24531__auto___27178.ratomGeneration)){
+var c__24531__auto___27162 = temp__5829__auto___27161;
+if((with_let27128.generation === c__24531__auto___27162.ratomGeneration)){
 if(reagent.debug.has_console){
 ((reagent.debug.tracking)?reagent.debug.track_console:console).error((""+"Warning: The same with-let is being used more "+"than once in the same reactive context."));
 } else {
@@ -470,7 +470,7 @@ if(reagent.debug.has_console){
 } else {
 }
 
-(with_let27128.generation = c__24531__auto___27178.ratomGeneration);
+(with_let27128.generation = c__24531__auto___27162.ratomGeneration);
 }
 
 var init27129 = (with_let27128.length === (0));
