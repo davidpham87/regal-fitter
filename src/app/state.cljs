@@ -192,10 +192,21 @@
    :t-pr3 62.97
    :seed 42})
 
+(def default-power-config
+  {:n-total 126
+   :bat-mos-ref 8.0
+   :gps-mos-ref 12.0
+   :alpha 0.025
+   :power 0.9
+   :p-event 0.635  ;; 80/126
+   :bat-mos-range [6.0 20.0 1.0]  ;; [start stop step]
+   :gps-mos-range [10.0 30.0 1.0]})
+
 ;; --- State atom ---
 (defonce app-state
   (r/atom {:config default-config
            :stress-test-config default-stress-test-config
+           :power-config default-power-config
            :status :idle ;; :idle, :running-stage1, :running-stage2, :done, :error
            :stress-test-status :idle
            :progress {:total 0 :completed 0}
@@ -240,3 +251,6 @@
 
 (defn update-stress-test-config! [new-config]
   (swap! app-state assoc :stress-test-config new-config))
+
+(defn update-power-config! [new-config]
+  (swap! app-state assoc :power-config new-config))
