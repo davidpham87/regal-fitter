@@ -1,5 +1,5 @@
 (ns app.db
-  (:require [cljs.core.async :refer [go <! chan put!]]))
+  (:require [cljs.core.async :refer [go <! chan put! close!]]))
 
 (def db-name "SimulationCache")
 (def store-name "results")
@@ -25,7 +25,7 @@
         (set! (.-onerror request)
               (fn [event]
                 (js/console.error "IndexedDB error:" (.-error (.-target event)))
-                (put! out nil)))))
+                (close! out)))))
     out))
 
 (defn get-cache [k]
@@ -38,11 +38,13 @@
                 request (.get store (str k))]
             (set! (.-onsuccess request)
                   (fn [event]
-                    (put! out (js->clj (.-result (.-target event)) :keywordize-keys true))))
+                    (if-let [res (.-result (.-target event))]
+                      (put! out (js->clj res :keywordize-keys true))
+                      (close! out))))
             (set! (.-onerror request)
                   (fn [event]
-                    (put! out nil))))
-          (put! out nil))))
+                    (close! out))))
+          (close! out))))
     out))
 
 (defn set-cache [k value]
