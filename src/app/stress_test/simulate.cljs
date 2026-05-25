@@ -32,7 +32,7 @@
               (.set enroll sim-enroll start)))
           enroll)))))
 
-(defn- km-survival-single
+(defn km-survival-single
   "Calculates KM survival at target time for a single trial."
   [obs-t-arr is-ev-arr target-time]
   (let [n (.-length obs-t-arr)]

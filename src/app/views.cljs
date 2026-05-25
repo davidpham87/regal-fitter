@@ -1,6 +1,7 @@
 (ns app.views
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
+            [fork.reagent :as fork]
             [app.state :as state]
             [app.vega :as vega]
             [app.simulator :as sim]
@@ -111,57 +112,58 @@
       "Note: This is an independent analytical exercise and does not
        constitute financial advice. SLS long position held by the author."]]]])
 
+(defn- stress-test-form-content
+  [{:keys [values handle-change]}]
+  [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-6
+   [:h2.text-xl.font-bold.mb-4 "Configuration"]
+   [:div.grid.grid-cols-1.md:grid-cols-3.gap-4
+    [:div
+     [:label.block.text-sm.font-semibold.text-gray-700
+      "mOS Grid (start, stop, step)"]
+     [:div.flex.gap-2.mt-1
+      (doall
+       (for [i (range 3)]
+         ^{:key (str "mos-" i)}
+         [:input.border.w-full.p-1.rounded.text-sm
+          {:type "number" :step "0.1"
+           :name (str "mos-grid." i)
+           :value (get-in values [:mos-grid i])
+           :on-change handle-change}]))]]
+    [:div
+     [:label.block.text-sm.font-semibold.text-gray-700
+      "k Grid (start, stop, step)"]
+     [:div.flex.gap-2.mt-1
+      (doall
+       (for [i (range 3)]
+         ^{:key (str "k-" i)}
+         [:input.border.w-full.p-1.rounded.text-sm
+          {:type "number" :step "0.1"
+           :name (str "k-grid." i)
+           :value (get-in values [:k-grid i])
+           :on-change handle-change}]))]]
+    [:div
+     [:label.block.text-sm.font-semibold.text-gray-700 "Sims per Combo"]
+     [:input.border.w-full.p-1.rounded.text-sm.mt-1
+      {:type "number"
+       :name "n-sims"
+       :value (values "n-sims")
+       :on-change handle-change}]]]
+   [:div.mt-4.flex.justify-center
+    [:button.bg-blue-600.hover:bg-blue-700.text-white
+     {:class "font-bold px-6 py-2 rounded-lg shadow"
+      :on-click (fn []
+                  (js/console.log "UI: Clicked Run Stress Test")
+                  (sim/start-stress-test!))}
+     "Run Stress Test"]]])
+
 (defn- stress-test-form []
   (let [config (:stress-test-config @state/app-state)]
-    [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-6
-     [:h2.text-xl.font-bold.mb-4 "Configuration"]
-     [:div.grid.grid-cols-1.md:grid-cols-3.gap-4
-      [:div
-       [:label.block.text-sm.font-semibold.text-gray-700
-        "mOS Grid (start, stop, step)"]
-       [:div.flex.gap-2.mt-1
-        (doall
-         (for [i (range 3)]
-           (let [v (nth (:mos-grid config) i)]
-             ^{:key (str "mos-" i)}
-             [:input.border.w-full.p-1.rounded.text-sm
-              {:type "number" :step "0.1"
-               :defaultValue (if (js/isNaN v) "" v)
-               :on-change (fn [e]
-                            (let [nv (js/parseFloat (.. e -target -value))
-                                  new-grid (assoc (:mos-grid config) i nv)]
-                              (state/set-stress-test-config!
-                               :mos-grid new-grid)))}])))]]
-      [:div
-       [:label.block.text-sm.font-semibold.text-gray-700
-        "k Grid (start, stop, step)"]
-       [:div.flex.gap-2.mt-1
-        (doall
-         (for [i (range 3)]
-           (let [v (nth (:k-grid config) i)]
-             ^{:key (str "k-" i)}
-             [:input.border.w-full.p-1.rounded.text-sm
-              {:type "number" :step "0.1"
-               :defaultValue (if (js/isNaN v) "" v)
-               :on-change (fn [e]
-                            (let [nv (js/parseFloat (.. e -target -value))
-                                  new-grid (assoc (:k-grid config) i nv)]
-                              (state/set-stress-test-config!
-                               :k-grid new-grid)))}])))]]
-      [:div
-       [:label.block.text-sm.font-semibold.text-gray-700 "Sims per Combo"]
-       [:input.border.w-full.p-1.rounded.text-sm.mt-1
-        {:type "number" :value (:n-sims config)
-         :on-change (fn [e]
-                      (state/set-stress-test-config!
-                       :n-sims (js/parseInt (.. e -target -value))))}]]]
-     [:div.mt-4.flex.justify-center
-      [:button.bg-blue-600.hover:bg-blue-700.text-white
-       {:class "font-bold px-6 py-2 rounded-lg shadow"
-        :on-click (fn []
-                    (js/console.log "UI: Clicked Run Stress Test")
-                    (sim/start-stress-test!))}
-       "Run Stress Test"]]]))
+    [fork/form
+     {:initial-values config
+      :keywordize-keys true
+      :on-change (fn [{:keys [values]}]
+                   (state/update-stress-test-config! values))}
+     stress-test-form-content]))
 
 (defn- sortable-header [label k sort-state]
   (let [{curr-key :key desc? :desc?} @sort-state]
