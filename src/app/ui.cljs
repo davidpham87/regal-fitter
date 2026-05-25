@@ -9,6 +9,7 @@
             [clojure.string :as str]
             [cljs.pprint :refer [pprint]]
             [re-frame.core :as rf]
+            [fork.reagent :as fork]
             ["@monaco-editor/react" :default Editor]))
 
 (def ^:private key->label
@@ -156,9 +157,13 @@
         nil))
     (catch js/Error _ nil)))
 
-(defn- vector-input [curr-val key-name]
-  (let [text-val (r/atom (js/JSON.stringify (clj->js curr-val)))]
-    (fn [curr-val key-name]
+(defn- vector-input [values set-values key-name]
+  (let [curr-val (get values key-name)
+        text-val (r/atom (js/JSON.stringify (clj->js curr-val)))]
+    (fn [values set-values key-name]
+      (let [c-val (get values key-name)]
+        (when-not (= (parse-vector @text-val) c-val)
+          (reset! text-val (js/JSON.stringify (clj->js c-val)))))
       [:input.border.w-full.p-1.rounded.text-sm
        {:type "text"
         :value @text-val
@@ -166,19 +171,20 @@
                      (let [v (.. e -target -value)]
                        (reset! text-val v)
                        (when-let [parsed (parse-vector v)]
-                         (state/set-config! key-name parsed))))}])))
+                         (set-values {key-name parsed}))))}])))
 
 (defn- parse-float-safe [s default-val]
   (let [p (js/parseFloat s)]
     (if (js/isNaN p) default-val p)))
 
-(defn- grid-input [curr-val key-name]
-  (let [[start stop step] curr-val
+(defn- grid-input [values set-values key-name]
+  (let [curr-val (get values key-name)
+        [start stop step] curr-val
         start-val (r/atom (str start))
         stop-val (r/atom (str stop))
         step-val (r/atom (str step))]
-    (fn [curr-val key-name]
-      (let [[c-start c-stop c-step] curr-val]
+    (fn [values set-values key-name]
+      (let [[c-start c-stop c-step] (get values key-name)]
         (when-not (= (parse-float-safe @start-val nil) c-start)
           (reset! start-val (str c-start)))
         (when-not (= (parse-float-safe @stop-val nil) c-stop)
@@ -197,11 +203,10 @@
                              parsed (js/parseFloat v)]
                          (reset! start-val v)
                          (when-not (js/isNaN parsed)
-                           (state/set-config!
-                            key-name
-                            [parsed
-                             (parse-float-safe @stop-val 0.0)
-                             (parse-float-safe @step-val 0.0)]))))}]]
+                           (set-values
+                            {key-name [parsed
+                                       (parse-float-safe @stop-val 0.0)
+                                       (parse-float-safe @step-val 0.0)]}))))}]]
        [:div.flex-1
         [:span.text-xs.text-gray-500 "Stop"]
         [:input.border.w-full.p-1.rounded.text-sm
@@ -213,11 +218,10 @@
                              parsed (js/parseFloat v)]
                          (reset! stop-val v)
                          (when-not (js/isNaN parsed)
-                           (state/set-config!
-                            key-name
-                            [(parse-float-safe @start-val 0.0)
-                             parsed
-                             (parse-float-safe @step-val 0.0)]))))}]]
+                           (set-values
+                            {key-name [(parse-float-safe @start-val 0.0)
+                                       parsed
+                                       (parse-float-safe @step-val 0.0)]}))))}]]
        [:div.flex-1
         [:span.text-xs.text-gray-500 "Step"]
         [:input.border.w-full.p-1.rounded.text-sm
@@ -229,14 +233,14 @@
                              parsed (js/parseFloat v)]
                          (reset! step-val v)
                          (when-not (js/isNaN parsed)
-                           (state/set-config!
-                            key-name
-                            [(parse-float-safe @start-val 0.0)
-                             (parse-float-safe @stop-val 0.0)
-                             parsed]))))}]]])))
+                           (set-values
+                            {key-name [(parse-float-safe @start-val 0.0)
+                                       (parse-float-safe @stop-val 0.0)
+                                       parsed]}))))}]]])))
 
-(defn- families-input [curr-val key-name]
-  (let [all-families ["weibull" "leaky" "cure"]
+(defn- families-input [values set-values key-name]
+  (let [curr-val (get values key-name)
+        all-families ["weibull" "leaky" "cure"]
         active-set (set curr-val)]
     [:div.flex.flex-col.gap-2.mt-1
      (for [fam all-families]
@@ -253,13 +257,13 @@
                                          (disj active-set fam))
                                new-val (filterv (partial contains? new-set)
                                                 all-families)]
-                           (state/set-config! key-name new-val)))}]
+                           (set-values {key-name new-val})))}]
           [:span.ml-2.capitalize fam]]))]))
 
-(defn- field-input [config key-name]
+(defn- field-input [props key-name]
   (let [show-help? (r/atom false)]
-    (fn [config key-name]
-      (let [curr-val (get config key-name)
+    (fn [{:keys [values set-values] :as props} key-name]
+      (let [curr-val (get values key-name)
             help-text (get key->help key-name "")
             label-text (get key->label key-name (name key-name))]
         [:div.mt-3
@@ -282,22 +286,21 @@
             help-text])
          (cond
            (= key-name :families)
-           [families-input curr-val key-name]
+           [families-input values set-values key-name]
 
            (boolean? curr-val)
            [:input.mt-1 {:type "checkbox"
                          :checked curr-val
-                         :on-change #(state/set-config!
-                                      key-name
-                                      (.. % -target -checked))}]
+                         :on-change #(set-values {key-name
+                                                  (.. % -target -checked)})}]
 
            (and (vector? curr-val)
                 (= (count curr-val) 3)
                 (every? number? curr-val))
-           [grid-input curr-val key-name]
+           [grid-input values set-values key-name]
 
            (vector? curr-val)
-           [vector-input curr-val key-name]
+           [vector-input values set-values key-name]
 
            :else
            [:input.border.w-full.p-1.rounded.text-sm
@@ -306,20 +309,20 @@
              :value curr-val
              :on-change (fn [e]
                           (let [v (.. e -target -value)]
-                            (state/set-config!
-                             key-name
-                             (if (number? curr-val)
-                               (if (float? curr-val)
-                                 (js/parseFloat v)
-                                 (js/parseInt v))
-                               v))))}])]))))
+                            (set-values
+                              {key-name
+                               (if (number? curr-val)
+                                 (if (float? curr-val)
+                                   (js/parseFloat v)
+                                   (js/parseInt v))
+                                 v)})))}])]))))
 
-(defn- category-card [cat-key keys-list config]
+(defn- category-card [cat-key keys-list props]
   [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
    [:h3.font-bold.text-lg.text-gray-800.capitalize (name cat-key)]
    [:div.grid.grid-cols-1.gap-3.mt-2
     (for [k keys-list]
-      ^{:key k} [field-input config k])]])
+      ^{:key k} [field-input props k])]])
 
 (def ^:private category->keys
   {:trial [:n-total :n-per-arm :enroll-bands :enforce-no-80-by-today
@@ -337,111 +340,125 @@
            :n-ev-final :n-screen-min-pass :efficacy-hr-min :futility-hr-max
            :median-fu-target :median-fu-tol :hr-threshold :seed :families]})
 
+(defn- config-form-content
+  [{:keys [values set-values] :as props} collapsed?]
+  (let [config (:config @state/app-state)]
+    [:div.p-4.max-w-6xl.mx-auto
+     [:div.flex.justify-between.items-center.mb-6
+      [:h2.text-2xl.font-extrabold.text-gray-900
+       "Simulation Configuration"]
+      [:div.flex.gap-2
+       [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
+       [:button.px-3.py-1.text-xs.font-bold.rounded.border
+        {:class "bg-white hover:bg-gray-100 text-gray-700"
+         :on-click (fn []
+                     (state/update-config! state/default-config)
+                     (set-values state/default-config))}
+        "Default"]
+       [:button.px-3.py-1.text-xs.font-bold.rounded.border
+        {:class "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+         :on-click (fn []
+                     (state/update-config! state/light-config)
+                     (set-values state/light-config))}
+        "Light"]]]
+
+     ;; Section 1: Trial Structure & Timing
+     [:div.mb-8
+      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+       {:class "cursor-pointer select-none"
+        :on-click #(swap! collapsed? update :s1 not)}
+       [:h3.text-lg.font-bold.text-gray-800
+        "1. Trial Structure & Event Timing"]
+       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+         :on-click (fn [e]
+                     (.stopPropagation e)
+                     (swap! collapsed? update :s1 not))}
+        [:span (if (:s1 @collapsed?) "Expand" "Collapse")]
+        [:span (if (:s1 @collapsed?) "▶" "▼")]]]
+      (when-not (:s1 @collapsed?)
+        [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+         [category-card :trial (get category->keys :trial) props]
+         [category-card :timing (get category->keys :timing) props]])]
+
+     ;; Section 2: Distribution Grid Settings
+     [:div.mb-8
+      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+       {:class "cursor-pointer select-none"
+        :on-click #(swap! collapsed? update :s2 not)}
+       [:h3.text-lg.font-bold.text-gray-800
+        "2. Prior Model Distribution Grids"]
+       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+         :on-click (fn [e]
+                     (.stopPropagation e)
+                     (swap! collapsed? update :s2 not))}
+        [:span (if (:s2 @collapsed?) "Expand" "Collapse")]
+        [:span (if (:s2 @collapsed?) "▶" "▼")]]]
+      (when-not (:s2 @collapsed?)
+        [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+         [category-card :bat (get category->keys :bat) props]
+         [category-card :gps (get category->keys :gps) props]
+         [category-card :cure (get category->keys :cure) props]
+         [category-card :leaky (get category->keys :leaky) props]])]
+
+     ;; Section 3: ABC Tolerances & Prefilters
+     [:div.mb-8
+      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+       {:class "cursor-pointer select-none"
+        :on-click #(swap! collapsed? update :s3 not)}
+       [:h3.text-lg.font-bold.text-gray-800
+        "3. ABC Tolerances & Analytical Prefilters"]
+       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+         :on-click (fn [e]
+                     (.stopPropagation e)
+                     (swap! collapsed? update :s3 not))}
+        [:span (if (:s3 @collapsed?) "Expand" "Collapse")]
+        [:span (if (:s3 @collapsed?) "▶" "▼")]]]
+      (when-not (:s3 @collapsed?)
+        [:div.grid.grid-cols-1.gap-6
+         [category-card
+          :prefilter (get category->keys :prefilter) props]])]
+
+     ;; Section 4: Compute Options & SAP
+     [:div.mb-8
+      [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
+       {:class "cursor-pointer select-none"
+        :on-click #(swap! collapsed? update :s4 not)}
+       [:h3.text-lg.font-bold.text-gray-800
+        "4. Execution Settings & SAP Constraints"]
+       [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
+        {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
+         :on-click (fn [e]
+                     (.stopPropagation e)
+                     (swap! collapsed? update :s4 not))}
+        [:span (if (:s4 @collapsed?) "Expand" "Collapse")]
+        [:span (if (:s4 @collapsed?) "▶" "▼")]]]
+      (when-not (:s4 @collapsed?)
+        [:div.grid.grid-cols-1.gap-6
+         [category-card :other (get category->keys :other) props]])]
+
+     [:div.mt-8.flex.justify-center
+      [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
+       {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
+                    "transform hover:-translate-y-0.5")
+        :on-click (fn []
+                    (sim/start-simulation!)
+                    (swap! state/app-state
+                           assoc :view :results))}
+       "Run Simulation"]]]))
+
 (defn config-form []
   (let [collapsed? (r/atom {:s1 true :s2 true :s3 true :s4 true})]
     (fn []
       (let [config (:config @state/app-state)]
-        [:div.p-4.max-w-6xl.mx-auto
-         [:div.flex.justify-between.items-center.mb-6
-          [:h2.text-2xl.font-extrabold.text-gray-900
-           "Simulation Configuration"]
-          [:div.flex.gap-2
-           [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
-           [:button.px-3.py-1.text-xs.font-bold.rounded.border
-            {:class "bg-white hover:bg-gray-100 text-gray-700"
-             :on-click #(state/update-config! state/default-config)}
-            "Default"]
-           [:button.px-3.py-1.text-xs.font-bold.rounded.border
-            {:class "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-             :on-click #(state/update-config! state/light-config)}
-            "Light"]]]
-
-         ;; Section 1: Trial Structure & Timing
-         [:div.mb-8
-          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-           {:class "cursor-pointer select-none"
-            :on-click #(swap! collapsed? update :s1 not)}
-           [:h3.text-lg.font-bold.text-gray-800
-            "1. Trial Structure & Event Timing"]
-           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-             :on-click (fn [e]
-                         (.stopPropagation e)
-                         (swap! collapsed? update :s1 not))}
-            [:span (if (:s1 @collapsed?) "Expand" "Collapse")]
-            [:span (if (:s1 @collapsed?) "▶" "▼")]]]
-          (when-not (:s1 @collapsed?)
-            [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-             [category-card :trial (get category->keys :trial) config]
-             [category-card :timing (get category->keys :timing) config]])]
-
-         ;; Section 2: Distribution Grid Settings
-         [:div.mb-8
-          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-           {:class "cursor-pointer select-none"
-            :on-click #(swap! collapsed? update :s2 not)}
-           [:h3.text-lg.font-bold.text-gray-800
-            "2. Prior Model Distribution Grids"]
-           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-             :on-click (fn [e]
-                         (.stopPropagation e)
-                         (swap! collapsed? update :s2 not))}
-            [:span (if (:s2 @collapsed?) "Expand" "Collapse")]
-            [:span (if (:s2 @collapsed?) "▶" "▼")]]]
-          (when-not (:s2 @collapsed?)
-            [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-             [category-card :bat (get category->keys :bat) config]
-             [category-card :gps (get category->keys :gps) config]
-             [category-card :cure (get category->keys :cure) config]
-             [category-card :leaky (get category->keys :leaky) config]])]
-
-         ;; Section 3: ABC Tolerances & Prefilters
-         [:div.mb-8
-          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-           {:class "cursor-pointer select-none"
-            :on-click #(swap! collapsed? update :s3 not)}
-           [:h3.text-lg.font-bold.text-gray-800
-            "3. ABC Tolerances & Analytical Prefilters"]
-           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-             :on-click (fn [e]
-                         (.stopPropagation e)
-                         (swap! collapsed? update :s3 not))}
-            [:span (if (:s3 @collapsed?) "Expand" "Collapse")]
-            [:span (if (:s3 @collapsed?) "▶" "▼")]]]
-          (when-not (:s3 @collapsed?)
-            [:div.grid.grid-cols-1.gap-6
-             [category-card
-              :prefilter (get category->keys :prefilter) config]])]
-
-         ;; Section 4: Compute Options & SAP
-         [:div.mb-8
-          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
-           {:class "cursor-pointer select-none"
-            :on-click #(swap! collapsed? update :s4 not)}
-           [:h3.text-lg.font-bold.text-gray-800
-            "4. Execution Settings & SAP Constraints"]
-           [:button.text-xs.font-semibold.px-3.py-1.rounded-lg.border
-            {:class "bg-gray-50 hover:bg-gray-100 transition-colors flex gap-1"
-             :on-click (fn [e]
-                         (.stopPropagation e)
-                         (swap! collapsed? update :s4 not))}
-            [:span (if (:s4 @collapsed?) "Expand" "Collapse")]
-            [:span (if (:s4 @collapsed?) "▶" "▼")]]]
-          (when-not (:s4 @collapsed?)
-            [:div.grid.grid-cols-1.gap-6
-             [category-card :other (get category->keys :other) config]])]
-
-         [:div.mt-8.flex.justify-center
-          [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
-           {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
-                        "transform hover:-translate-y-0.5")
-            :on-click (fn []
-                        (sim/start-simulation!)
-                        (swap! state/app-state
-                               assoc :view :results))}
-           "Run Simulation"]]]))))
+        [fork/form
+         {:initial-values config
+          :keywordize-keys true
+          :on-change (fn [{:keys [values]}]
+                       (state/update-config! values))}
+         #(config-form-content % collapsed?)]))))
 
 (defn- config->nested [config]
   (into {} (for [[cat ks] category->keys]
