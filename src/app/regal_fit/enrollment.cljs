@@ -124,3 +124,27 @@
         (np/set-block ev-array events start)
         (np/set-block var-array variance start)))
     {:events ev-array :variance var-array}))
+
+(defn get-s-curve-enrollment-bands
+  "Generates monthly enrollment bands following an S-curve (logistic).
+   Ported from regal_stress_test.py."
+  [n-total total-months median-month k]
+  (let [logistic (fn [t] (/ 1.0 (+ 1.0 (js/Math.exp (* (- k) (- t median-month))))))
+        t-vals (range (inc total-months))
+        c-vals (mapv logistic t-vals)
+        c0 (first c-vals)
+        cn (last c-vals)
+        norm-c (mapv (fn [c] (* (/ (- c c0) (- cn c0)) n-total)) c-vals)
+        n-monthly (mapv (fn [i] (- (nth norm-c (inc i)) (nth norm-c i))) (range total-months))
+        n-int (mapv js/Math.round n-monthly)
+        sum-n (reduce + n-int)
+        diff (- n-total sum-n)
+        final-n (if (not= diff 0)
+                  (update n-int (dec (count n-int)) + diff)
+                  n-int)]
+    (->> final-n
+         (map-indexed (fn [i n]
+                        (when (> n 0)
+                          [(float i) (float (inc i)) (int n)])))
+         (remove nil?)
+         (into []))))
