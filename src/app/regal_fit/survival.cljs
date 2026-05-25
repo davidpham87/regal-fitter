@@ -24,9 +24,15 @@
   {:malli/schema [:=> [:cat any? any?] any?]}
   [median shape]
   (let [log-two (js/Math.log 2.0)
-        inverse-shape (np/divide (np/array 1.0) shape)
-        denominator (np/power (np/array log-two) inverse-shape)]
-    (np/divide median denominator)))
+        inverse-shape (if (number? shape)
+                        (/ 1.0 shape)
+                        (np/divide (np/array 1.0) shape))
+        denominator (if (number? inverse-shape)
+                      (js/Math.pow log-two inverse-shape)
+                      (np/power (np/array log-two) inverse-shape))]
+    (if (and (number? median) (number? denominator))
+      (/ median denominator)
+      (np/divide median denominator))))
 
 (defn cure-survival-probability
   "Computes the survival function for a standard cure fraction model.
@@ -36,13 +42,16 @@
   (let [unc-survival (weibull-survival-probability time-values
                                                    unc-scale
                                                    unc-shape)
-        one-minus-cf (np/subtract (np/array 1.0) cure-fraction)
+        cure-fraction-arr (if (number? cure-fraction)
+                            (np/array #js [cure-fraction])
+                            cure-fraction)
+        one-minus-cf (np/subtract (np/array 1.0) cure-fraction-arr)
         unc-part (np/multiply unc-survival one-minus-cf)]
-    (np/add cure-fraction unc-part)))
+    (np/add cure-fraction-arr unc-part)))
 
 (defn- calculate-leaky-cured
   "Helper to calculate the cured portion of the leaky model."
-  [time-values cure-fraction leak-rate-monthly]
+  [time-values cure-fraction-arr leak-rate-monthly]
   (let [time-arr (if (number? time-values)
                    (np/array #js [time-values])
                    time-values)
@@ -50,7 +59,7 @@
         neg-leak (np/multiply leak-rate-monthly -1.0)
         cured-power (np/multiply clipped-times neg-leak)
         cured-survival (np/exp cured-power)]
-    (np/multiply cured-survival cure-fraction)))
+    (np/multiply cured-survival cure-fraction-arr)))
 
 (defn leaky-cure-survival-probability
   "Computes the survival function for a leaky cure fraction model.
@@ -58,13 +67,16 @@
          (1.0 - p-cure) * weibull-S(t, unc-scale, unc-shape)"
   {:malli/schema [:=> [:cat any? any? any? any? any?] any?]}
   [time-values cure-fraction unc-scale unc-shape leak-rate-yearly]
-  (let [leak-rate-monthly (np/divide leak-rate-yearly 12.0)
+  (let [leak-rate-monthly (np/divide (np/array leak-rate-yearly) 12.0)
+        cure-fraction-arr (if (number? cure-fraction)
+                            (np/array #js [cure-fraction])
+                            cure-fraction)
         cured-part (calculate-leaky-cured time-values
-                                          cure-fraction
+                                          cure-fraction-arr
                                           leak-rate-monthly)
         uncured-survival (weibull-survival-probability time-values
                                                        unc-scale
                                                        unc-shape)
-        one-minus-cf (np/subtract (np/array 1.0) cure-fraction)
+        one-minus-cf (np/subtract (np/array 1.0) cure-fraction-arr)
         uncured-part (np/multiply uncured-survival one-minus-cf)]
     (np/add cured-part uncured-part)))
