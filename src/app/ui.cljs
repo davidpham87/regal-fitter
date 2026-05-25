@@ -353,9 +353,10 @@
                  [field-wrapper :enforce-no-80-by-today
                   [:input.mt-1
                    {:type "checkbox"
-                    :name "enforce-no-80-by-today"
-                    :checked (:enforce-no-80-by-today values)
-                    :on-change handle-change}]]
+                    :checked (boolean (:enforce-no-80-by-today values))
+                    :on-change (fn [e]
+                                 (set-values {:enforce-no-80-by-today
+                                              (.. e -target -checked)}))}]]
                  [field-wrapper :no-80-slack-months
                   [:input.border.w-full.p-1.rounded.text-sm
                    {:type "number"
@@ -404,9 +405,10 @@
                  [field-wrapper :use-pr3-anchor
                   [:input.mt-1
                    {:type "checkbox"
-                    :name "use-pr3-anchor"
-                    :checked (:use-pr3-anchor values)
-                    :on-change handle-change}]]]]])])]))))
+                    :checked (boolean (:use-pr3-anchor values))
+                    :on-change (fn [e]
+                                 (set-values {:use-pr3-anchor
+                                              (.. e -target -checked)}))}]]]]])])]))))
 
 (defn- grids-section []
   (let [collapsed? (r/atom true)
