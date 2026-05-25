@@ -478,33 +478,43 @@
 
 (defn config-json []
   (let [config (:config @state/app-state)
-        text (r/atom (js/JSON.stringify
-                      (clj->js (config->nested config)) nil 2))]
+        initial-json (js/JSON.stringify
+                      (clj->js (config->nested config)) nil 2)]
     (fn []
-      [:div.p-4
-       [:h2.text-xl.font-bold.mb-4 "Config (JSON)"]
-       [:div.border.rounded {:style {:height "600px"}}
-        [:> Editor {:height "100%"
-                    :defaultLanguage "json"
-                    :value @text
-                    :onChange (fn [val _]
-                                (reset! text val)
-                                (try
-                                  (let [nested (js->clj (js/JSON.parse val)
-                                                        :keywordize-keys true)]
-                                    (state/update-config!
-                                     (nested->config nested)))
-                                  (catch js/Error _)))}]]
-       [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
-        {:on-click (fn []
-                    (try
-                      (let [nested (js->clj (js/JSON.parse @text) :keywordize-keys true)]
-                        (state/update-config! (nested->config nested)))
-                      (catch js/Error _))
-                    (sim/start-simulation!)
-                    (swap! state/app-state
-                           assoc :view :results))}
-         "Run Simulation"]])))
+      [fork/form
+       {:initial-values {:json-text initial-json}
+        :keywordize-keys true}
+       (fn [{:keys [values set-values]}]
+         (let [text (:json-text values)]
+           [:div.p-4
+            [:h2.text-xl.font-bold.mb-4 "Config (JSON)"]
+            [:div.border.rounded {:style {:height "600px"}}
+             [:> Editor {:height "100%"
+                         :defaultLanguage "json"
+                         :value text
+                         :onChange (fn [val _]
+                                     (set-values {:json-text val})
+                                     (try
+                                       (let [nested (js->clj
+                                                      (js/JSON.parse val)
+                                                      :keywordize-keys true)]
+                                         (state/update-config!
+                                          (nested->config nested)))
+                                       (catch js/Error _)))}]]
+            [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
+             {:type "button"
+              :on-click (fn []
+                          (try
+                            (let [nested (js->clj
+                                           (js/JSON.parse text)
+                                           :keywordize-keys true)]
+                              (state/update-config!
+                               (nested->config nested)))
+                            (catch js/Error _))
+                          (sim/start-simulation!)
+                          (swap! state/app-state
+                                 assoc :view :results))}
+             "Run Simulation"]]))])))
 
 (defn- stage2-progress [progress]
   [:div
