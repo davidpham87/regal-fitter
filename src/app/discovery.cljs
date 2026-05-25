@@ -213,30 +213,52 @@
                              {:time t :events e :group "BAT"})
                            t-arr (first (.toArray ev-bat)))))}))
 
+(defn- calculate-residual [milestone-stats]
+  (apply js/Math.max
+         (map #(js/Math.abs (- (:expected %) (:target %)))
+              milestone-stats)))
+
 (defn- stats-row [title stats]
-  [:div.mb-6
-   [:h4.text-sm.font-bold.text-gray-700.mb-3 title]
-   [:div.grid.grid-cols-1.sm:grid-cols-3.gap-3
-    (for [s stats]
-      ^{:key (:label s)}
-      [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-       [:h5.text-xs.font-bold.text-gray-500.uppercase (:label s)]
-       [:div.mt-1.flex.items-baseline.gap-1
-        [:span.text-xl.font-bold.text-gray-800 (.toFixed (:expected s) 1)]
-        [:span.text-xs.text-gray-400 (str " / " (:target s))]]
-       [:div.mt-1.grid.grid-cols-2.gap-1
-        [:div
-         [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"}
-          "SD"]
-         [:div.text-xs.font-semibold (.toFixed (:sd s) 2)]]
-        [:div
-         [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"}
-          "Std Dev"]
-         [:div.text-xs.font-semibold
-          {:class (if (> (js/Math.abs (:std-dev s)) 2)
-                    "text-red-600"
-                    "text-green-600")}
-          (.toFixed (:std-dev s) 2)]]]])]])
+  (let [res (calculate-residual stats)]
+    [:div.mb-6
+     [:h4.text-sm.font-bold.text-gray-700.mb-3 title]
+     [:div.grid.grid-cols-1.sm:grid-cols-4.gap-3
+      (for [s stats]
+        ^{:key (:label s)}
+        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+         [:h5.text-xs.font-bold.text-gray-500.uppercase (:label s)]
+         [:div.mt-1.flex.items-baseline.gap-1
+          [:span.text-xl.font-bold.text-gray-800 (.toFixed (:expected s) 1)]
+          [:span.text-xs.text-gray-400 (str " / " (:target s))]]
+         [:div.mt-1.grid.grid-cols-2.gap-1
+          [:div
+           [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"}
+            "SD"]
+           [:div.text-xs.font-semibold (.toFixed (:sd s) 2)]]
+          [:div
+           [:div {:style {:font-size "10px"} :class "text-gray-400 uppercase"}
+            "Std Dev"]
+           [:div.text-xs.font-semibold
+            {:class (if (> (js/Math.abs (:std-dev s)) 2)
+                      "text-red-600"
+                      "text-green-600")}
+            (.toFixed (:std-dev s) 2)]]]])
+      [:div.bg-white.p-3.rounded-xl.shadow-sm.border.flex.flex-col
+       {:class "justify-between"}
+       [:div
+        [:h5.text-xs.font-bold.text-gray-500.uppercase "Quality of Fit"]
+        [:div.text-xl.font-extrabold.text-gray-800.mt-1
+         (.toFixed res 2) " residual"]]
+       [:div.mt-2
+        [:span.px-2.py-1.rounded-lg.text-xs.font-bold.uppercase
+         {:class (cond
+                   (< res 2.0) "bg-green-100 text-green-800"
+                   (< res 5.0) "bg-yellow-100 text-yellow-800"
+                   :else "bg-red-100 text-red-800")}
+         (cond
+           (< res 2.0) "Excellent"
+           (< res 5.0) "Acceptable"
+           :else "Poor")]]]]]))
 
 (defn- discovery-view-content
   [{:keys [values set-values] :as props}]
@@ -317,7 +339,7 @@
           [param-input props :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]
           [param-input props :leak-yr "Leak Rate / Year" 0.0 0.1 0.01]])]
 
-      #_[:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
+      [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
        {:class "justify-between"}
        [:div.flex.items-center.gap-3
         [:button.rounded-lg.shadow-sm.transition-colors
@@ -375,34 +397,36 @@
 
      ;; Results & Charts in 2 columns
      ^{:key (str params)}
-     [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
-      ;; Column 1: Alternate Hypothesis
-      [:div.bg-gray-50.p-4.rounded-xl.border
-       [:h3.font-extrabold.text-gray-800.mb-4 "Alternate Hypothesis (H1): GPS is effective"]
-       [stats-row "Milestone Stats (H1)" stats]
-       [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "Alternate: Survival Curves"]
-         [vega/discovery-survival-chart (:survival curve-data)]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "Alternate: Event Accrual"]
-         [vega/discovery-accrual-chart (:accrual curve-data) stats]]]]
+      [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
+       ;; Column 1: Alternate Hypothesis
+       [:div.bg-gray-50.p-4.rounded-xl.border
+        [:h3.font-extrabold.text-gray-800.mb-4
+         "Alternate Hypothesis (H1): GPS is effective"]
+        [stats-row "Milestone Stats (H1)" stats]
+        [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "Alternate: Survival Curves"]
+          [vega/discovery-survival-chart (:survival curve-data)]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "Alternate: Event Accrual"]
+          [vega/discovery-accrual-chart (:accrual curve-data) stats]]]]
 
-      ;; Column 2: Null Hypothesis (H0)
-      [:div.bg-gray-50.p-4.rounded-xl.border
-       [:h3.font-extrabold.text-gray-800.mb-4 "Null Hypothesis (H0): GPS is placebo"]
-       [stats-row "Milestone Stats (H0)" stats-h0]
-       [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "H0: Survival Curves (Cure=0, Shared Med)"]
-         [vega/discovery-survival-chart (:survival curve-data-h0)]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "H0: Event Accrual (Cure=0, Shared Med)"]
-         [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]]]]]))
+       ;; Column 2: Null Hypothesis (H0)
+       [:div.bg-gray-50.p-4.rounded-xl.border
+        [:h3.font-extrabold.text-gray-800.mb-4
+         "Null Hypothesis (H0): GPS is placebo"]
+        [stats-row "Milestone Stats (H0)" stats-h0]
+        [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "H0: Survival Curves (Cure=0, Shared Med)"]
+          [vega/discovery-survival-chart (:survival curve-data-h0)]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "H0: Event Accrual (Cure=0, Shared Med)"]
+          [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]]]]]))
 
 (defn discovery-view []
   (let [state (get-discovery-state)]
