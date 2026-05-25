@@ -7,7 +7,7 @@
     (r/create-class
      {:reagent-render
       (fn []
-        [:div {:ref #(reset! ref %)}])
+        [:div.w-full {:ref #(reset! ref %)}])
       :component-did-mount
       (fn [this]
         (when @ref
@@ -76,66 +76,75 @@
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
        [:div "No accepted combinations in this family to display charts."]
-       [:div.flex.flex-wrap.gap-4
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "Posterior Probability of BAT mOS"
-          :mark "bar"
-          :encoding {:x {:field "bat-mid"
-                         :type "quantitative"
-                         :title "BAT mOS (months)"}
-                     :y {:field "p-bat"
-                         :type "quantitative"
-                         :title "Probability (%)"}
-                     :color {:value "#44aa77"}
-                     :tooltip [{:field "bat-mid" :type "quantitative"
-                                :title "BAT mOS (months)"}
-                               {:field "p-bat" :type "quantitative"
-                                :title "Probability (%)"}]}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "P(success) by BAT mOS"
-          :layer [{:mark {:type "line" :point true}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"
-                                  :title "BAT mOS (months)"}
-                              :y {:field "success"
-                                  :type "quantitative"
-                                  :title "P(success) %"
-                                  :scale {:domain [0 100]}}
-                              :color {:value "#4488cc"}
-                              :tooltip [{:field "bat-mid" :type "quantitative"
-                                         :title "BAT mOS (months)"}
-                                        {:field "success" :type "quantitative"
-                                         :title "P(success) %"}]}}
-                  {:mark "rule" :data {:values [{:y 50}]}
-                   :encoding {:y {:field "y" :type "quantitative"}
-                              :color {:value "gray"}
-                              :strokeDash {:value [4 4]}}}]}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "Implied Final HR by BAT mOS"
-          :layer [{:mark {:type "line" :point true}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"
-                                  :title "BAT mOS (months)"}
-                              :y {:field "hr-final"
-                                  :type "quantitative"
-                                  :title "Final HR"
-                                  :scale {:domain [0 1.2]}}
-                              :color {:value "#aa5599"}
-                              :tooltip [{:field "bat-mid" :type "quantitative"
-                                         :title "BAT mOS (months)"}
-                                        {:field "hr-final" :type "quantitative"
-                                         :title "Final HR"}]}}
-                  {:mark "rule" :data {:values [{:y 0.636}]}
-                   :encoding {:y {:field "y" :type "quantitative"}
-                              :color {:value "red"}
-                              :strokeDash {:value [4 4]}}}]}]])]))
+       [:div.grid.grid-cols-1.md:grid-cols-2.lg:grid-cols-3.gap-4
+        [:div.w-full
+         [vega-lite
+          {:width "container" :height 300 :data {:values vdata}
+           :title "Posterior Probability of BAT mOS"
+           :mark "bar"
+           :encoding {:x {:field "bat-mid"
+                          :type "quantitative"
+                          :title "BAT mOS (months)"}
+                      :y {:field "p-bat"
+                          :type "quantitative"
+                          :title "Probability (%)"}
+                      :color {:value "#44aa77"}
+                      :tooltip [{:field "bat-mid" :type "quantitative"
+                                 :title "BAT mOS (months)"
+                                 :format ".1f"}
+                                {:field "p-bat" :type "quantitative"
+                                 :title "Probability (%)"
+                                 :format ".2f"}]}}]]
+        [:div.w-full
+         [vega-lite
+          {:width "container" :height 300 :data {:values vdata}
+           :title "P(success) by BAT mOS"
+           :layer [{:mark {:type "line" :point true}
+                    :encoding {:x {:field "bat-mid"
+                                   :type "quantitative"
+                                   :title "BAT mOS (months)"}
+                               :y {:field "success"
+                                   :type "quantitative"
+                                   :title "P(success) %"
+                                   :scale {:domain [0 100]}}
+                               :color {:value "#4488cc"}
+                               :tooltip [{:field "bat-mid" :type "quantitative"
+                                          :title "BAT mOS (months)"
+                                          :format ".1f"}
+                                         {:field "success" :type "quantitative"
+                                          :title "P(success) %"
+                                          :format ".1f"}]}}
+                   {:mark "rule" :data {:values [{:y 50}]}
+                    :encoding {:y {:field "y" :type "quantitative"}
+                               :color {:value "gray"}
+                               :strokeDash {:value [4 4]}}}]}]]
+        [:div.w-full
+         [vega-lite
+          {:width "container" :height 300 :data {:values vdata}
+           :title "Implied Final HR by BAT mOS"
+           :layer [{:mark {:type "line" :point true}
+                    :encoding {:x {:field "bat-mid"
+                                   :type "quantitative"
+                                   :title "BAT mOS (months)"}
+                               :y {:field "hr-final"
+                                   :type "quantitative"
+                                   :title "Final HR"
+                                   :scale {:domain [0 1.2]}}
+                               :color {:value "#aa5599"}
+                               :tooltip [{:field "bat-mid" :type "quantitative"
+                                          :title "BAT mOS (months)"
+                                          :format ".1f"}
+                                         {:field "hr-final" :type "quantitative"
+                                          :title "Final HR"
+                                          :format ".3f"}]}}
+                   {:mark "rule" :data {:values [{:y 0.636}]}
+                    :encoding {:y {:field "y" :type "quantitative"}
+                               :color {:value "red"}
+                               :strokeDash {:value [4 4]}}}]}]]]])]))
 
 (defn discovery-survival-chart [data]
   [vega-lite
-   {:width 300 :height 300
+   {:width "container" :height 300
     :title "Survival Curves"
     :data {:values data}
     :layer [{:mark {:type "line" :strokeWidth 2}
@@ -187,7 +196,7 @@
                               :label (:label s)})
                       event-stats)]
     [vega-lite
-     {:width 300 :height 300
+     {:width "container" :height 300
       :title "Expected Event Accrual"
       :data {:values curve-data}
       :layer [{:mark {:type "line" :strokeWidth 2}
@@ -242,9 +251,9 @@
                       :p_joint (* 100 (:p_joint r))
                       :label (str (:mos r) " (k=" (:k r) ")")})
                    results)]
-    [:div.flex.flex-wrap.gap-4
+    [:div.w-full
      [vega-lite
-      {:width 600
+      {:width "container"
        :height 300
        :data {:values vdata}
        :title "Joint Probability (p_joint) by mOS and k"
@@ -253,4 +262,8 @@
                   :y {:field "p_joint"
                       :type "quantitative"
                       :title "p_joint (%)"}
-                  :color {:field "k" :type "nominal" :title "k"}}}]]))
+                  :color {:field "k" :type "nominal" :title "k"}
+                  :tooltip [{:field "mos" :type "quantitative" :title "mOS"}
+                            {:field "k" :type "nominal" :title "k"}
+                            {:field "p_joint" :type "quantitative" :title "p_joint (%)"
+                             :format ".2f"}]}}}]]))
