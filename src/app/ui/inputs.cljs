@@ -1,6 +1,5 @@
 (ns app.ui.inputs
   (:require [reagent.core :as r]
-            [app.state :as state]
             [clojure.string :as str]))
 
 (def key->label
@@ -174,29 +173,31 @@
             help-text])
          child-el]))))
 
-(defn num-input [key-name parser]
-  (let [val (get (:config @state/app-state) key-name)]
+(defn num-input [props key-name parser]
+  (let [val (get (:values props) key-name)]
     [:input.border.w-full.p-1.rounded.text-sm
      {:type "number"
       :step "any"
       :value val
       :on-change (fn [e]
-                   (let [v (.. e -target -value)]
-                     (state/set-config! key-name (parser v))))}]))
+                   (let [v (.. e -target -value)
+                         parsed (parser v)]
+                     ((:set-values props) {key-name parsed})))}]))
 
-(defn checkbox-input [key-name]
-  (let [val (get (:config @state/app-state) key-name)]
+(defn checkbox-input [props key-name]
+  (let [val (get (:values props) key-name)]
     [:input.mt-1
      {:type "checkbox"
       :checked (boolean val)
       :on-change (fn [e]
-                   (state/set-config! key-name (.. e -target -checked)))}]))
+                   ((:set-values props)
+                    {key-name (.. e -target -checked)}))}]))
 
-(defn vector-input [key-name]
-  (let [curr-val (get (:config @state/app-state) key-name)
+(defn vector-input [props key-name]
+  (let [curr-val (get (:values props) key-name)
         text-val (r/atom (js/JSON.stringify (clj->js curr-val)))]
-    (fn [key-name]
-      (let [c-val (get (:config @state/app-state) key-name)]
+    (fn [props key-name]
+      (let [c-val (get (:values props) key-name)]
         (when-not (= (parse-vector @text-val) c-val)
           (reset! text-val (js/JSON.stringify (clj->js c-val)))))
       [:input.border.w-full.p-1.rounded.text-sm
@@ -206,15 +207,15 @@
                      (let [v (.. e -target -value)]
                        (reset! text-val v)
                        (when-let [parsed (parse-vector v)]
-                         (state/set-config! key-name parsed))))}])))
+                         ((:set-values props) {key-name parsed}))))}])))
 
-(defn grid-input [key-name]
-  (let [[start stop step] (get (:config @state/app-state) key-name)
+(defn grid-input [props key-name]
+  (let [[start stop step] (get (:values props) key-name)
         start-val (r/atom (str start))
         stop-val (r/atom (str stop))
         step-val (r/atom (str step))]
-    (fn [key-name]
-      (let [[c-start c-stop c-step] (get (:config @state/app-state) key-name)]
+    (fn [props key-name]
+      (let [[c-start c-stop c-step] (get (:values props) key-name)]
         (when-not (= (parse-float-safe @start-val nil) c-start)
           (reset! start-val (str c-start)))
         (when-not (= (parse-float-safe @stop-val nil) c-stop)
@@ -233,11 +234,10 @@
                              parsed (js/parseFloat v)]
                          (reset! start-val v)
                          (when-not (js/isNaN parsed)
-                           (state/set-config!
-                            key-name
-                            [parsed
-                             (parse-float-safe @stop-val 0.0)
-                             (parse-float-safe @step-val 0.0)]))))}]]
+                           ((:set-values props)
+                            {key-name [parsed
+                                       (parse-float-safe @stop-val 0.0)
+                                       (parse-float-safe @step-val 0.0)]}))))}]]
        [:div.flex-1
         [:span.text-xs.text-gray-500 "Stop"]
         [:input.border.w-full.p-1.rounded.text-sm
@@ -249,11 +249,10 @@
                              parsed (js/parseFloat v)]
                          (reset! stop-val v)
                          (when-not (js/isNaN parsed)
-                           (state/set-config!
-                            key-name
-                            [(parse-float-safe @start-val 0.0)
-                             parsed
-                             (parse-float-safe @step-val 0.0)]))))}]]
+                           ((:set-values props)
+                            {key-name [(parse-float-safe @start-val 0.0)
+                                       parsed
+                                       (parse-float-safe @step-val 0.0)]}))))}]]
        [:div.flex-1
         [:span.text-xs.text-gray-500 "Step"]
         [:input.border.w-full.p-1.rounded.text-sm
@@ -265,14 +264,13 @@
                              parsed (js/parseFloat v)]
                          (reset! step-val v)
                          (when-not (js/isNaN parsed)
-                           (state/set-config!
-                            key-name
-                            [(parse-float-safe @start-val 0.0)
-                             (parse-float-safe @stop-val 0.0)
-                             parsed]))))}]]])))
+                           ((:set-values props)
+                            {key-name [(parse-float-safe @start-val 0.0)
+                                       (parse-float-safe @stop-val 0.0)
+                                       parsed]}))))}]]])))
 
-(defn families-input [key-name]
-  (let [curr-val (get (:config @state/app-state) key-name)
+(defn families-input [props key-name]
+  (let [curr-val (get (:values props) key-name)
         all-families ["weibull" "leaky" "cure"]
         active-set (set curr-val)]
     [:div.flex.flex-col.gap-2.mt-1
@@ -290,5 +288,5 @@
                                          (disj active-set fam))
                                new-val (filterv (partial contains? new-set)
                                                 all-families)]
-                           (state/set-config! key-name new-val)))}]
+                           ((:set-values props) {key-name new-val})))}]
           [:span.ml-2.capitalize fam]]))]))

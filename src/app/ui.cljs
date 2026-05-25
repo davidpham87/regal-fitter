@@ -7,6 +7,7 @@
             [app.ui.sections :as sections]
             [app.ui.results :as results]
             [re-frame.core :as rf]
+            [fork.reagent :as fork]
             ["@monaco-editor/react" :default Editor]))
 
 (def ^:private category->keys
@@ -26,47 +27,53 @@
            :median-fu-target :median-fu-tol :hr-threshold :seed :families]})
 
 (defn config-form []
-  (let [version (:config-version @state/app-state)]
-    [:div.p-4.max-w-6xl.mx-auto
-     [:div.flex.justify-between.items-center.mb-6
-      [:h2.text-2xl.font-extrabold.text-gray-900
-       "Simulation Configuration"]
-      [:div.flex.gap-2
-       [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
-       [:button.px-3.py-1.text-xs.font-bold.rounded.border
-        {:type "button"
-         :class "bg-white hover:bg-gray-100 text-gray-700"
-         :on-click #(state/reset-config! state/default-config)}
-        "Default"]
-       [:button.px-3.py-1.text-xs.font-bold.rounded.border
-        {:type "button"
-         :class (str "bg-blue-50 hover:bg-blue-100 "
-                     "text-blue-700 border-blue-200")
-         :on-click #(state/reset-config! state/light-config)}
-        "Light"]]]
+  (let [initial-config (:config @state/app-state)]
+    (fn []
+      [:div.p-4.max-w-6xl.mx-auto
+       [:div.flex.justify-between.items-center.mb-6
+        [:h2.text-2xl.font-extrabold.text-gray-900
+         "Simulation Configuration"]
+        [:div.flex.gap-2
+         [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
+         [:button.px-3.py-1.text-xs.font-bold.rounded.border
+          {:type "button"
+           :class "bg-white hover:bg-gray-100 text-gray-700"
+           :on-click #(state/reset-config! state/default-config)}
+          "Default"]
+         [:button.px-3.py-1.text-xs.font-bold.rounded.border
+          {:type "button"
+           :class (str "bg-blue-50 hover:bg-blue-100 "
+                       "text-blue-700 border-blue-200")
+           :on-click #(state/reset-config! state/light-config)}
+          "Light"]]]
 
-     ^{:key version}
-     [:div
-      [sections/trial-timing-section]
-      [sections/grids-section]
-      [sections/tolerances-section]
-      [sections/execution-section]]
+       [fork/form
+        {:initial-values initial-config
+         :keywordize-keys true
+         :on-change (fn [{:keys [values]}]
+                      (state/update-config! values))}
+        (fn [props]
+          [:div
+           [sections/trial-timing-section props]
+           [sections/grids-section props]
+           [sections/tolerances-section props]
+           [sections/execution-section props]])]
 
-     [:div.mt-8.flex.justify-center.gap-4
-      [:button.text-gray-700.font-bold.px-6.py-4.rounded-xl.shadow-md.border
-       {:type "button"
-        :class "bg-white hover:bg-gray-100 transition-all border-gray-300"
-        :on-click (fn []
-                    (db/clear-cache))}
-       "Clear Cache"]
-      [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
-       {:type "button"
-        :class (str "bg-blue-600 hover:bg-blue-700 transition-all "
-                    "transform hover:-translate-y-0.5")
-         :on-click (fn []
-                     (sim/start-simulation!)
-                     (swap! state/app-state assoc :view :results))}
-       "Run Simulation"]]]))
+       [:div.mt-8.flex.justify-center.gap-4
+        [:button.text-gray-700.font-bold.px-6.py-4.rounded-xl.shadow-md.border
+         {:type "button"
+          :class "bg-white hover:bg-gray-100 transition-all border-gray-300"
+          :on-click (fn []
+                      (db/clear-cache))}
+         "Clear Cache"]
+        [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
+         {:type "button"
+          :class (str "bg-blue-600 hover:bg-blue-700 transition-all "
+                      "transform hover:-translate-y-0.5")
+          :on-click (fn []
+                      (sim/start-simulation!)
+                      (swap! state/app-state assoc :view :results))}
+         "Run Simulation"]]])))
 
 (defn- config->nested [config]
   (into {} (for [[cat ks] category->keys]
@@ -137,8 +144,8 @@
   (let [state state/app-state]
     (fn []
       (let [view (:view @state)
-            status (:status @state)]
-        ^{:key view}
+            status (:status @state)
+            version (:config-version @state)]
         [:div
          [:div.flex.gap-4.mb-4
           [:button.px-4.py-2.rounded
@@ -164,7 +171,7 @@
             "Running Stage 1 (Analytical Pre-filter)..."])
          (when (= status :error)
            [:div.bg-red-100.text-red-800.p-4.mb-4 (:error-message @state)])
-         ^{:key view}
+         ^{:key (str view "-" version)}
          (case view
            :config-form [config-form]
            :config-json [config-json]
