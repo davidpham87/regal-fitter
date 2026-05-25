@@ -371,7 +371,7 @@
     "Assess the likelihood of observed trial milestones under various "
     "Null Hypothesis (H0) scenarios."]
    [placebo-explanation-view]
-   [power-analysis-view]
+   #_[power-analysis-view]
    [stress-test-form]
    [stress-test-results-view]])
 
