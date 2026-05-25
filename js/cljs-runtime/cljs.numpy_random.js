@@ -1,8 +1,8 @@
 goog.provide('cljs.numpy_random');
 var module$node_modules$numpy_ts$dist$numpy_ts_browser=shadow.js.require("module$node_modules$numpy_ts$dist$numpy_ts_browser", {});
 cljs.numpy_random.default_rng = (function cljs$numpy_random$default_rng(var_args){
-var G__27326 = arguments.length;
-switch (G__27326) {
+var G__35286 = arguments.length;
+switch (G__35286) {
 case 0:
 return cljs.numpy_random.default_rng.cljs$core$IFn$_invoke$arity$0();
 
@@ -12,7 +12,7 @@ return cljs.numpy_random.default_rng.cljs$core$IFn$_invoke$arity$1((arguments[(0
 
 break;
 default:
-throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(arguments.length)].join('')));
+throw (new Error(["Invalid arity: ",arguments.length].join("")));
 
 }
 });

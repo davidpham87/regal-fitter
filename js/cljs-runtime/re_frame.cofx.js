@@ -8,8 +8,8 @@ re_frame.cofx.reg_cofx = (function re_frame$cofx$reg_cofx(id,handler){
 return re_frame.registrar.register_handler(re_frame.cofx.kind,id,handler);
 });
 re_frame.cofx.inject_cofx = (function re_frame$cofx$inject_cofx(var_args){
-var G__21502 = arguments.length;
-switch (G__21502) {
+var G__30468 = arguments.length;
+switch (G__30468) {
 case 1:
 return re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -19,7 +19,7 @@ return re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),
 
 break;
 default:
-throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(arguments.length)].join('')));
+throw (new Error(["Invalid arity: ",arguments.length].join("")));
 
 }
 });

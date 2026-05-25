@@ -51,11 +51,11 @@ return null;
  * Creates a configuration record for an accepted scenario.
  */
 app.regal_fit.prefilter.build_result_record = (function app$regal_fit$prefilter$build_result_record(bat_idx,gps_idx,validation_res,family,bat_params,gps_params){
-var record = (function (){var G__26611 = new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"family","family",-1313145692),family,new cljs.core.Keyword(null,"exp-ev-ia","exp-ev-ia",647455811),new cljs.core.Keyword(null,"exp-ev-ia","exp-ev-ia",647455811).cljs$core$IFn$_invoke$arity$1(validation_res),new cljs.core.Keyword(null,"exp-ev-upd","exp-ev-upd",85248091),new cljs.core.Keyword(null,"exp-ev-upd","exp-ev-upd",85248091).cljs$core$IFn$_invoke$arity$1(validation_res)], null);
+var record = (function (){var G__30971 = new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"family","family",-1313145692),family,new cljs.core.Keyword(null,"exp-ev-ia","exp-ev-ia",647455811),new cljs.core.Keyword(null,"exp-ev-ia","exp-ev-ia",647455811).cljs$core$IFn$_invoke$arity$1(validation_res),new cljs.core.Keyword(null,"exp-ev-upd","exp-ev-upd",85248091),new cljs.core.Keyword(null,"exp-ev-upd","exp-ev-upd",85248091).cljs$core$IFn$_invoke$arity$1(validation_res)], null);
 if(cljs.core.truth_(new cljs.core.Keyword(null,"exp-ev-pr3","exp-ev-pr3",-449783785).cljs$core$IFn$_invoke$arity$1(validation_res))){
-return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(G__26611,new cljs.core.Keyword(null,"exp-ev-pr3","exp-ev-pr3",-449783785),new cljs.core.Keyword(null,"exp-ev-pr3","exp-ev-pr3",-449783785).cljs$core$IFn$_invoke$arity$1(validation_res));
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(G__30971,new cljs.core.Keyword(null,"exp-ev-pr3","exp-ev-pr3",-449783785),new cljs.core.Keyword(null,"exp-ev-pr3","exp-ev-pr3",-449783785).cljs$core$IFn$_invoke$arity$1(validation_res));
 } else {
-return G__26611;
+return G__30971;
 }
 })();
 return cljs.core.reduce_kv((function (acc,k,v){
@@ -69,16 +69,16 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(acc,k,v.item(gps_idx));
  */
 app.regal_fit.prefilter.process_chunk = (function app$regal_fit$prefilter$process_chunk(start_idx,end_idx,grid_bat,grid_gps,num_anchors,apply_pool,apply_pr3,config,bat_ev,gps_ev,bat_S_T,gps_S_T,family,bat_params,gps_params){
 var bat_ev_slice = cljs.numpy.slice(bat_ev,start_idx,end_idx);
-var bat_ev_3d = (function (){var G__26619 = bat_ev_slice;
-var G__26620 = [(end_idx - start_idx),(1),num_anchors];
-return (cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2(G__26619,G__26620) : cljs.numpy.reshape.call(null,G__26619,G__26620));
+var bat_ev_3d = (function (){var G__30979 = bat_ev_slice;
+var G__30980 = [(end_idx - start_idx),(1),num_anchors];
+return (cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2(G__30979,G__30980) : cljs.numpy.reshape.call(null,G__30979,G__30980));
 })();
-var total_events = (function (){var G__26623 = bat_ev_3d;
-var G__26624 = (function (){var G__26626 = gps_ev;
-var G__26627 = [(1),grid_gps,num_anchors];
-return (cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2(G__26626,G__26627) : cljs.numpy.reshape.call(null,G__26626,G__26627));
+var total_events = (function (){var G__30981 = bat_ev_3d;
+var G__30982 = (function (){var G__30983 = gps_ev;
+var G__30984 = [(1),grid_gps,num_anchors];
+return (cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.reshape.cljs$core$IFn$_invoke$arity$2(G__30983,G__30984) : cljs.numpy.reshape.call(null,G__30983,G__30984));
 })();
-return (cljs.numpy.add.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.add.cljs$core$IFn$_invoke$arity$2(G__26623,G__26624) : cljs.numpy.add.call(null,G__26623,G__26624));
+return (cljs.numpy.add.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.add.cljs$core$IFn$_invoke$arity$2(G__30981,G__30982) : cljs.numpy.add.call(null,G__30981,G__30982));
 })().toArray();
 var bat_survival = (cljs.core.truth_(apply_pool)?cljs.numpy.slice(bat_S_T,start_idx,end_idx).toArray():null);
 var gps_survival = (cljs.core.truth_(apply_pool)?gps_S_T.toArray():null);
@@ -92,35 +92,35 @@ return app.regal_fit.prefilter.build_result_record((start_idx + local_bat),globa
 } else {
 return null;
 }
-}),(function (){var iter__5503__auto__ = (function app$regal_fit$prefilter$process_chunk_$_iter__26667(s__26668){
+}),(function (){var iter__5649__auto__ = (function app$regal_fit$prefilter$process_chunk_$_iter__30985(s__30986){
 return (new cljs.core.LazySeq(null,(function (){
-var s__26668__$1 = s__26668;
+var s__30986__$1 = s__30986;
 while(true){
-var temp__5825__auto__ = cljs.core.seq(s__26668__$1);
+var temp__5825__auto__ = cljs.core.seq(s__30986__$1);
 if(temp__5825__auto__){
 var xs__6385__auto__ = temp__5825__auto__;
 var b = cljs.core.first(xs__6385__auto__);
-var iterys__5499__auto__ = ((function (s__26668__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival){
-return (function app$regal_fit$prefilter$process_chunk_$_iter__26667_$_iter__26672(s__26673){
-return (new cljs.core.LazySeq(null,((function (s__26668__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival){
+var iterys__5645__auto__ = ((function (s__30986__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival){
+return (function app$regal_fit$prefilter$process_chunk_$_iter__30985_$_iter__30987(s__30988){
+return (new cljs.core.LazySeq(null,((function (s__30986__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival){
 return (function (){
-var s__26673__$1 = s__26673;
+var s__30988__$1 = s__30988;
 while(true){
-var temp__5825__auto____$1 = cljs.core.seq(s__26673__$1);
+var temp__5825__auto____$1 = cljs.core.seq(s__30988__$1);
 if(temp__5825__auto____$1){
-var s__26673__$2 = temp__5825__auto____$1;
-if(cljs.core.chunked_seq_QMARK_(s__26673__$2)){
-var c__5501__auto__ = cljs.core.chunk_first(s__26673__$2);
-var size__5502__auto__ = cljs.core.count(c__5501__auto__);
-var b__26675 = cljs.core.chunk_buffer(size__5502__auto__);
-if((function (){var i__26674 = (0);
+var s__30988__$2 = temp__5825__auto____$1;
+if(cljs.core.chunked_seq_QMARK_(s__30988__$2)){
+var c__5647__auto__ = cljs.core.chunk_first(s__30988__$2);
+var size__5648__auto__ = cljs.core.count(c__5647__auto__);
+var b__30990 = cljs.core.chunk_buffer(size__5648__auto__);
+if((function (){var i__30989 = (0);
 while(true){
-if((i__26674 < size__5502__auto__)){
-var g = cljs.core._nth(c__5501__auto__,i__26674);
-cljs.core.chunk_append(b__26675,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [b,g], null));
+if((i__30989 < size__5648__auto__)){
+var g = cljs.core._nth(c__5647__auto__,i__30989);
+cljs.core.chunk_append(b__30990,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [b,g], null));
 
-var G__26782 = (i__26674 + (1));
-i__26674 = G__26782;
+var G__31052 = (i__30989 + (1));
+i__30989 = G__31052;
 continue;
 } else {
 return true;
@@ -128,29 +128,29 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__26675),app$regal_fit$prefilter$process_chunk_$_iter__26667_$_iter__26672(cljs.core.chunk_rest(s__26673__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__30990),app$regal_fit$prefilter$process_chunk_$_iter__30985_$_iter__30987(cljs.core.chunk_rest(s__30988__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__26675),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__30990),null);
 }
 } else {
-var g = cljs.core.first(s__26673__$2);
-return cljs.core.cons(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [b,g], null),app$regal_fit$prefilter$process_chunk_$_iter__26667_$_iter__26672(cljs.core.rest(s__26673__$2)));
+var g = cljs.core.first(s__30988__$2);
+return cljs.core.cons(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [b,g], null),app$regal_fit$prefilter$process_chunk_$_iter__30985_$_iter__30987(cljs.core.rest(s__30988__$2)));
 }
 } else {
 return null;
 }
 break;
 }
-});})(s__26668__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival))
+});})(s__30986__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival))
 ,null,null));
-});})(s__26668__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival))
+});})(s__30986__$1,b,xs__6385__auto__,temp__5825__auto__,bat_ev_slice,bat_ev_3d,total_events,bat_survival,gps_survival))
 ;
-var fs__5500__auto__ = cljs.core.seq(iterys__5499__auto__(cljs.core.range.cljs$core$IFn$_invoke$arity$1(grid_gps)));
-if(fs__5500__auto__){
-return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(fs__5500__auto__,app$regal_fit$prefilter$process_chunk_$_iter__26667(cljs.core.rest(s__26668__$1)));
+var fs__5646__auto__ = cljs.core.seq(iterys__5645__auto__(cljs.core.range.cljs$core$IFn$_invoke$arity$1(grid_gps)));
+if(fs__5646__auto__){
+return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(fs__5646__auto__,app$regal_fit$prefilter$process_chunk_$_iter__30985(cljs.core.rest(s__30986__$1)));
 } else {
-var G__26784 = cljs.core.rest(s__26668__$1);
-s__26668__$1 = G__26784;
+var G__31053 = cljs.core.rest(s__30986__$1);
+s__30986__$1 = G__31053;
 continue;
 }
 } else {
@@ -160,7 +160,7 @@ break;
 }
 }),null,null));
 });
-return iter__5503__auto__(cljs.core.range.cljs$core$IFn$_invoke$arity$1((end_idx - start_idx)));
+return iter__5649__auto__(cljs.core.range.cljs$core$IFn$_invoke$arity$1((end_idx - start_idx)));
 })());
 });
 /**
@@ -170,28 +170,28 @@ app.regal_fit.prefilter.cross_filter = (function app$regal_fit$prefilter$cross_f
 var grid_bat = cljs.core.first(bat_ev.shape);
 var grid_gps = cljs.core.first(gps_ev.shape);
 var num_anchors = cljs.core.second(bat_ev.shape);
-var apply_pool = (function (){var and__5023__auto__ = bat_S_T;
-if(cljs.core.truth_(and__5023__auto__)){
-var and__5023__auto____$1 = gps_S_T;
-if(cljs.core.truth_(and__5023__auto____$1)){
+var apply_pool = (function (){var and__5160__auto__ = bat_S_T;
+if(cljs.core.truth_(and__5160__auto__)){
+var and__5160__auto____$1 = gps_S_T;
+if(cljs.core.truth_(and__5160__auto____$1)){
 return (new cljs.core.Keyword(null,"pool-mos-min-at-ia","pool-mos-min-at-ia",-699267559).cljs$core$IFn$_invoke$arity$1(config) > (0));
 } else {
-return and__5023__auto____$1;
+return and__5160__auto____$1;
 }
 } else {
-return and__5023__auto__;
+return and__5160__auto__;
 }
 })();
-var apply_pr3 = (function (){var and__5023__auto__ = new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config);
-if(cljs.core.truth_(and__5023__auto__)){
+var apply_pr3 = (function (){var and__5160__auto__ = new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config);
+if(cljs.core.truth_(and__5160__auto__)){
 return (num_anchors >= (3));
 } else {
-return and__5023__auto__;
+return and__5160__auto__;
 }
 })();
 var chunk_size = (2048);
-return cljs.core.mapcat.cljs$core$IFn$_invoke$arity$variadic((function (p1__26698_SHARP_){
-return app.regal_fit.prefilter.process_chunk(p1__26698_SHARP_,Math.min((p1__26698_SHARP_ + chunk_size),grid_bat),grid_bat,grid_gps,num_anchors,apply_pool,apply_pr3,config,bat_ev,gps_ev,bat_S_T,gps_S_T,family,bat_params,gps_params);
+return cljs.core.mapcat.cljs$core$IFn$_invoke$arity$variadic((function (p1__30991_SHARP_){
+return app.regal_fit.prefilter.process_chunk(p1__30991_SHARP_,Math.min((p1__30991_SHARP_ + chunk_size),grid_bat),grid_bat,grid_gps,num_anchors,apply_pool,apply_pr3,config,bat_ev,gps_ev,bat_S_T,gps_S_T,family,bat_params,gps_params);
 }),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([cljs.core.range.cljs$core$IFn$_invoke$arity$3((0),grid_bat,chunk_size)], 0));
 });
 app.regal_fit.prefilter.get_grid_params = (function app$regal_fit$prefilter$get_grid_params(config_key,config){
@@ -202,39 +202,39 @@ return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"st
  * Runs pre-filtering for the Weibull distribution family.
  */
 app.regal_fit.prefilter.apply_prefilter_weibull = (function app$regal_fit$prefilter$apply_prefilter_weibull(config){
-var vec__26710 = app.regal_fit.enrollment.expected_enrollment_times(config);
-var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26710,(0),null);
-var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26710,(1),null);
-var target_pts = (function (){var G__26713 = (cljs.core.truth_(new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config))?[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)]:[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config)]);
-var G__26714 = "float64";
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__26713,G__26714) : cljs.numpy.array.call(null,G__26713,G__26714));
+var vec__30992 = app.regal_fit.enrollment.expected_enrollment_times(config);
+var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__30992,(0),null);
+var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__30992,(1),null);
+var target_pts = (function (){var G__30995 = (cljs.core.truth_(new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config))?[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)]:[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config)]);
+var G__30996 = "float64";
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__30995,G__30996) : cljs.numpy.array.call(null,G__30995,G__30996));
 })();
 var bat_med_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"bat-med-grid","bat-med-grid",-955638618),config);
-var bat_meds = (function (){var G__26715 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-var G__26716 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-var G__26717 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26715,G__26716,G__26717) : cljs.numpy.arange.call(null,G__26715,G__26716,G__26717));
+var bat_meds = (function (){var G__30997 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+var G__30998 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+var G__30999 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__30997,G__30998,G__30999) : cljs.numpy.arange.call(null,G__30997,G__30998,G__30999));
 })();
 var bat_shape_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"bat-shape-grid","bat-shape-grid",-1606002701),config);
-var bat_shapes = (function (){var G__26719 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-var G__26720 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-var G__26721 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26719,G__26720,G__26721) : cljs.numpy.arange.call(null,G__26719,G__26720,G__26721));
+var bat_shapes = (function (){var G__31000 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+var G__31001 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+var G__31002 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31000,G__31001,G__31002) : cljs.numpy.arange.call(null,G__31000,G__31001,G__31002));
 })();
 var bat_mesh = cljs.numpy.meshgrid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [bat_meds,bat_shapes], null),({"indexing": "ij"}));
 var bat_med_flat = (bat_mesh[(0)]).ravel();
 var bat_shape_flat = (bat_mesh[(1)]).ravel();
 var bat_scale_flat = app.regal_fit.survival.weibull_scale_from_median(bat_med_flat,bat_shape_flat);
-var gps_meds = (function (){var G__26722 = new cljs.core.Keyword(null,"gps-med-grid-lo","gps-med-grid-lo",-1666153973).cljs$core$IFn$_invoke$arity$1(config);
-var G__26723 = new cljs.core.Keyword(null,"gps-med-grid-hi","gps-med-grid-hi",757096102).cljs$core$IFn$_invoke$arity$1(config);
-var G__26724 = new cljs.core.Keyword(null,"gps-med-grid-n","gps-med-grid-n",349271879).cljs$core$IFn$_invoke$arity$1(config);
-return (cljs.numpy.geomspace.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.geomspace.cljs$core$IFn$_invoke$arity$3(G__26722,G__26723,G__26724) : cljs.numpy.geomspace.call(null,G__26722,G__26723,G__26724));
+var gps_meds = (function (){var G__31003 = new cljs.core.Keyword(null,"gps-med-grid-lo","gps-med-grid-lo",-1666153973).cljs$core$IFn$_invoke$arity$1(config);
+var G__31004 = new cljs.core.Keyword(null,"gps-med-grid-hi","gps-med-grid-hi",757096102).cljs$core$IFn$_invoke$arity$1(config);
+var G__31005 = new cljs.core.Keyword(null,"gps-med-grid-n","gps-med-grid-n",349271879).cljs$core$IFn$_invoke$arity$1(config);
+return (cljs.numpy.geomspace.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.geomspace.cljs$core$IFn$_invoke$arity$3(G__31003,G__31004,G__31005) : cljs.numpy.geomspace.call(null,G__31003,G__31004,G__31005));
 })();
 var gps_shape_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"gps-shape-grid","gps-shape-grid",-1878714432),config);
-var gps_shapes = (function (){var G__26725 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(gps_shape_cfg);
-var G__26726 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(gps_shape_cfg);
-var G__26727 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(gps_shape_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26725,G__26726,G__26727) : cljs.numpy.arange.call(null,G__26725,G__26726,G__26727));
+var gps_shapes = (function (){var G__31006 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(gps_shape_cfg);
+var G__31007 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(gps_shape_cfg);
+var G__31008 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(gps_shape_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31006,G__31007,G__31008) : cljs.numpy.arange.call(null,G__31006,G__31007,G__31008));
 })();
 var gps_mesh = cljs.numpy.meshgrid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [gps_meds,gps_shapes], null),({"indexing": "ij"}));
 var gps_med_flat = (gps_mesh[(0)]).ravel();
@@ -251,46 +251,46 @@ return app.regal_fit.prefilter.cross_filter(config,bat_ev,gps_ev,new cljs.core.P
  * Runs pre-filtering for the standard Cure fraction model family.
  */
 app.regal_fit.prefilter.apply_prefilter_cure = (function app$regal_fit$prefilter$apply_prefilter_cure(config){
-var vec__26729 = app.regal_fit.enrollment.expected_enrollment_times(config);
-var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26729,(0),null);
-var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26729,(1),null);
-var target_pts = (function (){var G__26736 = (cljs.core.truth_(new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config))?[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)]:[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config)]);
-var G__26737 = "float64";
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__26736,G__26737) : cljs.numpy.array.call(null,G__26736,G__26737));
+var vec__31009 = app.regal_fit.enrollment.expected_enrollment_times(config);
+var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__31009,(0),null);
+var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__31009,(1),null);
+var target_pts = (function (){var G__31012 = (cljs.core.truth_(new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config))?[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)]:[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config)]);
+var G__31013 = "float64";
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__31012,G__31013) : cljs.numpy.array.call(null,G__31012,G__31013));
 })();
 var bat_med_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"bat-med-grid","bat-med-grid",-955638618),config);
-var bat_meds = (function (){var G__26738 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-var G__26739 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-var G__26740 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26738,G__26739,G__26740) : cljs.numpy.arange.call(null,G__26738,G__26739,G__26740));
+var bat_meds = (function (){var G__31014 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+var G__31015 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+var G__31016 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31014,G__31015,G__31016) : cljs.numpy.arange.call(null,G__31014,G__31015,G__31016));
 })();
 var bat_shape_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"bat-shape-grid","bat-shape-grid",-1606002701),config);
-var bat_shapes = (function (){var G__26741 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-var G__26742 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-var G__26743 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26741,G__26742,G__26743) : cljs.numpy.arange.call(null,G__26741,G__26742,G__26743));
+var bat_shapes = (function (){var G__31017 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+var G__31018 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+var G__31019 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31017,G__31018,G__31019) : cljs.numpy.arange.call(null,G__31017,G__31018,G__31019));
 })();
 var bat_mesh = cljs.numpy.meshgrid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [bat_meds,bat_shapes], null),({"indexing": "ij"}));
 var bat_med_flat = (bat_mesh[(0)]).ravel();
 var bat_shape_flat = (bat_mesh[(1)]).ravel();
 var bat_scale_flat = app.regal_fit.survival.weibull_scale_from_median(bat_med_flat,bat_shape_flat);
 var cf_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"cure-frac-grid","cure-frac-grid",1356953077),config);
-var cf_grid = (function (){var G__26744 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(cf_cfg);
-var G__26745 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(cf_cfg);
-var G__26746 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(cf_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26744,G__26745,G__26746) : cljs.numpy.arange.call(null,G__26744,G__26745,G__26746));
+var cf_grid = (function (){var G__31020 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(cf_cfg);
+var G__31021 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(cf_cfg);
+var G__31022 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(cf_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31020,G__31021,G__31022) : cljs.numpy.arange.call(null,G__31020,G__31021,G__31022));
 })();
 var unc_med_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"cure-unc-med-grid","cure-unc-med-grid",-1533152473),config);
-var unc_meds = (function (){var G__26747 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
-var G__26748 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
-var G__26749 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26747,G__26748,G__26749) : cljs.numpy.arange.call(null,G__26747,G__26748,G__26749));
+var unc_meds = (function (){var G__31023 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
+var G__31024 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
+var G__31025 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31023,G__31024,G__31025) : cljs.numpy.arange.call(null,G__31023,G__31024,G__31025));
 })();
 var unc_shape_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"cure-unc-shape-grid","cure-unc-shape-grid",-855173178),config);
-var unc_shapes = (function (){var G__26750 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
-var G__26751 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
-var G__26752 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26750,G__26751,G__26752) : cljs.numpy.arange.call(null,G__26750,G__26751,G__26752));
+var unc_shapes = (function (){var G__31026 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
+var G__31027 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
+var G__31028 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31026,G__31027,G__31028) : cljs.numpy.arange.call(null,G__31026,G__31027,G__31028));
 })();
 var gps_mesh = cljs.numpy.meshgrid(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cf_grid,unc_meds,unc_shapes], null),({"indexing": "ij"}));
 var cf_flat = (gps_mesh[(0)]).ravel();
@@ -308,52 +308,52 @@ return app.regal_fit.prefilter.cross_filter(config,bat_ev,gps_ev,new cljs.core.P
  * Runs pre-filtering for the Leaky Cure fraction model family.
  */
 app.regal_fit.prefilter.apply_prefilter_leaky = (function app$regal_fit$prefilter$apply_prefilter_leaky(config){
-var vec__26757 = app.regal_fit.enrollment.expected_enrollment_times(config);
-var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26757,(0),null);
-var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26757,(1),null);
-var target_pts = (function (){var G__26760 = (cljs.core.truth_(new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config))?[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)]:[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config)]);
-var G__26761 = "float64";
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__26760,G__26761) : cljs.numpy.array.call(null,G__26760,G__26761));
+var vec__31029 = app.regal_fit.enrollment.expected_enrollment_times(config);
+var enroll_pts = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__31029,(0),null);
+var enroll_weights = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__31029,(1),null);
+var target_pts = (function (){var G__31032 = (cljs.core.truth_(new cljs.core.Keyword(null,"use-pr3-anchor","use-pr3-anchor",-1116109766).cljs$core$IFn$_invoke$arity$1(config))?[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config)]:[new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_invoke$arity$1(config),new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config)]);
+var G__31033 = "float64";
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$2(G__31032,G__31033) : cljs.numpy.array.call(null,G__31032,G__31033));
 })();
 var bat_med_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"bat-med-grid","bat-med-grid",-955638618),config);
-var bat_meds = (function (){var G__26762 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-var G__26763 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-var G__26764 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26762,G__26763,G__26764) : cljs.numpy.arange.call(null,G__26762,G__26763,G__26764));
+var bat_meds = (function (){var G__31034 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+var G__31035 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+var G__31036 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_med_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31034,G__31035,G__31036) : cljs.numpy.arange.call(null,G__31034,G__31035,G__31036));
 })();
 var bat_shape_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"bat-shape-grid","bat-shape-grid",-1606002701),config);
-var bat_shapes = (function (){var G__26765 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-var G__26766 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-var G__26767 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26765,G__26766,G__26767) : cljs.numpy.arange.call(null,G__26765,G__26766,G__26767));
+var bat_shapes = (function (){var G__31037 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+var G__31038 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+var G__31039 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(bat_shape_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31037,G__31038,G__31039) : cljs.numpy.arange.call(null,G__31037,G__31038,G__31039));
 })();
 var bat_mesh = cljs.numpy.meshgrid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [bat_meds,bat_shapes], null),({"indexing": "ij"}));
 var bat_med_flat = (bat_mesh[(0)]).ravel();
 var bat_shape_flat = (bat_mesh[(1)]).ravel();
 var bat_scale_flat = app.regal_fit.survival.weibull_scale_from_median(bat_med_flat,bat_shape_flat);
 var cf_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"leaky-cure-frac-grid","leaky-cure-frac-grid",-829923027),config);
-var cf_grid = (function (){var G__26768 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(cf_cfg);
-var G__26769 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(cf_cfg);
-var G__26770 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(cf_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26768,G__26769,G__26770) : cljs.numpy.arange.call(null,G__26768,G__26769,G__26770));
+var cf_grid = (function (){var G__31040 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(cf_cfg);
+var G__31041 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(cf_cfg);
+var G__31042 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(cf_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31040,G__31041,G__31042) : cljs.numpy.arange.call(null,G__31040,G__31041,G__31042));
 })();
 var unc_med_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"leaky-unc-med-grid","leaky-unc-med-grid",-1067412745),config);
-var unc_meds = (function (){var G__26771 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
-var G__26772 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
-var G__26773 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26771,G__26772,G__26773) : cljs.numpy.arange.call(null,G__26771,G__26772,G__26773));
+var unc_meds = (function (){var G__31043 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
+var G__31044 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
+var G__31045 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_med_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31043,G__31044,G__31045) : cljs.numpy.arange.call(null,G__31043,G__31044,G__31045));
 })();
 var unc_shape_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"leaky-unc-shape-grid","leaky-unc-shape-grid",-700351020),config);
-var unc_shapes = (function (){var G__26774 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
-var G__26775 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
-var G__26776 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26774,G__26775,G__26776) : cljs.numpy.arange.call(null,G__26774,G__26775,G__26776));
+var unc_shapes = (function (){var G__31046 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
+var G__31047 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
+var G__31048 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(unc_shape_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31046,G__31047,G__31048) : cljs.numpy.arange.call(null,G__31046,G__31047,G__31048));
 })();
 var leaks_cfg = app.regal_fit.prefilter.get_grid_params(new cljs.core.Keyword(null,"leak-grid","leak-grid",1135019940),config);
-var leaks = (function (){var G__26777 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(leaks_cfg);
-var G__26778 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(leaks_cfg);
-var G__26779 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(leaks_cfg);
-return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__26777,G__26778,G__26779) : cljs.numpy.arange.call(null,G__26777,G__26778,G__26779));
+var leaks = (function (){var G__31049 = new cljs.core.Keyword(null,"start","start",-355208981).cljs$core$IFn$_invoke$arity$1(leaks_cfg);
+var G__31050 = new cljs.core.Keyword(null,"stop","stop",-2140911342).cljs$core$IFn$_invoke$arity$1(leaks_cfg);
+var G__31051 = new cljs.core.Keyword(null,"step","step",1288888124).cljs$core$IFn$_invoke$arity$1(leaks_cfg);
+return (cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3 ? cljs.numpy.arange.cljs$core$IFn$_invoke$arity$3(G__31049,G__31050,G__31051) : cljs.numpy.arange.call(null,G__31049,G__31050,G__31051));
 })();
 var gps_mesh = cljs.numpy.meshgrid(new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cf_grid,unc_meds,unc_shapes,leaks], null),({"indexing": "ij"}));
 var cf_flat = (gps_mesh[(0)]).ravel();

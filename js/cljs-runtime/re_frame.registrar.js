@@ -2,8 +2,8 @@ goog.provide('re_frame.registrar');
 re_frame.registrar.kinds = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"sub","sub",-2093760025),null,new cljs.core.Keyword(null,"event","event",301435442),null,new cljs.core.Keyword(null,"error","error",-978969032),null,new cljs.core.Keyword(null,"cofx","cofx",2013202907),null,new cljs.core.Keyword(null,"fx","fx",-1237829572),null], null), null);
 re_frame.registrar.kind__GT_id__GT_handler = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
 re_frame.registrar.get_handler = (function re_frame$registrar$get_handler(var_args){
-var G__21275 = arguments.length;
-switch (G__21275) {
+var G__30122 = arguments.length;
+switch (G__30122) {
 case 1:
 return re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -17,7 +17,7 @@ return re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$3((arguments[(
 
 break;
 default:
-throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(arguments.length)].join('')));
+throw (new Error(["Invalid arity: ",arguments.length].join("")));
 
 }
 });
@@ -33,14 +33,14 @@ return cljs.core.get.cljs$core$IFn$_invoke$arity$2(cljs.core.get.cljs$core$IFn$_
 (re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$3 = (function (kind,id,required_QMARK_){
 var handler = re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$2(kind,id);
 if(re_frame.interop.debug_enabled_QMARK_){
-if(cljs.core.truth_((function (){var and__5023__auto__ = required_QMARK_;
-if(cljs.core.truth_(and__5023__auto__)){
+if(cljs.core.truth_((function (){var and__5160__auto__ = required_QMARK_;
+if(cljs.core.truth_(and__5160__auto__)){
 return (handler == null);
 } else {
-return and__5023__auto__;
+return and__5160__auto__;
 }
 })())){
-re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.Keyword(null,"error","error",-978969032),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["re-frame: no",cljs.core.str.cljs$core$IFn$_invoke$arity$1(kind),"handler registered for:",id], 0));
+re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.Keyword(null,"error","error",-978969032),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["re-frame: no",(""+cljs.core.str.cljs$core$IFn$_invoke$arity$1(kind)),"handler registered for:",id], 0));
 } else {
 }
 } else {
@@ -53,14 +53,14 @@ return handler;
 
 re_frame.registrar.register_handler = (function re_frame$registrar$register_handler(kind,id,handler_fn){
 if(re_frame.interop.debug_enabled_QMARK_){
-if(cljs.core.truth_((function (){var and__5023__auto__ = cljs.core.not(re_frame.settings.loaded_QMARK_());
-if(and__5023__auto__){
+if(cljs.core.truth_((function (){var and__5160__auto__ = cljs.core.not(re_frame.settings.loaded_QMARK_());
+if(and__5160__auto__){
 return re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$3(kind,id,false);
 } else {
-return and__5023__auto__;
+return and__5160__auto__;
 }
 })())){
-re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.Keyword(null,"warn","warn",-436710552),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["re-frame: overwriting",cljs.core.str.cljs$core$IFn$_invoke$arity$1(kind),"handler for:",id], 0));
+re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.Keyword(null,"warn","warn",-436710552),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["re-frame: overwriting",(""+cljs.core.str.cljs$core$IFn$_invoke$arity$1(kind)),"handler for:",id], 0));
 } else {
 }
 } else {
@@ -71,8 +71,8 @@ cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(re_frame.registrar.kind__GT_i
 return handler_fn;
 });
 re_frame.registrar.clear_handlers = (function re_frame$registrar$clear_handlers(var_args){
-var G__21279 = arguments.length;
-switch (G__21279) {
+var G__30132 = arguments.length;
+switch (G__30132) {
 case 0:
 return re_frame.registrar.clear_handlers.cljs$core$IFn$_invoke$arity$0();
 
@@ -86,7 +86,7 @@ return re_frame.registrar.clear_handlers.cljs$core$IFn$_invoke$arity$2((argument
 
 break;
 default:
-throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(arguments.length)].join('')));
+throw (new Error(["Invalid arity: ",arguments.length].join("")));
 
 }
 });
@@ -113,7 +113,7 @@ throw (new Error("Assert failed: (kinds kind)"));
 if(cljs.core.truth_(re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$2(kind,id))){
 return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$variadic(re_frame.registrar.kind__GT_id__GT_handler,cljs.core.update_in,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [kind], null),cljs.core.dissoc,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([id], 0));
 } else {
-return re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.Keyword(null,"warn","warn",-436710552),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["re-frame: can't clear",cljs.core.str.cljs$core$IFn$_invoke$arity$1(kind),"handler for",[cljs.core.str.cljs$core$IFn$_invoke$arity$1(id),". Handler not found."].join('')], 0));
+return re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(new cljs.core.Keyword(null,"warn","warn",-436710552),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["re-frame: can't clear",(""+cljs.core.str.cljs$core$IFn$_invoke$arity$1(kind)),"handler for",(""+cljs.core.str.cljs$core$IFn$_invoke$arity$1(id)+". Handler not found.")], 0));
 }
 }));
 

@@ -10,21 +10,21 @@ reagent.impl.batching.fake_raf = (function reagent$impl$batching$fake_raf(f){
 return setTimeout(f,(16));
 });
 reagent.impl.batching.next_tick = (((!(reagent.impl.util.is_client)))?reagent.impl.batching.fake_raf:(function (){var w = window;
-return (function (){var or__5025__auto__ = w.requestAnimationFrame;
-if(cljs.core.truth_(or__5025__auto__)){
-return or__5025__auto__;
+return (function (){var or__5162__auto__ = w.requestAnimationFrame;
+if(cljs.core.truth_(or__5162__auto__)){
+return or__5162__auto__;
 } else {
-var or__5025__auto____$1 = w.webkitRequestAnimationFrame;
-if(cljs.core.truth_(or__5025__auto____$1)){
-return or__5025__auto____$1;
+var or__5162__auto____$1 = w.webkitRequestAnimationFrame;
+if(cljs.core.truth_(or__5162__auto____$1)){
+return or__5162__auto____$1;
 } else {
-var or__5025__auto____$2 = w.mozRequestAnimationFrame;
-if(cljs.core.truth_(or__5025__auto____$2)){
-return or__5025__auto____$2;
+var or__5162__auto____$2 = w.mozRequestAnimationFrame;
+if(cljs.core.truth_(or__5162__auto____$2)){
+return or__5162__auto____$2;
 } else {
-var or__5025__auto____$3 = w.msRequestAnimationFrame;
-if(cljs.core.truth_(or__5025__auto____$3)){
-return or__5025__auto____$3;
+var or__5162__auto____$3 = w.msRequestAnimationFrame;
+if(cljs.core.truth_(or__5162__auto____$3)){
+return or__5162__auto____$3;
 } else {
 return reagent.impl.batching.fake_raf;
 }
@@ -46,18 +46,18 @@ reagent.impl.batching.run_queue = (function reagent$impl$batching$run_queue(a){
 a.sort(reagent.impl.batching.compare_mount_order);
 
 return reagent.impl.batching.react_flush((function (){
-var n__5616__auto__ = a.length;
+var n__5762__auto__ = a.length;
 var i = (0);
 while(true){
-if((i < n__5616__auto__)){
-var c_20231 = (a[i]);
-if(c_20231.cljsIsDirty === true){
-c_20231.forceUpdate();
+if((i < n__5762__auto__)){
+var c_28210 = (a[i]);
+if(c_28210.cljsIsDirty === true){
+c_28210.forceUpdate();
 } else {
 }
 
-var G__20232 = (i + (1));
-i = G__20232;
+var G__28211 = (i + (1));
+i = G__28211;
 continue;
 } else {
 return null;
@@ -73,15 +73,15 @@ return null;
 });
 }
 reagent.impl.batching.run_funs = (function reagent$impl$batching$run_funs(fs){
-var n__5616__auto__ = fs.length;
+var n__5762__auto__ = fs.length;
 var i = (0);
 while(true){
-if((i < n__5616__auto__)){
-var fexpr__20229_20233 = (fs[i]);
-(fexpr__20229_20233.cljs$core$IFn$_invoke$arity$0 ? fexpr__20229_20233.cljs$core$IFn$_invoke$arity$0() : fexpr__20229_20233.call(null));
+if((i < n__5762__auto__)){
+var fexpr__28181_28212 = (fs[i]);
+(fexpr__28181_28212.cljs$core$IFn$_invoke$arity$0 ? fexpr__28181_28212.cljs$core$IFn$_invoke$arity$0() : fexpr__28181_28212.call(null));
 
-var G__20234 = (i + (1));
-i = G__20234;
+var G__28213 = (i + (1));
+i = G__28213;
 continue;
 } else {
 return null;
@@ -92,7 +92,7 @@ break;
 reagent.impl.batching.enqueue = (function reagent$impl$batching$enqueue(queue,fs,f){
 if(cljs.core.truth_(f)){
 } else {
-throw (new Error(["Assert failed: ",["Enqueued function"," must not be nil"].join(''),"\n","f"].join('')));
+throw (new Error((""+"Assert failed: "+cljs.core.str.cljs$core$IFn$_invoke$arity$1((""+"Enqueued function"+" must not be nil"))+"\n"+"f")));
 }
 
 fs.push(f);
@@ -139,10 +139,10 @@ return null;
 } else {
 (self__.scheduled_QMARK_ = true);
 
-var G__20230 = (function (){
+var G__28187 = (function (){
 return this$.run_queues();
 });
-return (reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1 ? reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1(G__20230) : reagent.impl.batching.next_tick.call(null,G__20230));
+return (reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1 ? reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1(G__28187) : reagent.impl.batching.next_tick.call(null,G__28187));
 }
 }));
 
@@ -224,8 +224,8 @@ return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMP
 
 (reagent.impl.batching.RenderQueue.cljs$lang$ctorStr = "reagent.impl.batching/RenderQueue");
 
-(reagent.impl.batching.RenderQueue.cljs$lang$ctorPrWriter = (function (this__5310__auto__,writer__5311__auto__,opt__5312__auto__){
-return cljs.core._write(writer__5311__auto__,"reagent.impl.batching/RenderQueue");
+(reagent.impl.batching.RenderQueue.cljs$lang$ctorPrWriter = (function (this__5455__auto__,writer__5456__auto__,opt__5457__auto__){
+return cljs.core._write(writer__5456__auto__,"reagent.impl.batching/RenderQueue");
 }));
 
 /**

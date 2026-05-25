@@ -14,13 +14,13 @@ var result = cljs.core.js__GT_clj.cljs$core$IFn$_invoke$arity$variadic(data.resu
 var success_QMARK_ = data.success;
 var error = data.error;
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(type,"SIMULATION_RESULT")){
-var temp__5825__auto___25217 = cljs.core.get.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(app.worker_pool.job_callbacks),job_id);
-if(cljs.core.truth_(temp__5825__auto___25217)){
-var cb_25236 = temp__5825__auto___25217;
+var temp__5825__auto___25264 = cljs.core.get.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(app.worker_pool.job_callbacks),job_id);
+if(cljs.core.truth_(temp__5825__auto___25264)){
+var cb_25265 = temp__5825__auto___25264;
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(app.worker_pool.job_callbacks,cljs.core.dissoc,job_id);
 
-var G__25066_25237 = new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success?","success?",-122854052),success_QMARK_,new cljs.core.Keyword(null,"result","result",1415092211),result,new cljs.core.Keyword(null,"error","error",-978969032),error], null);
-(cb_25236.cljs$core$IFn$_invoke$arity$1 ? cb_25236.cljs$core$IFn$_invoke$arity$1(G__25066_25237) : cb_25236.call(null,G__25066_25237));
+var G__25139_25268 = new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success?","success?",-122854052),success_QMARK_,new cljs.core.Keyword(null,"result","result",1415092211),result,new cljs.core.Keyword(null,"error","error",-978969032),error], null);
+(cb_25265.cljs$core$IFn$_invoke$arity$1 ? cb_25265.cljs$core$IFn$_invoke$arity$1(G__25139_25268) : cb_25265.call(null,G__25139_25268));
 } else {
 }
 
@@ -47,11 +47,11 @@ return (app.worker_pool.process_queue_BANG_.cljs$core$IFn$_invoke$arity$0 ? app.
 return worker;
 });
 app.worker_pool.init_pool_BANG_ = (function app$worker_pool$init_pool_BANG_(size){
-var actual_size = (cljs.core.truth_((function (){var and__5023__auto__ = size;
-if(cljs.core.truth_(and__5023__auto__)){
+var actual_size = (cljs.core.truth_((function (){var and__5160__auto__ = size;
+if(cljs.core.truth_(and__5160__auto__)){
 return (size > (0));
 } else {
-return and__5023__auto__;
+return and__5160__auto__;
 }
 })())?size:Math.max((1),(navigator.hardwareConcurrency - (1))));
 console.log("Initializing worker pool of size:",actual_size);
