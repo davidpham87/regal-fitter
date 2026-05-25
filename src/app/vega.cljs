@@ -238,9 +238,9 @@
 (defn stress-test-charts [results]
   (let [vdata (map (fn [r]
                      {:mos (:mos r)
-                      :k (:k r)
+                      :k (.toFixed (:k r) 2)
                       :p_joint (* 100 (:p_joint r))
-                      :label (str (:mos r) " (k=" (:k r) ")")})
+                      :label (str (:mos r) " (k=" (.toFixed (:k r) 2) ")")})
                    results)]
     [:div.flex.flex-wrap.gap-4
      [vega-lite
@@ -253,4 +253,7 @@
                   :y {:field "p_joint"
                       :type "quantitative"
                       :title "p_joint (%)"}
-                  :color {:field "k" :type "nominal" :title "k"}}}]]))
+                  :color {:field "k"
+                          :type "nominal"
+                          :title "k"
+                          :legend {:orient "bottom"}}}}]]))
