@@ -331,7 +331,6 @@
                                (set-values {:gps-med v}))))
         :bat-med "BAT Median" 4 25 0.5]
        [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
-       [param-input props :n-sims "Sim Count" 100 5000 100]
 
        (case active-family
          "weibull"
@@ -349,9 +348,39 @@
           [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
           [param-input props :leak-yr "Leak Rate / Year" 0.0 0.1 0.01]])]
 
-      [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
+      [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
        {:class "justify-between"}
-       [:div.flex.items-center.gap-3
+       [:div.flex.items-center.gap-4
+        ;; Sim count control
+        [:div.flex.items-center.gap-2.border-r.pr-4
+         [:label.text-xs.font-bold.text-gray-600.mr-1 "Sim Count"]
+         [:input.w-24
+          {:type "range" :min 100 :max 5000 :step 100
+           :value (:n-sims values)
+           :on-change (fn [e]
+                        (let [v (js/parseFloat (.. e -target -value))]
+                          (set-values {:n-sims v})
+                          (debounced-sim-run
+                            active-family
+                            (assoc calc-params :n-sims v))))}]
+         [:input.border.rounded.p-1.text-xs.w-14
+          {:type "number" :value (:n-sims values) :step 100
+           :on-change (fn [e]
+                        (let [v (js/parseFloat (.. e -target -value))]
+                          (set-values {:n-sims v})
+                          (debounced-sim-run
+                            active-family
+                            (assoc calc-params :n-sims v))))}]]
+
+        ;; Force Run Button
+        [:button.rounded-lg.shadow-sm.transition-colors
+         {:class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
+                  "text-white" "text-xs" "font-bold"]
+          :on-click #(sim/run-discovery-simulation! active-family
+                                                    calc-params)
+          :disabled (= (:sim-status state) :running)}
+         "Force Run"]
+
         (when (= (:sim-status state) :running)
           (let [nsims (or (:n-sims calc-params)
                           (:n-sims-per-combo config))]
