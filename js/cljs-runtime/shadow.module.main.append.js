@@ -682,6 +682,7 @@ SHADOW_ENV.setLoaded("app.vega.js");
 SHADOW_ENV.setLoaded("fork.core.js");
 SHADOW_ENV.setLoaded("fork.reagent.js");
 SHADOW_ENV.setLoaded("app.discovery.js");
+SHADOW_ENV.setLoaded("app.stress_test.power.js");
 SHADOW_ENV.setLoaded("app.views.js");
 SHADOW_ENV.setLoaded("cljs.pprint.js");
 SHADOW_ENV.setLoaded("module$node_modules$$monaco_editor$loader$lib$cjs$_virtual$_rollupPluginBabelHelpers.js");
