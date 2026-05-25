@@ -257,3 +257,54 @@
                           :type "nominal"
                           :title "k"
                           :legend {:orient "bottom"}}}}]]))
+
+(defn power-heatmap [results]
+  (let [vdata (clj->js
+               (map (fn [r]
+                      {:bat-mos (:bat-mos r)
+                       :gps-mos (:gps-mos r)
+                       :n-required (min 1000.0 (:n-required r))})
+                    results))]
+    [vega-lite
+     {:width 400
+      :height 300
+      :title "Required Sample Size (N) Heatmap"
+      :data {:values vdata}
+      :mark {:type "rect" :tooltip true}
+      :encoding {:x {:field "bat-mos"
+                     :type "ordinal"
+                     :title "BAT mOS"
+                     :axis {:labelAngle 0}}
+                 :y {:field "gps-mos"
+                     :type "ordinal"
+                     :title "GPS mOS"
+                     :sort "descending"}
+                 :color {:field "n-required"
+                         :type "quantitative"
+                         :title "N Required"
+                         :scale {:scheme "yelloworangered"
+                                 :clamp true}}}}]))
+
+(defn power-line-chart [results]
+  (let [vdata (clj->js
+               (map (fn [r]
+                      {:bat-mos (str (:bat-mos r) " mOS")
+                       :gps-mos (:gps-mos r)
+                       :n-required (min 1000.0 (:n-required r))})
+                    results))]
+    [vega-lite
+     {:width 500
+      :height 300
+      :title "N Required vs. GPS mOS by BAT Scenario"
+      :data {:values vdata}
+      :mark {:type "line" :point true :tooltip true}
+      :encoding {:x {:field "gps-mos"
+                     :type "quantitative"
+                     :title "GPS mOS"}
+                 :y {:field "n-required"
+                     :type "quantitative"
+                     :title "N Required (Clamped to 1000)"}
+                 :color {:field "bat-mos"
+                         :type "nominal"
+                         :title "BAT Scenario"
+                         :legend {:orient "bottom"}}}}]))
