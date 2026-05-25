@@ -25,9 +25,9 @@
    :n-ev-final 80
    :use-pr3-anchor true
 
-   :prefilter-tol-ia 2.5
-   :prefilter-tol-upd 2.5
-   :prefilter-tol-pr3 2.5
+   :prefilter-tol-ia 3.5
+   :prefilter-tol-upd 3.5
+   :prefilter-tol-pr3 3.5
    :tol-ia 1.5
    :tol-upd 1.5
    :tol-pr3 1.5
@@ -36,7 +36,7 @@
    :tol-increment-upd-pr3 3
 
    :futility-hr-max 0.85
-   :efficacy-hr-min 0.00
+   :efficacy-hr-min 0.3
 
    :pool-mos-min-at-ia 12
    :median-fu-target 13.5
@@ -48,25 +48,25 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 500
-   :n-sims-screen 20
+   :n-sims-per-combo 1000
+   :n-sims-screen 100
    :n-screen-min-pass 1
    :seed 20260508
 
    :bat-med-grid [8 22 1]
    :bat-shape-grid [0.7 1.0 0.1]
 
-   :gps-med-grid-lo 15.0
-   :gps-med-grid-hi 45.0
-   :gps-med-grid-n 5
+   :gps-med-grid-lo 20.0
+   :gps-med-grid-hi 60.0
+   :gps-med-grid-n 2
    :gps-shape-grid [0.6 1.0 0.1]
 
    :cure-frac-grid [0.2 0.8 0.1]
-   :cure-unc-med-grid [15 45.0 5]
+   :cure-unc-med-grid [15 60 5]
    :cure-unc-shape-grid [0.6 1.0 0.1]
 
    :leaky-cure-frac-grid [0.2 0.8 0.1]
-   :leaky-unc-med-grid [15 45 5]
+   :leaky-unc-med-grid [15 60 5]
    :leaky-unc-shape-grid [0.6 1.0 0.1]
    :leak-grid [0.05 0.08 0.01]
 
