@@ -342,8 +342,19 @@
     (fn []
       (let [config (:config @state/app-state)]
         [:div.p-4.max-w-6xl.mx-auto
-         [:h2.text-2xl.font-extrabold.text-gray-900.mb-6
-          "Simulation Configuration"]
+         [:div.flex.justify-between.items-center.mb-6
+          [:h2.text-2xl.font-extrabold.text-gray-900
+           "Simulation Configuration"]
+          [:div.flex.gap-2
+           [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
+           [:button.px-3.py-1.text-xs.font-bold.rounded.border
+            {:class "bg-white hover:bg-gray-100 text-gray-700"
+             :on-click #(state/update-config! state/default-config)}
+            "Default"]
+           [:button.px-3.py-1.text-xs.font-bold.rounded.border
+            {:class "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+             :on-click #(state/update-config! state/light-config)}
+            "Light"]]]
 
          ;; Section 1: Trial Structure & Timing
          [:div.mb-8
