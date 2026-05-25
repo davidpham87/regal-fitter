@@ -140,7 +140,7 @@
    [:families [:vector :string]]])
 
 (def default-stress-test-config
-  {:mos-grid [8 25 1]
+  {:mos-grid [8 31 1]
    :k-grid [0.8 1.0 0.05]
    :n-sims 1000
    :obs-ev-ia 60
@@ -210,7 +210,7 @@
                                 :weibull-k 1.0
                                 :gps-med 12.0
                                 :cure-frac 0.2
-                                :leak-yr 0.07 
+                                :leak-yr 0.07
                                 :placebo-mode? false
                                 :n-sims 1000}
                        :calc-params {:bat-med 8.0
