@@ -4,35 +4,35 @@ goog.provide('app.regal_fit.random');
  */
 app.regal_fit.random.draw_weibull_samples = (function app$regal_fit$random$draw_weibull_samples(n_samples,random_gen,scale,shape){
 var random_values = cljs.numpy_random.random(random_gen,n_samples);
-var neg_log_vals = (function (){var G__28937 = (cljs.numpy.log.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.log.cljs$core$IFn$_invoke$arity$1(random_values) : cljs.numpy.log.call(null,random_values));
-var G__28938 = -1.0;
-return (cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2(G__28937,G__28938) : cljs.numpy.multiply.call(null,G__28937,G__28938));
+var neg_log_vals = (function (){var G__27371 = (cljs.numpy.log.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.log.cljs$core$IFn$_invoke$arity$1(random_values) : cljs.numpy.log.call(null,random_values));
+var G__27372 = -1.0;
+return (cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2(G__27371,G__27372) : cljs.numpy.multiply.call(null,G__27371,G__27372));
 })();
-var powered_vals = (function (){var G__28939 = neg_log_vals;
-var G__28940 = (1.0 / shape);
-return (cljs.numpy.power.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.power.cljs$core$IFn$_invoke$arity$2(G__28939,G__28940) : cljs.numpy.power.call(null,G__28939,G__28940));
+var powered_vals = (function (){var G__27373 = neg_log_vals;
+var G__27374 = (1.0 / shape);
+return (cljs.numpy.power.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.power.cljs$core$IFn$_invoke$arity$2(G__27373,G__27374) : cljs.numpy.power.call(null,G__27373,G__27374));
 })();
 return (cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2 ? cljs.numpy.multiply.cljs$core$IFn$_invoke$arity$2(powered_vals,scale) : cljs.numpy.multiply.call(null,powered_vals,scale));
 });
 /**
  * Draws random survival times for the BAT arm.
  */
-app.regal_fit.random.draw_bat_times = (function app$regal_fit$random$draw_bat_times(p__28942,n_samples,random_gen){
-var map__28943 = p__28942;
-var map__28943__$1 = cljs.core.__destructure_map(map__28943);
-var bat_scale = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28943__$1,new cljs.core.Keyword(null,"bat-scale","bat-scale",1353051987));
-var bat_shape = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28943__$1,new cljs.core.Keyword(null,"bat-shape","bat-shape",-1821899414));
+app.regal_fit.random.draw_bat_times = (function app$regal_fit$random$draw_bat_times(p__27375,n_samples,random_gen){
+var map__27376 = p__27375;
+var map__27376__$1 = cljs.core.__destructure_map(map__27376);
+var bat_scale = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27376__$1,new cljs.core.Keyword(null,"bat-scale","bat-scale",1353051987));
+var bat_shape = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27376__$1,new cljs.core.Keyword(null,"bat-shape","bat-shape",-1821899414));
 return app.regal_fit.random.draw_weibull_samples(n_samples,random_gen,bat_scale,bat_shape);
 });
 /**
  * Draws random survival times based on a cure model.
  */
-app.regal_fit.random.draw_cure_samples = (function app$regal_fit$random$draw_cure_samples(p__28945,n_samples,random_gen){
-var map__28946 = p__28945;
-var map__28946__$1 = cljs.core.__destructure_map(map__28946);
-var cure_frac = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28946__$1,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070));
-var unc_scale = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28946__$1,new cljs.core.Keyword(null,"unc-scale","unc-scale",-1435875077));
-var unc_shape = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28946__$1,new cljs.core.Keyword(null,"unc-shape","unc-shape",-1909676744));
+app.regal_fit.random.draw_cure_samples = (function app$regal_fit$random$draw_cure_samples(p__27377,n_samples,random_gen){
+var map__27382 = p__27377;
+var map__27382__$1 = cljs.core.__destructure_map(map__27382);
+var cure_frac = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27382__$1,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070));
+var unc_scale = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27382__$1,new cljs.core.Keyword(null,"unc-scale","unc-scale",-1435875077));
+var unc_shape = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27382__$1,new cljs.core.Keyword(null,"unc-shape","unc-shape",-1909676744));
 var random_cure_flags = cljs.numpy_random.random(random_gen,n_samples).toArray();
 var uncured_times = app.regal_fit.random.draw_weibull_samples(n_samples,random_gen,unc_scale,unc_shape);
 var uncured_times_arr = uncured_times.toArray();
@@ -43,19 +43,19 @@ return cljs.numpy.inf;
 return u;
 }
 }),random_cure_flags,uncured_times_arr);
-var G__28951 = cljs.core.to_array(output_seq);
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__28951) : cljs.numpy.array.call(null,G__28951));
+var G__27383 = cljs.core.to_array(output_seq);
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27383) : cljs.numpy.array.call(null,G__27383));
 });
 /**
  * Draws random survival times based on a leaky cure model.
  */
-app.regal_fit.random.draw_leaky_samples = (function app$regal_fit$random$draw_leaky_samples(p__28952,n_samples,random_gen){
-var map__28953 = p__28952;
-var map__28953__$1 = cljs.core.__destructure_map(map__28953);
-var cure_frac = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28953__$1,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070));
-var unc_scale = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28953__$1,new cljs.core.Keyword(null,"unc-scale","unc-scale",-1435875077));
-var unc_shape = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28953__$1,new cljs.core.Keyword(null,"unc-shape","unc-shape",-1909676744));
-var leak_yr = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28953__$1,new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545));
+app.regal_fit.random.draw_leaky_samples = (function app$regal_fit$random$draw_leaky_samples(p__27384,n_samples,random_gen){
+var map__27385 = p__27384;
+var map__27385__$1 = cljs.core.__destructure_map(map__27385);
+var cure_frac = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27385__$1,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070));
+var unc_scale = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27385__$1,new cljs.core.Keyword(null,"unc-scale","unc-scale",-1435875077));
+var unc_shape = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27385__$1,new cljs.core.Keyword(null,"unc-shape","unc-shape",-1909676744));
+var leak_yr = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27385__$1,new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545));
 var random_cure_flags = cljs.numpy_random.random(random_gen,n_samples).toArray();
 var uncured_times_arr = app.regal_fit.random.draw_weibull_samples(n_samples,random_gen,unc_scale,unc_shape).toArray();
 var leak_rate_monthly = (leak_yr / 12.0);
@@ -71,15 +71,15 @@ return cljs.numpy.inf;
 return u;
 }
 }),random_cure_flags,uncured_times_arr,random_leak_vals);
-var G__28954 = cljs.core.to_array(output_seq);
-return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__28954) : cljs.numpy.array.call(null,G__28954));
+var G__27386 = cljs.core.to_array(output_seq);
+return (cljs.numpy.array.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.array.cljs$core$IFn$_invoke$arity$1(G__27386) : cljs.numpy.array.call(null,G__27386));
 });
 /**
  * Draws random survival times for the GPS arm based on the specified model family.
  */
 app.regal_fit.random.draw_gps_times = (function app$regal_fit$random$draw_gps_times(record,n_samples,random_gen){
-var G__28955 = new cljs.core.Keyword(null,"family","family",-1313145692).cljs$core$IFn$_invoke$arity$1(record);
-switch (G__28955) {
+var G__27387 = new cljs.core.Keyword(null,"family","family",-1313145692).cljs$core$IFn$_invoke$arity$1(record);
+switch (G__27387) {
 case "weibull":
 return app.regal_fit.random.draw_weibull_samples(n_samples,random_gen,new cljs.core.Keyword(null,"gps-scale","gps-scale",108117203).cljs$core$IFn$_invoke$arity$1(record),new cljs.core.Keyword(null,"gps-shape","gps-shape",-1034888240).cljs$core$IFn$_invoke$arity$1(record));
 

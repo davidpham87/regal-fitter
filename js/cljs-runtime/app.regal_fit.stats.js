@@ -3,8 +3,8 @@ goog.provide('app.regal_fit.stats');
  * Computes number at risk in experimental and control groups at each time point.
  */
 app.regal_fit.stats.compute_risk_sets = (function app$regal_fit$stats$compute_risk_sets(groups_array){
-var is_experimental_seq = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28899_SHARP_){
-if((p1__28899_SHARP_ === (1))){
+var is_experimental_seq = cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27332_SHARP_){
+if((p1__27332_SHARP_ === (1))){
 return 1.0;
 } else {
 return 0.0;
@@ -28,13 +28,13 @@ return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMP
 /**
  * Updates logrank statistics for a set of events at the same time point.
  */
-app.regal_fit.stats.update_logrank_stats = (function app$regal_fit$stats$update_logrank_stats(p__28902,index_list,n_exp_arr,n_control_arr,is_exp_arr){
-var map__28903 = p__28902;
-var map__28903__$1 = cljs.core.__destructure_map(map__28903);
-var u = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28903__$1,new cljs.core.Keyword(null,"u","u",-1156634785));
-var v = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28903__$1,new cljs.core.Keyword(null,"v","v",21465059));
-var log_hr_num = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28903__$1,new cljs.core.Keyword(null,"log-hr-num","log-hr-num",-863400848));
-var log_hr_den = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28903__$1,new cljs.core.Keyword(null,"log-hr-den","log-hr-den",-376003383));
+app.regal_fit.stats.update_logrank_stats = (function app$regal_fit$stats$update_logrank_stats(p__27340,index_list,n_exp_arr,n_control_arr,is_exp_arr){
+var map__27341 = p__27340;
+var map__27341__$1 = cljs.core.__destructure_map(map__27341);
+var u = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27341__$1,new cljs.core.Keyword(null,"u","u",-1156634785));
+var v = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27341__$1,new cljs.core.Keyword(null,"v","v",21465059));
+var log_hr_num = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27341__$1,new cljs.core.Keyword(null,"log-hr-num","log-hr-num",-863400848));
+var log_hr_den = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__27341__$1,new cljs.core.Keyword(null,"log-hr-den","log-hr-den",-376003383));
 var first_idx = cljs.core.first(index_list);
 var n_exp = (n_exp_arr[first_idx]);
 var n_control = (n_control_arr[first_idx]);
@@ -42,8 +42,8 @@ var n_total = (n_exp + n_control);
 if((n_total < (2))){
 return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"u","u",-1156634785),u,new cljs.core.Keyword(null,"v","v",21465059),v,new cljs.core.Keyword(null,"log-hr-num","log-hr-num",-863400848),log_hr_num,new cljs.core.Keyword(null,"log-hr-den","log-hr-den",-376003383),log_hr_den], null);
 } else {
-var events_exp = cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28901_SHARP_){
-return (is_exp_arr[p1__28901_SHARP_]);
+var events_exp = cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27339_SHARP_){
+return (is_exp_arr[p1__27339_SHARP_]);
 }),index_list));
 var events_total = cljs.core.count(index_list);
 var expected_exp = ((n_exp * events_total) / n_total);
@@ -62,10 +62,10 @@ var order = (cljs.numpy.argsort.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.argso
 var times_arr = times.take(order).toArray();
 var events_arr = events.take(order).toArray();
 var groups_arr = groups.take(order).toArray();
-var vec__28912 = app.regal_fit.stats.compute_risk_sets(groups_arr);
-var n_exp_arr = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28912,(0),null);
-var n_control_arr = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28912,(1),null);
-var is_exp_arr = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28912,(2),null);
+var vec__27350 = app.regal_fit.stats.compute_risk_sets(groups_arr);
+var n_exp_arr = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27350,(0),null);
+var n_control_arr = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27350,(1),null);
+var is_exp_arr = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27350,(2),null);
 var event_indices = cljs.core.keep_indexed.cljs$core$IFn$_invoke$arity$2((function (i,e){
 if(cljs.core.truth_(e)){
 return i;
@@ -76,12 +76,12 @@ return null;
 if(cljs.core.empty_QMARK_(event_indices)){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [0.0,1.0], null);
 } else {
-var grouped_indices = cljs.core.partition_by.cljs$core$IFn$_invoke$arity$2((function (p1__28904_SHARP_){
-return (times_arr[p1__28904_SHARP_]);
+var grouped_indices = cljs.core.partition_by.cljs$core$IFn$_invoke$arity$2((function (p1__27343_SHARP_){
+return (times_arr[p1__27343_SHARP_]);
 }),event_indices);
 var initial_stats = new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"u","u",-1156634785),0.0,new cljs.core.Keyword(null,"v","v",21465059),0.0,new cljs.core.Keyword(null,"log-hr-num","log-hr-num",-863400848),0.0,new cljs.core.Keyword(null,"log-hr-den","log-hr-den",-376003383),0.0], null);
-var results = cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (p1__28905_SHARP_,p2__28906_SHARP_){
-return app.regal_fit.stats.update_logrank_stats(p1__28905_SHARP_,p2__28906_SHARP_,n_exp_arr,n_control_arr,is_exp_arr);
+var results = cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (p1__27344_SHARP_,p2__27345_SHARP_){
+return app.regal_fit.stats.update_logrank_stats(p1__27344_SHARP_,p2__27345_SHARP_,n_exp_arr,n_control_arr,is_exp_arr);
 }),initial_stats,grouped_indices);
 if((new cljs.core.Keyword(null,"v","v",21465059).cljs$core$IFn$_invoke$arity$1(results) <= (0))){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [0.0,1.0], null);
@@ -102,11 +102,11 @@ return 1.0;
 var order = (cljs.numpy.argsort.cljs$core$IFn$_invoke$arity$1 ? cljs.numpy.argsort.cljs$core$IFn$_invoke$arity$1(time_observed) : cljs.numpy.argsort.call(null,time_observed));
 var times_arr = time_observed.take(order).toArray();
 var events_arr = event_flag.take(order).toArray();
-var relevant_events = cljs.core.filter.cljs$core$IFn$_invoke$arity$2((function (p__28920){
-var vec__28921 = p__28920;
-var t = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28921,(0),null);
-var ev = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28921,(1),null);
-var i = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28921,(2),null);
+var relevant_events = cljs.core.filter.cljs$core$IFn$_invoke$arity$2((function (p__27363){
+var vec__27364 = p__27363;
+var t = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27364,(0),null);
+var ev = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27364,(1),null);
+var i = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27364,(2),null);
 var and__5023__auto__ = ev;
 if(cljs.core.truth_(and__5023__auto__)){
 return (t <= target_time);
@@ -114,11 +114,11 @@ return (t <= target_time);
 return and__5023__auto__;
 }
 }),cljs.core.map.cljs$core$IFn$_invoke$arity$4(cljs.core.vector,times_arr,events_arr,cljs.core.range.cljs$core$IFn$_invoke$arity$1(n_subjects)));
-return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (multiplier,p__28924){
-var vec__28925 = p__28924;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28925,(0),null);
-var ___$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28925,(1),null);
-var i = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28925,(2),null);
+return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (multiplier,p__27367){
+var vec__27368 = p__27367;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27368,(0),null);
+var ___$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27368,(1),null);
+var i = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__27368,(2),null);
 return (multiplier * (1.0 - (1.0 / (n_subjects - i))));
 }),1.0,relevant_events);
 }

@@ -678,6 +678,8 @@ SHADOW_ENV.setLoaded("module$node_modules$vega_themes$build$index.js");
 SHADOW_ENV.setLoaded("module$node_modules$vega_tooltip$build$index.js");
 SHADOW_ENV.setLoaded("module$node_modules$vega_embed$build$embed.js");
 SHADOW_ENV.setLoaded("app.vega.js");
+SHADOW_ENV.setLoaded("fork.core.js");
+SHADOW_ENV.setLoaded("fork.reagent.js");
 SHADOW_ENV.setLoaded("app.discovery.js");
 SHADOW_ENV.setLoaded("app.views.js");
 SHADOW_ENV.setLoaded("cljs.pprint.js");
