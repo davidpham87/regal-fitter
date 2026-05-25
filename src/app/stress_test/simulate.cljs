@@ -177,7 +177,7 @@
             (when c1 (swap! total-ev-ia-le-60 inc))
             (when c2 (swap! total-inc-upd-le-12 inc))
             (when c3 (swap! total-inc-pr3-le-6 inc))
-            (when (and passed-ia c1 c2 c3)
+            (when (and c1 c2 c3)
               (swap! joint-pass-count inc)))))
 
       (let [exp-ev-ia (/ @sum-ev-ia n-sims)

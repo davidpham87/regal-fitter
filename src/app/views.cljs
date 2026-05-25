@@ -239,9 +239,6 @@
     [:div
      [:h4.font-semibold.text-blue-950.mb-2 "Observed Stress Milestones:"]
      [:ul.list-disc.pl-4.space-y-1
-      [:li [:strong "Passed IA Gate:"]
-       " Blinded pooled median OS > 12m at IA, and "
-       "estimated Hazard Ratio < 1.0 (approximated by GPS event count)."]
       [:li [:strong "Interim Analysis:"]
        " Event count at month 46 is ≤ 60 events."]
       [:li [:strong "Deceleration:"]
@@ -252,7 +249,7 @@
      [:h4.font-semibold.text-blue-950.mb-2 "Key Metrics Explained:"]
      [:ul.list-disc.pl-4.space-y-1
       [:li [:strong "p_joint:"]
-       " The probability of a trial meeting ALL five stress "
+       " The probability of a trial meeting ALL three stress "
        "milestones simultaneously under H0. A low value (e.g. < 5%) suggests "
        "H0 is highly unlikely."]
       [:li [:strong "Expected Events:"]
