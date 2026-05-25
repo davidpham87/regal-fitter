@@ -157,7 +157,7 @@
      {:class "font-bold px-6 py-2 rounded-lg shadow"
       :on-click (fn []
                   (js/console.log "UI: Clicked Run Stress Test")
-                  (sim/start-stress-test!))}
+                  (sim/start-stress-test! values))}
      "Run Stress Test"]]])
 
 (defn- stress-test-form []
