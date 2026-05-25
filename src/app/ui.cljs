@@ -444,6 +444,7 @@
        {:class (str "bg-blue-600 hover:bg-blue-700 transition-all "
                     "transform hover:-translate-y-0.5")
         :on-click (fn []
+                    (state/update-config! values)
                     (sim/start-simulation!)
                     (swap! state/app-state
                            assoc :view :results))}
@@ -488,6 +489,10 @@
                                   (catch js/Error _)))}]]
        [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
         {:on-click (fn []
+                    (try
+                      (let [nested (js->clj (js/JSON.parse @text) :keywordize-keys true)]
+                        (state/update-config! (nested->config nested)))
+                      (catch js/Error _))
                     (sim/start-simulation!)
                     (swap! state/app-state
                            assoc :view :results))}
