@@ -24,10 +24,19 @@
       (swap! state/app-state assoc-in [:discovery :calc-params] params))
     200))
 
+(defonce ^:private debounced-sim-run
+  (debounce
+    (fn [family params]
+      (sim/run-discovery-simulation! family params))
+    500))
+
 (defn- set-active-family! [family]
   (swap! state/app-state assoc-in [:discovery :active-family] family)
   (swap! state/app-state update :discovery
-         dissoc :sim-status :sim-result))
+         dissoc :sim-status :sim-result)
+  (let [disc (:discovery @state/app-state)
+        params (merge (:calc-params disc) (:params disc))]
+    (debounced-sim-run family params)))
 
 (defn- param-input
   ([props param-key label min max step]
@@ -322,6 +331,7 @@
                                (set-values {:gps-med v}))))
         :bat-med "BAT Median" 4 25 0.5]
        [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
+       [param-input props :n-sims "Sim Count" 100 5000 100]
 
        (case active-family
          "weibull"
@@ -342,19 +352,11 @@
       [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
        {:class "justify-between"}
        [:div.flex.items-center.gap-3
-        [:button.rounded-lg.shadow-sm.transition-colors
-         {:class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
-                  "text-white" "text-xs" "font-bold"]
-          :on-click #(sim/run-discovery-simulation! active-family
-                                                    calc-params)
-          :disabled (= (:sim-status state) :running)}
-         (if (= (:sim-status state) :running)
-           "Simulating..."
-           "Run Simulation")]
         (when (= (:sim-status state) :running)
-          [:span.text-xs.text-gray-500.animate-pulse
-           (str "Running " (:n-sims-per-combo config)
-                " trial simulations...")])]
+          (let [nsims (or (:n-sims calc-params)
+                          (:n-sims-per-combo config))]
+            [:span.text-xs.text-gray-500.animate-pulse
+             (str "Running " nsims " trial simulations...")]))]
 
        [:div.flex.items-center.gap-6
         (case (:sim-status state)
@@ -429,13 +431,23 @@
           [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]]]]]))
 
 (defn discovery-view []
-  (let [state (get-discovery-state)]
-    [fork/form
-     {:initial-values (:params state)
-      :keywordize-keys true
-      :on-change (fn [{:keys [values]}]
-                   (swap! state/app-state assoc-in [:discovery :params] values)
-                   (swap! state/app-state update :discovery
-                          dissoc :sim-status :sim-result)
-                   (debounced-calc-update values))}
-     discovery-view-content]))
+  (r/with-let [_ (let [disc (get-discovery-state)
+                       fam (:active-family disc)
+                       params (merge (:calc-params disc)
+                                     (:params disc))]
+                   (sim/run-discovery-simulation! fam params))]
+    (let [state (get-discovery-state)]
+      [fork/form
+       {:initial-values (:params state)
+        :keywordize-keys true
+        :on-change (fn [{:keys [values]}]
+                     (swap! state/app-state assoc-in
+                            [:discovery :params] values)
+                     (swap! state/app-state update :discovery
+                            dissoc :sim-status :sim-result)
+                     (debounced-calc-update values)
+                     (let [fam (:active-family @state/app-state)
+                           disc (:discovery @state/app-state)
+                           calc (:calc-params disc)]
+                       (debounced-sim-run fam (merge calc values))))}
+       discovery-view-content])))

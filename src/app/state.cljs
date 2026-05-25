@@ -46,7 +46,7 @@
    :hr-threshold 0.636
 
    :n-sims-per-combo 500
-   :n-sims-screen 20
+   :n-sims-screen 100
    :n-screen-min-pass 1
    :seed 20260508
 
@@ -210,13 +210,16 @@
                                 :weibull-k 1.0
                                 :gps-med 12.0
                                 :cure-frac 0.2
-                                :leak-yr 0.07 :placebo-mode? false}
+                                :leak-yr 0.07 
+                                :placebo-mode? false
+                                :n-sims 1000}
                        :calc-params {:bat-med 8.0
                                      :weibull-k 1.0
                                      :gps-med 12.0
                                      :cure-frac 0.2
                                      :leak-yr 0.07
-                                     :placebo-mode? false}}}))
+                                     :placebo-mode? false
+                                     :n-sims 1000}}}))
 
 ;; --- DB Subscriptions / Event Handlers (using re-frame or manual swaps) ---
 
