@@ -374,10 +374,13 @@
 
         ;; Force Run Button
         [:button.rounded-lg.shadow-sm.transition-colors
-         {:class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
+         {:type "button"
+          :class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
                   "text-white" "text-xs" "font-bold"]
-          :on-click #(sim/run-discovery-simulation! active-family
-                                                    calc-params)
+          :on-click (fn [e]
+                      (.preventDefault e)
+                      (sim/run-discovery-simulation! active-family
+                                                    calc-params))
           :disabled (= (:sim-status state) :running)}
          "Force Run"]
 
