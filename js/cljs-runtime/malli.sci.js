@@ -6,8 +6,8 @@ return sci.core.eval_string_STAR_;
 } else {
 var temp__5823__auto__ = cljs.core.find(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"default","default",-1987822328),null], null),new cljs.core.Keyword(null,"default","default",-1987822328));
 if(cljs.core.truth_(temp__5823__auto__)){
-var e__20088__auto__ = temp__5823__auto__;
-return cljs.core.val(e__20088__auto__);
+var e__20090__auto__ = temp__5823__auto__;
+return cljs.core.val(e__20090__auto__);
 } else {
 throw (new Error(["Var ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Symbol("sci.core","eval-string*","sci.core/eval-string*",2134763594,null))," does not exist, ",cljs.core.namespace(new cljs.core.Symbol("sci.core","eval-string*","sci.core/eval-string*",2134763594,null))," never required"].join('')));
 }
@@ -19,8 +19,8 @@ return sci.core.init;
 } else {
 var temp__5823__auto__ = cljs.core.find(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"default","default",-1987822328),null], null),new cljs.core.Keyword(null,"default","default",-1987822328));
 if(cljs.core.truth_(temp__5823__auto__)){
-var e__20088__auto__ = temp__5823__auto__;
-return cljs.core.val(e__20088__auto__);
+var e__20090__auto__ = temp__5823__auto__;
+return cljs.core.val(e__20090__auto__);
 } else {
 throw (new Error(["Var ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Symbol("sci.core","init","sci.core/init",-622666095,null))," does not exist, ",cljs.core.namespace(new cljs.core.Symbol("sci.core","init","sci.core/init",-622666095,null))," never required"].join('')));
 }
@@ -32,8 +32,8 @@ return sci.core.fork;
 } else {
 var temp__5823__auto__ = cljs.core.find(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"default","default",-1987822328),null], null),new cljs.core.Keyword(null,"default","default",-1987822328));
 if(cljs.core.truth_(temp__5823__auto__)){
-var e__20088__auto__ = temp__5823__auto__;
-return cljs.core.val(e__20088__auto__);
+var e__20090__auto__ = temp__5823__auto__;
+return cljs.core.val(e__20090__auto__);
 } else {
 throw (new Error(["Var ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Symbol("sci.core","fork","sci.core/fork",-1806691042,null))," does not exist, ",cljs.core.namespace(new cljs.core.Symbol("sci.core","fork","sci.core/fork",-1806691042,null))," never required"].join('')));
 }

@@ -3,8 +3,8 @@ var module$node_modules$vega_embed$build$embed=shadow.js.require("module$node_mo
 app.vega.vega_lite = (function app$vega$vega_lite(spec){
 var ref = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(null);
 return reagent.core.create_class.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"reagent-render","reagent-render",-985383853),(function (){
-return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"ref","ref",1289896967),(function (p1__28337_SHARP_){
-return cljs.core.reset_BANG_(ref,p1__28337_SHARP_);
+return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"ref","ref",1289896967),(function (p1__28318_SHARP_){
+return cljs.core.reset_BANG_(ref,p1__28318_SHARP_);
 })], null)], null);
 }),new cljs.core.Keyword(null,"component-did-mount","component-did-mount",-1126910518),(function (this$){
 if(cljs.core.truth_(cljs.core.deref(ref))){
@@ -43,10 +43,10 @@ return null;
 if(cljs.core.empty_QMARK_(valid_idx)){
 return null;
 } else {
-return (cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28347_SHARP_){
-return (cljs.core.nth.cljs$core$IFn$_invoke$arity$2(vs,p1__28347_SHARP_) * cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__28347_SHARP_));
-}),valid_idx)) / cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28348_SHARP_){
-return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__28348_SHARP_);
+return (cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28334_SHARP_){
+return (cljs.core.nth.cljs$core$IFn$_invoke$arity$2(vs,p1__28334_SHARP_) * cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__28334_SHARP_));
+}),valid_idx)) / cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28335_SHARP_){
+return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__28335_SHARP_);
 }),valid_idx)));
 }
 });
@@ -114,8 +114,8 @@ return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMP
 });
 app.vega.discovery_accrual_chart = (function app$vega$discovery_accrual_chart(curve_data,event_stats){
 var markers = cljs.core.mapv.cljs$core$IFn$_invoke$arity$2((function (s){
-return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"time","time",1385887882),(function (){var G__28360 = new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s);
-switch (G__28360) {
+return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"time","time",1385887882),(function (){var G__28384 = new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s);
+switch (G__28384) {
 case "IA (46.0m)":
 return 46.0;
 
