@@ -14,13 +14,13 @@ var result = cljs.core.js__GT_clj.cljs$core$IFn$_invoke$arity$variadic(data.resu
 var success_QMARK_ = data.success;
 var error = data.error;
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(type,"SIMULATION_RESULT")){
-var temp__5825__auto___25341 = cljs.core.get.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(app.worker_pool.job_callbacks),job_id);
-if(cljs.core.truth_(temp__5825__auto___25341)){
-var cb_25344 = temp__5825__auto___25341;
+var temp__5825__auto___25277 = cljs.core.get.cljs$core$IFn$_invoke$arity$2(cljs.core.deref(app.worker_pool.job_callbacks),job_id);
+if(cljs.core.truth_(temp__5825__auto___25277)){
+var cb_25278 = temp__5825__auto___25277;
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(app.worker_pool.job_callbacks,cljs.core.dissoc,job_id);
 
-var G__25111_25345 = new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success?","success?",-122854052),success_QMARK_,new cljs.core.Keyword(null,"result","result",1415092211),result,new cljs.core.Keyword(null,"error","error",-978969032),error], null);
-(cb_25344.cljs$core$IFn$_invoke$arity$1 ? cb_25344.cljs$core$IFn$_invoke$arity$1(G__25111_25345) : cb_25344.call(null,G__25111_25345));
+var G__25115_25279 = new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"success?","success?",-122854052),success_QMARK_,new cljs.core.Keyword(null,"result","result",1415092211),result,new cljs.core.Keyword(null,"error","error",-978969032),error], null);
+(cb_25278.cljs$core$IFn$_invoke$arity$1 ? cb_25278.cljs$core$IFn$_invoke$arity$1(G__25115_25279) : cb_25278.call(null,G__25115_25279));
 } else {
 }
 
