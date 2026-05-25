@@ -5,7 +5,8 @@
             [app.state :as state]
             [app.vega :as vega]
             [app.simulator :as sim]
-            [app.discovery :as discovery]))
+            [app.discovery :as discovery]
+            [app.stress-test.power :as power]))
 
 (def ^:private btn-class
   (str "inline-block bg-blue-600 hover:bg-blue-700 "
@@ -264,6 +265,105 @@
        " The maximum absolute discrepancy between the "
        "simulated expected events and actual observed events."]]]]])
 
+(defn- power-analysis-form-content
+  [{:keys [values handle-change]}]
+  (let [alpha (js/parseFloat (:alpha values))
+        power-val (js/parseFloat (:power values))
+        p-event (js/parseFloat (:p-event values))
+        bat-range (:bat-mos-range values)
+        gps-range (:gps-mos-range values)
+        grid (power/power-grid bat-range gps-range alpha power-val p-event)
+        implied-p (power/implied-event-probability
+                   (:n-total values)
+                   (:bat-mos-ref values)
+                   (:gps-mos-ref values)
+                   alpha
+                   power-val)]
+    [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-6
+     [:h2.text-xl.font-bold.mb-4 "Statistical Power & Sample Size Analysis"]
+     [:p.text-sm.text-gray-600.mb-4
+      "Schoenfeld log-rank approximation under proportional hazards."]
+
+     ;; Form Inputs
+     [:div.grid.grid-cols-1.md:grid-cols-4.gap-4.mb-6
+      [:div
+       [:label.block.text-xs.font-semibold.text-gray-700
+        "alpha (One-sided)"]
+       [:input.border.w-full.p-1.rounded.text-sm.mt-1
+        {:type "number" :step "0.005" :name "alpha"
+         :value (:alpha values) :on-change handle-change}]]
+      [:div
+       [:label.block.text-xs.font-semibold.text-gray-700
+        "Target Power"]
+       [:input.border.w-full.p-1.rounded.text-sm.mt-1
+        {:type "number" :step "0.05" :name "power"
+         :value (:power values) :on-change handle-change}]]
+      [:div
+       [:label.block.text-xs.font-semibold.text-gray-700
+        "Event Probability"]
+       [:input.border.w-full.p-1.rounded.text-sm.mt-1
+        {:type "number" :step "0.01" :name "p-event"
+         :value (:p-event values) :on-change handle-change}]]
+      [:div
+       [:label.block.text-xs.font-semibold.text-gray-700
+        "Reference Trial N"]
+       [:input.border.w-full.p-1.rounded.text-sm.mt-1
+        {:type "number" :name "n-total"
+         :value (:n-total values) :on-change handle-change}]]]
+
+     ;; Ranges and Implied probability Info
+     [:div.bg-blue-50.p-4.rounded-lg.border.border-blue-100.mb-6
+      [:p.text-xs.text-blue-900.leading-relaxed
+       [:strong "Implied Baseline Event Probability: "]
+       (str (.toFixed (* 100 implied-p) 1) "% ")
+       "(Requires " (.toFixed (* (:n-total values) implied-p) 0)
+       " events under standard Schoenfeld assumptions to achieve "
+       (* 100 power-val) "% power at BAT=" (:bat-mos-ref values)
+       " vs GPS=" (:gps-mos-ref values) " months.)"]]
+
+     ;; Charts
+     [:div.flex.flex-col.lg:flex-row.gap-6.mb-6
+      [:div.flex-1.bg-gray-50.p-3.rounded-xl.border
+       [vega/power-heatmap grid]]
+      [:div.flex-1.bg-gray-50.p-3.rounded-xl.border
+       [vega/power-line-chart grid]]]
+
+     ;; Summary scenarios table
+     [:div.overflow-x-auto.border.rounded-lg.shadow-sm
+      [:table.min-w-full.divide-y.divide-gray-200.text-xs
+       [:thead.bg-gray-50
+        [:tr
+         [:th.px-4.py-2.text-left "BAT mOS"]
+         [:th.px-4.py-2.text-left "GPS mOS"]
+         [:th.px-4.py-2.text-left "HR"]
+         [:th.px-4.py-2.text-left "Events Required"]
+         [:th.px-4.py-2.text-left "N Required"]
+         [:th.px-4.py-2.text-left "Sufficient (N=126)?"]]]
+       [:tbody.divide-y.divide-gray-200.bg-white
+        (doall
+         (for [scenario (filter #(contains? #{6.0 8.0 10.0 12.0} (:bat-mos %))
+                                grid)]
+           ^{:key (str "pow-" (:bat-mos scenario) "-" (:gps-mos scenario))}
+           [:tr
+            [:td.px-4.py-2 (:bat-mos scenario)]
+            [:td.px-4.py-2 (:gps-mos scenario)]
+            [:td.px-4.py-2 (.toFixed (:hr scenario) 2)]
+            [:td.px-4.py-2 (.toFixed (:events-required scenario) 1)]
+            [:td.px-4.py-2 (.toFixed (:n-required scenario) 0)]
+            [:td.px-4.py-2
+             (if (<= (:n-required scenario) (:n-total values))
+               [:span.text-green-600.font-bold "Yes"]
+               [:span.text-red-600.font-bold "No"])]]))]]]]))
+
+(defn- power-analysis-view []
+  (let [config (:power-config @state/app-state)]
+    [fork/form
+     {:initial-values config
+      :keywordize-keys true
+      :on-change (fn [{:keys [values]}]
+                   (state/update-power-config! values))}
+     power-analysis-form-content]))
+
 (defn placebo-stress-view []
   [:div.p-6.max-w-6xl.mx-auto
    [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Placebo Stress Test"]
@@ -271,6 +371,7 @@
     "Assess the likelihood of observed trial milestones under various "
     "Null Hypothesis (H0) scenarios."]
    [placebo-explanation-view]
+   [power-analysis-view]
    [stress-test-form]
    [stress-test-results-view]])
 
