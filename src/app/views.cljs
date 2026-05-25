@@ -113,7 +113,7 @@
        constitute financial advice. SLS long position held by the author."]]]])
 
 (defn- stress-test-form-content
-  [{:keys [values handle-change]}]
+  [{:keys [values set-values handle-change]}]
   [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-6
    [:h2.text-xl.font-bold.mb-4 "Configuration"]
    [:div.grid.grid-cols-1.md:grid-cols-3.gap-4
@@ -126,9 +126,11 @@
          ^{:key (str "mos-" i)}
          [:input.border.w-full.p-1.rounded.text-sm
           {:type "number" :step "0.1"
-           :name (str "mos-grid." i)
            :value (get-in values [:mos-grid i])
-           :on-change handle-change}]))]]
+           :on-change (fn [e]
+                        (let [v (js/parseFloat (.. e -target -value))
+                              new-vec (assoc (:mos-grid values) i v)]
+                          (set-values {:mos-grid new-vec})))}]))]]
     [:div
      [:label.block.text-sm.font-semibold.text-gray-700
       "k Grid (start, stop, step)"]
@@ -138,15 +140,17 @@
          ^{:key (str "k-" i)}
          [:input.border.w-full.p-1.rounded.text-sm
           {:type "number" :step "0.1"
-           :name (str "k-grid." i)
            :value (get-in values [:k-grid i])
-           :on-change handle-change}]))]]
+           :on-change (fn [e]
+                        (let [v (js/parseFloat (.. e -target -value))
+                              new-vec (assoc (:k-grid values) i v)]
+                          (set-values {:k-grid new-vec})))}]))]]
     [:div
      [:label.block.text-sm.font-semibold.text-gray-700 "Sims per Combo"]
      [:input.border.w-full.p-1.rounded.text-sm.mt-1
       {:type "number"
        :name "n-sims"
-       :value (values "n-sims")
+       :value (:n-sims values)
        :on-change handle-change}]]]
    [:div.mt-4.flex.justify-center
     [:button.bg-blue-600.hover:bg-blue-700.text-white
