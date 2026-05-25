@@ -305,11 +305,11 @@
 (defn- trial-timing-section []
   (let [collapsed? (r/atom true)
         keys-list (concat (get category->keys :trial)
-                          (get category->keys :timing))]
+                          (get category->keys :timing))
+        config (:config @state/app-state)
+        section-vals (select-keys config keys-list)]
     (fn []
-      (let [config (:config @state/app-state)
-            section-vals (select-keys config keys-list)]
-        [:div.mb-8
+      [:div.mb-8
          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
           {:class "cursor-pointer select-none"
            :on-click #(swap! collapsed? not)}
@@ -407,18 +407,18 @@
                     :checked (boolean (:use-pr3-anchor values))
                     :on-change (fn [e]
                                  (set-values {:use-pr3-anchor
-                                              (.. e -target -checked)}))}]]]]])])]))))
+                                              (.. e -target -checked)}))}]]]]])])])))
 
 (defn- grids-section []
   (let [collapsed? (r/atom true)
         keys-list (concat (get category->keys :bat)
                           (get category->keys :gps)
                           (get category->keys :cure)
-                          (get category->keys :leaky))]
+                          (get category->keys :leaky))
+        config (:config @state/app-state)
+        section-vals (select-keys config keys-list)]
     (fn []
-      (let [config (:config @state/app-state)
-            section-vals (select-keys config keys-list)]
-        [:div.mb-8
+      [:div.mb-8
          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
           {:class "cursor-pointer select-none"
            :on-click #(swap! collapsed? not)}
@@ -496,15 +496,15 @@
                  [field-wrapper :leaky-unc-shape-grid
                   [grid-input props :leaky-unc-shape-grid]]
                  [field-wrapper :leak-grid
-                  [grid-input props :leak-grid]]]]])])]))))
+                  [grid-input props :leak-grid]]]]])])])))
 
 (defn- tolerances-section []
   (let [collapsed? (r/atom true)
-        keys-list (get category->keys :prefilter)]
+        keys-list (get category->keys :prefilter)
+        config (:config @state/app-state)
+        section-vals (select-keys config keys-list)]
     (fn []
-      (let [config (:config @state/app-state)
-            section-vals (select-keys config keys-list)]
-        [:div.mb-8
+      [:div.mb-8
          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
           {:class "cursor-pointer select-none"
            :on-click #(swap! collapsed? not)}
@@ -565,15 +565,15 @@
                    {:type "number"
                     :name "pool-mos-min-at-ia"
                     :value (:pool-mos-min-at-ia values)
-                    :on-change handle-change}]]]]])])]))))
+                    :on-change handle-change}]]]]])])])))
 
 (defn- execution-section []
   (let [collapsed? (r/atom true)
-        keys-list (get category->keys :other)]
+        keys-list (get category->keys :other)
+        config (:config @state/app-state)
+        section-vals (select-keys config keys-list)]
     (fn []
-      (let [config (:config @state/app-state)
-            section-vals (select-keys config keys-list)]
-        [:div.mb-8
+      [:div.mb-8
          [:div.flex.justify-between.items-center.border-b.pb-2.mb-4
           {:class "cursor-pointer select-none"
            :on-click #(swap! collapsed? not)}
@@ -678,46 +678,50 @@
                     :value (:seed values)
                     :on-change handle-change}]]
                  [field-wrapper :families
-                  [families-input props :families]]]]])])]))))
+                  [families-input props :families]]]]])])])))
 
 (defn config-form []
-  [:div.p-4.max-w-6xl.mx-auto
-   [:div.flex.justify-between.items-center.mb-6
-    [:h2.text-2xl.font-extrabold.text-gray-900
-     "Simulation Configuration"]
-    [:div.flex.gap-2
-     [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
-     [:button.px-3.py-1.text-xs.font-bold.rounded.border
-      {:type "button"
-       :class "bg-white hover:bg-gray-100 text-gray-700"
-       :on-click #(state/update-config! state/default-config)}
-      "Default"]
-     [:button.px-3.py-1.text-xs.font-bold.rounded.border
-      {:type "button"
-       :class "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-       :on-click #(state/update-config! state/light-config)}
-      "Light"]]]
+  (let [version (:config-version @state/app-state)]
+    [:div.p-4.max-w-6xl.mx-auto
+     [:div.flex.justify-between.items-center.mb-6
+      [:h2.text-2xl.font-extrabold.text-gray-900
+       "Simulation Configuration"]
+      [:div.flex.gap-2
+       [:span.text-sm.font-bold.text-gray-500.mr-2.self-center "PRESETS:"]
+       [:button.px-3.py-1.text-xs.font-bold.rounded.border
+        {:type "button"
+         :class "bg-white hover:bg-gray-100 text-gray-700"
+         :on-click #(state/reset-config! state/default-config)}
+        "Default"]
+       [:button.px-3.py-1.text-xs.font-bold.rounded.border
+        {:type "button"
+         :class (str "bg-blue-50 hover:bg-blue-100 "
+                     "text-blue-700 border-blue-200")
+         :on-click #(state/reset-config! state/light-config)}
+        "Light"]]]
 
-   [trial-timing-section]
-   [grids-section]
-   [tolerances-section]
-   [execution-section]
+     ^{:key version}
+     [:div
+      [trial-timing-section]
+      [grids-section]
+      [tolerances-section]
+      [execution-section]]
 
-   [:div.mt-8.flex.justify-center.gap-4
-    [:button.text-gray-700.font-bold.px-6.py-4.rounded-xl.shadow-md.border
-     {:type "button"
-      :class "bg-white hover:bg-gray-100 transition-all border-gray-300"
-      :on-click (fn []
-                  (db/clear-cache))}
-     "Clear Cache"]
-    [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
-     {:type "button"
-      :class (str "bg-blue-600 hover:bg-blue-700 transition-all "
-                  "transform hover:-translate-y-0.5")
-      :on-click (fn []
-                  (sim/start-simulation!)
-                  (swap! state/app-state assoc :view :results))}
-     "Run Simulation"]]])
+     [:div.mt-8.flex.justify-center.gap-4
+      [:button.text-gray-700.font-bold.px-6.py-4.rounded-xl.shadow-md.border
+       {:type "button"
+        :class "bg-white hover:bg-gray-100 transition-all border-gray-300"
+        :on-click (fn []
+                    (db/clear-cache))}
+       "Clear Cache"]
+      [:button.text-white.font-extrabold.px-8.py-4.rounded-xl.shadow-lg
+       {:type "button"
+        :class (str "bg-blue-600 hover:bg-blue-700 transition-all "
+                    "transform hover:-translate-y-0.5")
+        :on-click (fn []
+                    (sim/start-simulation!)
+                    (swap! state/app-state assoc :view :results))}
+       "Run Simulation"]]]))
 
 (defn- config->nested [config]
   (into {} (for [[cat ks] category->keys]
