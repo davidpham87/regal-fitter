@@ -319,7 +319,7 @@
          [:<>
           [param-input :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
           [param-input :gps-med "Uncured Median" 4 50 1.0 placebo-mode?]
-          [param-input :leak-yr "Leak Rate / Year" 0.0 0.5 0.01]])]
+          [param-input :leak-yr "Leak Rate / Year" 0.0 0.1 0.01]])]
 
        [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-4
         {:class "justify-between"}
