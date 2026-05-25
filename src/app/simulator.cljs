@@ -144,7 +144,7 @@
     (cached-submit-job!
       {:rec rec
        :cfg-dict config
-       :n-sims (:n-sims-per-combo config)
+       :n-sims (or (:n-sims params) (:n-sims-per-combo config))
        :seed (:seed config)}
       (fn [{:keys [success? result error]}]
         (if success?
