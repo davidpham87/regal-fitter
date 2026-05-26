@@ -208,8 +208,29 @@
 
 (rf/reg-event-db
   :navigate
-  (fn [db [_ page]]
-    (swap! app-state assoc :active-page page)
+  (fn [db [_ page path-params]]
+    (cond
+      (= page :fitter-sub)
+      (swap! app-state assoc :active-page :fitter
+             :view (keyword (:subtab path-params)))
+
+      (= page :discovery-sub)
+      (swap! app-state (fn [state]
+                         (-> state
+                             (assoc :active-page :discovery)
+                             (assoc-in [:discovery :active-family] (:subtab path-params)))))
+
+      (= page :fitter)
+      (swap! app-state assoc :active-page :fitter :view :config-form)
+
+      (= page :discovery)
+      (swap! app-state (fn [state]
+                         (-> state
+                             (assoc :active-page :discovery)
+                             (assoc-in [:discovery :active-family] "weibull"))))
+
+      :else
+      (swap! app-state assoc :active-page page))
     db))
 
 (defn set-config! [k v]
