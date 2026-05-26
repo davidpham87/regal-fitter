@@ -474,8 +474,7 @@
        {:initial-values (:params state)
         :keywordize-keys true
         :on-change (fn [{:keys [values]}]
-                     (swap! state/app-state assoc-in
-                            [:discovery :params] values)
+                     (state/update-discovery-params! values)
                      (swap! state/app-state update :discovery
                             dissoc :sim-status :sim-result)
                      (debounced-calc-update values)

@@ -26,7 +26,7 @@
    (rf/router routes)
    (fn [match]
      (when match
-       (re-frame/dispatch [:navigate (:name (:data match)) (:path-params match)])))
+       (re-frame/dispatch [:navigate (:name (:data match)) (:path-params match) (:query-params match)])))
    {:use-fragment true}))
 
 (defn ^:export init []
