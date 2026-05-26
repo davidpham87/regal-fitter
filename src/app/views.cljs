@@ -6,6 +6,7 @@
             [app.vega :as vega]
             [app.simulator :as sim]
             [app.discovery :as discovery]
+            [reitit.frontend.easy :as rfe]
             [app.stress-test.power :as power]))
 
 (def ^:private btn-class
@@ -14,8 +15,8 @@
        "px-4 py-2 rounded-lg transition-colors"))
 
 (defn- navigate-button [page label class-str]
-  [:button {:class (or class-str "text-blue-500 hover:underline font-semibold")
-            :on-click #(rf/dispatch [:navigate page])}
+  [:a {:class (or class-str "text-blue-500 hover:underline font-semibold")
+       :href (rfe/href page)}
    label])
 
 (defn home-view []

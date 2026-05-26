@@ -7,7 +7,23 @@
             [app.regal-fit.enrollment :as enrollment]
             [app.vega :as vega]
             [app.simulator :as sim]
-            [cljs.numpy :as np]))
+            [reitit.frontend.easy :as rfe]
+            [cljs.numpy :as np]
+            [cljs.math :as math]))
+
+(defn population-cr2-lambda
+  "Calculates lambda given IRM (the experimental mOS), D (delay to enroll), and k (weibull shape paraeer)"
+  [irm d k]
+  (let [numerator   (- (math/pow (+ irm d) k) (math/pow d k))
+        denominator (math/log 2)
+        base        (/ numerator denominator)
+        exponent    (/ 1 k)]
+    (math/pow base exponent)))
+
+(defn true-mos
+  "Calculates true mOS given population lambda and k."
+  [lambda k]
+  (* lambda (math/pow (math/log 2) (/ 1 k))))
 
 (defn- get-discovery-state []
   (:discovery @state/app-state))
@@ -202,7 +218,34 @@
         t-arr (.toArray t-pts)
         s-bat-arr (.toArray s-bat)
         s-gps-arr (.toArray s-gps)
-        s-pool-arr (.toArray s-pool)]
+        s-pool-arr (.toArray s-pool)
+
+        ;; Add exact t=36 values
+        t-36 (np/array #js [36] "float64")
+        s-bat-36 (survival/weibull-survival-probability t-36 bat-scale bat-shape)
+        s-gps-36 (cond
+                   (= family "weibull")
+                   (let [med (np/array #js [(:gps-med params)])
+                         shape (np/array #js [(:weibull-k params)])
+                         scale (survival/weibull-scale-from-median med shape)]
+                     (survival/weibull-survival-probability t-36 scale shape))
+                   (= family "cure")
+                   (let [med (np/array #js [(:gps-med params)])
+                         shape (np/array #js [(:weibull-k params)])
+                         scale (survival/weibull-scale-from-median med shape)
+                         cf (np/array #js [(:cure-frac params)])]
+                     (survival/cure-survival-probability t-36 cf scale shape))
+                   (= family "leaky")
+                   (let [med (np/array #js [(:gps-med params)])
+                         shape (np/array #js [(:weibull-k params)])
+                         scale (survival/weibull-scale-from-median med shape)
+                         cf (np/array #js [(:cure-frac params)])
+                         leak (np/array #js [(:leak-yr params)])]
+                     (survival/leaky-cure-survival-probability t-36 cf scale shape leak)))
+        s-pool-36 (np/multiply (np/add s-bat-36 s-gps-36) 0.5)
+        s-bat-36-val (first (.toArray s-bat-36))
+        s-gps-36-val (first (.toArray s-gps-36))
+        s-pool-36-val (first (.toArray s-pool-36))]
 
     {:survival (vec (concat
                       (mapv (fn [t s] {:time t :survival s :group "Pooled"})
@@ -210,7 +253,10 @@
                       (mapv (fn [t s] {:time t :survival s :group "GPS"})
                             t-arr s-gps-arr)
                       (mapv (fn [t s] {:time t :survival s :group "BAT"})
-                            t-arr s-bat-arr)))
+                            t-arr s-bat-arr)
+                      [{:time 36 :survival s-pool-36-val :group "Pooled"}
+                       {:time 36 :survival s-gps-36-val :group "GPS"}
+                       {:time 36 :survival s-bat-36-val :group "BAT"}]))
      :accrual (vec (concat
                      (mapv (fn [t e]
                              {:time t :events e :group "Total"})
@@ -288,7 +334,10 @@
                          :gps-med avg-med
                          :cure-frac 0.0)
         stats-h0 (calculate-stats active-family h0-params config)
-        curve-data-h0 (calculate-curves active-family h0-params config)]
+        curve-data-h0 (calculate-curves active-family h0-params config)
+
+        bat-true-lambda (population-cr2-lambda (:bat-med calc-params) (or (:delay calc-params) 3.0) (:weibull-k calc-params))
+        bat-true-mos (true-mos bat-true-lambda (:weibull-k calc-params))]
 
     [:div.p-6.max-w-7xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
@@ -299,11 +348,11 @@
      [:div.flex.gap-2.mb-6.border-b
       (for [fam ["weibull" "cure" "leaky"]]
         ^{:key fam}
-        [:button.px-4.py-2.text-sm.font-medium.transition-colors
+        [:a.px-4.py-2.text-sm.font-medium.transition-colors.inline-block.text-center
          {:class (if (= active-family fam)
                    "border-b-2 border-blue-600 text-blue-600"
                    "text-gray-500 hover:text-gray-700")
-          :on-click #(set-active-family! fam)}
+          :href (rfe/href :discovery-sub {:subtab fam})}
          (clojure.string/capitalize fam)])]
 
      ;; Controls (Full width)
@@ -331,6 +380,7 @@
                                (set-values {:gps-med v}))))
         :bat-med "BAT Median" 4 25 0.5]
        [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
+       [param-input props :delay "Delay to Enroll" 0.0 20.0 0.5]
 
        (case active-family
          "weibull"
@@ -434,8 +484,12 @@
       [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
        ;; Column 1: Alternate Hypothesis
        [:div.bg-gray-50.p-4.rounded-xl.border
-        [:h3.font-extrabold.text-gray-800.mb-4
-         "Alternate Hypothesis (H1): GPS is effective"]
+        [:div.flex.justify-between.items-center.mb-4
+         [:h3.font-extrabold.text-gray-800
+          "Alternate Hypothesis (H1): GPS is effective"]
+         [:div.bg-white.px-3.py-1.rounded-lg.shadow-sm.border.text-sm
+          [:span.font-bold.text-gray-600 "BAT True mOS: "]
+          [:span.font-extrabold.text-blue-600 (.toFixed bat-true-mos 2) "m"]]]
         [stats-row "Milestone Stats (H1)" stats]
         [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
@@ -473,8 +527,7 @@
        {:initial-values (:params state)
         :keywordize-keys true
         :on-change (fn [{:keys [values]}]
-                     (swap! state/app-state assoc-in
-                            [:discovery :params] values)
+                     (state/update-discovery-params! values)
                      (swap! state/app-state update :discovery
                             dissoc :sim-status :sim-result)
                      (debounced-calc-update values)

@@ -172,7 +172,24 @@
                                   {:field "GPS" :type "quantitative"
                                    :format ".3f"}
                                   {:field "BAT" :type "quantitative"
-                                   :format ".3f"}]}}]
+                                   :format ".3f"}]}}
+            {:mark {:type "rule" :color "red" :strokeDash [4 4]}
+             :data {:values [{:time 36}]}
+             :encoding {:x {:field "time" :type "quantitative"}}}
+            {:mark {:type "text" :align "left" :dx 5 :dy -140 :color "red"}
+             :data {:values [{:time 36 :label "t=36"}]}
+             :encoding {:x {:field "time" :type "quantitative"}
+                        :text {:field "label" :type "nominal"}}}
+            {:transform [{:filter "datum.time == 36"}]
+             :mark {:type "text" :align "left" :dx 5 :dy -5}
+             :encoding {:x {:field "time" :type "quantitative"}
+                        :y {:field "survival" :type "quantitative"}
+                        :color {:field "group" :type "nominal"
+                                :scale {:domain ["Pooled" "GPS" "BAT"]
+                                        :range ["#4488cc"
+                                                "#55bb88"
+                                                "#ee6677"]}}
+                        :text {:field "survival" :type "quantitative" :format ".3f"}}}]
     :config {:view {:stroke "transparent"}
              :legend {:orient "bottom"}}}])
 
