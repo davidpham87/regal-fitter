@@ -8,6 +8,7 @@
             [app.ui.results :as results]
             [re-frame.core :as rf]
             [fork.reagent :as fork]
+            [reitit.frontend.easy :as rfe]
             ["@monaco-editor/react" :default Editor]))
 
 (def ^:private category->keys
@@ -124,8 +125,8 @@
 (defn- navigation-bar [active-page]
   [:header.bg-gray-800.text-white.shadow-md.mb-6
    [:div.container.mx-auto.px-4.py-3.flex.justify-between.items-center
-    [:div.flex.items-center.gap-2.cursor-pointer
-     {:on-click #(rf/dispatch [:navigate :home])}
+    [:a.flex.items-center.gap-2.cursor-pointer
+     {:href (rfe/href :home)}
      [:span.text-xl.font-extrabold.tracking-tight "Regal Fitter"]]
     [:nav.flex.gap-2
      (for [[page label] [[:home "Home"]
@@ -133,11 +134,11 @@
                          [:placebo-stress "Placebo Stress"]
                          [:discovery "Discovery"]]]
        ^{:key page}
-       [:button.px-3.py-2.rounded-lg.text-sm.font-medium.transition-colors
-        {:class (if (= active-page page)
+       [:a.px-3.py-2.rounded-lg.text-sm.font-medium.transition-colors
+        {:href (rfe/href page)
+         :class (if (= active-page page)
                   "bg-gray-950 text-white"
-                  "text-gray-300 hover:bg-gray-700 hover:text-white")
-         :on-click #(rf/dispatch [:navigate page])}
+                  "text-gray-300 hover:bg-gray-700 hover:text-white")}
         label])]]])
 
 (defn fitter-page []
