@@ -7,6 +7,7 @@
             [app.regal-fit.enrollment :as enrollment]
             [app.vega :as vega]
             [app.simulator :as sim]
+            [reitit.frontend.easy :as rfe]
             [cljs.numpy :as np]))
 
 (defn- get-discovery-state []
@@ -299,11 +300,11 @@
      [:div.flex.gap-2.mb-6.border-b
       (for [fam ["weibull" "cure" "leaky"]]
         ^{:key fam}
-        [:button.px-4.py-2.text-sm.font-medium.transition-colors
+        [:a.px-4.py-2.text-sm.font-medium.transition-colors.inline-block.text-center
          {:class (if (= active-family fam)
                    "border-b-2 border-blue-600 text-blue-600"
                    "text-gray-500 hover:text-gray-700")
-          :on-click #(set-active-family! fam)}
+          :href (rfe/href :discovery-sub {:subtab fam})}
          (clojure.string/capitalize fam)])]
 
      ;; Controls (Full width)

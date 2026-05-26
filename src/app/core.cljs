@@ -12,17 +12,21 @@
     {:name :home}]
    ["/fitter"
     {:name :fitter}]
+   ["/fitter/:subtab"
+    {:name :fitter-sub}]
    ["/placebo-stress"
     {:name :placebo-stress}]
    ["/discovery"
-    {:name :discovery}]])
+    {:name :discovery}]
+   ["/discovery/:subtab"
+    {:name :discovery-sub}]])
 
 (defn init-routes! []
   (rfe/start!
    (rf/router routes)
    (fn [match]
      (when match
-       (re-frame/dispatch [:navigate (:name (:data match))])))
+       (re-frame/dispatch [:navigate (:name (:data match)) (:path-params match)])))
    {:use-fragment true}))
 
 (defn ^:export init []

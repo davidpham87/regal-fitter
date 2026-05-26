@@ -149,23 +149,23 @@
             version (:config-version @state)]
         [:div
          [:div.flex.gap-4.mb-4
-          [:button.px-4.py-2.rounded
+          [:a.px-4.py-2.rounded.inline-block.text-center
            {:class (if (= view :config-form)
                      "bg-gray-800 text-white"
                      "bg-gray-200")
-            :on-click #(swap! state/app-state assoc :view :config-form)}
+            :href (rfe/href :fitter-sub {:subtab "config-form"})}
            "Form View"]
-          [:button.px-4.py-2.rounded
+          [:a.px-4.py-2.rounded.inline-block.text-center
            {:class (if (= view :config-json)
                      "bg-gray-800 text-white"
                      "bg-gray-200")
-            :on-click #(swap! state/app-state assoc :view :config-json)}
+            :href (rfe/href :fitter-sub {:subtab "config-json"})}
            "JSON View"]
-          [:button.px-4.py-2.rounded
+          [:a.px-4.py-2.rounded.inline-block.text-center
            {:class (if (= view :results)
                      "bg-gray-800 text-white"
                      "bg-gray-200")
-            :on-click #(swap! state/app-state assoc :view :results)}
+            :href (rfe/href :fitter-sub {:subtab "results"})}
            "Results"]]
          (when (= status :running-stage1)
            [:div.bg-yellow-100.p-4.mb-4
