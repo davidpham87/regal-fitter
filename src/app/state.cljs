@@ -191,6 +191,7 @@
            :discovery {:active-family "leaky"
                        :params {:bat-med 8.0
                                 :weibull-k 1.0
+                                :delay 3.0
                                 :gps-med 12.0
                                 :cure-frac 0.2
                                 :leak-yr 0.07
@@ -198,6 +199,7 @@
                                 :n-sims 1000}
                        :calc-params {:bat-med 8.0
                                      :weibull-k 1.0
+                                     :delay 3.0
                                      :gps-med 12.0
                                      :cure-frac 0.2
                                      :leak-yr 0.07
