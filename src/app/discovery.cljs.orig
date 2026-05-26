@@ -380,7 +380,7 @@
                                (set-values {:gps-med v}))))
         :bat-med "BAT Median" 4 25 0.5]
        [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
-       [param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
+       [param-input props :delay "Delay to Enroll" 0.0 20.0 0.5]
 
        (case active-family
          "weibull"
@@ -441,10 +441,6 @@
              (str "Running " nsims " trial simulations...")]))]
 
        [:div.flex.items-center.gap-6
-        [:div.text-center
-         [:div.text-xs.text-gray-400.font-semibold "BAT True mOS"]
-         [:div.text-lg.font-bold.text-blue-600
-          (str (.toFixed bat-true-mos 2) "m")]]
         (case (:sim-status state)
           :done
           (let [res (:sim-result state)
@@ -490,7 +486,10 @@
        [:div.bg-gray-50.p-4.rounded-xl.border
         [:div.flex.justify-between.items-center.mb-4
          [:h3.font-extrabold.text-gray-800
-          "Alternate Hypothesis (H1): GPS is effective"]]
+          "Alternate Hypothesis (H1): GPS is effective"]
+         [:div.bg-white.px-3.py-1.rounded-lg.shadow-sm.border.text-sm
+          [:span.font-bold.text-gray-600 "BAT True mOS: "]
+          [:span.font-extrabold.text-blue-600 (.toFixed bat-true-mos 2) "m"]]]
         [stats-row "Milestone Stats (H1)" stats]
         [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
