@@ -6,35 +6,98 @@ app.state.default_stress_test_config = cljs.core.PersistentHashMap.fromArrays([n
 app.state.default_power_config = new cljs.core.PersistentArrayMap(null, 8, [new cljs.core.Keyword(null,"n-total","n-total",-1946555251),(126),new cljs.core.Keyword(null,"bat-mos-ref","bat-mos-ref",-403114289),8.0,new cljs.core.Keyword(null,"gps-mos-ref","gps-mos-ref",-1788731101),12.0,new cljs.core.Keyword(null,"alpha","alpha",-1574982441),0.025,new cljs.core.Keyword(null,"power","power",-937852079),0.9,new cljs.core.Keyword(null,"p-event","p-event",-230442238),0.635,new cljs.core.Keyword(null,"bat-mos-range","bat-mos-range",-1958693074),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [6.0,20.0,1.0], null),new cljs.core.Keyword(null,"gps-mos-range","gps-mos-range",-275109051),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [10.0,30.0,1.0], null)], null);
 if((typeof app !== 'undefined') && (typeof app.state !== 'undefined') && (typeof app.state.app_state !== 'undefined')){
 } else {
-app.state.app_state = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"config","config",994861415),new cljs.core.Keyword(null,"config-version","config-version",587067529),new cljs.core.Keyword(null,"power-config","power-config",-239509747),new cljs.core.Keyword(null,"stress-test-progress","stress-test-progress",1552934606),new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"stress-test-status","stress-test-status",-932570733),new cljs.core.Keyword(null,"status","status",-1997798413),new cljs.core.Keyword(null,"error-message","error-message",1756021561),new cljs.core.Keyword(null,"progress","progress",244323547),new cljs.core.Keyword(null,"stress-test-results","stress-test-results",-127451651),new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),new cljs.core.Keyword(null,"view","view",1247994814),new cljs.core.Keyword(null,"results","results",-1134170113)],[new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"active-family","active-family",1167742120),"leaky",new cljs.core.Keyword(null,"params","params",710516235),new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708),8.0,new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489),1.0,new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488),12.0,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070),0.2,new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545),0.07,new cljs.core.Keyword(null,"placebo-mode?","placebo-mode?",1400066510),false,new cljs.core.Keyword(null,"n-sims","n-sims",979948804),(1000)], null),new cljs.core.Keyword(null,"calc-params","calc-params",1198861913),new cljs.core.PersistentArrayMap(null, 7, [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708),8.0,new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489),1.0,new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488),12.0,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070),0.2,new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545),0.07,new cljs.core.Keyword(null,"placebo-mode?","placebo-mode?",1400066510),false,new cljs.core.Keyword(null,"n-sims","n-sims",979948804),(1000)], null)], null),app.state.default_config,(0),app.state.default_power_config,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"total","total",1916810418),(0),new cljs.core.Keyword(null,"completed","completed",-486056503),(0)], null),new cljs.core.Keyword(null,"home","home",-74557309),new cljs.core.Keyword(null,"idle","idle",-2007156861),new cljs.core.Keyword(null,"idle","idle",-2007156861),null,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"total","total",1916810418),(0),new cljs.core.Keyword(null,"completed","completed",-486056503),(0)], null),cljs.core.PersistentVector.EMPTY,app.state.default_stress_test_config,new cljs.core.Keyword(null,"config-form","config-form",-1295172692),cljs.core.PersistentArrayMap.EMPTY]));
+app.state.app_state = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentHashMap.fromArrays([new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"config","config",994861415),new cljs.core.Keyword(null,"config-version","config-version",587067529),new cljs.core.Keyword(null,"power-config","power-config",-239509747),new cljs.core.Keyword(null,"stress-test-progress","stress-test-progress",1552934606),new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"stress-test-status","stress-test-status",-932570733),new cljs.core.Keyword(null,"status","status",-1997798413),new cljs.core.Keyword(null,"error-message","error-message",1756021561),new cljs.core.Keyword(null,"progress","progress",244323547),new cljs.core.Keyword(null,"stress-test-results","stress-test-results",-127451651),new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),new cljs.core.Keyword(null,"view","view",1247994814),new cljs.core.Keyword(null,"results","results",-1134170113)],[new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"active-family","active-family",1167742120),"leaky",new cljs.core.Keyword(null,"params","params",710516235),new cljs.core.PersistentArrayMap(null, 8, [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708),8.0,new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489),1.0,new cljs.core.Keyword(null,"delay","delay",-574225219),3.0,new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488),12.0,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070),0.2,new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545),0.07,new cljs.core.Keyword(null,"placebo-mode?","placebo-mode?",1400066510),false,new cljs.core.Keyword(null,"n-sims","n-sims",979948804),(1000)], null),new cljs.core.Keyword(null,"calc-params","calc-params",1198861913),new cljs.core.PersistentArrayMap(null, 8, [new cljs.core.Keyword(null,"bat-med","bat-med",-703214708),8.0,new cljs.core.Keyword(null,"weibull-k","weibull-k",-470689489),1.0,new cljs.core.Keyword(null,"delay","delay",-574225219),3.0,new cljs.core.Keyword(null,"gps-med","gps-med",-1986502488),12.0,new cljs.core.Keyword(null,"cure-frac","cure-frac",-119632070),0.2,new cljs.core.Keyword(null,"leak-yr","leak-yr",-1611071545),0.07,new cljs.core.Keyword(null,"placebo-mode?","placebo-mode?",1400066510),false,new cljs.core.Keyword(null,"n-sims","n-sims",979948804),(1000)], null)], null),app.state.default_config,(0),app.state.default_power_config,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"total","total",1916810418),(0),new cljs.core.Keyword(null,"completed","completed",-486056503),(0)], null),new cljs.core.Keyword(null,"home","home",-74557309),new cljs.core.Keyword(null,"idle","idle",-2007156861),new cljs.core.Keyword(null,"idle","idle",-2007156861),null,new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"total","total",1916810418),(0),new cljs.core.Keyword(null,"completed","completed",-486056503),(0)], null),cljs.core.PersistentVector.EMPTY,app.state.default_stress_test_config,new cljs.core.Keyword(null,"config-form","config-form",-1295172692),cljs.core.PersistentArrayMap.EMPTY]));
 }
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(new cljs.core.Keyword(null,"navigate","navigate",657596805),(function (db,p__26522){
-var vec__26542 = p__26522;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26542,(0),null);
-var page = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26542,(1),null);
-cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc,new cljs.core.Keyword(null,"active-page","active-page",370357330),page);
-
-return db;
+re_frame.core.reg_cofx(new cljs.core.Keyword(null,"app-state","app-state",-1509963278),(function (coeffects,_){
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(coeffects,new cljs.core.Keyword(null,"app-state","app-state",-1509963278),cljs.core.deref(app.state.app_state));
 }));
+re_frame.core.reg_fx(new cljs.core.Keyword(null,"app-state","app-state",-1509963278),(function (new_state){
+return cljs.core.reset_BANG_(app.state.app_state,new_state);
+}));
+re_frame.core.reg_fx(new cljs.core.Keyword(null,"decode-url-state","decode-url-state",391757564),(function (p__26142){
+var map__26144 = p__26142;
+var map__26144__$1 = cljs.core.__destructure_map(map__26144);
+var page = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26144__$1,new cljs.core.Keyword(null,"page","page",849072397));
+var state_str = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26144__$1,new cljs.core.Keyword(null,"state-str","state-str",409540885));
+return app.state_url.decode_state(state_str).then((function (decoded){
+return re_frame.core.dispatch(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"apply-decoded-state","apply-decoded-state",-1305301496),page,decoded], null));
+}));
+}));
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(new cljs.core.Keyword(null,"apply-decoded-state","apply-decoded-state",-1305301496),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"app-state","app-state",-1509963278))], null),(function (p__26161,p__26162){
+var map__26163 = p__26161;
+var map__26163__$1 = cljs.core.__destructure_map(map__26163);
+var app_state = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26163__$1,new cljs.core.Keyword(null,"app-state","app-state",-1509963278));
+var vec__26164 = p__26162;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26164,(0),null);
+var page = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26164,(1),null);
+var decoded = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26164,(2),null);
+var new_state = (cljs.core.truth_((function (){var fexpr__26167 = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"fitter-sub","fitter-sub",188479042),null,new cljs.core.Keyword(null,"fitter","fitter",1602090730),null], null), null);
+return (fexpr__26167.cljs$core$IFn$_invoke$arity$1 ? fexpr__26167.cljs$core$IFn$_invoke$arity$1(page) : fexpr__26167.call(null,page));
+})())?cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"config","config",994861415),decoded):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"placebo-stress","placebo-stress",293301633)))?cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),decoded):(cljs.core.truth_((function (){var fexpr__26171 = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),null,new cljs.core.Keyword(null,"discovery-sub","discovery-sub",1797703249),null], null), null);
+return (fexpr__26171.cljs$core$IFn$_invoke$arity$1 ? fexpr__26171.cljs$core$IFn$_invoke$arity$1(page) : fexpr__26171.call(null,page));
+})())?cljs.core.assoc_in(app_state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"params","params",710516235)], null),decoded):app_state
+)));
+return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"app-state","app-state",-1509963278),new_state], null);
+}));
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(new cljs.core.Keyword(null,"navigate","navigate",657596805),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"app-state","app-state",-1509963278))], null),(function (p__26183,p__26184){
+var map__26187 = p__26183;
+var map__26187__$1 = cljs.core.__destructure_map(map__26187);
+var app_state = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26187__$1,new cljs.core.Keyword(null,"app-state","app-state",-1509963278));
+var vec__26188 = p__26184;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26188,(0),null);
+var page = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26188,(1),null);
+var path_params = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26188,(2),null);
+var query_params = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26188,(3),null);
+var new_state = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"fitter-sub","fitter-sub",188479042)))?cljs.core.assoc.cljs$core$IFn$_invoke$arity$variadic(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"fitter","fitter",1602090730),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"view","view",1247994814),cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"subtab","subtab",1005980472).cljs$core$IFn$_invoke$arity$1(path_params))], 0)):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"discovery-sub","discovery-sub",1797703249)))?cljs.core.assoc_in(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"discovery","discovery",1906276356)),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"active-family","active-family",1167742120)], null),new cljs.core.Keyword(null,"subtab","subtab",1005980472).cljs$core$IFn$_invoke$arity$1(path_params)):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"fitter","fitter",1602090730)))?cljs.core.assoc.cljs$core$IFn$_invoke$arity$variadic(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"fitter","fitter",1602090730),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"view","view",1247994814),new cljs.core.Keyword(null,"config-form","config-form",-1295172692)], 0)):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"discovery","discovery",1906276356)))?cljs.core.assoc_in(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"discovery","discovery",1906276356)),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"active-family","active-family",1167742120)], null),"weibull"):cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),page)
+))));
+var effects = new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"app-state","app-state",-1509963278),new_state], null);
+var temp__5823__auto__ = new cljs.core.Keyword(null,"state","state",-1988618099).cljs$core$IFn$_invoke$arity$1(query_params);
+if(cljs.core.truth_(temp__5823__auto__)){
+var state_str = temp__5823__auto__;
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(effects,new cljs.core.Keyword(null,"decode-url-state","decode-url-state",391757564),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"page","page",849072397),page,new cljs.core.Keyword(null,"state-str","state-str",409540885),state_str], null));
+} else {
+return effects;
+}
+}));
+app.state.sync_to_url_BANG_ = (function app$state$sync_to_url_BANG_(data){
+return app.state_url.encode_state(data).then((function (b64){
+return reitit.frontend.easy.set_query.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"state","state",-1988618099),b64], null));
+}));
+});
 app.state.set_config_BANG_ = (function app$state$set_config_BANG_(k,v){
-return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc_in,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"config","config",994861415),k], null),v);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc_in,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"config","config",994861415),k], null),v);
+
+return app.state.sync_to_url_BANG_(new cljs.core.Keyword(null,"config","config",994861415).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(app.state.app_state)));
 });
 app.state.reset_config_BANG_ = (function app$state$reset_config_BANG_(new_config){
-return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(app.state.app_state,(function (state){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(app.state.app_state,(function (state){
 return cljs.core.update.cljs$core$IFn$_invoke$arity$3(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,new cljs.core.Keyword(null,"config","config",994861415),new_config),new cljs.core.Keyword(null,"config-version","config-version",587067529),cljs.core.fnil.cljs$core$IFn$_invoke$arity$2(cljs.core.inc,(0)));
 }));
+
+return app.state.sync_to_url_BANG_(new_config);
 });
 app.state.update_config_BANG_ = (function app$state$update_config_BANG_(new_config){
-return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc,new cljs.core.Keyword(null,"config","config",994861415),new_config);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc,new cljs.core.Keyword(null,"config","config",994861415),new_config);
+
+return app.state.sync_to_url_BANG_(new_config);
 });
 app.state.set_stress_test_config_BANG_ = (function app$state$set_stress_test_config_BANG_(k,v){
-return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc_in,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),k], null),v);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc_in,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),k], null),v);
+
+return app.state.sync_to_url_BANG_(new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202).cljs$core$IFn$_invoke$arity$1(cljs.core.deref(app.state.app_state)));
 });
 app.state.update_stress_test_config_BANG_ = (function app$state$update_stress_test_config_BANG_(new_config){
-return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc,new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),new_config);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc,new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),new_config);
+
+return app.state.sync_to_url_BANG_(new_config);
 });
 app.state.update_power_config_BANG_ = (function app$state$update_power_config_BANG_(new_config){
 return cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc,new cljs.core.Keyword(null,"power-config","power-config",-239509747),new_config);
+});
+app.state.update_discovery_params_BANG_ = (function app$state$update_discovery_params_BANG_(new_params){
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(app.state.app_state,cljs.core.assoc_in,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"params","params",710516235)], null),new_params);
+
+return app.state.sync_to_url_BANG_(new_params);
 });
 
 //# sourceMappingURL=app.state.js.map
