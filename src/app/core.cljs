@@ -2,12 +2,38 @@
   (:require [app.ui :as ui]
             [app.worker-pool :as wp]
             [app.simulator :as sim]
-            [reagent.dom :as rdom]))
+            [reagent.dom :as rdom]
+            [reitit.frontend :as rf]
+            [reitit.frontend.easy :as rfe]
+            [re-frame.core :as re-frame]))
+
+(def routes
+  [["/"
+    {:name :home}]
+   ["/fitter"
+    {:name :fitter}]
+   ["/fitter/:subtab"
+    {:name :fitter-sub}]
+   ["/placebo-stress"
+    {:name :placebo-stress}]
+   ["/discovery"
+    {:name :discovery}]
+   ["/discovery/:subtab"
+    {:name :discovery-sub}]])
+
+(defn init-routes! []
+  (rfe/start!
+   (rf/router routes)
+   (fn [match]
+     (when match
+       (re-frame/dispatch [:navigate (:name (:data match)) (:path-params match) (:query-params match)])))
+   {:use-fragment true}))
 
 (defn ^:export init []
   (js/console.log "App init")
   (wp/init-pool! nil)
   (sim/init!)
+  (init-routes!)
   (rdom/render [ui/main-view] (js/document.getElementById "app")))
 
 

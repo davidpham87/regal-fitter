@@ -1,7 +1,9 @@
 (ns app.state
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [malli.core :as m]))
+            [malli.core :as m]
+            [app.state-url :as state-url]
+            [reitit.frontend.easy :as rfe]))
 
 ;; --- Default Config ---
 (def default-config
@@ -210,27 +212,77 @@
 
 (rf/reg-event-db
   :navigate
-  (fn [db [_ page]]
-    (swap! app-state assoc :active-page page)
+  (fn [db [_ page path-params query-params]]
+    (cond
+      (= page :fitter-sub)
+      (swap! app-state assoc :active-page :fitter
+             :view (keyword (:subtab path-params)))
+
+      (= page :discovery-sub)
+      (swap! app-state (fn [state]
+                         (-> state
+                             (assoc :active-page :discovery)
+                             (assoc-in [:discovery :active-family] (:subtab path-params)))))
+
+      (= page :fitter)
+      (swap! app-state assoc :active-page :fitter :view :config-form)
+
+      (= page :discovery)
+      (swap! app-state (fn [state]
+                         (-> state
+                             (assoc :active-page :discovery)
+                             (assoc-in [:discovery :active-family] "weibull"))))
+
+      :else
+      (swap! app-state assoc :active-page page))
+
+    (when-let [state-str (:state query-params)]
+      (-> (state-url/decode-state state-str)
+          (.then (fn [decoded]
+                   (cond
+                     (#{:fitter :fitter-sub} page)
+                     (swap! app-state assoc :config decoded)
+
+                     (= page :placebo-stress)
+                     (swap! app-state assoc :stress-test-config decoded)
+
+                     (#{:discovery :discovery-sub} page)
+                     (swap! app-state assoc-in [:discovery :params] decoded)
+
+                     :else nil)))))
     db))
 
+(defn- sync-to-url! [data]
+  (-> (state-url/encode-state data)
+      (.then (fn [b64]
+               (rfe/set-query {:state b64})))))
+
 (defn set-config! [k v]
-  (swap! app-state assoc-in [:config k] v))
+  (swap! app-state assoc-in [:config k] v)
+  (sync-to-url! (:config @app-state)))
 
 (defn reset-config! [new-config]
   (swap! app-state (fn [state]
                      (-> state
                          (assoc :config new-config)
-                         (update :config-version (fnil inc 0))))))
+                         (update :config-version (fnil inc 0)))))
+  (sync-to-url! new-config))
 
 (defn update-config! [new-config]
-  (swap! app-state assoc :config new-config))
+  (swap! app-state assoc :config new-config)
+  (sync-to-url! new-config))
 
 (defn set-stress-test-config! [k v]
-  (swap! app-state assoc-in [:stress-test-config k] v))
+  (swap! app-state assoc-in [:stress-test-config k] v)
+  (sync-to-url! (:stress-test-config @app-state)))
 
 (defn update-stress-test-config! [new-config]
-  (swap! app-state assoc :stress-test-config new-config))
+  (swap! app-state assoc :stress-test-config new-config)
+  (sync-to-url! new-config))
 
 (defn update-power-config! [new-config]
   (swap! app-state assoc :power-config new-config))
+
+(defn update-discovery-params! [new-params]
+  (swap! app-state assoc-in [:discovery :params] new-params)
+  (sync-to-url! new-params))
