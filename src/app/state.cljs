@@ -210,47 +210,70 @@
 
 ;; --- DB Subscriptions / Event Handlers (using re-frame or manual swaps) ---
 
-(rf/reg-event-db
-  :navigate
-  (fn [db [_ page path-params query-params]]
-    (cond
-      (= page :fitter-sub)
-      (swap! app-state assoc :active-page :fitter
-             :view (keyword (:subtab path-params)))
+(rf/reg-cofx
+ :app-state
+ (fn [coeffects _]
+   (assoc coeffects :app-state @app-state)))
 
-      (= page :discovery-sub)
-      (swap! app-state (fn [state]
-                         (-> state
-                             (assoc :active-page :discovery)
-                             (assoc-in [:discovery :active-family] (:subtab path-params)))))
+(rf/reg-fx
+ :app-state
+ (fn [new-state]
+   (reset! app-state new-state)))
 
-      (= page :fitter)
-      (swap! app-state assoc :active-page :fitter :view :config-form)
+(rf/reg-fx
+ :decode-url-state
+ (fn [{:keys [page state-str]}]
+   (-> (state-url/decode-state state-str)
+       (.then (fn [decoded]
+                (rf/dispatch [:apply-decoded-state page decoded]))))))
 
-      (= page :discovery)
-      (swap! app-state (fn [state]
-                         (-> state
-                             (assoc :active-page :discovery)
-                             (assoc-in [:discovery :active-family] "weibull"))))
-
-      :else
-      (swap! app-state assoc :active-page page))
-
-    (when-let [state-str (:state query-params)]
-      (-> (state-url/decode-state state-str)
-          (.then (fn [decoded]
-                   (cond
+(rf/reg-event-fx
+ :apply-decoded-state
+ [(rf/inject-cofx :app-state)]
+ (fn [{:keys [app-state]} [_ page decoded]]
+   (let [new-state (cond
                      (#{:fitter :fitter-sub} page)
-                     (swap! app-state assoc :config decoded)
+                     (assoc app-state :config decoded)
 
                      (= page :placebo-stress)
-                     (swap! app-state assoc :stress-test-config decoded)
+                     (assoc app-state :stress-test-config decoded)
 
                      (#{:discovery :discovery-sub} page)
-                     (swap! app-state assoc-in [:discovery :params] decoded)
+                     (assoc-in app-state [:discovery :params] decoded)
 
-                     :else nil)))))
-    db))
+                     :else
+                     app-state)]
+     {:app-state new-state})))
+
+(rf/reg-event-fx
+  :navigate
+  [(rf/inject-cofx :app-state)]
+  (fn [{:keys [app-state]} [_ page path-params query-params]]
+    (let [new-state (cond
+                      (= page :fitter-sub)
+                      (assoc app-state :active-page :fitter
+                             :view (keyword (:subtab path-params)))
+
+                      (= page :discovery-sub)
+                      (-> app-state
+                          (assoc :active-page :discovery)
+                          (assoc-in [:discovery :active-family] (:subtab path-params)))
+
+                      (= page :fitter)
+                      (assoc app-state :active-page :fitter :view :config-form)
+
+                      (= page :discovery)
+                      (-> app-state
+                          (assoc :active-page :discovery)
+                          (assoc-in [:discovery :active-family] "weibull"))
+
+                      :else
+                      (assoc app-state :active-page page))
+          effects {:app-state new-state}]
+
+      (if-let [state-str (:state query-params)]
+        (assoc effects :decode-url-state {:page page :state-str state-str})
+        effects))))
 
 (defn- sync-to-url! [data]
   (-> (state-url/encode-state data)
