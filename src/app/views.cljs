@@ -154,6 +154,23 @@
        :name "n-sims"
        :value (:n-sims values)
        :on-change handle-change}]]]
+
+   [:div.mt-4
+    [:h3.text-sm.font-semibold.text-gray-700.mb-2 "Include in Joint Probability (p_joint):"]
+    [:div.flex.flex-wrap.gap-4
+     [:label.flex.items-center.gap-2.text-sm.text-gray-700
+      [:input {:type "checkbox" :name "use-test-ia" :checked (:use-test-ia values) :on-change handle-change}]
+      "Interim Analysis Events"]
+     [:label.flex.items-center.gap-2.text-sm.text-gray-700
+      [:input {:type "checkbox" :name "use-test-upd" :checked (:use-test-upd values) :on-change handle-change}]
+      "Deceleration Events"]
+     [:label.flex.items-center.gap-2.text-sm.text-gray-700
+      [:input {:type "checkbox" :name "use-test-pr3" :checked (:use-test-pr3 values) :on-change handle-change}]
+      "Extension Events"]
+     [:label.flex.items-center.gap-2.text-sm.text-gray-700
+      [:input {:type "checkbox" :name "use-test-pool-mos" :checked (:use-test-pool-mos values) :on-change handle-change}]
+      "Pool mOS"]]]
+
    [:div.mt-4.flex.justify-center
     [:button.bg-blue-600.hover:bg-blue-700.text-white
      {:class "font-bold px-6 py-2 rounded-lg shadow"
@@ -248,16 +265,18 @@
      [:h4.font-semibold.text-blue-950.mb-2 "Observed Stress Milestones:"]
      [:ul.list-disc.pl-4.space-y-1
       [:li [:strong "Interim Analysis:"]
-       " Event count at month 46 is ≤ 60 events."]
+       " Event count at month 46 is upper bound at ≤ 60 events."]
       [:li [:strong "Deceleration:"]
-       " Incremental events between months 46 and 58 is ≤ 12 events."]
+       " Incremental events between months 46 and 58 is upper bound at ≤ 12 events."]
       [:li [:strong "Extension:"]
-       " Incremental events between months 58 and 63 is ≤ 6 events."]]]
+       " Incremental events between months 58 and 63 is upper bound at ≤ 6 events."]
+      [:li [:strong "Pool mOS:"]
+       " Pool mOS is between 12.5 to 14.5 at time of interim analysis (time ia)."]]]
     [:div
      [:h4.font-semibold.text-blue-950.mb-2 "Key Metrics Explained:"]
      [:ul.list-disc.pl-4.space-y-1
       [:li [:strong "p_joint:"]
-       " The probability of a trial meeting ALL three stress "
+       " The probability of a trial meeting the selected stress "
        "milestones simultaneously under H0. A low value (e.g. < 5%) suggests "
        "H0 is highly unlikely."]
       [:li [:strong "Expected Events:"]
