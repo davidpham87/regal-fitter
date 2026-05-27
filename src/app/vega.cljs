@@ -325,3 +325,18 @@
                          :type "nominal"
                          :title "BAT Scenario"
                          :legend {:orient "bottom"}}}}]))
+
+(defn enrollment-chart [data]
+  [vega-lite
+   {:width 600 :height 400
+    :title "Enrollment Curve with 95% Confidence Interval"
+    :data {:values data}
+    :layer [{:mark {:type "area" :opacity 0.3}
+             :encoding {:x {:field "time" :type "quantitative" :title "Time (months)"}
+                        :y {:field "low" :type "quantitative" :title "Enrolled Patients"}
+                        :y2 {:field "high" :type "quantitative"}
+                        :color {:value "#4488cc"}}}
+            {:mark {:type "line" :strokeWidth 2}
+             :encoding {:x {:field "time" :type "quantitative"}
+                        :y {:field "mean" :type "quantitative"}
+                        :color {:value "#4488cc"}}}]}])

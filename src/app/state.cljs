@@ -151,7 +151,12 @@
    :obs-inc-upd 12
    :obs-inc-pr3 6
    :futility-hr-max 1.0
-   :pool-mos-min 12.0
+   :pool-mos-min 12.5
+   :pool-mos-max 14.5
+   :use-test-ia true
+   :use-test-upd true
+   :use-test-pr3 true
+   :use-test-pool-mos true
    :enroll-bands
    [[0.0 12.0 12]
     [12.0 18.0 6]
@@ -181,6 +186,9 @@
            :config-version 0
            :stress-test-config default-stress-test-config
            :power-config default-power-config
+           :enrollment-mode {:mode :manual
+                             :median-month 30
+                             :k 0.1}
            :status :idle ;; :idle, :running-stage1, :running-stage2, :done, :error
            :stress-test-status :idle
            :progress {:total 0 :completed 0}
