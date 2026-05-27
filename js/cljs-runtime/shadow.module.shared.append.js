@@ -56,4 +56,5 @@ SHADOW_ENV.setLoaded("module$node_modules$process$browser.js");
 SHADOW_ENV.setLoaded("module$node_modules$numpy_ts$dist$numpy_ts_browser.js");
 SHADOW_ENV.setLoaded("cljs.numpy.js");
 SHADOW_ENV.setLoaded("app.regal_fit.survival.js");
+SHADOW_ENV.setLoaded("cljs.numpy_random.js");
 SHADOW_ENV.setLoaded("shadow.module.shared.append.js");

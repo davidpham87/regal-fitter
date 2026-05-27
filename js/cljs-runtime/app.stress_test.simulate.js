@@ -11,67 +11,67 @@ var col = (0);
 var remaining_bands = bands;
 while(true){
 if(cljs.core.seq(remaining_bands)){
-var vec__35632 = cljs.core.first(remaining_bands);
-var lo = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__35632,(0),null);
-var hi = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__35632,(1),null);
-var n = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__35632,(2),null);
+var vec__28495 = cljs.core.first(remaining_bands);
+var lo = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28495,(0),null);
+var hi = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28495,(1),null);
+var n = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__28495,(2),null);
 if((n > (0))){
-var n__5762__auto___35650 = n_sims;
-var s_35651 = (0);
+var n__5762__auto___28522 = n_sims;
+var s_28523 = (0);
 while(true){
-if((s_35651 < n__5762__auto___35650)){
-var n__5762__auto___35652__$1 = n;
-var i_35653 = (0);
+if((s_28523 < n__5762__auto___28522)){
+var n__5762__auto___28524__$1 = n;
+var i_28525 = (0);
 while(true){
-if((i_35653 < n__5762__auto___35652__$1)){
-(enroll[(((s_35651 * n_total) + col) + i_35653)] = app.stress_test.simulate.uniform_draw(lo,hi));
+if((i_28525 < n__5762__auto___28524__$1)){
+(enroll[(((s_28523 * n_total) + col) + i_28525)] = app.stress_test.simulate.uniform_draw(lo,hi));
 
-var G__35654 = (i_35653 + (1));
-i_35653 = G__35654;
+var G__28526 = (i_28525 + (1));
+i_28525 = G__28526;
 continue;
 } else {
 }
 break;
 }
 
-var G__35655 = (s_35651 + (1));
-s_35651 = G__35655;
+var G__28527 = (s_28523 + (1));
+s_28523 = G__28527;
 continue;
 } else {
 }
 break;
 }
 
-var G__35662 = (col + n);
-var G__35663 = cljs.core.rest(remaining_bands);
-col = G__35662;
-remaining_bands = G__35663;
+var G__28528 = (col + n);
+var G__28529 = cljs.core.rest(remaining_bands);
+col = G__28528;
+remaining_bands = G__28529;
 continue;
 } else {
-var G__35666 = col;
-var G__35667 = cljs.core.rest(remaining_bands);
-col = G__35666;
-remaining_bands = G__35667;
+var G__28530 = col;
+var G__28531 = cljs.core.rest(remaining_bands);
+col = G__28530;
+remaining_bands = G__28531;
 continue;
 }
 } else {
-var n__5762__auto___35668 = n_sims;
-var s_35669 = (0);
+var n__5762__auto___28532 = n_sims;
+var s_28533 = (0);
 while(true){
-if((s_35669 < n__5762__auto___35668)){
-var start_35670 = (s_35669 * n_total);
-var end_35671 = (start_35670 + n_total);
-var sim_enroll_35672 = enroll.slice(start_35670,end_35671);
-sim_enroll_35672.sort(((function (s_35669,col,remaining_bands,start_35670,end_35671,sim_enroll_35672,n__5762__auto___35668,enroll){
+if((s_28533 < n__5762__auto___28532)){
+var start_28534 = (s_28533 * n_total);
+var end_28535 = (start_28534 + n_total);
+var sim_enroll_28536 = enroll.slice(start_28534,end_28535);
+sim_enroll_28536.sort(((function (s_28533,col,remaining_bands,start_28534,end_28535,sim_enroll_28536,n__5762__auto___28532,enroll){
 return (function (a,b){
 return (a - b);
-});})(s_35669,col,remaining_bands,start_35670,end_35671,sim_enroll_35672,n__5762__auto___35668,enroll))
+});})(s_28533,col,remaining_bands,start_28534,end_28535,sim_enroll_28536,n__5762__auto___28532,enroll))
 );
 
-enroll.set(sim_enroll_35672,start_35670);
+enroll.set(sim_enroll_28536,start_28534);
 
-var G__35675 = (s_35669 + (1));
-s_35669 = G__35675;
+var G__28537 = (s_28533 + (1));
+s_28533 = G__28537;
 continue;
 } else {
 }
@@ -92,14 +92,14 @@ if((n === (0))){
 return 1.0;
 } else {
 var indices = (new Int32Array(n));
-var n__5762__auto___35676 = n;
-var i_35677 = (0);
+var n__5762__auto___28538 = n;
+var i_28539 = (0);
 while(true){
-if((i_35677 < n__5762__auto___35676)){
-(indices[i_35677] = i_35677);
+if((i_28539 < n__5762__auto___28538)){
+(indices[i_28539] = i_28539);
 
-var G__35678 = (i_35677 + (1));
-i_35677 = G__35678;
+var G__28540 = (i_28539 + (1));
+i_28539 = G__28540;
 continue;
 } else {
 }
@@ -119,19 +119,19 @@ var t = (obs_t_arr[idx]);
 var is_ev = ((is_ev_arr[idx]) === (1));
 var n_at_risk = (n - i);
 if(((is_ev) && ((t <= target_time)))){
-var G__35679 = (i + (1));
-var G__35680 = (surv * (1.0 - (1.0 / n_at_risk)));
-i = G__35679;
-surv = G__35680;
+var G__28541 = (i + (1));
+var G__28542 = (surv * (1.0 - (1.0 / n_at_risk)));
+i = G__28541;
+surv = G__28542;
 continue;
 } else {
 if((t > target_time)){
 return surv;
 } else {
-var G__35684 = (i + (1));
-var G__35685 = surv;
-i = G__35684;
-surv = G__35685;
+var G__28543 = (i + (1));
+var G__28544 = surv;
+i = G__28543;
+surv = G__28544;
 continue;
 }
 }
@@ -153,8 +153,8 @@ var tmp = (arr[i]);
 
 (arr[j] = tmp);
 
-var G__35686 = (i - (1));
-i = G__35686;
+var G__28545 = (i - (1));
+i = G__28545;
 continue;
 } else {
 return null;
@@ -168,17 +168,17 @@ return (median / Math.pow(Math.log(2.0),(1.0 / shape)));
 /**
  * Simulates a single (mOS, k) combination.
  */
-app.stress_test.simulate.simulate_one_combo = (function app$stress_test$simulate$simulate_one_combo(p__35642){
-var map__35643 = p__35642;
-var map__35643__$1 = cljs.core.__destructure_map(map__35643);
-var mos = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__35643__$1,new cljs.core.Keyword(null,"mos","mos",1902052264));
-var k = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__35643__$1,new cljs.core.Keyword(null,"k","k",-2146297393));
-var n_sims = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__35643__$1,new cljs.core.Keyword(null,"n-sims","n-sims",979948804));
-var seed = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__35643__$1,new cljs.core.Keyword(null,"seed","seed",68613327));
-var config = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__35643__$1,new cljs.core.Keyword(null,"config","config",994861415));
+app.stress_test.simulate.simulate_one_combo = (function app$stress_test$simulate$simulate_one_combo(p__28512){
+var map__28513 = p__28512;
+var map__28513__$1 = cljs.core.__destructure_map(map__28513);
+var mos = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28513__$1,new cljs.core.Keyword(null,"mos","mos",1902052264));
+var k = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28513__$1,new cljs.core.Keyword(null,"k","k",-2146297393));
+var n_sims = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28513__$1,new cljs.core.Keyword(null,"n-sims","n-sims",979948804));
+var seed = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28513__$1,new cljs.core.Keyword(null,"seed","seed",68613327));
+var config = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__28513__$1,new cljs.core.Keyword(null,"config","config",994861415));
 var scale = app.stress_test.simulate.weibull_scale_from_median(mos,k);
-var n_total = cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__35638_SHARP_){
-return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(p1__35638_SHARP_,(2));
+var n_total = cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__28504_SHARP_){
+return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(p1__28504_SHARP_,(2));
 }),new cljs.core.Keyword(null,"enroll-bands","enroll-bands",-1513727820).cljs$core$IFn$_invoke$arity$1(config)));
 var n_per_arm = cljs.core.quot(n_total,(2));
 var enroll_arr = app.stress_test.simulate.generate_enrollment(n_sims,n_total,new cljs.core.Keyword(null,"enroll-bands","enroll-bands",-1513727820).cljs$core$IFn$_invoke$arity$1(config));
@@ -191,81 +191,87 @@ var t_ia = new cljs.core.Keyword(null,"t-ia","t-ia",1745131236).cljs$core$IFn$_i
 var t_upd = new cljs.core.Keyword(null,"t-upd","t-upd",-1409887031).cljs$core$IFn$_invoke$arity$1(config);
 var t_pr3 = new cljs.core.Keyword(null,"t-pr3","t-pr3",1915738100).cljs$core$IFn$_invoke$arity$1(config);
 var pool_mos_min = new cljs.core.Keyword(null,"pool-mos-min","pool-mos-min",-1242053139).cljs$core$IFn$_invoke$arity$1(config);
+var pool_mos_max = new cljs.core.Keyword(null,"pool-mos-max","pool-mos-max",1491106007).cljs$core$IFn$_invoke$arity$1(config);
+var use_test_ia = new cljs.core.Keyword(null,"use-test-ia","use-test-ia",-531762511).cljs$core$IFn$_invoke$arity$1(config);
+var use_test_upd = new cljs.core.Keyword(null,"use-test-upd","use-test-upd",403094127).cljs$core$IFn$_invoke$arity$1(config);
+var use_test_pr3 = new cljs.core.Keyword(null,"use-test-pr3","use-test-pr3",847119890).cljs$core$IFn$_invoke$arity$1(config);
+var use_test_pool_mos = new cljs.core.Keyword(null,"use-test-pool-mos","use-test-pool-mos",734922399).cljs$core$IFn$_invoke$arity$1(config);
 var inv_k = (1.0 / k);
-var n__5762__auto___35687 = n_sims;
-var s_35688 = (0);
+var n__5762__auto___28547 = n_sims;
+var s_28548 = (0);
 while(true){
-if((s_35688 < n__5762__auto___35687)){
-var offset_35689 = (s_35688 * n_total);
-var trial_obs_t_35690 = (new Float64Array(n_total));
-var trial_is_ev_35691 = (new Int8Array(n_total));
-var is_gps_35692 = (new Int8Array(n_total));
-var n__5762__auto___35693__$1 = n_per_arm;
-var i_35694 = (0);
+if((s_28548 < n__5762__auto___28547)){
+var offset_28549 = (s_28548 * n_total);
+var trial_obs_t_28550 = (new Float64Array(n_total));
+var trial_is_ev_28551 = (new Int8Array(n_total));
+var is_gps_28552 = (new Int8Array(n_total));
+var n__5762__auto___28553__$1 = n_per_arm;
+var i_28554 = (0);
 while(true){
-if((i_35694 < n__5762__auto___35693__$1)){
-(is_gps_35692[i_35694] = (1));
+if((i_28554 < n__5762__auto___28553__$1)){
+(is_gps_28552[i_28554] = (1));
 
-var G__35695 = (i_35694 + (1));
-i_35694 = G__35695;
+var G__28555 = (i_28554 + (1));
+i_28554 = G__28555;
 continue;
 } else {
 }
 break;
 }
 
-app.stress_test.simulate.shuffle_array(is_gps_35692);
+app.stress_test.simulate.shuffle_array(is_gps_28552);
 
-var n__5762__auto___35696__$1 = n_total;
-var i_35697 = (0);
+var n__5762__auto___28556__$1 = n_total;
+var i_28557 = (0);
 while(true){
-if((i_35697 < n__5762__auto___35696__$1)){
-var idx_35698 = (offset_35689 + i_35697);
-var e_val_35699 = (enroll_arr[idx_35698]);
-var s_val_35700 = (scale * Math.pow((- Math.log((1.0 - Math.random()))),inv_k));
-var f_ia_35701 = Math.max((t_ia - e_val_35699),0.0);
-var f_upd_35702 = Math.max((t_upd - e_val_35699),0.0);
-var f_pr3_35703 = Math.max((t_pr3 - e_val_35699),0.0);
-if((s_val_35700 <= f_ia_35701)){
-(ev_ia[s_35688] = ((ev_ia[s_35688]) + (1)));
+if((i_28557 < n__5762__auto___28556__$1)){
+var idx_28558 = (offset_28549 + i_28557);
+var e_val_28559 = (enroll_arr[idx_28558]);
+var s_val_28560 = (scale * Math.pow((- Math.log((1.0 - Math.random()))),inv_k));
+var f_ia_28561 = Math.max((t_ia - e_val_28559),0.0);
+var f_upd_28562 = Math.max((t_upd - e_val_28559),0.0);
+var f_pr3_28563 = Math.max((t_pr3 - e_val_28559),0.0);
+if((s_val_28560 <= f_ia_28561)){
+(ev_ia[s_28548] = ((ev_ia[s_28548]) + (1)));
 
-if(((is_gps_35692[i_35697]) === (1))){
-(gps_ev_ia[s_35688] = ((gps_ev_ia[s_35688]) + (1)));
+if(((is_gps_28552[i_28557]) === (1))){
+(gps_ev_ia[s_28548] = ((gps_ev_ia[s_28548]) + (1)));
 } else {
 }
 } else {
 }
 
-if((s_val_35700 <= f_upd_35702)){
-(ev_upd[s_35688] = ((ev_upd[s_35688]) + (1)));
+if((s_val_28560 <= f_upd_28562)){
+(ev_upd[s_28548] = ((ev_upd[s_28548]) + (1)));
 } else {
 }
 
-if((s_val_35700 <= f_pr3_35703)){
-(ev_pr3[s_35688] = ((ev_pr3[s_35688]) + (1)));
+if((s_val_28560 <= f_pr3_28563)){
+(ev_pr3[s_28548] = ((ev_pr3[s_28548]) + (1)));
 } else {
 }
 
-(trial_obs_t_35690[i_35697] = Math.min(s_val_35700,f_ia_35701));
+(trial_obs_t_28550[i_28557] = Math.min(s_val_28560,f_ia_28561));
 
-(trial_is_ev_35691[i_35697] = (((s_val_35700 <= f_ia_35701))?(1):(0)));
+(trial_is_ev_28551[i_28557] = (((s_val_28560 <= f_ia_28561))?(1):(0)));
 
-var G__35710 = (i_35697 + (1));
-i_35697 = G__35710;
+var G__28564 = (i_28557 + (1));
+i_28557 = G__28564;
 continue;
 } else {
 }
 break;
 }
 
-var s_at_12_35711 = app.stress_test.simulate.km_survival_single(trial_obs_t_35690,trial_is_ev_35691,pool_mos_min);
-if((s_at_12_35711 > 0.5)){
-(pass_pool[s_35688] = (1));
+var s_at_min_28565 = app.stress_test.simulate.km_survival_single(trial_obs_t_28550,trial_is_ev_28551,pool_mos_min);
+var s_at_max_28566 = app.stress_test.simulate.km_survival_single(trial_obs_t_28550,trial_is_ev_28551,pool_mos_max);
+if((((s_at_min_28565 > 0.5)) && ((s_at_max_28566 < 0.5)))){
+(pass_pool[s_28548] = (1));
 } else {
 }
 
-var G__35712 = (s_35688 + (1));
-s_35688 = G__35712;
+var G__28567 = (s_28548 + (1));
+s_28548 = G__28567;
 continue;
 } else {
 }
@@ -284,55 +290,56 @@ var total_inc_pr3_le_6 = cljs.core.atom.cljs$core$IFn$_invoke$arity$1((0));
 var sum_ev_ia = cljs.core.atom.cljs$core$IFn$_invoke$arity$1((0));
 var sum_inc_upd = cljs.core.atom.cljs$core$IFn$_invoke$arity$1((0));
 var sum_inc_pr3 = cljs.core.atom.cljs$core$IFn$_invoke$arity$1((0));
-var n__5762__auto___35713 = n_sims;
-var s_35714 = (0);
+var n__5762__auto___28569 = n_sims;
+var s_28570 = (0);
 while(true){
-if((s_35714 < n__5762__auto___35713)){
-var e_ia_35715 = (ev_ia[s_35714]);
-var e_upd_35716 = (ev_upd[s_35714]);
-var e_pr3_35717 = (ev_pr3[s_35714]);
-var g_ia_35718 = (gps_ev_ia[s_35714]);
-var p_pool_35719 = ((pass_pool[s_35714]) === (1));
-var i_upd_35720 = (e_upd_35716 - e_ia_35715);
-var i_pr3_35721 = (e_pr3_35717 - e_upd_35716);
-var pass_hr_35722 = (g_ia_35718 < (futility_hr_max * (e_ia_35715 / (futility_hr_max + (1)))));
-var passed_ia_35723 = ((pass_hr_35722) && (p_pool_35719));
-cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(sum_ev_ia,cljs.core._PLUS_,e_ia_35715);
+if((s_28570 < n__5762__auto___28569)){
+var e_ia_28572 = (ev_ia[s_28570]);
+var e_upd_28573 = (ev_upd[s_28570]);
+var e_pr3_28574 = (ev_pr3[s_28570]);
+var g_ia_28575 = (gps_ev_ia[s_28570]);
+var p_pool_28576 = ((pass_pool[s_28570]) === (1));
+var i_upd_28577 = (e_upd_28573 - e_ia_28572);
+var i_pr3_28578 = (e_pr3_28574 - e_upd_28573);
+var pass_hr_28579 = (g_ia_28575 < (futility_hr_max * (e_ia_28572 / (futility_hr_max + (1)))));
+var passed_ia_28580 = ((pass_hr_28579) && (p_pool_28576));
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(sum_ev_ia,cljs.core._PLUS_,e_ia_28572);
 
-cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(sum_inc_upd,cljs.core._PLUS_,i_upd_35720);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(sum_inc_upd,cljs.core._PLUS_,i_upd_28577);
 
-cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(sum_inc_pr3,cljs.core._PLUS_,i_pr3_35721);
+cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(sum_inc_pr3,cljs.core._PLUS_,i_pr3_28578);
 
-if(passed_ia_35723){
+if(passed_ia_28580){
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(total_passed_ia,cljs.core.inc);
 } else {
 }
 
-var c1_35724 = (e_ia_35715 <= obs_ev_ia);
-var c2_35725 = (i_upd_35720 <= obs_inc_upd);
-var c3_35726 = (i_pr3_35721 <= obs_inc_pr3);
-if(c1_35724){
+var c1_28582 = ((cljs.core.not(use_test_ia)) || ((e_ia_28572 <= obs_ev_ia)));
+var c2_28583 = ((cljs.core.not(use_test_upd)) || ((i_upd_28577 <= obs_inc_upd)));
+var c3_28584 = ((cljs.core.not(use_test_pr3)) || ((i_pr3_28578 <= obs_inc_pr3)));
+var c4_28585 = ((cljs.core.not(use_test_pool_mos)) || (p_pool_28576));
+if((e_ia_28572 <= obs_ev_ia)){
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(total_ev_ia_le_60,cljs.core.inc);
 } else {
 }
 
-if(c2_35725){
+if((i_upd_28577 <= obs_inc_upd)){
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(total_inc_upd_le_12,cljs.core.inc);
 } else {
 }
 
-if(c3_35726){
+if((i_pr3_28578 <= obs_inc_pr3)){
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(total_inc_pr3_le_6,cljs.core.inc);
 } else {
 }
 
-if(((c1_35724) && (((c2_35725) && (c3_35726))))){
+if(((c1_28582) && (((c2_28583) && (((c3_28584) && (c4_28585))))))){
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$2(joint_pass_count,cljs.core.inc);
 } else {
 }
 
-var G__35727 = (s_35714 + (1));
-s_35714 = G__35727;
+var G__28586 = (s_28570 + (1));
+s_28570 = G__28586;
 continue;
 } else {
 }

@@ -1,5 +1,4 @@
 ;
-SHADOW_ENV.setLoaded("cljs.numpy_random.js");
 SHADOW_ENV.setLoaded("app.regal_fit.stats.js");
 SHADOW_ENV.setLoaded("app.regal_fit.random.js");
 SHADOW_ENV.setLoaded("app.regal_fit.simulate.js");

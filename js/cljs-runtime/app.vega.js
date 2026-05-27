@@ -3,8 +3,8 @@ var module$node_modules$vega_embed$build$embed=shadow.js.require("module$node_mo
 app.vega.vega_lite = (function app$vega$vega_lite(spec){
 var ref = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(null);
 return reagent.core.create_class.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"reagent-render","reagent-render",-985383853),(function (){
-return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"ref","ref",1289896967),(function (p1__27639_SHARP_){
-return cljs.core.reset_BANG_(ref,p1__27639_SHARP_);
+return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"ref","ref",1289896967),(function (p1__27632_SHARP_){
+return cljs.core.reset_BANG_(ref,p1__27632_SHARP_);
 })], null)], null);
 }),new cljs.core.Keyword(null,"component-did-mount","component-did-mount",-1126910518),(function (this$){
 if(cljs.core.truth_(cljs.core.deref(ref))){
@@ -43,10 +43,10 @@ return null;
 if(cljs.core.empty_QMARK_(valid_idx)){
 return null;
 } else {
-return (cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27655_SHARP_){
-return (cljs.core.nth.cljs$core$IFn$_invoke$arity$2(vs,p1__27655_SHARP_) * cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27655_SHARP_));
-}),valid_idx)) / cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27656_SHARP_){
-return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27656_SHARP_);
+return (cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27634_SHARP_){
+return (cljs.core.nth.cljs$core$IFn$_invoke$arity$2(vs,p1__27634_SHARP_) * cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27634_SHARP_));
+}),valid_idx)) / cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27635_SHARP_){
+return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27635_SHARP_);
 }),valid_idx)));
 }
 });
@@ -84,8 +84,8 @@ if(((cljs.core.empty_QMARK_(results)) || ((tot_wt === (0))))){
 return cljs.core.PersistentVector.EMPTY;
 } else {
 var edges = app.vega.calculate_bat_edges(bat_meds,bin_width);
-return cljs.core.keep.cljs$core$IFn$_invoke$arity$2((function (p1__27684_SHARP_){
-return app.vega.build_bin_record(p1__27684_SHARP_,bin_width,results,weights);
+return cljs.core.keep.cljs$core$IFn$_invoke$arity$2((function (p1__27636_SHARP_){
+return app.vega.build_bin_record(p1__27636_SHARP_,bin_width,results,weights);
 }),edges);
 }
 });
@@ -114,8 +114,8 @@ return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMP
 });
 app.vega.discovery_accrual_chart = (function app$vega$discovery_accrual_chart(curve_data,event_stats){
 var markers = cljs.core.mapv.cljs$core$IFn$_invoke$arity$2((function (s){
-return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"time","time",1385887882),(function (){var G__27709 = new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s);
-switch (G__27709) {
+return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"time","time",1385887882),(function (){var G__27658 = new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s);
+switch (G__27658) {
 case "IA (46.0m)":
 return 46.0;
 
@@ -153,6 +153,9 @@ var vdata = cljs.core.clj__GT_js(cljs.core.map.cljs$core$IFn$_invoke$arity$2((fu
 return new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"bat-mos","bat-mos",1727898905),(""+cljs.core.str.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"bat-mos","bat-mos",1727898905).cljs$core$IFn$_invoke$arity$1(r))+" mOS"),new cljs.core.Keyword(null,"gps-mos","gps-mos",922295744),new cljs.core.Keyword(null,"gps-mos","gps-mos",922295744).cljs$core$IFn$_invoke$arity$1(r),new cljs.core.Keyword(null,"n-required","n-required",-355916742),cljs.core.min.cljs$core$IFn$_invoke$arity$2(1000.0,new cljs.core.Keyword(null,"n-required","n-required",-355916742).cljs$core$IFn$_invoke$arity$1(r))], null);
 }),results));
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [app.vega.vega_lite,new cljs.core.PersistentArrayMap(null, 6, [new cljs.core.Keyword(null,"width","width",-384071477),(500),new cljs.core.Keyword(null,"height","height",1025178622),(300),new cljs.core.Keyword(null,"title","title",636505583),"N Required vs. GPS mOS by BAT Scenario",new cljs.core.Keyword(null,"data","data",-232669377),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"values","values",372645556),vdata], null),new cljs.core.Keyword(null,"mark","mark",-373816345),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"type","type",1174270348),"line",new cljs.core.Keyword(null,"point","point",1813198264),true,new cljs.core.Keyword(null,"tooltip","tooltip",-1809677058),true], null),new cljs.core.Keyword(null,"encoding","encoding",1728578272),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"x","x",2099068185),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"field","field",-1302436500),"gps-mos",new cljs.core.Keyword(null,"type","type",1174270348),"quantitative",new cljs.core.Keyword(null,"title","title",636505583),"GPS mOS"], null),new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"field","field",-1302436500),"n-required",new cljs.core.Keyword(null,"type","type",1174270348),"quantitative",new cljs.core.Keyword(null,"title","title",636505583),"N Required (Clamped to 1000)"], null),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"field","field",-1302436500),"bat-mos",new cljs.core.Keyword(null,"type","type",1174270348),"nominal",new cljs.core.Keyword(null,"title","title",636505583),"BAT Scenario",new cljs.core.Keyword(null,"legend","legend",-1027192245),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"orient","orient",1933743565),"bottom"], null)], null)], null)], null)], null);
+});
+app.vega.enrollment_chart = (function app$vega$enrollment_chart(data){
+return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [app.vega.vega_lite,new cljs.core.PersistentArrayMap(null, 5, [new cljs.core.Keyword(null,"width","width",-384071477),(600),new cljs.core.Keyword(null,"height","height",1025178622),(400),new cljs.core.Keyword(null,"title","title",636505583),"Enrollment Curve with 95% Confidence Interval",new cljs.core.Keyword(null,"data","data",-232669377),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"values","values",372645556),data], null),new cljs.core.Keyword(null,"layer","layer",-1601820589),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"mark","mark",-373816345),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"type","type",1174270348),"area",new cljs.core.Keyword(null,"opacity","opacity",397153780),0.3], null),new cljs.core.Keyword(null,"encoding","encoding",1728578272),new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"x","x",2099068185),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"field","field",-1302436500),"time",new cljs.core.Keyword(null,"type","type",1174270348),"quantitative",new cljs.core.Keyword(null,"title","title",636505583),"Time (months)"], null),new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"field","field",-1302436500),"low",new cljs.core.Keyword(null,"type","type",1174270348),"quantitative",new cljs.core.Keyword(null,"title","title",636505583),"Enrolled Patients"], null),new cljs.core.Keyword(null,"y2","y2",-718691301),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"field","field",-1302436500),"high",new cljs.core.Keyword(null,"type","type",1174270348),"quantitative"], null),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"value","value",305978217),"#4488cc"], null)], null)], null),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"mark","mark",-373816345),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"type","type",1174270348),"line",new cljs.core.Keyword(null,"strokeWidth","strokeWidth",-2130848332),(2)], null),new cljs.core.Keyword(null,"encoding","encoding",1728578272),new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"x","x",2099068185),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"field","field",-1302436500),"time",new cljs.core.Keyword(null,"type","type",1174270348),"quantitative"], null),new cljs.core.Keyword(null,"y","y",-1757859776),new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"field","field",-1302436500),"mean",new cljs.core.Keyword(null,"type","type",1174270348),"quantitative"], null),new cljs.core.Keyword(null,"color","color",1011675173),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"value","value",305978217),"#4488cc"], null)], null)], null)], null)], null)], null);
 });
 
 //# sourceMappingURL=app.vega.js.map

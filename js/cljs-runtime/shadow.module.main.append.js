@@ -715,6 +715,7 @@ SHADOW_ENV.setLoaded("module$node_modules$$monaco_editor$loader$lib$cjs$loader$i
 SHADOW_ENV.setLoaded("module$node_modules$$monaco_editor$loader$lib$cjs$index.js");
 SHADOW_ENV.setLoaded("module$node_modules$$monaco_editor$react$dist$index.js");
 SHADOW_ENV.setLoaded("app.ui.results.js");
+SHADOW_ENV.setLoaded("app.ui.enrollment.js");
 SHADOW_ENV.setLoaded("app.ui.js");
 SHADOW_ENV.setLoaded("module$node_modules$scheduler$cjs$scheduler_production_min.js");
 SHADOW_ENV.setLoaded("module$node_modules$scheduler$cjs$scheduler_development.js");
