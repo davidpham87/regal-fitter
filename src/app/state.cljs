@@ -181,6 +181,9 @@
            :config-version 0
            :stress-test-config default-stress-test-config
            :power-config default-power-config
+           :enrollment-mode {:mode :manual
+                             :median-month 30
+                             :k 0.1}
            :status :idle ;; :idle, :running-stage1, :running-stage2, :done, :error
            :stress-test-status :idle
            :progress {:total 0 :completed 0}
