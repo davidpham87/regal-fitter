@@ -9,28 +9,26 @@
   "Generate enrollment times for n-sims trials."
   [n-sims n-total bands]
   (let [enroll (js/Float64Array. (* n-sims n-total))]
-    (loop [col 0
-           remaining-bands bands]
-      (if (seq remaining-bands)
-        (let [[lo hi n] (first remaining-bands)]
-          (if (> n 0)
-            (do
-              (dotimes [s n-sims]
-                (dotimes [i n]
-                  (aset enroll
-                        (+ (* s n-total) col i)
-                        (uniform-draw lo hi))))
-              (recur (+ col n) (rest remaining-bands)))
-            (recur col (rest remaining-bands))))
-        ;; Sort each simulation's enrollment times
-        (do
-          (dotimes [s n-sims]
-            (let [start (* s n-total)
-                  end (+ start n-total)
-                  sim-enroll (.slice enroll start end)]
-              (.sort sim-enroll (fn [a b] (- a b)))
-              (.set enroll sim-enroll start)))
-          enroll)))))
+    (reduce (fn [col [lo hi n]]
+              (if (> n 0)
+                (do
+                  (dotimes [s n-sims]
+                    (dotimes [i n]
+                      (aset enroll
+                            (+ (* s n-total) col i)
+                            (uniform-draw lo hi))))
+                  (+ col n))
+                col))
+            0
+            bands)
+    ;; Sort each simulation's enrollment times
+    (dotimes [s n-sims]
+      (let [start (* s n-total)
+            end (+ start n-total)
+            sim-enroll (.slice enroll start end)]
+        (.sort sim-enroll (fn [a b] (- a b)))
+        (.set enroll sim-enroll start)))
+    enroll))
 
 (defn km-survival-single
   "Calculates KM survival at target time for a single trial."
@@ -43,29 +41,27 @@
           (.sort indices
                  (fn [a b]
                    (- (aget obs-t-arr a) (aget obs-t-arr b))))
-          (loop [i 0
-                 surv 1.0]
-            (if (< i n)
-              (let [idx (aget indices i)
-                    t (aget obs-t-arr idx)
-                    is-ev (== (aget is-ev-arr idx) 1)
-                    n-at-risk (- n i)]
-                (if (and is-ev (<= t target-time))
-                  (recur (inc i) (* surv (- 1.0 (/ 1.0 n-at-risk))))
-                  (if (> t target-time)
-                    surv
-                    (recur (inc i) surv))))
-              surv))))))
+          (reduce (fn [surv i]
+                    (let [idx (aget indices i)
+                          t (aget obs-t-arr idx)
+                          is-ev (== (aget is-ev-arr idx) 1)
+                          n-at-risk (- n i)]
+                      (if (> t target-time)
+                        (reduced surv)
+                        (if is-ev
+                          (* surv (- 1.0 (/ 1.0 n-at-risk)))
+                          surv))))
+                  1.0
+                  (range n))))))
 
 (defn- shuffle-array [arr]
   (let [n (.-length arr)]
-    (loop [i (dec n)]
-      (when (> i 0)
-        (let [j (js/Math.floor (* (js/Math.random) (inc i)))
-              tmp (aget arr i)]
-          (aset arr i (aget arr j))
-          (aset arr j tmp)
-          (recur (dec i)))))))
+    (doseq [idx (range (dec n))]
+      (let [i (- (dec n) idx)
+            j (js/Math.floor (* (js/Math.random) (inc i)))
+            tmp (aget arr i)]
+        (aset arr i (aget arr j))
+        (aset arr j tmp)))))
 
 (defn- weibull-scale-from-median [median shape]
   (/ median (js/Math.pow (js/Math.log 2.0) (/ 1.0 shape))))
