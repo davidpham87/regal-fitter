@@ -151,7 +151,12 @@
    :obs-inc-upd 12
    :obs-inc-pr3 6
    :futility-hr-max 1.0
-   :pool-mos-min 12.0
+   :pool-mos-min 12.5
+   :pool-mos-max 14.5
+   :use-test-ia true
+   :use-test-upd true
+   :use-test-pr3 true
+   :use-test-pool-mos true
    :enroll-bands
    [[0.0 12.0 12]
     [12.0 18.0 6]
