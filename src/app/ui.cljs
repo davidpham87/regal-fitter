@@ -6,6 +6,7 @@
             [app.views :as views]
             [app.ui.sections :as sections]
             [app.ui.results :as results]
+            [app.ui.enrollment :as enrollment]
             [re-frame.core :as rf]
             [fork.reagent :as fork]
             [reitit.frontend.easy :as rfe]
@@ -166,7 +167,13 @@
                      "bg-gray-800 text-white"
                      "bg-gray-200")
             :href (rfe/href :fitter-sub {:subtab "results"})}
-           "Results"]]
+           "Results"]
+          [:a.px-4.py-2.rounded.inline-block.text-center
+           {:class (if (= view :enrollment)
+                     "bg-gray-800 text-white"
+                     "bg-gray-200")
+            :href (rfe/href :fitter-sub {:subtab "enrollment"})}
+           "Enrollment"]]
          (when (= status :running-stage1)
            [:div.bg-yellow-100.p-4.mb-4
             "Running Stage 1 (Analytical Pre-filter)..."])
@@ -176,7 +183,8 @@
          (case view
            :config-form [config-form]
            :config-json [config-json]
-           :results [results/results-view])]))))
+           :results [results/results-view]
+           :enrollment [enrollment/enrollment-view])]))))
 
 (defn main-view []
   (let [state @state/app-state
