@@ -1,0 +1,44 @@
+shadow-cljs - :dev-http http://localhost:8080 serving ["public"]
+shadow-cljs - server version: 3.4.11 running at http://localhost:9630
+shadow-cljs - nREPL server started on port 45873
+shadow-cljs - nREPL port has been written to .shadow-cljs/nrepl.port
+shadow-cljs - watching build :app
+[:app] Configuring build.
+[:app] Compiling ...
+[2026-05-27 23:17:12.255 - INFO] :shadow.build.npm/js-invalid-requires - {:resource-name "node_modules/@monaco-editor/loader/lib/cjs/loader/index.js", :requires [{:line 132, :column 2}]}
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[:app] Build completed. (825 files, 39 compiled, 2 warnings, 14.84s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/app/worker_pool.cljs:21:28
+--------------------------------------------------------------------------------
+[2m  18 |                   result (js->clj[0m
+[2m  19 |                           (.-result data)[0m
+[2m  20 |                           :keywordize-keys true)[0m
+[1m  21 |                   success? (.-success data)[0m
+----------------------------------^---------------------------------------------
+ [33;1mCannot infer target type in expression (. data -success)[0m
+--------------------------------------------------------------------------------
+[2m  22 |                   error (.-error data)][0m
+[2m  23 | [0m
+[2m  24 |               (when (= type "SIMULATION_RESULT")[0m
+[2m  25 |                 (when-let [cb (get @job-callbacks[0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #1 - :redef -----------------------------------------------------[0m
+ Resource: cognitect/transit.cljs:332:1
+--------------------------------------------------------------------------------
+[2m 329 |   [s][0m
+[2m 330 |   (ty/uri s))[0m
+[2m 331 | [0m
+[1m 332 | (defn uri?[0m
+-------^------------------------------------------------------------------------
+ [33;1muri? already refers to: cljs.core/uri? being replaced by: cognitect.transit/uri?[0m
+--------------------------------------------------------------------------------
+[2m 333 |   "Returns true if x is a transit URI value, false otherwise."[0m
+[2m 334 |   [x][0m
+[2m 335 |   (ty/isURI x))[0m
+[2m 336 | [0m
+--------------------------------------------------------------------------------

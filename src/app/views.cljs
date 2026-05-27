@@ -169,7 +169,10 @@
       "Extension Events"]
      [:label.flex.items-center.gap-2.text-sm.text-gray-700
       [:input {:type "checkbox" :name "use-test-pool-mos" :checked (:use-test-pool-mos values) :on-change handle-change}]
-      "Pool mOS"]]]
+      "Pool mOS"]
+     [:label.flex.items-center.gap-2.text-sm.text-gray-700
+      [:input {:type "checkbox" :name "use-test-hr" :checked (:use-test-hr values) :on-change handle-change}]
+      "IA Futility HR"]]]
 
    [:div.mt-4.flex.justify-center
     [:button.bg-blue-600.hover:bg-blue-700.text-white
@@ -233,6 +236,7 @@
                 [sortable-header "mOS" :mos sort-state]
                 [sortable-header "k" :k sort-state]
                 [sortable-header "p_joint" :p_joint sort-state]
+                [sortable-header "E[HR@IA]" :expected_hr_ia sort-state]
                 [sortable-header "E[IA]" :expected_ev_ia sort-state]
                 [sortable-header "E[Upd]" :expected_inc_upd sort-state]
                 [sortable-header "E[PR3]" :expected_inc_pr3 sort-state]
@@ -245,6 +249,7 @@
                    [:td.px-4.py-2 (:mos r)]
                    [:td.px-4.py-2 (:k r)]
                    [:td.px-4.py-2 (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
+                   [:td.px-4.py-2 (if (= (:expected_hr_ia r) js/Number.POSITIVE_INFINITY) "Inf" (.toFixed (:expected_hr_ia r) 2))]
                    [:td.px-4.py-2 (.toFixed (:expected_ev_ia r) 1)]
                    [:td.px-4.py-2 (.toFixed (:expected_inc_upd r) 1)]
                    [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
