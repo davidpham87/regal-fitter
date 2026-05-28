@@ -92,6 +92,7 @@
         use-test-upd (:use-test-upd config)
         use-test-pr3 (:use-test-pr3 config)
         use-test-pool-mos (:use-test-pool-mos config)
+        use-test-hr (:use-test-hr config)
         inv-k (/ 1.0 k)]
 
     (dotimes [s n-sims]
@@ -151,7 +152,8 @@
 
           sum-ev-ia (atom 0)
           sum-inc-upd (atom 0)
-          sum-inc-pr3 (atom 0)]
+          sum-inc-pr3 (atom 0)
+          sum-gps-ev-ia (atom 0)]
 
       (dotimes [s n-sims]
         (let [e-ia (aget ev-ia s)
@@ -174,17 +176,25 @@
 
           (when passed-ia (swap! total-passed-ia inc))
 
+          (swap! sum-gps-ev-ia + g-ia)
+
           (let [c1 (or (not use-test-ia) (<= e-ia obs-ev-ia))
                 c2 (or (not use-test-upd) (<= i-upd obs-inc-upd))
                 c3 (or (not use-test-pr3) (<= i-pr3 obs-inc-pr3))
-                c4 (or (not use-test-pool-mos) p-pool)]
+                c4 (or (not use-test-pool-mos) p-pool)
+                c5 (or (not use-test-hr) pass-hr)]
             (when (<= e-ia obs-ev-ia) (swap! total-ev-ia-le-60 inc))
             (when (<= i-upd obs-inc-upd) (swap! total-inc-upd-le-12 inc))
             (when (<= i-pr3 obs-inc-pr3) (swap! total-inc-pr3-le-6 inc))
-            (when (and c1 c2 c3 c4)
+            (when (and c1 c2 c3 c4 c5)
               (swap! joint-pass-count inc)))))
 
       (let [exp-ev-ia (/ @sum-ev-ia n-sims)
+            exp-gps-ev-ia (/ @sum-gps-ev-ia n-sims)
+            exp-bat-ev-ia (- exp-ev-ia exp-gps-ev-ia)
+            exp-hr-ia (if (pos? exp-bat-ev-ia)
+                        (/ exp-gps-ev-ia exp-bat-ev-ia)
+                        js/Number.POSITIVE_INFINITY)
             exp-inc-upd (/ @sum-inc-upd n-sims)
             exp-inc-pr3 (/ @sum-inc-pr3 n-sims)
             residual (js/Math.max
@@ -199,6 +209,7 @@
          :p_inc_pr3_le_6 (/ @total-inc-pr3-le-6 n-sims)
          :p_joint (/ @joint-pass-count n-sims)
          :expected_ev_ia exp-ev-ia
+         :expected_hr_ia exp-hr-ia
          :expected_inc_upd exp-inc-upd
          :expected_inc_pr3 exp-inc-pr3
          :residual residual}))))

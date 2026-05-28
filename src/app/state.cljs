@@ -156,7 +156,8 @@
    :use-test-ia true
    :use-test-upd true
    :use-test-pr3 true
-   :use-test-pool-mos true
+   :use-test-pool-mos false
+   :use-test-hr true
    :enroll-bands
    [[0.0 12.0 12]
     [12.0 18.0 6]
