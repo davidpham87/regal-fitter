@@ -61,7 +61,10 @@
                      "bg-blue-600 text-white"
                      "bg-gray-200 text-gray-700 hover:bg-gray-300")
             :on-click #(swap! state/app-state assoc-in [:enrollment-mode :mode] :s-curve)}
-           "S-Curve Gen Mode"]]
+           "S-Curve Gen Mode"]
+          [:button.px-4.py-2.rounded.font-semibold.bg-gray-200.text-gray-700.hover:bg-gray-300
+           {:on-click #(state/set-config! :enroll-bands (:enroll-bands state/default-config))}
+           "Restore Default"]]
 
          (if (= (:mode enrollment-mode) :manual)
            (let [expected-json (js/JSON.stringify (clj->js bands) nil 2)]

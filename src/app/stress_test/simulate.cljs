@@ -9,28 +9,26 @@
   "Generate enrollment times for n-sims trials."
   [n-sims n-total bands]
   (let [enroll (js/Float64Array. (* n-sims n-total))]
-    (loop [col 0
-           remaining-bands bands]
-      (if (seq remaining-bands)
-        (let [[lo hi n] (first remaining-bands)]
-          (if (> n 0)
-            (do
-              (dotimes [s n-sims]
-                (dotimes [i n]
-                  (aset enroll
-                        (+ (* s n-total) col i)
-                        (uniform-draw lo hi))))
-              (recur (+ col n) (rest remaining-bands)))
-            (recur col (rest remaining-bands))))
-        ;; Sort each simulation's enrollment times
-        (do
-          (dotimes [s n-sims]
-            (let [start (* s n-total)
-                  end (+ start n-total)
-                  sim-enroll (.slice enroll start end)]
-              (.sort sim-enroll (fn [a b] (- a b)))
-              (.set enroll sim-enroll start)))
-          enroll)))))
+    (reduce (fn [col [lo hi n]]
+              (if (> n 0)
+                (do
+                  (dotimes [s n-sims]
+                    (dotimes [i n]
+                      (aset enroll
+                            (+ (* s n-total) col i)
+                            (uniform-draw lo hi))))
+                  (+ col n))
+                col))
+            0
+            bands)
+    ;; Sort each simulation's enrollment times
+    (dotimes [s n-sims]
+      (let [start (* s n-total)
+            end (+ start n-total)
+            sim-enroll (.slice enroll start end)]
+        (.sort sim-enroll (fn [a b] (- a b)))
+        (.set enroll sim-enroll start)))
+    enroll))
 
 (defn km-survival-single
   "Calculates KM survival at target time for a single trial."
@@ -43,29 +41,27 @@
           (.sort indices
                  (fn [a b]
                    (- (aget obs-t-arr a) (aget obs-t-arr b))))
-          (loop [i 0
-                 surv 1.0]
-            (if (< i n)
-              (let [idx (aget indices i)
-                    t (aget obs-t-arr idx)
-                    is-ev (== (aget is-ev-arr idx) 1)
-                    n-at-risk (- n i)]
-                (if (and is-ev (<= t target-time))
-                  (recur (inc i) (* surv (- 1.0 (/ 1.0 n-at-risk))))
-                  (if (> t target-time)
-                    surv
-                    (recur (inc i) surv))))
-              surv))))))
+          (reduce (fn [surv i]
+                    (let [idx (aget indices i)
+                          t (aget obs-t-arr idx)
+                          is-ev (== (aget is-ev-arr idx) 1)
+                          n-at-risk (- n i)]
+                      (if (> t target-time)
+                        (reduced surv)
+                        (if is-ev
+                          (* surv (- 1.0 (/ 1.0 n-at-risk)))
+                          surv))))
+                  1.0
+                  (range n))))))
 
 (defn- shuffle-array [arr]
   (let [n (.-length arr)]
-    (loop [i (dec n)]
-      (when (> i 0)
-        (let [j (js/Math.floor (* (js/Math.random) (inc i)))
-              tmp (aget arr i)]
-          (aset arr i (aget arr j))
-          (aset arr j tmp)
-          (recur (dec i)))))))
+    (doseq [idx (range (dec n))]
+      (let [i (- (dec n) idx)
+            j (js/Math.floor (* (js/Math.random) (inc i)))
+            tmp (aget arr i)]
+        (aset arr i (aget arr j))
+        (aset arr j tmp)))))
 
 (defn- weibull-scale-from-median [median shape]
   (/ median (js/Math.pow (js/Math.log 2.0) (/ 1.0 shape))))
@@ -96,6 +92,7 @@
         use-test-upd (:use-test-upd config)
         use-test-pr3 (:use-test-pr3 config)
         use-test-pool-mos (:use-test-pool-mos config)
+        use-test-hr (:use-test-hr config)
         inv-k (/ 1.0 k)]
 
     (dotimes [s n-sims]
@@ -155,7 +152,8 @@
 
           sum-ev-ia (atom 0)
           sum-inc-upd (atom 0)
-          sum-inc-pr3 (atom 0)]
+          sum-inc-pr3 (atom 0)
+          sum-gps-ev-ia (atom 0)]
 
       (dotimes [s n-sims]
         (let [e-ia (aget ev-ia s)
@@ -178,17 +176,25 @@
 
           (when passed-ia (swap! total-passed-ia inc))
 
+          (swap! sum-gps-ev-ia + g-ia)
+
           (let [c1 (or (not use-test-ia) (<= e-ia obs-ev-ia))
                 c2 (or (not use-test-upd) (<= i-upd obs-inc-upd))
                 c3 (or (not use-test-pr3) (<= i-pr3 obs-inc-pr3))
-                c4 (or (not use-test-pool-mos) p-pool)]
+                c4 (or (not use-test-pool-mos) p-pool)
+                c5 (or (not use-test-hr) pass-hr)]
             (when (<= e-ia obs-ev-ia) (swap! total-ev-ia-le-60 inc))
             (when (<= i-upd obs-inc-upd) (swap! total-inc-upd-le-12 inc))
             (when (<= i-pr3 obs-inc-pr3) (swap! total-inc-pr3-le-6 inc))
-            (when (and c1 c2 c3 c4)
+            (when (and c1 c2 c3 c4 c5)
               (swap! joint-pass-count inc)))))
 
       (let [exp-ev-ia (/ @sum-ev-ia n-sims)
+            exp-gps-ev-ia (/ @sum-gps-ev-ia n-sims)
+            exp-bat-ev-ia (- exp-ev-ia exp-gps-ev-ia)
+            exp-hr-ia (if (pos? exp-bat-ev-ia)
+                        (/ exp-gps-ev-ia exp-bat-ev-ia)
+                        js/Number.POSITIVE_INFINITY)
             exp-inc-upd (/ @sum-inc-upd n-sims)
             exp-inc-pr3 (/ @sum-inc-pr3 n-sims)
             residual (js/Math.max
@@ -203,6 +209,7 @@
          :p_inc_pr3_le_6 (/ @total-inc-pr3-le-6 n-sims)
          :p_joint (/ @joint-pass-count n-sims)
          :expected_ev_ia exp-ev-ia
+         :expected_hr_ia exp-hr-ia
          :expected_inc_upd exp-inc-upd
          :expected_inc_pr3 exp-inc-pr3
          :residual residual}))))
