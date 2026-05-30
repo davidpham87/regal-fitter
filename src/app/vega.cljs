@@ -252,6 +252,75 @@
       :config {:view {:stroke "transparent"}
                :legend {:orient "bottom"}}}]))
 
+(defn discovery-alive-chart [curve-data]
+  [vega-lite
+   {:width 300 :height 300
+    :title "Patients Alive"
+    :data {:values curve-data}
+    :layer [{:mark {:type "line" :strokeWidth 2}
+             :encoding {:x {:field "time" :type "quantitative"
+                            :title "Months"
+                            :axis {:values [0 10 20 30 40 50
+                                            60 70 80]}}
+                        :y {:field "alive" :type "quantitative"
+                            :title "Patients Alive"}
+                        :color {:field "group" :type "nominal"
+                                :scale {:domain ["Total" "GPS" "BAT"]
+                                        :range ["#aa5599"
+                                                "#55bb88"
+                                                "#ee6677"]}}
+                        :strokeDash {:field "group" :type "nominal"
+                                     :scale {:domain ["Total" "GPS" "BAT"]
+                                             :range [[] [4 4] [2 2]]}}}}
+            {:params [{:name "hover"
+                       :select {:type "point"
+                                :on "mouseover"
+                                :nearest true
+                                :clear "mouseout"
+                                :fields ["time"]}}]
+             :transform [{:pivot "group"
+                          :value "alive"
+                          :groupby ["time"]}]
+             :mark {:type "rule" :color "#bbb" :strokeWidth 0}
+             :encoding {:x {:field "time" :type "quantitative"}
+                        :tooltip [{:field "time" :type "quantitative"
+                                   :title "Months"}
+                                  {:field "Total" :type "quantitative"
+                                   :format ".1f"}
+                                  {:field "GPS" :type "quantitative"
+                                   :format ".1f"}
+                                  {:field "BAT" :type "quantitative"
+                                   :format ".1f"}]}}]
+    :config {:view {:stroke "transparent"}
+             :legend {:orient "bottom"}}}])
+
+(defn discovery-hr-chart [hr-data]
+  [vega-lite
+   {:width 300 :height 300
+    :title "Estimated Hazard Ratios"
+    :data {:values hr-data}
+    :layer [{:mark {:type "bar" :size 40}
+             :encoding {:x {:field "interval" :type "nominal"
+                            :title "Milestone Interval"
+                            :sort ["0-IA" "IA-UPD" "UPD-PR3"]}
+                        :y {:field "hr" :type "quantitative"
+                            :title "Hazard Ratio"
+                            :scale {:domain [0 1.5]}}
+                        :color {:field "interval" :type "nominal"
+                                :scale {:domain ["0-IA" "IA-UPD" "UPD-PR3"]
+                                        :range ["#4488cc" "#55bb88" "#ee6677"]}
+                                :legend nil}
+                        :tooltip [{:field "interval" :type "nominal"
+                                   :title "Interval"}
+                                  {:field "hr" :type "quantitative"
+                                   :format ".3f" :title "HR"}]}}
+            {:mark {:type "rule" :color "red" :strokeDash [4 4]}
+             :data {:values [{:y 1.0}]}
+             :encoding {:y {:field "y" :type "quantitative"}}}]
+    :config {:view {:stroke "transparent"}}}])
+
+
+
 (defn stress-test-charts [results]
   (let [vdata (map (fn [r]
                      {:mos (:mos r)
