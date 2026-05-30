@@ -38,7 +38,12 @@
 
   :test      {:target    :browser-test
               :test-dir  "out/test"
-              :ns-regexp "-test$"}
+              :ns-regexp "-test$"
+              :js-options {:resolve {"node:fs"          false
+                                     "node:fs/promises" false}}}
   :test-node {:target    :node-test
               :output-to "out/test-node.js"
-              :autorun   true}}}
+              :autorun   true
+              :ns-regexp "^(?!.*form-test).*-test$"
+              :js-options {:resolve {"node:fs"          false
+                                     "node:fs/promises" false}}}}}}

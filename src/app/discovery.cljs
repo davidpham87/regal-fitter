@@ -643,7 +643,8 @@
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "H0: Estimated Hazard Ratios"]
-          [vega/discovery-hr-chart (:hr curve-data-h0)]]]]]]]))
+          [vega/discovery-hr-chart (:hr curve-data-h0)]]]]]]))
+
 
 (defn discovery-view []
   (r/with-let [_ (let [disc (get-discovery-state)

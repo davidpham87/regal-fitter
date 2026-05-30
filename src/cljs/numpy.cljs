@@ -93,3 +93,11 @@
 
 (defn meshgrid [arrays options]
   (apply np-ts/meshgrid (conj (cljs.core/vec arrays) (cljs.core/clj->js options))))
+
+(defn greater [arr val]
+  (let [data (.-data arr)
+        new-data (js/Float64Array. (.-length data))]
+    (dotimes [i (.-length data)]
+      (aset new-data i (if (> (aget data i) val) 1.0 0.0)))
+    (np-ts/reshape (np-ts/array new-data) (.-shape arr))))
+
