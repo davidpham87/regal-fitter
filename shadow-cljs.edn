@@ -1,35 +1,44 @@
-{:deps {:aliases [:cljs :test]}
- :paths ["src" "test"]
- :dev-http {8080 "public"}
+{:deps     {:aliases [:cljs :test]}
+ :paths    ["src" "test"]
+ :dev-http {8080 {:root    "public"
+                  :headers {"Cross-Origin-Opener-Policy"   "same-origin"
+                            "Cross-Origin-Embedder-Policy" "require-corp"}}}
+
+ :nrepl {:middleware
+         [cider.nrepl/cider-middleware
+          refactor-nrepl.middleware/wrap-refactor]}
+
  :builds
  {:app
-  {:target :browser
+  {:target     :browser
    :output-dir "public/js"
    :asset-path "/js"
-   :js-options {:resolve {"node:fs" false
+   :js-options {:resolve {"node:fs"          false
                           "node:fs/promises" false}}
 
-   :dev {:compiler-options {:source-map true
+   :dev {:compiler-options {:source-map   true
                             :pretty-print true
                             :pseudo-names true}}
 
+   :compiler-options {:optimizations :simple
+                      :externs       ["src/externs/webr.js"]}
+
+   :devtools {:autobuild       true
+              :after-load      app.core/reload!}
+
    :modules
    {:shared {:entries []}
-    :main {:entries [app.core]
-           :init-fn app.core/init
-           :depends-on #{:shared}
-           :default true}
-    :worker {:entries [app.worker]
+    :main   {:entries    [app.core]
+             :init-fn    app.core/init
              :depends-on #{:shared}
-             :web-worker true}}
+             :default    true}
+    :worker {:entries    [app.worker]
+             :depends-on #{:shared}
+             :web-worker true}}}
 
-   :devtools {:autobuild true
-              :after-load app.core/reload!
-              :preload [devtools.preload]}}
-
-  :test {:target :browser-test
-         :test-dir "out/test"
-         :ns-regexp "-test$"}
-  :test-node {:target :node-test
+  :test      {:target    :browser-test
+              :test-dir  "out/test"
+              :ns-regexp "-test$"}
+  :test-node {:target    :node-test
               :output-to "out/test-node.js"
-              :autorun true}}}
+              :autorun   true}}}

@@ -36,8 +36,7 @@
   (init-routes!)
   (rdom/render [ui/main-view] (js/document.getElementById "app")))
 
-
-(defn ^:dev/after-load reload!
+(defn ^export ^:dev/after-load reload!
   "Reload hook for shadow-cljs. Re-mounts the application after code changes.
 
   Returns:
