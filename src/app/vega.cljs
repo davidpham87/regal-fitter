@@ -263,7 +263,14 @@
      {:width 300 :height 300
       :title "Patients: Alive vs Died"
       :data {:values curve-data}
-      :layer [{:mark {:type "line" :strokeWidth 2}
+      :layer [{:transform [{:fold ["total-alive"
+                                   "gps-alive"
+                                   "bat-alive"
+                                   "total-died"
+                                   "gps-died"
+                                   "bat-died"]
+                            :as ["group" "count"]}]
+               :mark {:type "line" :strokeWidth 2}
                :encoding {:x {:field "time" :type "quantitative"
                               :title "Months"
                               :axis {:values [0 10 20 30 40 50
@@ -271,12 +278,12 @@
                           :y {:field "count" :type "quantitative"
                               :title "Patients"}
                           :color {:field "group" :type "nominal"
-                                  :scale {:domain ["Total Alive"
-                                                   "GPS Alive"
-                                                   "BAT Alive"
-                                                   "Total Died"
-                                                   "GPS Died"
-                                                   "BAT Died"]
+                                  :scale {:domain ["total-alive"
+                                                   "gps-alive"
+                                                   "bat-alive"
+                                                   "total-died"
+                                                   "gps-died"
+                                                   "bat-died"]
                                           :range ["#aa5599"
                                                   "#55bb88"
                                                   "#ee6677"
@@ -284,12 +291,12 @@
                                                   "#55bb88"
                                                   "#ee6677"]}}
                           :strokeDash {:field "group" :type "nominal"
-                                       :scale {:domain ["Total Alive"
-                                                        "GPS Alive"
-                                                        "BAT Alive"
-                                                        "Total Died"
-                                                        "GPS Died"
-                                                        "BAT Died"]
+                                       :scale {:domain ["total-alive"
+                                                        "gps-alive"
+                                                        "bat-alive"
+                                                        "total-died"
+                                                        "gps-died"
+                                                        "bat-died"]
                                                 :range [[] [] []
                                                         [4 4]
                                                         [4 4]
@@ -300,25 +307,28 @@
                                   :nearest true
                                   :clear "mouseout"
                                   :fields ["time"]}}]
-               :transform [{:pivot "group"
-                            :value "count"
-                            :groupby ["time"]}]
                :mark {:type "rule" :color "#bbb" :strokeWidth 0}
                :encoding {:x {:field "time" :type "quantitative"}
                           :tooltip [{:field "time" :type "quantitative"
                                      :title "Months"}
-                                    {:field "Total Alive" :type "quantitative"
-                                     :format ".1f"}
-                                    {:field "GPS Alive" :type "quantitative"
-                                     :format ".1f"}
-                                    {:field "BAT Alive" :type "quantitative"
-                                     :format ".1f"}
-                                    {:field "Total Died" :type "quantitative"
-                                     :format ".1f"}
-                                    {:field "GPS Died" :type "quantitative"
-                                     :format ".1f"}
-                                    {:field "BAT Died" :type "quantitative"
-                                     :format ".1f"}]}}
+                                    {:field "total-alive" :type "quantitative"
+                                     :format ".1f" :title "Total Alive"}
+                                    {:field "gps-alive" :type "quantitative"
+                                     :format ".1f" :title "GPS Alive"}
+                                    {:field "bat-alive" :type "quantitative"
+                                     :format ".1f" :title "BAT Alive"}
+                                    {:field "total-died" :type "quantitative"
+                                     :format ".1f" :title "Total Died"}
+                                    {:field "gps-died" :type "quantitative"
+                                     :format ".1f" :title "GPS Died"}
+                                    {:field "bat-died" :type "quantitative"
+                                     :format ".1f" :title "BAT Died"}
+                                    {:field "total-died-diff" :type "quantitative"
+                                     :format ".1f" :title "Total - Died"}
+                                    {:field "gps-died-diff" :type "quantitative"
+                                     :format ".1f" :title "GPS/2 - Died"}
+                                    {:field "bat-died-diff" :type "quantitative"
+                                     :format ".1f" :title "BAT/2 - Died"}]}}
               {:mark {:type "rule" :color "gray" :strokeDash [4 4]}
                :data {:values milestones}
                :encoding {:x {:field "time" :type "quantitative"}}}

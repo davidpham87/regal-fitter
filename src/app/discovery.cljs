@@ -294,13 +294,18 @@
         alive-bat-ms (mapv - ms-enroll-bat-arr ms-ev-bat-arr)
         alive-gps-ms (mapv - ms-enroll-gps-arr ms-ev-gps-arr)
 
+        n-per-arm (:n-per-arm config)
         calc-hr (fn [t1 t2 label]
                   (let [ev-gps-int (- (nth ms-ev-gps-arr t2)
                                       (nth ms-ev-gps-arr t1))
                         ev-bat-int (- (nth ms-ev-bat-arr t2)
                                       (nth ms-ev-bat-arr t1))
-                        alive-gps-t1 (nth alive-gps-ms t1)
-                        alive-bat-t1 (nth alive-bat-ms t1)
+                        alive-gps-t1 (if (zero? t1)
+                                       n-per-arm
+                                       (nth alive-gps-ms t1))
+                        alive-bat-t1 (if (zero? t1)
+                                       n-per-arm
+                                       (nth alive-bat-ms t1))
                         h-gps (if (pos? alive-gps-t1)
                                 (/ ev-gps-int alive-gps-t1)
                                 0.0)
@@ -360,19 +365,25 @@
                      (mapv (fn [t e]
                              {:time t :events e :group "BAT"})
                            t-arr (first (.toArray ev-bat)))))
-     :alive (vec (concat
-                   (mapv (fn [t a] {:time t :count a :group "Total Alive"})
-                         t-arr alive-total-arr)
-                   (mapv (fn [t a] {:time t :count a :group "GPS Alive"})
-                         t-arr alive-gps-arr)
-                   (mapv (fn [t a] {:time t :count a :group "BAT Alive"})
-                         t-arr alive-bat-arr)
-                   (mapv (fn [t e] {:time t :count e :group "Total Died"})
-                         t-arr (first (.toArray ev-total)))
-                   (mapv (fn [t e] {:time t :count e :group "GPS Died"})
-                         t-arr (first (.toArray ev-gps)))
-                   (mapv (fn [t e] {:time t :count e :group "BAT Died"})
-                         t-arr (first (.toArray ev-bat)))))
+     :alive (let [n-tot (:n-total config)]
+               (mapv (fn [t a-tot a-gps a-bat e-tot e-gps e-bat]
+                       {:time t
+                        :total-alive a-tot
+                        :gps-alive a-gps
+                        :bat-alive a-bat
+                        :total-died e-tot
+                        :gps-died e-gps
+                        :bat-died e-bat
+                        :total-died-diff (- n-tot e-tot)
+                        :gps-died-diff (- n-per-arm e-gps)
+                        :bat-died-diff (- n-per-arm e-bat)})
+                     t-arr
+                     alive-total-arr
+                     alive-gps-arr
+                     alive-bat-arr
+                     (first (.toArray ev-total))
+                     (first (.toArray ev-gps))
+                     (first (.toArray ev-bat))))
      :hr hr-data}))
 
 
