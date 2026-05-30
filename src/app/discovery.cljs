@@ -361,12 +361,18 @@
                              {:time t :events e :group "BAT"})
                            t-arr (first (.toArray ev-bat)))))
      :alive (vec (concat
-                   (mapv (fn [t a] {:time t :alive a :group "Total"})
+                   (mapv (fn [t a] {:time t :count a :group "Total Alive"})
                          t-arr alive-total-arr)
-                   (mapv (fn [t a] {:time t :alive a :group "GPS"})
+                   (mapv (fn [t a] {:time t :count a :group "GPS Alive"})
                          t-arr alive-gps-arr)
-                   (mapv (fn [t a] {:time t :alive a :group "BAT"})
-                         t-arr alive-bat-arr)))
+                   (mapv (fn [t a] {:time t :count a :group "BAT Alive"})
+                         t-arr alive-bat-arr)
+                   (mapv (fn [t e] {:time t :count e :group "Total Died"})
+                         t-arr (first (.toArray ev-total)))
+                   (mapv (fn [t e] {:time t :count e :group "GPS Died"})
+                         t-arr (first (.toArray ev-gps)))
+                   (mapv (fn [t e] {:time t :count e :group "BAT Died"})
+                         t-arr (first (.toArray ev-bat)))))
      :hr hr-data}))
 
 

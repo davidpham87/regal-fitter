@@ -261,23 +261,39 @@
                          event-stats)]
     [vega-lite
      {:width 300 :height 300
-      :title "Patients Alive"
+      :title "Patients: Alive vs Died"
       :data {:values curve-data}
       :layer [{:mark {:type "line" :strokeWidth 2}
                :encoding {:x {:field "time" :type "quantitative"
                               :title "Months"
                               :axis {:values [0 10 20 30 40 50
                                               60 70 80]}}
-                          :y {:field "alive" :type "quantitative"
-                              :title "Patients Alive"}
+                          :y {:field "count" :type "quantitative"
+                              :title "Patients"}
                           :color {:field "group" :type "nominal"
-                                  :scale {:domain ["Total" "GPS" "BAT"]
+                                  :scale {:domain ["Total Alive"
+                                                   "GPS Alive"
+                                                   "BAT Alive"
+                                                   "Total Died"
+                                                   "GPS Died"
+                                                   "BAT Died"]
                                           :range ["#aa5599"
+                                                  "#55bb88"
+                                                  "#ee6677"
+                                                  "#aa5599"
                                                   "#55bb88"
                                                   "#ee6677"]}}
                           :strokeDash {:field "group" :type "nominal"
-                                       :scale {:domain ["Total" "GPS" "BAT"]
-                                               :range [[] [4 4] [2 2]]}}}}
+                                       :scale {:domain ["Total Alive"
+                                                        "GPS Alive"
+                                                        "BAT Alive"
+                                                        "Total Died"
+                                                        "GPS Died"
+                                                        "BAT Died"]
+                                                :range [[] [] []
+                                                        [4 4]
+                                                        [4 4]
+                                                        [4 4]]}}}}
               {:params [{:name "hover"
                          :select {:type "point"
                                   :on "mouseover"
@@ -285,17 +301,23 @@
                                   :clear "mouseout"
                                   :fields ["time"]}}]
                :transform [{:pivot "group"
-                            :value "alive"
+                            :value "count"
                             :groupby ["time"]}]
                :mark {:type "rule" :color "#bbb" :strokeWidth 0}
                :encoding {:x {:field "time" :type "quantitative"}
                           :tooltip [{:field "time" :type "quantitative"
                                      :title "Months"}
-                                    {:field "Total" :type "quantitative"
+                                    {:field "Total Alive" :type "quantitative"
                                      :format ".1f"}
-                                    {:field "GPS" :type "quantitative"
+                                    {:field "GPS Alive" :type "quantitative"
                                      :format ".1f"}
-                                    {:field "BAT" :type "quantitative"
+                                    {:field "BAT Alive" :type "quantitative"
+                                     :format ".1f"}
+                                    {:field "Total Died" :type "quantitative"
+                                     :format ".1f"}
+                                    {:field "GPS Died" :type "quantitative"
+                                     :format ".1f"}
+                                    {:field "BAT Died" :type "quantitative"
                                      :format ".1f"}]}}
               {:mark {:type "rule" :color "gray" :strokeDash [4 4]}
                :data {:values milestones}
