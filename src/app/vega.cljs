@@ -252,47 +252,60 @@
       :config {:view {:stroke "transparent"}
                :legend {:orient "bottom"}}}]))
 
-(defn discovery-alive-chart [curve-data]
-  [vega-lite
-   {:width 300 :height 300
-    :title "Patients Alive"
-    :data {:values curve-data}
-    :layer [{:mark {:type "line" :strokeWidth 2}
-             :encoding {:x {:field "time" :type "quantitative"
-                            :title "Months"
-                            :axis {:values [0 10 20 30 40 50
-                                            60 70 80]}}
-                        :y {:field "alive" :type "quantitative"
-                            :title "Patients Alive"}
-                        :color {:field "group" :type "nominal"
-                                :scale {:domain ["Total" "GPS" "BAT"]
-                                        :range ["#aa5599"
-                                                "#55bb88"
-                                                "#ee6677"]}}
-                        :strokeDash {:field "group" :type "nominal"
-                                     :scale {:domain ["Total" "GPS" "BAT"]
-                                             :range [[] [4 4] [2 2]]}}}}
-            {:params [{:name "hover"
-                       :select {:type "point"
-                                :on "mouseover"
-                                :nearest true
-                                :clear "mouseout"
-                                :fields ["time"]}}]
-             :transform [{:pivot "group"
-                          :value "alive"
-                          :groupby ["time"]}]
-             :mark {:type "rule" :color "#bbb" :strokeWidth 0}
-             :encoding {:x {:field "time" :type "quantitative"}
-                        :tooltip [{:field "time" :type "quantitative"
-                                   :title "Months"}
-                                  {:field "Total" :type "quantitative"
-                                   :format ".1f"}
-                                  {:field "GPS" :type "quantitative"
-                                   :format ".1f"}
-                                  {:field "BAT" :type "quantitative"
-                                   :format ".1f"}]}}]
-    :config {:view {:stroke "transparent"}
-             :legend {:orient "bottom"}}}])
+(defn discovery-alive-chart [curve-data event-stats]
+  (let [milestones (keep (fn [s]
+                           (case (:label s)
+                             "IA (46.0m)" {:time 46.0 :label "IA"}
+                             "UPD (58.0m)" {:time 58.0 :label "UPD"}
+                             nil))
+                         event-stats)]
+    [vega-lite
+     {:width 300 :height 300
+      :title "Patients Alive"
+      :data {:values curve-data}
+      :layer [{:mark {:type "line" :strokeWidth 2}
+               :encoding {:x {:field "time" :type "quantitative"
+                              :title "Months"
+                              :axis {:values [0 10 20 30 40 50
+                                              60 70 80]}}
+                          :y {:field "alive" :type "quantitative"
+                              :title "Patients Alive"}
+                          :color {:field "group" :type "nominal"
+                                  :scale {:domain ["Total" "GPS" "BAT"]
+                                          :range ["#aa5599"
+                                                  "#55bb88"
+                                                  "#ee6677"]}}
+                          :strokeDash {:field "group" :type "nominal"
+                                       :scale {:domain ["Total" "GPS" "BAT"]
+                                               :range [[] [4 4] [2 2]]}}}}
+              {:params [{:name "hover"
+                         :select {:type "point"
+                                  :on "mouseover"
+                                  :nearest true
+                                  :clear "mouseout"
+                                  :fields ["time"]}}]
+               :transform [{:pivot "group"
+                            :value "alive"
+                            :groupby ["time"]}]
+               :mark {:type "rule" :color "#bbb" :strokeWidth 0}
+               :encoding {:x {:field "time" :type "quantitative"}
+                          :tooltip [{:field "time" :type "quantitative"
+                                     :title "Months"}
+                                    {:field "Total" :type "quantitative"
+                                     :format ".1f"}
+                                    {:field "GPS" :type "quantitative"
+                                     :format ".1f"}
+                                    {:field "BAT" :type "quantitative"
+                                     :format ".1f"}]}}
+              {:mark {:type "rule" :color "gray" :strokeDash [4 4]}
+               :data {:values milestones}
+               :encoding {:x {:field "time" :type "quantitative"}}}
+              {:mark {:type "text" :align "left" :dx 5 :dy -140 :color "gray"}
+               :data {:values milestones}
+               :encoding {:x {:field "time" :type "quantitative"}
+                          :text {:field "label" :type "nominal"}}}]
+      :config {:view {:stroke "transparent"}
+               :legend {:orient "bottom"}}}]))
 
 (defn discovery-hr-chart [hr-data]
   [vega-lite

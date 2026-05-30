@@ -616,7 +616,7 @@
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "Alternate: Patients Alive"]
-          [vega/discovery-alive-chart (:alive curve-data)]]
+          [vega/discovery-alive-chart (:alive curve-data) stats]]
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "Alternate: Estimated Hazard Ratios"]
@@ -639,7 +639,7 @@
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "H0: Patients Alive"]
-          [vega/discovery-alive-chart (:alive curve-data-h0)]]
+          [vega/discovery-alive-chart (:alive curve-data-h0) stats-h0]]
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "H0: Estimated Hazard Ratios"]
