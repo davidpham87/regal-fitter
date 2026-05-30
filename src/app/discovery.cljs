@@ -417,13 +417,23 @@
            (< res 5.0) "Acceptable"
            :else "Poor")]]]]]))
 
+(def default-params
+  {:bat-med 8.0
+   :weibull-k 1.0
+   :delay 3.0
+   :gps-med 12.0
+   :cure-frac 0.2
+   :leak-yr 0.07
+   :placebo-mode? false
+   :n-sims 1000})
+
 (defn- discovery-view-content
   [{:keys [values set-values] :as props}]
   (let [state (get-discovery-state)
         config (:config @state/app-state)
         active-family (:active-family state)
-        calc-params (merge (:calc-params state) values)
-        params values
+        calc-params (merge default-params (:calc-params state) values)
+        params (merge default-params values)
         placebo-mode? (:placebo-mode? params)
 
         stats (calculate-stats active-family calc-params config)
