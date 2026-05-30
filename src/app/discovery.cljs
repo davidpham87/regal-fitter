@@ -602,7 +602,15 @@
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "Alternate: Event Accrual"]
-          [vega/discovery-accrual-chart (:accrual curve-data) stats]]]]
+          [vega/discovery-accrual-chart (:accrual curve-data) stats]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "Alternate: Patients Alive"]
+          [vega/discovery-alive-chart (:alive curve-data)]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "Alternate: Estimated Hazard Ratios"]
+          [vega/discovery-hr-chart (:hr curve-data)]]]]
 
        ;; Column 2: Null Hypothesis (H0)
        [:div.bg-gray-50.p-4.rounded-xl.border
@@ -617,7 +625,15 @@
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "H0: Event Accrual (Cure=0, Shared Med)"]
-          [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]]]]]))
+          [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "H0: Patients Alive"]
+          [vega/discovery-alive-chart (:alive curve-data-h0)]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "H0: Estimated Hazard Ratios"]
+          [vega/discovery-hr-chart (:hr curve-data-h0)]]]]]]]))
 
 (defn discovery-view []
   (r/with-let [_ (let [disc (get-discovery-state)
