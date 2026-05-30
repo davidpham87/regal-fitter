@@ -220,6 +220,99 @@
         s-gps-arr (.toArray s-gps)
         s-pool-arr (.toArray s-pool)
 
+        enrolled-bat (enrollment/expected-arm-enrolled
+                       enroll-pts enroll-weights t-pts
+                       (:n-per-arm config) (:n-total config))
+        enrolled-gps (enrollment/expected-arm-enrolled
+                       enroll-pts enroll-weights t-pts
+                       (:n-per-arm config) (:n-total config))
+        ev-bat-1d (np/reshape ev-bat #js [(.-size ev-bat)])
+        ev-gps-1d (np/reshape ev-gps #js [(.-size ev-gps)])
+        alive-bat (np/subtract enrolled-bat ev-bat-1d)
+        alive-gps (np/subtract enrolled-gps ev-gps-1d)
+        alive-total (np/add alive-bat alive-gps)
+
+        alive-bat-arr (.toArray alive-bat)
+        alive-gps-arr (.toArray alive-gps)
+        alive-total-arr (.toArray alive-total)
+
+        ;; Calculate Hazard Ratios for milestones: 0-IA, IA-UPD, UPD-PR3
+        t-milestones (np/array #js [0.0
+                                    (:t-ia config)
+                                    (:t-upd config)
+                                    (:t-pr3 config)] "float64")
+        ms-enroll-bat (enrollment/expected-arm-enrolled
+                        enroll-pts enroll-weights t-milestones
+                        (:n-per-arm config) (:n-total config))
+        ms-enroll-gps (enrollment/expected-arm-enrolled
+                        enroll-pts enroll-weights t-milestones
+                        (:n-per-arm config) (:n-total config))
+        ms-ev-bat (enrollment/expected-arm-events
+                    survival/weibull-survival-probability
+                    [bat-scale bat-shape]
+                    enroll-pts enroll-weights t-milestones
+                    (:n-per-arm config) (:n-total config))
+        ms-ev-gps (cond
+                    (= family "weibull")
+                    (let [med (np/array #js [(:gps-med params)])
+                          shape (np/array #js [(:weibull-k params)])
+                          scale (survival/weibull-scale-from-median
+                                  med shape)]
+                      (enrollment/expected-arm-events
+                        survival/weibull-survival-probability
+                        [scale shape]
+                        enroll-pts enroll-weights t-milestones
+                        (:n-per-arm config) (:n-total config)))
+                    (= family "cure")
+                    (let [med (np/array #js [(:gps-med params)])
+                          shape (np/array #js [(:weibull-k params)])
+                          scale (survival/weibull-scale-from-median
+                                  med shape)
+                          cf (np/array #js [(:cure-frac params)])]
+                      (enrollment/expected-arm-events
+                        survival/cure-survival-probability
+                        [cf scale shape]
+                        enroll-pts enroll-weights t-milestones
+                        (:n-per-arm config) (:n-total config)))
+                    (= family "leaky")
+                    (let [med (np/array #js [(:gps-med params)])
+                          shape (np/array #js [(:weibull-k params)])
+                          scale (survival/weibull-scale-from-median
+                                  med shape)
+                          cf (np/array #js [(:cure-frac params)])
+                          leak (np/array #js [(:leak-yr params)])]
+                      (enrollment/expected-arm-events
+                        survival/leaky-cure-survival-probability
+                        [cf scale shape leak]
+                        enroll-pts enroll-weights t-milestones
+                        (:n-per-arm config) (:n-total config))))
+
+        ms-enroll-bat-arr (.toArray ms-enroll-bat)
+        ms-enroll-gps-arr (.toArray ms-enroll-gps)
+        ms-ev-bat-arr (first (.toArray ms-ev-bat))
+        ms-ev-gps-arr (first (.toArray ms-ev-gps))
+        alive-bat-ms (mapv - ms-enroll-bat-arr ms-ev-bat-arr)
+        alive-gps-ms (mapv - ms-enroll-gps-arr ms-ev-gps-arr)
+
+        calc-hr (fn [t1 t2 label]
+                  (let [ev-gps-int (- (nth ms-ev-gps-arr t2)
+                                      (nth ms-ev-gps-arr t1))
+                        ev-bat-int (- (nth ms-ev-bat-arr t2)
+                                      (nth ms-ev-bat-arr t1))
+                        alive-gps-t1 (nth alive-gps-ms t1)
+                        alive-bat-t1 (nth alive-bat-ms t1)
+                        h-gps (if (pos? alive-gps-t1)
+                                (/ ev-gps-int alive-gps-t1)
+                                0.0)
+                        h-bat (if (pos? alive-bat-t1)
+                                (/ ev-bat-int alive-bat-t1)
+                                0.0)]
+                    {:interval label
+                     :hr (if (pos? h-bat) (/ h-gps h-bat) 0.0)}))
+        hr-data [(calc-hr 0 1 "0-IA")
+                 (calc-hr 1 2 "IA-UPD")
+                 (calc-hr 2 3 "UPD-PR3")]
+
         ;; Add exact t=36 values
         t-36 (np/array #js [36] "float64")
         s-bat-36 (survival/weibull-survival-probability t-36 bat-scale bat-shape)
@@ -266,7 +359,16 @@
                            t-arr (first (.toArray ev-gps)))
                      (mapv (fn [t e]
                              {:time t :events e :group "BAT"})
-                           t-arr (first (.toArray ev-bat)))))}))
+                           t-arr (first (.toArray ev-bat)))))
+     :alive (vec (concat
+                   (mapv (fn [t a] {:time t :alive a :group "Total"})
+                         t-arr alive-total-arr)
+                   (mapv (fn [t a] {:time t :alive a :group "GPS"})
+                         t-arr alive-gps-arr)
+                   (mapv (fn [t a] {:time t :alive a :group "BAT"})
+                         t-arr alive-bat-arr)))
+     :hr hr-data}))
+
 
 (defn- calculate-residual [milestone-stats]
   (apply js/Math.max
