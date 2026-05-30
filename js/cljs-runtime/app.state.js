@@ -14,40 +14,40 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(coeffects,new cljs.core.Key
 re_frame.core.reg_fx(new cljs.core.Keyword(null,"app-state","app-state",-1509963278),(function (new_state){
 return cljs.core.reset_BANG_(app.state.app_state,new_state);
 }));
-re_frame.core.reg_fx(new cljs.core.Keyword(null,"decode-url-state","decode-url-state",391757564),(function (p__26200){
-var map__26201 = p__26200;
-var map__26201__$1 = cljs.core.__destructure_map(map__26201);
-var page = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26201__$1,new cljs.core.Keyword(null,"page","page",849072397));
-var state_str = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26201__$1,new cljs.core.Keyword(null,"state-str","state-str",409540885));
+re_frame.core.reg_fx(new cljs.core.Keyword(null,"decode-url-state","decode-url-state",391757564),(function (p__26116){
+var map__26118 = p__26116;
+var map__26118__$1 = cljs.core.__destructure_map(map__26118);
+var page = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26118__$1,new cljs.core.Keyword(null,"page","page",849072397));
+var state_str = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26118__$1,new cljs.core.Keyword(null,"state-str","state-str",409540885));
 return app.state_url.decode_state(state_str).then((function (decoded){
 return re_frame.core.dispatch(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"apply-decoded-state","apply-decoded-state",-1305301496),page,decoded], null));
 }));
 }));
-re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(new cljs.core.Keyword(null,"apply-decoded-state","apply-decoded-state",-1305301496),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"app-state","app-state",-1509963278))], null),(function (p__26254,p__26255){
-var map__26257 = p__26254;
-var map__26257__$1 = cljs.core.__destructure_map(map__26257);
-var app_state = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26257__$1,new cljs.core.Keyword(null,"app-state","app-state",-1509963278));
-var vec__26258 = p__26255;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26258,(0),null);
-var page = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26258,(1),null);
-var decoded = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26258,(2),null);
-var new_state = (cljs.core.truth_((function (){var fexpr__26268 = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"fitter-sub","fitter-sub",188479042),null,new cljs.core.Keyword(null,"fitter","fitter",1602090730),null], null), null);
-return (fexpr__26268.cljs$core$IFn$_invoke$arity$1 ? fexpr__26268.cljs$core$IFn$_invoke$arity$1(page) : fexpr__26268.call(null,page));
-})())?cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"config","config",994861415),decoded):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"placebo-stress","placebo-stress",293301633)))?cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),decoded):(cljs.core.truth_((function (){var fexpr__26274 = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),null,new cljs.core.Keyword(null,"discovery-sub","discovery-sub",1797703249),null], null), null);
-return (fexpr__26274.cljs$core$IFn$_invoke$arity$1 ? fexpr__26274.cljs$core$IFn$_invoke$arity$1(page) : fexpr__26274.call(null,page));
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(new cljs.core.Keyword(null,"apply-decoded-state","apply-decoded-state",-1305301496),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"app-state","app-state",-1509963278))], null),(function (p__26147,p__26148){
+var map__26149 = p__26147;
+var map__26149__$1 = cljs.core.__destructure_map(map__26149);
+var app_state = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26149__$1,new cljs.core.Keyword(null,"app-state","app-state",-1509963278));
+var vec__26150 = p__26148;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26150,(0),null);
+var page = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26150,(1),null);
+var decoded = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26150,(2),null);
+var new_state = (cljs.core.truth_((function (){var fexpr__26158 = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"fitter-sub","fitter-sub",188479042),null,new cljs.core.Keyword(null,"fitter","fitter",1602090730),null], null), null);
+return (fexpr__26158.cljs$core$IFn$_invoke$arity$1 ? fexpr__26158.cljs$core$IFn$_invoke$arity$1(page) : fexpr__26158.call(null,page));
+})())?cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"config","config",994861415),decoded):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"placebo-stress","placebo-stress",293301633)))?cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"stress-test-config","stress-test-config",-854703202),decoded):(cljs.core.truth_((function (){var fexpr__26164 = new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),null,new cljs.core.Keyword(null,"discovery-sub","discovery-sub",1797703249),null], null), null);
+return (fexpr__26164.cljs$core$IFn$_invoke$arity$1 ? fexpr__26164.cljs$core$IFn$_invoke$arity$1(page) : fexpr__26164.call(null,page));
 })())?cljs.core.assoc_in(app_state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"params","params",710516235)], null),decoded):app_state
 )));
 return new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"app-state","app-state",-1509963278),new_state], null);
 }));
-re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(new cljs.core.Keyword(null,"navigate","navigate",657596805),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"app-state","app-state",-1509963278))], null),(function (p__26287,p__26288){
-var map__26293 = p__26287;
-var map__26293__$1 = cljs.core.__destructure_map(map__26293);
-var app_state = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26293__$1,new cljs.core.Keyword(null,"app-state","app-state",-1509963278));
-var vec__26295 = p__26288;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26295,(0),null);
-var page = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26295,(1),null);
-var path_params = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26295,(2),null);
-var query_params = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26295,(3),null);
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(new cljs.core.Keyword(null,"navigate","navigate",657596805),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"app-state","app-state",-1509963278))], null),(function (p__26183,p__26184){
+var map__26189 = p__26183;
+var map__26189__$1 = cljs.core.__destructure_map(map__26189);
+var app_state = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__26189__$1,new cljs.core.Keyword(null,"app-state","app-state",-1509963278));
+var vec__26190 = p__26184;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26190,(0),null);
+var page = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26190,(1),null);
+var path_params = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26190,(2),null);
+var query_params = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__26190,(3),null);
 var new_state = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"fitter-sub","fitter-sub",188479042)))?cljs.core.assoc.cljs$core$IFn$_invoke$arity$variadic(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"fitter","fitter",1602090730),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"view","view",1247994814),cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(new cljs.core.Keyword(null,"subtab","subtab",1005980472).cljs$core$IFn$_invoke$arity$1(path_params))], 0)):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"discovery-sub","discovery-sub",1797703249)))?cljs.core.assoc_in(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"discovery","discovery",1906276356)),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"active-family","active-family",1167742120)], null),new cljs.core.Keyword(null,"subtab","subtab",1005980472).cljs$core$IFn$_invoke$arity$1(path_params)):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"fitter","fitter",1602090730)))?cljs.core.assoc.cljs$core$IFn$_invoke$arity$variadic(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"fitter","fitter",1602090730),cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([new cljs.core.Keyword(null,"view","view",1247994814),new cljs.core.Keyword(null,"config-form","config-form",-1295172692)], 0)):((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(page,new cljs.core.Keyword(null,"discovery","discovery",1906276356)))?cljs.core.assoc_in(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),new cljs.core.Keyword(null,"discovery","discovery",1906276356)),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"discovery","discovery",1906276356),new cljs.core.Keyword(null,"active-family","active-family",1167742120)], null),"weibull"):cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_state,new cljs.core.Keyword(null,"active-page","active-page",370357330),page)
 ))));
 var effects = new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"app-state","app-state",-1509963278),new_state], null);

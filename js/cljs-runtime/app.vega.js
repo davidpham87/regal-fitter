@@ -3,8 +3,8 @@ var module$node_modules$vega_embed$build$embed=shadow.js.require("module$node_mo
 app.vega.vega_lite = (function app$vega$vega_lite(spec){
 var ref = reagent.core.atom.cljs$core$IFn$_invoke$arity$1(null);
 return reagent.core.create_class.cljs$core$IFn$_invoke$arity$1(new cljs.core.PersistentArrayMap(null, 3, [new cljs.core.Keyword(null,"reagent-render","reagent-render",-985383853),(function (){
-return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"ref","ref",1289896967),(function (p1__27633_SHARP_){
-return cljs.core.reset_BANG_(ref,p1__27633_SHARP_);
+return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.Keyword(null,"div","div",1057191632),new cljs.core.PersistentArrayMap(null, 1, [new cljs.core.Keyword(null,"ref","ref",1289896967),(function (p1__27637_SHARP_){
+return cljs.core.reset_BANG_(ref,p1__27637_SHARP_);
 })], null)], null);
 }),new cljs.core.Keyword(null,"component-did-mount","component-did-mount",-1126910518),(function (this$){
 if(cljs.core.truth_(cljs.core.deref(ref))){
@@ -43,10 +43,10 @@ return null;
 if(cljs.core.empty_QMARK_(valid_idx)){
 return null;
 } else {
-return (cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27649_SHARP_){
-return (cljs.core.nth.cljs$core$IFn$_invoke$arity$2(vs,p1__27649_SHARP_) * cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27649_SHARP_));
-}),valid_idx)) / cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27651_SHARP_){
-return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27651_SHARP_);
+return (cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27656_SHARP_){
+return (cljs.core.nth.cljs$core$IFn$_invoke$arity$2(vs,p1__27656_SHARP_) * cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27656_SHARP_));
+}),valid_idx)) / cljs.core.reduce.cljs$core$IFn$_invoke$arity$2(cljs.core._PLUS_,cljs.core.map.cljs$core$IFn$_invoke$arity$2((function (p1__27659_SHARP_){
+return cljs.core.nth.cljs$core$IFn$_invoke$arity$2(sub_w,p1__27659_SHARP_);
 }),valid_idx)));
 }
 });
@@ -84,8 +84,8 @@ if(((cljs.core.empty_QMARK_(results)) || ((tot_wt === (0))))){
 return cljs.core.PersistentVector.EMPTY;
 } else {
 var edges = app.vega.calculate_bat_edges(bat_meds,bin_width);
-return cljs.core.keep.cljs$core$IFn$_invoke$arity$2((function (p1__27664_SHARP_){
-return app.vega.build_bin_record(p1__27664_SHARP_,bin_width,results,weights);
+return cljs.core.keep.cljs$core$IFn$_invoke$arity$2((function (p1__27682_SHARP_){
+return app.vega.build_bin_record(p1__27682_SHARP_,bin_width,results,weights);
 }),edges);
 }
 });
@@ -114,8 +114,8 @@ return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMP
 });
 app.vega.discovery_accrual_chart = (function app$vega$discovery_accrual_chart(curve_data,event_stats){
 var markers = cljs.core.mapv.cljs$core$IFn$_invoke$arity$2((function (s){
-return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"time","time",1385887882),(function (){var G__27691 = new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s);
-switch (G__27691) {
+return new cljs.core.PersistentArrayMap(null, 4, [new cljs.core.Keyword(null,"time","time",1385887882),(function (){var G__27726 = new cljs.core.Keyword(null,"label","label",1718410804).cljs$core$IFn$_invoke$arity$1(s);
+switch (G__27726) {
 case "IA (46.0m)":
 return 46.0;
 
