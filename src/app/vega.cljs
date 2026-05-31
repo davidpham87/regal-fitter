@@ -69,9 +69,11 @@
                         (let [p-val (if (pos? tot-wt)
                                       (* 100 (/ (:weight d) tot-wt))
                                       0.0)
-                              cum-p (swap! running-sum + p-val)]
+                              cum-p (swap! running-sum + p-val)
+                              succ (* 100 (or (:p-success-overall d) 0))]
                           {:bat-mid (:bat-mid d)
-                           :success (* 100 (or (:p-success-overall d) 0))
+                           :success succ
+                           :succ-lbl (str (.toFixed succ 0) "%")
                            :hr-final (or (:median-hr-final d) 0)
                            :p-bat p-val
                            :cum-p (js/Math.min 100.0 cum-p)}))
@@ -108,7 +110,13 @@
                               :tooltip [{:field "bat-mid" :type "quantitative"
                                          :title "BAT mOS (months)"}
                                         {:field "success" :type "quantitative"
-                                         :title "P(success) %"}]}}]}]
+                                         :title "P(success) %"}]}}
+                  {:mark {:type "text" :align "left" :dx 5 :dy -5
+                          :fontSize 9 :fontWeight "bold"}
+                   :encoding {:x {:field "bat-mid" :type "quantitative"}
+                              :y {:field "cum-p" :type "quantitative"}
+                              :text {:field "succ-lbl" :type "nominal"}
+                              :color {:value "#333"}}}]}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Posterior Probability of BAT mOS"
