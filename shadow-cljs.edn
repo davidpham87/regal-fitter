@@ -54,7 +54,8 @@
   {:target :browser-test
    :test-dir "public/test"
    :asset-path "js/"
-   :ns-regexp "-test$"
+   :ns-regexp "app.*-test$"
    :js-options {:js-provider    :external
                 :external-index "target/index.js"}
+   :compiler-options {:pretty-print true}
    :devtools {:autotest true}}}}
