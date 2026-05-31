@@ -387,14 +387,14 @@
 (defn discovery-hazard-rates-chart [rates-data]
   [vega-lite
    {:width 300 :height 300
-    :title "Hazard Rates (per month)"
+    :title "Annualized Hazard Rates"
     :data {:values rates-data}
     :mark "bar"
     :encoding {:x {:field "interval" :type "nominal"
                    :title "Milestone Interval"
                    :sort ["0-IA" "IA-UPD" "UPD-PR3"]}
                :y {:field "rate" :type "quantitative"
-                   :title "Event Hazard Rate"}
+                   :title "Annualized Hazard Rate"}
                :xOffset {:field "group" :type "nominal"}
                :color {:field "group" :type "nominal"
                        :scale {:domain ["Pooled" "GPS" "BAT"]

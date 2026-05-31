@@ -333,15 +333,16 @@
                                n-per-arm
                                (nth alive-bat-ms t1))
                 h-gps (if (and (pos? alive-gps-t1) (pos? len))
-                        (/ ev-gps-int (* alive-gps-t1 len))
+                        (* 12.0 (/ ev-gps-int (* alive-gps-t1 len)))
                         0.0)
                 h-bat (if (and (pos? alive-bat-t1) (pos? len))
-                        (/ ev-bat-int (* alive-bat-t1 len))
+                        (* 12.0 (/ ev-bat-int (* alive-bat-t1 len)))
                         0.0)
                 h-pooled (if (and (pos? (+ alive-gps-t1 alive-bat-t1))
                                   (pos? len))
-                           (/ (+ ev-gps-int ev-bat-int)
-                              (* (+ alive-gps-t1 alive-bat-t1) len))
+                           (* 12.0
+                              (/ (+ ev-gps-int ev-bat-int)
+                                 (* (+ alive-gps-t1 alive-bat-t1) len)))
                            0.0)]
             [{:interval label :rate h-gps :group "GPS"}
              {:interval label :rate h-bat :group "BAT"}
@@ -673,7 +674,7 @@
           [vega/discovery-hr-chart (:hr curve-data)]]
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "Alternate: Hazard Rates (per month)"]
+           "Alternate: Annualized Hazard Rates"]
           [vega/discovery-hazard-rates-chart (:hazard-rates curve-data)]]]]
 
        ;; Column 2: Null Hypothesis (H0)
@@ -700,7 +701,7 @@
           [vega/discovery-hr-chart (:hr curve-data-h0)]]
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "H0: Hazard Rates (per month)"]
+           "H0: Annualized Hazard Rates"]
           [vega/discovery-hazard-rates-chart
            (:hazard-rates curve-data-h0)]]]]]]))
 
