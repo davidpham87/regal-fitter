@@ -3,18 +3,24 @@
             [app.state :as state]
             [app.ui.inputs :as inputs]
             [app.vega :as vega]
+            [app.simulator :as sim]
             [clojure.string :as str]
             [cljs.pprint :refer [pprint]]
             ["@monaco-editor/react" :default Editor]))
 
 (defn- stage2-progress [progress]
-  [:div
+  [:div.flex.flex-col.gap-2
    [:p "Running Stage 2..."]
    [:progress.w-full {:value (:completed progress)
                       :max (:total progress)}]
-   [:p.text-sm
-    (str (:completed progress) " / " (:total progress)
-         " combos simulated")]])
+   [:div.flex.justify-between.items-center
+    [:p.text-sm
+     (str (:completed progress) " / " (:total progress)
+          " combos simulated")]
+    [:button.bg-red-500.text-white.px-3.py-1.rounded.text-sm
+     {:class "hover:bg-red-600 transition-colors"
+      :on-click #(sim/abort-simulation!)}
+     "Abort"]]])
 
 (defn- translate-keys [data]
   (cond

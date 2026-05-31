@@ -174,9 +174,17 @@
                      "bg-gray-200")
             :href (rfe/href :fitter-sub {:subtab "enrollment"})}
            "Enrollment"]]
-         (when (= status :running-stage1)
-           [:div.bg-yellow-100.p-4.mb-4
-            "Running Stage 1 (Analytical Pre-filter)..."])
+         (when (#{:running-stage1 :running-stage2} status)
+           [:div.bg-yellow-100.p-4.mb-4.rounded
+            {:class "flex justify-between items-center"}
+            [:span
+             (if (= status :running-stage1)
+               "Running Stage 1 (Analytical Pre-filter)..."
+               "Running Stage 2 (Simulating scenarios)...")]
+            [:button.bg-red-500.text-white.px-3.py-1.rounded.text-sm
+             {:class "hover:bg-red-600 transition-colors"
+              :on-click #(sim/abort-simulation!)}
+             "Abort"]])
          (when (= status :error)
            [:div.bg-red-100.text-red-800.p-4.mb-4 (:error-message @state)])
          ^{:key (str view "-" version)}

@@ -68,3 +68,14 @@
 (defn clear-queue! []
   (reset! job-queue [])
   (reset! job-callbacks {}))
+
+(defn abort-pool! []
+  (reset! job-queue [])
+  (reset! job-callbacks {})
+  (doseq [w @pool]
+    (.terminate w))
+  (doseq [w @busy-workers]
+    (.terminate w))
+  (reset! pool [])
+  (reset! busy-workers #{})
+  (init-pool! nil))
