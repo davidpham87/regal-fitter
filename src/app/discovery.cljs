@@ -422,7 +422,59 @@
      :hazard-rates (vec (concat
                          (calc-hr-rates 0 1 "0-IA")
                          (calc-hr-rates 1 2 "IA-UPD")
-                         (calc-hr-rates 2 3 "UPD-PR3")))}))
+                         (calc-hr-rates 2 3 "UPD-PR3")))
+     :alive-bat-ms alive-bat-ms
+     :alive-gps-ms alive-gps-ms
+     :t-ms-arr t-ms-arr
+     :n-per-arm n-per-arm}))
+
+(defn- sim->hazard-rates
+  "Computes annualized hazard rates from simulation mean deaths
+   and analytical alive counts. Returns nil when sim-result is nil."
+  [sim-result config alive-bat-ms alive-gps-ms t-ms-arr n-per-arm]
+  (when sim-result
+    (let [;; Mean cumulative deaths per arm from simulation
+          n-ia-bat  (or (:mean-n-ia-bat  sim-result) 0)
+          n-ia-gps  (or (:mean-n-ia-gps  sim-result) 0)
+          n-up-bat  (or (:mean-n-up-bat  sim-result) 0)
+          n-up-gps  (or (:mean-n-up-gps  sim-result) 0)
+          n-pr3-bat (or (:mean-n-pr3-bat sim-result) 0)
+          n-pr3-gps (or (:mean-n-pr3-gps sim-result) 0)
+          ;; Interval deaths = cumulative at end minus cumulative at start
+          calc (fn [t1 t2 label ev-bat-int ev-gps-int]
+                 (let [len (- (nth t-ms-arr t2) (nth t-ms-arr t1))
+                       a-bat-t1 (if (zero? t1)
+                                  n-per-arm
+                                  (nth alive-bat-ms t1))
+                       a-bat-t2 (nth alive-bat-ms t2)
+                       a-gps-t1 (if (zero? t1)
+                                  n-per-arm
+                                  (nth alive-gps-ms t1))
+                       a-gps-t2 (nth alive-gps-ms t2)
+                       avg-bat (* 0.5 (+ a-bat-t1 a-bat-t2))
+                       avg-gps (* 0.5 (+ a-gps-t1 a-gps-t2))
+                       avg-pool (+ avg-bat avg-gps)
+                       h-bat (if (and (pos? avg-bat) (pos? len))
+                               (* 12.0 (/ ev-bat-int (* avg-bat len)))
+                               0.0)
+                       h-gps (if (and (pos? avg-gps) (pos? len))
+                               (* 12.0 (/ ev-gps-int (* avg-gps len)))
+                               0.0)
+                       h-pool (if (and (pos? avg-pool) (pos? len))
+                                (* 12.0
+                                   (/ (+ ev-bat-int ev-gps-int)
+                                      (* avg-pool len)))
+                                0.0)]
+                   [{:interval label :rate h-gps  :group "GPS"}
+                    {:interval label :rate h-bat  :group "BAT"}
+                    {:interval label :rate h-pool :group "Pooled"}]))]
+      (vec (concat
+            (calc 0 1 "0-IA"
+                  n-ia-bat n-ia-gps)
+            (calc 1 2 "IA-UPD"
+                  (- n-up-bat n-ia-bat) (- n-up-gps n-ia-gps))
+            (calc 2 3 "UPD-PR3"
+                  (- n-pr3-bat n-up-bat) (- n-pr3-gps n-up-gps)))))))
 
 
 (defn- calculate-residual [milestone-stats]
@@ -493,6 +545,17 @@
 
         stats (calculate-stats active-family calc-params config)
         curve-data (calculate-curves active-family calc-params config)
+
+        ;; Use simulation mean deaths for H1 hazard rates when available
+        sim-result (when (= (:sim-status state) :done)
+                     (:sim-result state))
+        h1-hazard-rates (or (sim->hazard-rates
+                              sim-result config
+                              (:alive-bat-ms curve-data)
+                              (:alive-gps-ms curve-data)
+                              (:t-ms-arr curve-data)
+                              (:n-per-arm curve-data))
+                            (:hazard-rates curve-data))
 
         ;; Calculate H0: cure fraction = 0, mOS = average(gps, bat)
         avg-med (/ (+ (:gps-med calc-params) (:bat-med calc-params)) 2.0)
@@ -678,8 +741,9 @@
           [vega/discovery-hr-chart (:hr curve-data)]]
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "Alternate: Annualized Hazard Rates"]
-          [vega/discovery-hazard-rates-chart (:hazard-rates curve-data)]]]]
+           (str "Alternate: Annualized Hazard Rates"
+                (when sim-result " (sim)"))]
+          [vega/discovery-hazard-rates-chart h1-hazard-rates]]]]
 
        ;; Column 2: Null Hypothesis (H0)
        [:div.bg-gray-50.p-4.rounded-xl.border
