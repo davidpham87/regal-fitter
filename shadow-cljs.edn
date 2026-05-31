@@ -21,17 +21,15 @@
                             :pretty-print true
                             :pseudo-names true}}
 
-   :compiler-options {:optimizations :simple
+   :compiler-options {:optimizations :advanced
                       :externs       ["src/externs/webr.js"]}
 
    :devtools {:autobuild       true
               :after-load      app.core/reload!}
 
    :modules
-   {:shared {:entries []}
-    :main   {:entries    [app.core]
+   {:main   {:entries    [app.core]
              :init-fn    app.core/init
-             :depends-on #{:shared}
              :default    true}}}
 
   :worker
@@ -39,9 +37,9 @@
    :output-dir "public/js/worker/"
    :asset-path "/js/worker/"
    :js-options {:js-provider    :external
-                :external-index "target/index.js"
+                :external-index "target/worker_index.js"
                 :external-index-format :esm}
-   :compiler-options {:optimizations :simple
+   :compiler-options {:optimizations :advanced
                       :externs       ["src/externs/webr.js"]}
    :modules
    {:worker {:entries    [app.worker]
@@ -59,10 +57,4 @@
    :ns-regexp "-test$"
    :js-options {:js-provider    :external
                 :external-index "target/index.js"}
-   :devtools {:autotest true}}
-  :test-node {:target    :node-test
-              :output-to "out/test-node.js"
-              :autorun   true
-              :ns-regexp "^(?!.*form-test).*-test$"
-              :js-options {:resolve {"node:fs"          false
-                                     "node:fs/promises" false}}}}}
+   :devtools {:autotest true}}}}
