@@ -55,4 +55,4 @@
               :autorun   true
               :ns-regexp "^(?!.*form-test).*-test$"
               :js-options {:resolve {"node:fs"          false
-                                     "node:fs/promises" false}}}}}}
+                                     "node:fs/promises" false}}}}}

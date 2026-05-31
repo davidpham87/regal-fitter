@@ -10,3 +10,8 @@
 
 (defn random [rng size]
   (.random rng size))
+
+
+(comment
+  (default-rng 100)
+  )

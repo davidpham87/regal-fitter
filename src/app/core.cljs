@@ -50,7 +50,6 @@
                [ui/main-view] (js/document.getElementById "app")))
 
 (comment
-
   "hello"
   (reload!)
   )

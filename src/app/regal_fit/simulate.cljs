@@ -1,9 +1,9 @@
 (ns app.regal-fit.simulate
   "Core simulation execution."
-  (:require [cljs.numpy :as np]
-            [cljs.numpy-random :as np-random]
+  (:require [app.regal-fit.random :as rnd]
             [app.regal-fit.stats :as stats]
-            [app.regal-fit.random :as rnd]
+            [cljs.numpy :as np]
+            [cljs.numpy-random :as np-random]
             [malli.core :as m]))
 
 (defn- count-events-at-times
@@ -204,7 +204,7 @@
   "Simulates multiple trials for a single scenario combination."
   {:malli/schema [:=> [:cat [:map [:rec any?] [:cfg-dict any?] [:n-sims :int] [:seed :int]]] any?]}
   [{:keys [rec cfg-dict n-sims seed]}]
-  (let [random-gen (np-random/default-rng seed)
+  (let [random-gen (np-random/default-rng (or seed 42))
         config cfg-dict
         n-screen (js/Math.min (:n-sims-screen config) n-sims)
         [screen-stats screen-pass] (run-sim-chunk rec config n-screen random-gen)]
@@ -214,3 +214,8 @@
             all-stats (concat screen-stats more-stats)]
         (when-not (empty? all-stats)
           (summarize-results all-stats n-sims (+ screen-pass more-pass) rec))))))
+
+
+(comment
+  (np-random/default-rng 42)
+  )
