@@ -322,6 +322,11 @@
               [:div.text-sm.font-semibold.text-gray-700
                (if (js/isNaN med-hr) "N/A" (.toFixed med-hr 3))]]
              [:div.text-center
+              [:div.text-xs.text-gray-400.font-semibold "P(HR < 0.636)"]
+              [:div.text-sm.font-semibold.text-gray-700
+               (let [p-hr (:p-hr-below-threshold res)]
+                 (if (js/isNaN p-hr) "N/A" (str (.toFixed (* 100 p-hr) 1) "%")))]]
+             [:div.text-center
               [:div.text-xs.text-gray-400.font-semibold "Median T80"]
               [:div.text-sm.font-semibold.text-gray-700
                (if (js/isNaN med-t80)
