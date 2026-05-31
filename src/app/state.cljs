@@ -35,8 +35,8 @@
    :tol-increment-ia-upd 3
    :tol-increment-upd-pr3 3
 
-   :futility-hr-max 0.85
-   :efficacy-hr-min 0.3
+   :futility-hr-max 0.9
+   :efficacy-hr-min 0.35
 
    :pool-mos-min-at-ia 12
    :median-fu-target 13.5
@@ -48,8 +48,8 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 1000
-   :n-sims-screen 100
+   :n-sims-per-combo 500
+   :n-sims-screen 50
    :n-screen-min-pass 1
    :seed 20260508
 
@@ -70,7 +70,7 @@
    :leaky-unc-shape-grid [0.6 1.0 0.1]
    :leak-grid [0.05 0.08 0.01]
 
-   :families ["weibull" "leaky" "cure"]
+   :families ["leaky"]
 })
 
 (def light-config
@@ -287,7 +287,16 @@
 (defn- sync-to-url! [data]
   (-> (state-url/encode-state data)
       (.then (fn [b64]
-               (rfe/set-query {:state b64})))))
+               (let [hash js/window.location.hash
+                     parts (.split hash "?")
+                     path (aget parts 0)
+                     params (js/URLSearchParams. (or (aget parts 1) ""))
+                     _ (.set params "state" b64)
+                     new-hash (str path "?" (.toString params))
+                     url (js/URL. js/window.location.href)]
+                 (set! (.-hash url) new-hash)
+                 (set! (.-search url) "")
+                 (.replaceState js/window.history nil "" (.toString url)))))))
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v)
