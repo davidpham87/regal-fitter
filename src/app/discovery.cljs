@@ -46,15 +46,15 @@
 
 (defonce ^:private debounced-calc-update
   (debounce
-    (fn [params]
-      (swap! state/app-state assoc-in [:discovery :calc-params] params))
-    200))
+   (fn [params]
+     (swap! state/app-state assoc-in [:discovery :calc-params] params))
+   200))
 
 (defonce ^:private debounced-sim-run
   (debounce
-    (fn [family params]
-      (sim/run-discovery-simulation! family params))
-    500))
+   (fn [family params]
+     (sim/run-discovery-simulation! family params))
+   500))
 
 (defn- param-input
   "A reusable component that renders a labeled numeric parameter control
@@ -160,7 +160,7 @@
   "Renders the controls, statistical summaries, and interactive Vega charts
    for the parametric assumptions. Inlines the mathematical conversions for
    population lambda and true control arm median survival times."
-  [{:keys [values set-values] :as props}]
+  [{:keys [values set-values active-tab] :as props}]
   (let [state (:discovery @state/app-state)
         config (:config @state/app-state)
         active-family (:active-family state)
@@ -189,12 +189,14 @@
         d (or (:delay calc-params) 3.0)
         k (:weibull-k calc-params)
         bat-true-lambda (math/pow
-                          (/ (- (math/pow (+ irm d) k) (math/pow d k))
-                             (math/log 2))
-                          (/ 1 k))
+                         (/ (- (math/pow (+ irm d) k) (math/pow d k))
+                            (math/log 2))
+                         (/ 1 k))
 
         ;; Inlined true-mos calculation
-        bat-true-mos (* bat-true-lambda (math/pow (math/log 2) (/ 1 k)))]
+        bat-true-mos (* bat-true-lambda (math/pow (math/log 2) (/ 1 k)))
+
+        tab-sel @active-tab]
 
     [:div.p-6.max-w-7xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2 "Discovery View"]
@@ -266,16 +268,16 @@
                         (let [v (js/parseFloat (.. e -target -value))]
                           (set-values {:n-sims v})
                           (debounced-sim-run
-                            active-family
-                            (assoc calc-params :n-sims v))))}]
+                           active-family
+                           (assoc calc-params :n-sims v))))}]
          [:input.border.rounded.p-1.text-xs.w-14
           {:type "number" :value (:n-sims values) :step 100
            :on-change (fn [e]
                         (let [v (js/parseFloat (.. e -target -value))]
                           (set-values {:n-sims v})
                           (debounced-sim-run
-                            active-family
-                            (assoc calc-params :n-sims v))))}]]
+                           active-family
+                           (assoc calc-params :n-sims v))))}]]
 
         [:button.rounded-lg.shadow-sm.transition-colors
          {:type "button"
@@ -284,7 +286,7 @@
           :on-click (fn [e]
                       (.preventDefault e)
                       (sim/run-discovery-simulation! active-family
-                                                    calc-params))
+                                                     calc-params))
           :disabled (= (:sim-status state) :running)}
          "Force Run"]
 
@@ -337,63 +339,222 @@
 
           nil)]]]
 
-     ^{:key (str params)}
-     [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
-      [:div.bg-gray-50.p-4.rounded-xl.border
-       [:div.flex.justify-between.items-center.mb-4
-        [:h3.font-extrabold.text-gray-800
-         "Alternate Hypothesis (H1): GPS is effective"]]
-       [stats-row "Milestone Stats (H1)" stats]
-       [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "Alternate: Survival Curves"]
-         [vega/discovery-survival-chart (:survival curve-data)]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "Alternate: Event Accrual"]
-         [vega/discovery-accrual-chart (:accrual curve-data) stats]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "Alternate: Patients Alive"]
-         [vega/discovery-alive-chart (:alive curve-data) stats]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "Alternate: Estimated Hazard Ratios"]
-         [vega/discovery-hr-chart (:hr curve-data)]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          (if sim-result
-            "Alternate: Median Survival Time by Period (sim)"
-            "Alternate: Interval Midpoints (analytical)")]
-         [vega/discovery-hazard-rates-chart h1-hazard-rates]]]]
+     ;; Tab Header
+     [:div.flex.gap-4.mb-6.border-b
+      (for [[t-id t-label] [["H1" "H1 (Alternate Hypothesis)"]
+                            ["H0" "H0 (Null Hypothesis)"]
+                            ["Simulations" "Simulations (Get Numbers)"]]]
+        ^{:key t-id}
+        [:button.px-4.py-2.text-sm.font-bold.transition-colors.border-b-2
+         {:class (if (= tab-sel t-id)
+                   "border-blue-600 text-blue-600"
+                   "border-transparent text-gray-500 hover:text-gray-700")
+          :on-click #(reset! active-tab t-id)}
+         t-label])]
 
-      [:div.bg-gray-50.p-4.rounded-xl.border
-       [:h3.font-extrabold.text-gray-800.mb-4
-        "Null Hypothesis (H0): GPS is placebo (" avg-med " mOS" ")"]
-       [stats-row "Milestone Stats (H0)" stats-h0]
-       [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "H0: Survival Curves (Cure=0, Shared Med)"]
-         [vega/discovery-survival-chart (:survival curve-data-h0)]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "H0: Event Accrual (Cure=0, Shared Med)"]
-         [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "H0: Patients Alive"]
-         [vega/discovery-alive-chart (:alive curve-data-h0) stats-h0]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "H0: Estimated Hazard Ratios"]
-         [vega/discovery-hr-chart (:hr curve-data-h0)]]
-        [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-         [:h4.text-xs.font-bold.text-gray-700.mb-2
-          "H0: Annualized Hazard Rates"]
-         [vega/discovery-hazard-rates-chart
-          (:hazard-rates curve-data-h0)]]]]]]))
+     ;; Tab Content
+     (case tab-sel
+       "H1"
+       ^{:key (str "h1-" params)}
+       [:div.grid.grid-cols-1.gap-8
+        [:div.bg-gray-50.p-4.rounded-xl.border
+         [:div.flex.justify-between.items-center.mb-4
+          [:h3.font-extrabold.text-gray-800
+           "Alternate Hypothesis (H1): GPS is effective"]]
+         [stats-row "Milestone Stats (H1)" stats]
+         [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "Alternate: Survival Curves"]
+           [vega/discovery-survival-chart (:survival curve-data)]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "Alternate: Event Accrual"]
+           [vega/discovery-accrual-chart (:accrual curve-data) stats]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "Alternate: Patients Alive"]
+           [vega/discovery-alive-chart (:alive curve-data) stats]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "Alternate: Estimated Hazard Ratios"]
+           [vega/discovery-hr-chart (:hr curve-data)]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            (if sim-result
+              "Alternate: Median Survival Time by Period (sim)"
+              "Alternate: Interval Midpoints (analytical)")]
+           [vega/discovery-hazard-rates-chart h1-hazard-rates]]]]]
+
+       "H0"
+       ^{:key (str "h0-" params)}
+       [:div.grid.grid-cols-1.gap-8
+        [:div.bg-gray-50.p-4.rounded-xl.border
+         [:h3.font-extrabold.text-gray-800.mb-4
+          "Null Hypothesis (H0): GPS is placebo (" avg-med " mOS" ")"]
+         [stats-row "Milestone Stats (H0)" stats-h0]
+         [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "H0: Survival Curves (Cure=0, Shared Med)"]
+           [vega/discovery-survival-chart (:survival curve-data-h0)]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "H0: Event Accrual (Cure=0, Shared Med)"]
+           [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "H0: Patients Alive"]
+           [vega/discovery-alive-chart (:alive curve-data-h0) stats-h0]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "H0: Estimated Hazard Ratios"]
+           [vega/discovery-hr-chart (:hr curve-data-h0)]]
+          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+           [:h4.text-xs.font-bold.text-gray-700.mb-2
+            "H0: Annualized Hazard Rates"]
+           [vega/discovery-hazard-rates-chart
+            (:hazard-rates curve-data-h0)]]]]]
+
+       "Simulations"
+       (cond
+         (= (:sim-status state) :running)
+         [:div.bg-gray-50.p-6.rounded-xl.border.text-center
+          [:div.text-gray-600.font-medium.animate-pulse
+           "Simulations are currently running to compile the metrics. Please wait..."]]
+
+         (not= (:sim-status state) :done)
+         [:div.bg-gray-50.p-6.rounded-xl.border.text-center
+          [:div.text-gray-500.font-medium
+           "No simulation results available. Click the 'Force Run' button above to simulate trials."]]
+
+         :else
+         (let [res (:sim-result state)
+               p-suc (or (:p-success-overall res) 0)
+               acc-rate (or (:acceptance-rate res) 0)
+               p-reach85 (or (:p-reach80 res) 0)
+               p-nor (or (:p-no-readout res) 0)
+               m-hr-f (or (:median-hr-final res) js/NaN)
+               p-hr-t (or (:p-hr-below-threshold res) js/NaN)
+               m-t80 (or (:median-t80-months res) js/NaN)
+               m-hr-ia (or (:median-hr-ia res) js/NaN)
+               m-z-ia (or (:median-z-ia res) js/NaN)
+               m-bat-upd (or (:median-bat-alive-upd res) 0)
+               m-gps-upd (or (:median-gps-alive-upd res) 0)]
+           [:div.space-y-6
+            ;; Headline Summary Cards
+            [:div.grid.grid-cols-1.sm:grid-cols-2.md:grid-cols-4.gap-4
+             [:div.bg-white.p-4.rounded-xl.shadow-sm.border.text-center
+              [:div.text-xs.text-gray-400.font-bold.uppercase "Overall success (P)"]
+              [:div.text-3xl.font-extrabold.text-blue-600.mt-1
+               (str (.toFixed (* 100 p-suc) 1) "%")]
+              [:div.text-2xs.text-gray-400.mt-1 "Log-rank target reached"]]
+
+             [:div.bg-white.p-4.rounded-xl.shadow-sm.border.text-center
+              [:div.text-xs.text-gray-400.font-bold.uppercase "Acceptance Rate"]
+              [:div.text-3xl.font-extrabold.text-gray-800.mt-1
+               (str (.toFixed (* 100 acc-rate) 1) "%")]
+              [:div.text-2xs.text-gray-400.mt-1 "Passed prefilter screening"]]
+
+             [:div.bg-white.p-4.rounded-xl.shadow-sm.border.text-center
+              [:div.text-xs.text-gray-400.font-bold.uppercase "Median HR (Final)"]
+              [:div.text-3xl.font-extrabold.text-gray-800.mt-1
+               (if (js/isNaN m-hr-f) "N/A" (.toFixed m-hr-f 3))]
+              [:div.text-2xs.text-gray-400.mt-1 "Across all accepted runs"]]
+
+             [:div.bg-white.p-4.rounded-xl.shadow-sm.border.text-center
+              [:div.text-xs.text-gray-400.font-bold.uppercase "Median Time to T80"]
+              [:div.text-3xl.font-extrabold.text-gray-800.mt-1
+               (if (js/isNaN m-t80) "N/A" (str (.toFixed m-t80 1) "m"))]
+              [:div.text-2xs.text-gray-400.mt-1 "Time to reach 80% events"]]]
+
+            ;; Detailed Stats Section
+            [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+             [:div.bg-white.p-4.rounded-xl.shadow-sm.border
+              [:h4.text-sm.font-bold.text-gray-800.mb-4 "Trial Probability Distributions"]
+              [:table.w-full.text-left.text-xs
+               [:tbody
+                [:tr.border-b
+                 [:td.py-2.font-semibold.text-gray-600 "Readout Achieved (Reach 80% events)"]
+                 [:td.py-2.text-right.font-bold (str (.toFixed (* 100 p-reach85) 1) "%")]]
+                [:tr.border-b
+                 [:td.py-2.font-semibold.text-gray-600 "Admin Censoring Reached (No Readout)"]
+                 [:td.py-2.text-right.font-bold (str (.toFixed (* 100 p-nor) 1) "%")]]
+                [:tr.border-b
+                 [:td.py-2.font-semibold.text-gray-600 "P(Hazard Ratio < 0.636)"]
+                 [:td.py-2.text-right.font-bold (if (js/isNaN p-hr-t) "N/A" (str (.toFixed (* 100 p-hr-t) 1) "%"))]]
+                [:tr
+                 [:td.py-2.font-semibold.text-gray-600 "Interim Z-Score Median (IA)"]
+                 [:td.py-2.text-right.font-bold (if (js/isNaN m-z-ia) "N/A" (.toFixed m-z-ia 2))]]]]]
+
+             [:div.bg-white.p-4.rounded-xl.shadow-sm.border
+              [:h4.text-sm.font-bold.text-gray-800.mb-4 "Interim Milestone Summaries"]
+              [:table.w-full.text-left.text-xs
+               [:tbody
+                [:tr.border-b
+                 [:td.py-2.font-semibold.text-gray-600 "Interim Median Hazard Ratio (IA)"]
+                 [:td.py-2.text-right.font-bold (if (js/isNaN m-hr-ia) "N/A" (.toFixed m-hr-ia 3))]]
+                [:tr.border-b
+                 [:td.py-2.font-semibold.text-gray-600 "Median BAT Patients Alive (UPD)"]
+                 [:td.py-2.text-right.font-bold (.toFixed m-bat-upd 1)]]
+                [:tr
+                 [:td.py-2.font-semibold.text-gray-600 "Median GPS Patients Alive (UPD)"]
+                 [:td.py-2.text-right.font-bold (.toFixed m-gps-upd 1)]]]]]]
+
+            ;; Detailed Period Breakdown Table
+            [:div.bg-white.p-4.rounded-xl.shadow-sm.border
+             [:h4.text-sm.font-bold.text-gray-800.mb-3 "Detailed Event Counts and Survival Times by Period (Simulation Means)"]
+             [:div.overflow-x-auto
+              [:table.w-full.text-left.text-xs.border-collapse
+               [:thead.bg-gray-50
+                [:tr.border-b
+                 [:th.p-2.text-gray-600 "Milestone Period"]
+                 [:th.p-2.text-gray-600 "Group"]
+                 [:th.p-2.text-right.text-gray-600 "Average Events in Period"]
+                 [:th.p-2.text-right.text-gray-600 "Simulated Median Survival Time (mo)"]]]
+               [:tbody
+                ;; Period 1: 0-IA
+                [:tr.border-b
+                 [:td.p-2.font-semibold {:rowSpan 3} "0-IA"]
+                 [:td.p-2 "GPS"]
+                 [:td.p-2.text-right (.toFixed (or (:mean-n-ia-gps res) 0) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-ia-gps res) 0) 2)]]
+                [:tr.border-b
+                 [:td.p-2 "BAT"]
+                 [:td.p-2.text-right (.toFixed (or (:mean-n-ia-bat res) 0) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-ia-bat res) 0) 2)]]
+                [:tr.border-b
+                 [:td.p-2 "Pooled"]
+                 [:td.p-2.text-right (.toFixed (+ (or (:mean-n-ia-gps res) 0) (or (:mean-n-ia-bat res) 0)) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-ia-pool res) 0) 2)]]
+                ;; Period 2: IA-UPD
+                [:tr.border-b
+                 [:td.p-2.font-semibold {:rowSpan 3} "IA-UPD"]
+                 [:td.p-2 "GPS"]
+                 [:td.p-2.text-right (.toFixed (- (or (:mean-n-up-gps res) 0) (or (:mean-n-ia-gps res) 0)) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-up-gps res) 0) 2)]]
+                [:tr.border-b
+                 [:td.p-2 "BAT"]
+                 [:td.p-2.text-right (.toFixed (- (or (:mean-n-up-bat res) 0) (or (:mean-n-ia-bat res) 0)) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-up-bat res) 0) 2)]]
+                [:tr.border-b
+                 [:td.p-2 "Pooled"]
+                 [:td.p-2.text-right (.toFixed (- (+ (or (:mean-n-up-gps res) 0) (or (:mean-n-up-bat res) 0)) (+ (or (:mean-n-ia-gps res) 0) (or (:mean-n-ia-bat res) 0))) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-up-pool res) 0) 2)]]
+                ;; Period 3: UPD-PR3
+                [:tr.border-b
+                 [:td.p-2.font-semibold {:rowSpan 3} "UPD-PR3"]
+                 [:td.p-2 "GPS"]
+                 [:td.p-2.text-right (.toFixed (- (or (:mean-n-pr3-gps res) 0) (or (:mean-n-up-gps res) 0)) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-pr3-gps res) 0) 2)]]
+                [:tr.border-b
+                 [:td.p-2 "BAT"]
+                 [:td.p-2.text-right (.toFixed (- (or (:mean-n-pr3-bat res) 0) (or (:mean-n-up-bat res) 0)) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-pr3-bat res) 0) 2)]]
+                [:tr
+                 [:td.p-2 "Pooled"]
+                 [:td.p-2.text-right (.toFixed (- (+ (or (:mean-n-pr3-gps res) 0) (or (:mean-n-pr3-bat res) 0)) (+ (or (:mean-n-up-gps res) 0) (or (:mean-n-up-bat res) 0))) 1)]
+                 [:td.p-2.text-right (.toFixed (or (:mean-med-pr3-pool res) 0) 2)]]]]]]])))]))
 
 (defn discovery-view
   "Main page entry point for the Discovery view.
@@ -405,7 +566,8 @@
    - Synchronizing local form values back to global application state.
    - Triggering debounced calculations and simulation runs on any form changes."
   []
-  (r/with-let [_ (let [disc (:discovery @state/app-state)
+  (r/with-let [active-tab (r/atom "H1")
+               _ (let [disc (:discovery @state/app-state)
                        fam (:active-family disc)
                        params (merge (:calc-params disc)
                                      (:params disc))]
@@ -426,7 +588,8 @@
                                       (catch :default err
                                         (js/console.error "Error handling form change:" err))))}]
       (try
-        [fork/form form-config discovery-view-content]
+        [fork/form form-config (fn [form-props]
+                                 [discovery-view-content (assoc form-props :active-tab active-tab)])]
         (catch :default err
           [:div.p-4.text-red-500
            "Failed to render Discovery View: " (.-message err)])))))
