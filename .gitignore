@@ -19,4 +19,6 @@ chat.md
 .lsp/
 .clj-kondo/  
 public/js
+public/test/js
 jules_session*/
+  
