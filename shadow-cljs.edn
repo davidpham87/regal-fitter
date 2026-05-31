@@ -11,10 +11,10 @@
  :builds
  {:app
   {:target     :browser
-   :output-dir "public/js"
-   :asset-path "/js"
-   :js-options {:resolve {"node:fs"          false
-                          "node:fs/promises" false}}
+   :output-dir "public/js/compiled"
+   :asset-path "/js/compiled"
+   :js-options {:js-provider    :external
+                :external-index "target/index.js"}
 
    :dev {:compiler-options {:source-map   true
                             :pretty-print true
@@ -46,8 +46,8 @@
    :test-dir "public/test"
    :asset-path "js/"
    :ns-regexp "-test$"
-   :js-options {:resolve {"node:fs"          false
-                          "node:fs/promises" false}}
+   :js-options {:js-provider    :external
+                :external-index "target/index.js"}
    :devtools {:autotest true}}
   :test-node {:target    :node-test
               :output-to "out/test-node.js"
