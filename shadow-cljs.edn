@@ -32,9 +32,19 @@
     :main   {:entries    [app.core]
              :init-fn    app.core/init
              :depends-on #{:shared}
-             :default    true}
-    :worker {:entries    [app.worker]
-             :depends-on #{:shared}
+             :default    true}}}
+
+  :worker
+  {:target     :browser
+   :output-dir "public/js/"
+   :asset-path "/js/"
+   :js-options {:js-provider    :external
+                :external-index "target/index.js"
+                :external-index-format :esm}
+   :compiler-options {:optimizations :simple
+                      :externs       ["src/externs/webr.js"]}
+   :modules
+   {:worker {:entries    [app.worker]
              :web-worker true}}}
 
   :test      {:target    :browser-test
