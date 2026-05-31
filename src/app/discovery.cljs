@@ -348,9 +348,13 @@
                               (/ (+ ev-gps-int ev-bat-int)
                                  (* avg-alive-pooled len)))
                            0.0)]
-            [{:interval label :rate h-gps :group "GPS"}
-             {:interval label :rate h-bat :group "BAT"}
-             {:interval label :rate h-pooled :group "Pooled"}]))
+            [{:interval label :rate h-gps
+              :events ev-gps-int :group "GPS"}
+             {:interval label :rate h-bat
+              :events ev-bat-int :group "BAT"}
+             {:interval label :rate h-pooled
+              :events (+ ev-gps-int ev-bat-int)
+              :group "Pooled"}]))
 
         ;; Add exact t=36 values
         t-36 (np/array #js [36] "float64")
@@ -465,9 +469,13 @@
                                    (/ (+ ev-bat-int ev-gps-int)
                                       (* avg-pool len)))
                                 0.0)]
-                   [{:interval label :rate h-gps  :group "GPS"}
-                    {:interval label :rate h-bat  :group "BAT"}
-                    {:interval label :rate h-pool :group "Pooled"}]))]
+                   [{:interval label :rate h-gps
+                     :events ev-gps-int :group "GPS"}
+                    {:interval label :rate h-bat
+                     :events ev-bat-int :group "BAT"}
+                    {:interval label :rate h-pool
+                     :events (+ ev-bat-int ev-gps-int)
+                     :group "Pooled"}]))]
       (vec (concat
             (calc 0 1 "0-IA"
                   n-ia-bat n-ia-gps)
