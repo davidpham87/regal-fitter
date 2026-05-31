@@ -319,20 +319,65 @@
                  (calc-hr 2 3 "UPD-PR3")]
 
         t-ms-arr (np/nd-to-array t-milestones)
+
+        s-bat-fn (fn [t]
+                   (let [t-arr (np/array #js [t] "float64")]
+                     (first (np/nd-to-array
+                              (survival/weibull-survival-probability
+                                t-arr bat-scale bat-shape)))))
+
+        gps-med-arr (np/array #js [(:gps-med params)])
+        gps-shape-arr (np/array #js [(:weibull-k params)])
+        gps-scale (survival/weibull-scale-from-median gps-med-arr gps-shape-arr)
+        gps-cf (np/array #js [(:cure-frac params)])
+        gps-leak (np/array #js [(:leak-yr params)])
+
+        s-gps-fn (fn [t]
+                   (let [t-arr (np/array #js [t] "float64")]
+                     (first (np/nd-to-array
+                              (cond
+                                (= family "weibull")
+                                (survival/weibull-survival-probability
+                                  t-arr gps-scale gps-shape-arr)
+                                (= family "cure")
+                                (survival/cure-survival-probability
+                                  t-arr gps-cf gps-scale gps-shape-arr)
+                                (= family "leaky")
+                                (survival/leaky-cure-survival-probability
+                                  t-arr gps-cf gps-scale gps-shape-arr gps-leak))))))
+
+        s-pool-fn (fn [t]
+                    (* 0.5 (+ (s-bat-fn t) (s-gps-fn t))))
+
+        find-interval-median (fn [s-fn t1 t2]
+                               (let [target (* 0.5 (+ (s-fn t1) (s-fn t2)))]
+                                 (loop [low t1
+                                        high t2
+                                        iters 0]
+                                   (if (>= iters 30)
+                                     (* 0.5 (+ low high))
+                                     (let [mid (* 0.5 (+ low high))
+                                           v (s-fn mid)]
+                                       (if (> v target)
+                                         (recur mid high (inc iters))
+                                         (recur low mid (inc iters))))))))
+
         calc-hr-rates
         (fn [t1 t2 label]
           (let [t-start (nth t-ms-arr t1)
                 t-end   (nth t-ms-arr t2)
-                midpoint (* 0.5 (+ t-start t-end))
                 ev-gps-int (- (nth ms-ev-gps-arr t2)
                               (nth ms-ev-gps-arr t1))
                 ev-bat-int (- (nth ms-ev-bat-arr t2)
-                              (nth ms-ev-bat-arr t1))]
-            [{:interval label :median midpoint
+                              (nth ms-ev-bat-arr t1))
+                med-gps (find-interval-median s-gps-fn t-start t-end)
+                med-bat (find-interval-median s-bat-fn t-start t-end)
+                med-pool (find-interval-median s-pool-fn t-start t-end)]
+            [{:interval label :median med-gps
               :events ev-gps-int :group "GPS"}
-             {:interval label :median midpoint
+             {:interval label :median med-bat
               :events ev-bat-int :group "BAT"}
-             {:interval label :median midpoint
+             {:interval label :median med-pool
               :events (+ ev-gps-int ev-bat-int)
               :group "Pooled"}]))
 
