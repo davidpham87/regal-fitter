@@ -41,6 +41,14 @@
               :ns-regexp "-test$"
               :js-options {:resolve {"node:fs"          false
                                      "node:fs/promises" false}}}
+  :test-interactive
+  {:target :browser-test
+   :test-dir "public/test"
+   :asset-path "js/"
+   :ns-regexp "-test$"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}
+   :devtools {:autotest true}}
   :test-node {:target    :node-test
               :output-to "out/test-node.js"
               :autorun   true
