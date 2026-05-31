@@ -36,8 +36,8 @@
 
   :worker
   {:target     :browser
-   :output-dir "public/js/"
-   :asset-path "/js/"
+   :output-dir "public/js/worker/"
+   :asset-path "/js/worker/"
    :js-options {:js-provider    :external
                 :external-index "target/index.js"
                 :external-index-format :esm}
