@@ -36,6 +36,9 @@
   (init-routes!)
   (rdom/render [ui/main-view] (js/document.getElementById "app")))
 
+(defn reload-testing []
+  [:h1 "hello, shadow-cljs hot reloading is working!"])
+
 (defn ^export ^:dev/after-load reload!
   "Reload hook for shadow-cljs. Re-mounts the application after code changes.
 
@@ -43,8 +46,8 @@
     nil: Re-renders the app."
   []
   (js/console.log "reload")
-  (rdom/render #_[:h1 "Hello"]
-               [ui/main-view] (js/document.getElementById "app")))
+  (rdom/render [reload-testing]
+               #_[ui/main-view] (js/document.getElementById "app")))
 
 (comment
   "hello"
