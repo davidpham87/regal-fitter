@@ -329,20 +329,24 @@
                 alive-gps-t1 (if (zero? t1)
                                n-per-arm
                                (nth alive-gps-ms t1))
+                alive-gps-t2 (nth alive-gps-ms t2)
+                avg-alive-gps (* 0.5 (+ alive-gps-t1 alive-gps-t2))
                 alive-bat-t1 (if (zero? t1)
                                n-per-arm
                                (nth alive-bat-ms t1))
-                h-gps (if (and (pos? alive-gps-t1) (pos? len))
-                        (* 12.0 (/ ev-gps-int (* alive-gps-t1 len)))
+                alive-bat-t2 (nth alive-bat-ms t2)
+                avg-alive-bat (* 0.5 (+ alive-bat-t1 alive-bat-t2))
+                avg-alive-pooled (+ avg-alive-gps avg-alive-bat)
+                h-gps (if (and (pos? avg-alive-gps) (pos? len))
+                        (* 12.0 (/ ev-gps-int (* avg-alive-gps len)))
                         0.0)
-                h-bat (if (and (pos? alive-bat-t1) (pos? len))
-                        (* 12.0 (/ ev-bat-int (* alive-bat-t1 len)))
+                h-bat (if (and (pos? avg-alive-bat) (pos? len))
+                        (* 12.0 (/ ev-bat-int (* avg-alive-bat len)))
                         0.0)
-                h-pooled (if (and (pos? (+ alive-gps-t1 alive-bat-t1))
-                                  (pos? len))
+                h-pooled (if (and (pos? avg-alive-pooled) (pos? len))
                            (* 12.0
                               (/ (+ ev-gps-int ev-bat-int)
-                                 (* (+ alive-gps-t1 alive-bat-t1) len)))
+                                 (* avg-alive-pooled len)))
                            0.0)]
             [{:interval label :rate h-gps :group "GPS"}
              {:interval label :rate h-bat :group "BAT"}
