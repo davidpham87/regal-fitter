@@ -64,19 +64,51 @@
 (defn results-charts [family items]
   (let [data (build-stratified-data items 1.0)
         tot-wt (reduce + (map :weight data))
-        vdata (map (fn [d]
-                     {:bat-mid (:bat-mid d)
-                      :success (* 100 (or (:p-success-overall d) 0))
-                      :hr-final (or (:median-hr-final d) 0)
-                      :p-bat (if (pos? tot-wt)
-                               (* 100 (/ (:weight d) tot-wt))
-                               0)})
-                   data)]
+        vdata (let [running-sum (atom 0.0)]
+                (mapv (fn [d]
+                        (let [p-val (if (pos? tot-wt)
+                                      (* 100 (/ (:weight d) tot-wt))
+                                      0.0)
+                              cum-p (swap! running-sum + p-val)]
+                          {:bat-mid (:bat-mid d)
+                           :success (* 100 (or (:p-success-overall d) 0))
+                           :hr-final (or (:median-hr-final d) 0)
+                           :p-bat p-val
+                           :cum-p (js/Math.min 100.0 cum-p)}))
+                      data))]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
        [:div "No accepted combinations in this family to display charts."]
        [:div.flex.flex-wrap.gap-4
+        [vega-lite
+         {:width 320 :height 240 :data {:values vdata}
+          :title "Cumulative BAT mOS & P(success)"
+          :layer [{:mark {:type "line" :point true}
+                   :encoding {:x {:field "bat-mid"
+                                  :type "quantitative"
+                                  :title "BAT mOS (months)"}
+                              :y {:field "cum-p"
+                                  :type "quantitative"
+                                  :title "Percentage (%)"
+                                  :scale {:domain [0 100]}}
+                              :color {:datum "Cumulative BAT mOS (CDF)"
+                                      :type "nominal"
+                                      :scale {:range ["#44aa77" "#4488cc"]}}
+                              :tooltip [{:field "bat-mid" :type "quantitative"
+                                         :title "BAT mOS (months)"}
+                                        {:field "cum-p" :type "quantitative"
+                                         :title "Cumulative Probability (%)"}]}}
+                  {:mark {:type "line" :point true}
+                   :encoding {:x {:field "bat-mid"
+                                  :type "quantitative"}
+                              :y {:field "success"
+                                  :type "quantitative"}
+                              :color {:datum "P(success)"}
+                              :tooltip [{:field "bat-mid" :type "quantitative"
+                                         :title "BAT mOS (months)"}
+                                        {:field "success" :type "quantitative"
+                                         :title "P(success) %"}]}}]}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Posterior Probability of BAT mOS"
@@ -92,26 +124,6 @@
                                 :title "BAT mOS (months)"}
                                {:field "p-bat" :type "quantitative"
                                 :title "Probability (%)"}]}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "P(success) by BAT mOS"
-          :layer [{:mark {:type "line" :point true}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"
-                                  :title "BAT mOS (months)"}
-                              :y {:field "success"
-                                  :type "quantitative"
-                                  :title "P(success) %"
-                                  :scale {:domain [0 100]}}
-                              :color {:value "#4488cc"}
-                              :tooltip [{:field "bat-mid" :type "quantitative"
-                                         :title "BAT mOS (months)"}
-                                        {:field "success" :type "quantitative"
-                                         :title "P(success) %"}]}}
-                  {:mark "rule" :data {:values [{:y 50}]}
-                   :encoding {:y {:field "y" :type "quantitative"}
-                              :color {:value "gray"}
-                              :strokeDash {:value [4 4]}}}]}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Implied Final HR by BAT mOS"
