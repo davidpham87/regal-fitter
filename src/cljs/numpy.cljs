@@ -68,6 +68,11 @@
     (fn? (.-slice arr)) (.slice ^js arr start end)
     :else arr))
 
+(defn ravel [arr]
+  (if (and arr (fn? (.-ravel arr)))
+    (.ravel ^js arr)
+    arr))
+
 (defn item [arr idx]
   (if (and arr (fn? (.-item arr))) (.item ^js arr idx) (aget arr idx)))
 

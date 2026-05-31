@@ -14,18 +14,15 @@
    :output-dir "public/js/"
    :asset-path "/js/"
    :js-options {:js-provider    :external
-                :external-index "target/index.js"}
+                :external-index "target/index.js"
+                :external-index-format :esm}
 
-   :dev {:compiler-options {:source-map    true
-                            :pretty-print  true
-                            :pseudo-names  true
-                            :infer-externs false
-                            :warnings      {:infer-warning false}}}
+   :dev {:compiler-options {:source-map   true
+                            :pretty-print true
+                            :pseudo-names true}}
 
    :compiler-options {:optimizations :simple
-                      :externs       ["src/externs/webr.js"]
-                      :infer-externs false
-                      :warnings      {:infer-warning false}}
+                      :externs       ["src/externs/webr.js"]}
 
    :devtools {:autobuild       true
               :after-load      app.core/reload!}
@@ -52,8 +49,6 @@
    :ns-regexp "-test$"
    :js-options {:js-provider    :external
                 :external-index "target/index.js"}
-   :compiler-options {:infer-externs false
-                      :warnings      {:infer-warning false}}
    :devtools {:autotest true}}
   :test-node {:target    :node-test
               :output-to "out/test-node.js"

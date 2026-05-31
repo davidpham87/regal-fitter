@@ -40,9 +40,9 @@
   [times events groups]
   (if (< (np/sum events) 3) [0.0 1.0]
       (let [order (np/argsort times)
-            times-arr (.toArray (.take times order))
-            events-arr (.toArray (.take events order))
-            groups-arr (.toArray (.take groups order))
+            times-arr (np/nd-to-array (.take ^js times order))
+            events-arr (np/nd-to-array (.take ^js events order))
+            groups-arr (np/nd-to-array (.take ^js groups order))
             [n-exp-arr n-control-arr is-exp-arr] (compute-risk-sets groups-arr)
             event-indices (keep-indexed (fn [i e] (when e i)) events-arr)]
         (if (empty? event-indices) [0.0 1.0]
@@ -57,10 +57,10 @@
   "Calculates the Kaplan-Meier survival probability estimate at a specific time T."
   {:malli/schema [:=> [:cat any? any? :number] :number]}
   [time-observed event-flag target-time]
-  (let [n-subjects (.-size time-observed)]
+  (let [n-subjects (.-size ^js time-observed)]
     (if (== n-subjects 0) 1.0
         (let [order (np/argsort time-observed)
-              times-arr (.toArray (.take time-observed order))
-              events-arr (.toArray (.take event-flag order))
+              times-arr (np/nd-to-array (.take ^js time-observed order))
+              events-arr (np/nd-to-array (.take ^js event-flag order))
               relevant-events (filter (fn [[t ev i]] (and ev (<= t target-time))) (map vector times-arr events-arr (range n-subjects)))]
           (reduce (fn [multiplier [_ _ i]] (* multiplier (- 1.0 (/ 1.0 (- n-subjects i))))) 1.0 relevant-events)))))

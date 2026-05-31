@@ -46,8 +46,8 @@
     nil: Re-renders the app."
   []
   (js/console.log "reload")
-  (rdom/render [reload-testing]
-               #_[ui/main-view] (js/document.getElementById "app")))
+  (rdom/render #_[reload-testing]
+               [ui/main-view] (js/document.getElementById "app")))
 
 (comment
 

@@ -133,10 +133,10 @@
                       enroll-pts enroll-weights target-times
                       (:n-per-arm config) (:n-total config))))
 
-        exp-bat (.toArray (:events bat-res))
-        var-bat (.toArray (:variance bat-res))
-        exp-gps (.toArray (:events gps-res))
-        var-gps (.toArray (:variance gps-res))
+        exp-bat (np/nd-to-array (:events bat-res))
+        var-bat (np/nd-to-array (:variance bat-res))
+        exp-gps (np/nd-to-array (:events gps-res))
+        var-gps (np/nd-to-array (:variance gps-res))
 
         targets [(:n-ev-ia config) (:n-ev-upd config) (:n-ev-pr3 config)]
         labels ["IA (46.0m)" "UPD (58.0m)" "PR3 (62.97m)"]]
@@ -215,10 +215,10 @@
 
         s-pool (np/multiply (np/add s-bat s-gps) 0.5)
         ev-total (np/add ev-bat ev-gps)
-        t-arr (.toArray t-pts)
-        s-bat-arr (.toArray s-bat)
-        s-gps-arr (.toArray s-gps)
-        s-pool-arr (.toArray s-pool)
+        t-arr (np/nd-to-array t-pts)
+        s-bat-arr (np/nd-to-array s-bat)
+        s-gps-arr (np/nd-to-array s-gps)
+        s-pool-arr (np/nd-to-array s-pool)
 
         enrolled-bat (enrollment/expected-arm-enrolled
                        enroll-pts enroll-weights t-pts
@@ -226,15 +226,15 @@
         enrolled-gps (enrollment/expected-arm-enrolled
                        enroll-pts enroll-weights t-pts
                        (:n-per-arm config) (:n-total config))
-        ev-bat-1d (np/reshape ev-bat #js [(.-size ev-bat)])
-        ev-gps-1d (np/reshape ev-gps #js [(.-size ev-gps)])
+        ev-bat-1d (np/reshape ev-bat #js [(.-size ^js ev-bat)])
+        ev-gps-1d (np/reshape ev-gps #js [(.-size ^js ev-gps)])
         alive-bat (np/subtract enrolled-bat ev-bat-1d)
         alive-gps (np/subtract enrolled-gps ev-gps-1d)
         alive-total (np/add alive-bat alive-gps)
 
-        alive-bat-arr (.toArray alive-bat)
-        alive-gps-arr (.toArray alive-gps)
-        alive-total-arr (.toArray alive-total)
+        alive-bat-arr (np/nd-to-array alive-bat)
+        alive-gps-arr (np/nd-to-array alive-gps)
+        alive-total-arr (np/nd-to-array alive-total)
 
         ;; Calculate Hazard Ratios for milestones: 0-IA, IA-UPD, UPD-PR3
         t-milestones (np/array #js [0.0
@@ -287,10 +287,10 @@
                         enroll-pts enroll-weights t-milestones
                         (:n-per-arm config) (:n-total config))))
 
-        ms-enroll-bat-arr (.toArray ms-enroll-bat)
-        ms-enroll-gps-arr (.toArray ms-enroll-gps)
-        ms-ev-bat-arr (first (.toArray ms-ev-bat))
-        ms-ev-gps-arr (first (.toArray ms-ev-gps))
+        ms-enroll-bat-arr (np/nd-to-array ms-enroll-bat)
+        ms-enroll-gps-arr (np/nd-to-array ms-enroll-gps)
+        ms-ev-bat-arr (first (np/nd-to-array ms-ev-bat))
+        ms-ev-gps-arr (first (np/nd-to-array ms-ev-gps))
         alive-bat-ms (mapv - ms-enroll-bat-arr ms-ev-bat-arr)
         alive-gps-ms (mapv - ms-enroll-gps-arr ms-ev-gps-arr)
 
@@ -341,9 +341,9 @@
                          leak (np/array #js [(:leak-yr params)])]
                      (survival/leaky-cure-survival-probability t-36 cf scale shape leak)))
         s-pool-36 (np/multiply (np/add s-bat-36 s-gps-36) 0.5)
-        s-bat-36-val (first (.toArray s-bat-36))
-        s-gps-36-val (first (.toArray s-gps-36))
-        s-pool-36-val (first (.toArray s-pool-36))]
+        s-bat-36-val (first (np/nd-to-array s-bat-36))
+        s-gps-36-val (first (np/nd-to-array s-gps-36))
+        s-pool-36-val (first (np/nd-to-array s-pool-36))]
 
     {:survival (vec (concat
                       (mapv (fn [t s] {:time t :survival s :group "Pooled"})
@@ -358,13 +358,13 @@
      :accrual (vec (concat
                      (mapv (fn [t e]
                              {:time t :events e :group "Total"})
-                           t-arr (first (.toArray ev-total)))
+                           t-arr (first (np/nd-to-array ev-total)))
                      (mapv (fn [t e]
                              {:time t :events e :group "GPS"})
-                           t-arr (first (.toArray ev-gps)))
+                           t-arr (first (np/nd-to-array ev-gps)))
                      (mapv (fn [t e]
                              {:time t :events e :group "BAT"})
-                           t-arr (first (.toArray ev-bat)))))
+                           t-arr (first (np/nd-to-array ev-bat)))))
      :alive (let [n-tot (:n-total config)]
                (mapv (fn [t a-tot a-gps a-bat e-tot e-gps e-bat]
                        {:time t
@@ -381,9 +381,9 @@
                      alive-total-arr
                      alive-gps-arr
                      alive-bat-arr
-                     (first (.toArray ev-total))
-                     (first (.toArray ev-gps))
-                     (first (.toArray ev-bat))))
+                     (first (np/nd-to-array ev-total))
+                     (first (np/nd-to-array ev-gps))
+                     (first (np/nd-to-array ev-bat))))
      :hr hr-data}))
 
 

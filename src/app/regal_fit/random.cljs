@@ -22,9 +22,9 @@
 (defn- draw-cure-samples
   "Draws random survival times based on a cure model."
   [{:keys [cure-frac unc-scale unc-shape]} n-samples random-gen]
-  (let [random-cure-flags (.toArray (np-random/random random-gen n-samples))
+  (let [random-cure-flags (np/nd-to-array (np-random/random random-gen n-samples))
         uncured-times (draw-weibull-samples n-samples random-gen unc-scale unc-shape)
-        uncured-times-arr (.toArray uncured-times)
+        uncured-times-arr (np/nd-to-array uncured-times)
         output-seq (map (fn [r u] (if (< r cure-frac) np/inf u))
                         random-cure-flags uncured-times-arr)]
     (np/array (to-array output-seq))))
@@ -32,10 +32,10 @@
 (defn- draw-leaky-samples
   "Draws random survival times based on a leaky cure model."
   [{:keys [cure-frac unc-scale unc-shape leak-yr]} n-samples random-gen]
-  (let [random-cure-flags (.toArray (np-random/random random-gen n-samples))
-        uncured-times-arr (.toArray (draw-weibull-samples n-samples random-gen unc-scale unc-shape))
+  (let [random-cure-flags (np/nd-to-array (np-random/random random-gen n-samples))
+        uncured-times-arr (np/nd-to-array (draw-weibull-samples n-samples random-gen unc-scale unc-shape))
         leak-rate-monthly (/ leak-yr 12.0)
-        random-leak-vals (.toArray (np-random/random random-gen n-samples))
+        random-leak-vals (np/nd-to-array (np-random/random random-gen n-samples))
         output-seq (map (fn [r u l]
                           (if (< r cure-frac)
                             (if (> leak-rate-monthly 0) (/ (- (js/Math.log l)) leak-rate-monthly) np/inf)
