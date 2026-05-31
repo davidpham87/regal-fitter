@@ -318,6 +318,35 @@
                  (calc-hr 1 2 "IA-UPD")
                  (calc-hr 2 3 "UPD-PR3")]
 
+        t-ms-arr (np/nd-to-array t-milestones)
+        calc-hr-rates
+        (fn [t1 t2 label]
+          (let [len (- (nth t-ms-arr t2) (nth t-ms-arr t1))
+                ev-gps-int (- (nth ms-ev-gps-arr t2)
+                              (nth ms-ev-gps-arr t1))
+                ev-bat-int (- (nth ms-ev-bat-arr t2)
+                              (nth ms-ev-bat-arr t1))
+                alive-gps-t1 (if (zero? t1)
+                               n-per-arm
+                               (nth alive-gps-ms t1))
+                alive-bat-t1 (if (zero? t1)
+                               n-per-arm
+                               (nth alive-bat-ms t1))
+                h-gps (if (and (pos? alive-gps-t1) (pos? len))
+                        (/ ev-gps-int (* alive-gps-t1 len))
+                        0.0)
+                h-bat (if (and (pos? alive-bat-t1) (pos? len))
+                        (/ ev-bat-int (* alive-bat-t1 len))
+                        0.0)
+                h-pooled (if (and (pos? (+ alive-gps-t1 alive-bat-t1))
+                                  (pos? len))
+                           (/ (+ ev-gps-int ev-bat-int)
+                              (* (+ alive-gps-t1 alive-bat-t1) len))
+                           0.0)]
+            [{:interval label :rate h-gps :group "GPS"}
+             {:interval label :rate h-bat :group "BAT"}
+             {:interval label :rate h-pooled :group "Pooled"}]))
+
         ;; Add exact t=36 values
         t-36 (np/array #js [36] "float64")
         s-bat-36 (survival/weibull-survival-probability t-36 bat-scale bat-shape)
@@ -384,7 +413,11 @@
                      (first (np/nd-to-array ev-total))
                      (first (np/nd-to-array ev-gps))
                      (first (np/nd-to-array ev-bat))))
-     :hr hr-data}))
+     :hr hr-data
+     :hazard-rates (vec (concat
+                         (calc-hr-rates 0 1 "0-IA")
+                         (calc-hr-rates 1 2 "IA-UPD")
+                         (calc-hr-rates 2 3 "UPD-PR3")))}))
 
 
 (defn- calculate-residual [milestone-stats]
@@ -637,7 +670,11 @@
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "Alternate: Estimated Hazard Ratios"]
-          [vega/discovery-hr-chart (:hr curve-data)]]]]
+          [vega/discovery-hr-chart (:hr curve-data)]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "Alternate: Hazard Rates (per month)"]
+          [vega/discovery-hazard-rates-chart (:hazard-rates curve-data)]]]]
 
        ;; Column 2: Null Hypothesis (H0)
        [:div.bg-gray-50.p-4.rounded-xl.border
@@ -660,7 +697,12 @@
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
            "H0: Estimated Hazard Ratios"]
-          [vega/discovery-hr-chart (:hr curve-data-h0)]]]]]]))
+          [vega/discovery-hr-chart (:hr curve-data-h0)]]
+         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+          [:h4.text-xs.font-bold.text-gray-700.mb-2
+           "H0: Hazard Rates (per month)"]
+          [vega/discovery-hazard-rates-chart
+           (:hazard-rates curve-data-h0)]]]]]]))
 
 
 (defn discovery-view []

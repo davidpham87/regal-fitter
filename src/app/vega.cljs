@@ -384,6 +384,26 @@
              :encoding {:y {:field "y" :type "quantitative"}}}]
     :config {:view {:stroke "transparent"}}}])
 
+(defn discovery-hazard-rates-chart [rates-data]
+  [vega-lite
+   {:width 300 :height 300
+    :title "Hazard Rates (per month)"
+    :data {:values rates-data}
+    :mark "bar"
+    :encoding {:x {:field "interval" :type "nominal"
+                   :title "Milestone Interval"
+                   :sort ["0-IA" "IA-UPD" "UPD-PR3"]}
+               :y {:field "rate" :type "quantitative"
+                   :title "Event Hazard Rate"}
+               :xOffset {:field "group" :type "nominal"}
+               :color {:field "group" :type "nominal"
+                       :scale {:domain ["Pooled" "GPS" "BAT"]
+                               :range ["#4488cc" "#55bb88" "#ee6677"]}}
+               :tooltip [{:field "interval" :type "nominal"}
+                         {:field "group" :type "nominal"}
+                         {:field "rate" :type "quantitative" :format ".4f"}]}
+    :config {:view {:stroke "transparent"}}}])
+
 
 
 (defn stress-test-charts [results]
