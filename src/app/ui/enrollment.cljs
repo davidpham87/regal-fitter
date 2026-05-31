@@ -111,7 +111,9 @@
                                          [:enrollment-mode :k] k-val)))))}
               (fn [{:keys [values handle-change handle-submit]}]
                 [:form.mb-6.p-4.border.rounded-xl.bg-gray-50
-                 {:on-submit handle-submit}
+                 {:on-submit (fn [e]
+                               (.preventDefault e)
+                               (handle-submit e))}
                  [:h3.text-lg.font-bold.mb-4 "S-Curve Generator Settings"]
                  [:div.grid.grid-cols-2.gap-4
                   [:div
