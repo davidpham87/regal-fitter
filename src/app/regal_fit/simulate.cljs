@@ -48,6 +48,61 @@
       :n-up-bat @n-up-bat   :n-up-gps @n-up-gps
       :n-pr3-bat @n-pr3-bat :n-pr3-gps @n-pr3-gps})))
 
+(defn- js-median
+  "Returns the median of a plain JS array (sorts in place)."
+  [arr]
+  (let [n (.-length arr)]
+    (if (zero? n)
+      js/NaN
+      (do (.sort arr (fn [a b] (- a b)))
+          (if (odd? n)
+            (aget arr (quot n 2))
+            (* 0.5 (+ (aget arr (dec (quot n 2)))
+                      (aget arr (quot n 2)))))))))
+
+(defn- compute-interval-medians
+  "For each milestone interval, collects survival times of patients
+   dying in that interval per arm and returns their medians."
+  [config enroll-times survival-times arms-array n-total]
+  (let [ia-bat  (js/Array.) ia-gps  (js/Array.)
+        up-bat  (js/Array.) up-gps  (js/Array.)
+        pr3-bat (js/Array.) pr3-gps (js/Array.)]
+    (dotimes [i n-total]
+      (let [enroll   (aget enroll-times i)
+            survival (aget survival-times i)
+            arm      (aget arms-array i)
+            dead-ia  (<= survival
+                        (js/Math.max (- (:t-ia config) enroll) 0.0))
+            dead-up  (<= survival
+                        (js/Math.max (- (:t-upd config) enroll) 0.0))
+            dead-pr3 (and (:use-pr3-anchor config)
+                          (<= survival
+                              (js/Math.max
+                               (- (:t-pr3 config) enroll) 0.0)))]
+        (when dead-ia
+          (if (== arm 0)
+            (.push ia-bat survival) (.push ia-gps survival)))
+        (when (and dead-up (not dead-ia))
+          (if (== arm 0)
+            (.push up-bat survival) (.push up-gps survival)))
+        (when (and dead-pr3 (not dead-up))
+          (if (== arm 0)
+            (.push pr3-bat survival) (.push pr3-gps survival)))))
+    (let [pool (fn [a b]
+                 (let [c (js/Array.)]
+                   (dotimes [i (.-length a)] (.push c (aget a i)))
+                   (dotimes [i (.-length b)] (.push c (aget b i)))
+                   c))]
+      {:med-ia-bat   (js-median ia-bat)
+       :med-ia-gps   (js-median ia-gps)
+       :med-ia-pool  (js-median (pool ia-bat ia-gps))
+       :med-up-bat   (js-median up-bat)
+       :med-up-gps   (js-median up-gps)
+       :med-up-pool  (js-median (pool up-bat up-gps))
+       :med-pr3-bat  (js-median pr3-bat)
+       :med-pr3-gps  (js-median pr3-gps)
+       :med-pr3-pool (js-median (pool pr3-bat pr3-gps))})))
+
 (defn- pass-events-tolerance?
   "Checks if event counts are within configured tolerances."
   [config {:keys [n-ia n-up n-pr3]}]
@@ -163,7 +218,11 @@
                     :n-pr3-bat (:n-pr3-bat counts)
                     :n-pr3-gps (:n-pr3-gps counts)}
                    (when (:use-pr3-anchor config)
-                     {:n-ev-pr3 (:n-pr3 counts)})))))))))))
+                     {:n-ev-pr3 (:n-pr3 counts)})
+                   ;; Per-arm median survival times per interval
+                   (compute-interval-medians
+                    config enroll-times survival-times
+                    arms-array n-total))))))))
 
 (defn- assign-arms
   "Assigns arms to subjects based on assignment order."
@@ -265,7 +324,17 @@
           :mean-n-up-bat  (mean-field all-stats :n-up-bat)
           :mean-n-up-gps  (mean-field all-stats :n-up-gps)
           :mean-n-pr3-bat (mean-field all-stats :n-pr3-bat)
-          :mean-n-pr3-gps (mean-field all-stats :n-pr3-gps)}))
+          :mean-n-pr3-gps (mean-field all-stats :n-pr3-gps)
+          ;; Mean-of-medians survival time per arm per interval
+          :mean-med-ia-bat   (mean-field all-stats :med-ia-bat)
+          :mean-med-ia-gps   (mean-field all-stats :med-ia-gps)
+          :mean-med-ia-pool  (mean-field all-stats :med-ia-pool)
+          :mean-med-up-bat   (mean-field all-stats :med-up-bat)
+          :mean-med-up-gps   (mean-field all-stats :med-up-gps)
+          :mean-med-up-pool  (mean-field all-stats :med-up-pool)
+          :mean-med-pr3-bat  (mean-field all-stats :med-pr3-bat)
+          :mean-med-pr3-gps  (mean-field all-stats :med-pr3-gps)
+          :mean-med-pr3-pool (mean-field all-stats :med-pr3-pool)}))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."

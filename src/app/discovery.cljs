@@ -321,38 +321,18 @@
         t-ms-arr (np/nd-to-array t-milestones)
         calc-hr-rates
         (fn [t1 t2 label]
-          (let [len (- (nth t-ms-arr t2) (nth t-ms-arr t1))
+          (let [t-start (nth t-ms-arr t1)
+                t-end   (nth t-ms-arr t2)
+                midpoint (* 0.5 (+ t-start t-end))
                 ev-gps-int (- (nth ms-ev-gps-arr t2)
                               (nth ms-ev-gps-arr t1))
                 ev-bat-int (- (nth ms-ev-bat-arr t2)
-                              (nth ms-ev-bat-arr t1))
-                alive-gps-t1 (if (zero? t1)
-                               n-per-arm
-                               (nth alive-gps-ms t1))
-                alive-gps-t2 (nth alive-gps-ms t2)
-                avg-alive-gps (* 0.5 (+ alive-gps-t1 alive-gps-t2))
-                alive-bat-t1 (if (zero? t1)
-                               n-per-arm
-                               (nth alive-bat-ms t1))
-                alive-bat-t2 (nth alive-bat-ms t2)
-                avg-alive-bat (* 0.5 (+ alive-bat-t1 alive-bat-t2))
-                avg-alive-pooled (+ avg-alive-gps avg-alive-bat)
-                h-gps (if (and (pos? avg-alive-gps) (pos? len))
-                        (* 12.0 (/ ev-gps-int (* avg-alive-gps len)))
-                        0.0)
-                h-bat (if (and (pos? avg-alive-bat) (pos? len))
-                        (* 12.0 (/ ev-bat-int (* avg-alive-bat len)))
-                        0.0)
-                h-pooled (if (and (pos? avg-alive-pooled) (pos? len))
-                           (* 12.0
-                              (/ (+ ev-gps-int ev-bat-int)
-                                 (* avg-alive-pooled len)))
-                           0.0)]
-            [{:interval label :rate h-gps
+                              (nth ms-ev-bat-arr t1))]
+            [{:interval label :median midpoint
               :events ev-gps-int :group "GPS"}
-             {:interval label :rate h-bat
+             {:interval label :median midpoint
               :events ev-bat-int :group "BAT"}
-             {:interval label :rate h-pooled
+             {:interval label :median midpoint
               :events (+ ev-gps-int ev-bat-int)
               :group "Pooled"}]))
 
@@ -432,57 +412,48 @@
      :t-ms-arr t-ms-arr
      :n-per-arm n-per-arm}))
 
-(defn- sim->hazard-rates
-  "Computes annualized hazard rates from simulation mean deaths
-   and analytical alive counts. Returns nil when sim-result is nil."
-  [sim-result config alive-bat-ms alive-gps-ms t-ms-arr n-per-arm]
+(defn- sim->interval-medians
+  "Returns interval records with :median (mean-of-medians survival time
+   from simulation) and :events (mean deaths) per arm per interval.
+   Returns nil when sim-result is nil."
+  [sim-result]
   (when sim-result
-    (let [;; Mean cumulative deaths per arm from simulation
-          n-ia-bat  (or (:mean-n-ia-bat  sim-result) 0)
-          n-ia-gps  (or (:mean-n-ia-gps  sim-result) 0)
-          n-up-bat  (or (:mean-n-up-bat  sim-result) 0)
-          n-up-gps  (or (:mean-n-up-gps  sim-result) 0)
-          n-pr3-bat (or (:mean-n-pr3-bat sim-result) 0)
-          n-pr3-gps (or (:mean-n-pr3-gps sim-result) 0)
-          ;; Interval deaths = cumulative at end minus cumulative at start
-          calc (fn [t1 t2 label ev-bat-int ev-gps-int]
-                 (let [len (- (nth t-ms-arr t2) (nth t-ms-arr t1))
-                       a-bat-t1 (if (zero? t1)
-                                  n-per-arm
-                                  (nth alive-bat-ms t1))
-                       a-bat-t2 (nth alive-bat-ms t2)
-                       a-gps-t1 (if (zero? t1)
-                                  n-per-arm
-                                  (nth alive-gps-ms t1))
-                       a-gps-t2 (nth alive-gps-ms t2)
-                       avg-bat (* 0.5 (+ a-bat-t1 a-bat-t2))
-                       avg-gps (* 0.5 (+ a-gps-t1 a-gps-t2))
-                       avg-pool (+ avg-bat avg-gps)
-                       h-bat (if (and (pos? avg-bat) (pos? len))
-                               (* 12.0 (/ ev-bat-int (* avg-bat len)))
-                               0.0)
-                       h-gps (if (and (pos? avg-gps) (pos? len))
-                               (* 12.0 (/ ev-gps-int (* avg-gps len)))
-                               0.0)
-                       h-pool (if (and (pos? avg-pool) (pos? len))
-                                (* 12.0
-                                   (/ (+ ev-bat-int ev-gps-int)
-                                      (* avg-pool len)))
-                                0.0)]
-                   [{:interval label :rate h-gps
-                     :events ev-gps-int :group "GPS"}
-                    {:interval label :rate h-bat
-                     :events ev-bat-int :group "BAT"}
-                    {:interval label :rate h-pool
-                     :events (+ ev-bat-int ev-gps-int)
-                     :group "Pooled"}]))]
-      (vec (concat
-            (calc 0 1 "0-IA"
-                  n-ia-bat n-ia-gps)
-            (calc 1 2 "IA-UPD"
-                  (- n-up-bat n-ia-bat) (- n-up-gps n-ia-gps))
-            (calc 2 3 "UPD-PR3"
-                  (- n-pr3-bat n-up-bat) (- n-pr3-gps n-up-gps)))))))
+    (let [nan? js/Number.isNaN
+          safe (fn [v] (if (nan? v) nil v))
+          mk (fn [interval group med ev]
+               {:interval interval
+                :median   (or (safe med) 0.0)
+                :events   (or (safe ev) 0.0)
+                :group    group})]
+      [(mk "0-IA"    "GPS"    (:mean-med-ia-gps  sim-result)
+           (:mean-n-ia-gps  sim-result))
+       (mk "0-IA"    "BAT"    (:mean-med-ia-bat  sim-result)
+           (:mean-n-ia-bat  sim-result))
+       (mk "0-IA"    "Pooled" (:mean-med-ia-pool sim-result)
+           (+ (or (:mean-n-ia-bat sim-result) 0)
+              (or (:mean-n-ia-gps sim-result) 0)))
+       (mk "IA-UPD"  "GPS"    (:mean-med-up-gps  sim-result)
+           (- (or (:mean-n-up-gps sim-result) 0)
+              (or (:mean-n-ia-gps sim-result) 0)))
+       (mk "IA-UPD"  "BAT"    (:mean-med-up-bat  sim-result)
+           (- (or (:mean-n-up-bat sim-result) 0)
+              (or (:mean-n-ia-bat sim-result) 0)))
+       (mk "IA-UPD"  "Pooled" (:mean-med-up-pool sim-result)
+           (- (+ (or (:mean-n-up-bat sim-result) 0)
+                 (or (:mean-n-up-gps sim-result) 0))
+              (+ (or (:mean-n-ia-bat sim-result) 0)
+                 (or (:mean-n-ia-gps sim-result) 0))))
+       (mk "UPD-PR3" "GPS"    (:mean-med-pr3-gps  sim-result)
+           (- (or (:mean-n-pr3-gps sim-result) 0)
+              (or (:mean-n-up-gps  sim-result) 0)))
+       (mk "UPD-PR3" "BAT"    (:mean-med-pr3-bat  sim-result)
+           (- (or (:mean-n-pr3-bat sim-result) 0)
+              (or (:mean-n-up-bat  sim-result) 0)))
+       (mk "UPD-PR3" "Pooled" (:mean-med-pr3-pool sim-result)
+           (- (+ (or (:mean-n-pr3-bat sim-result) 0)
+                 (or (:mean-n-pr3-gps sim-result) 0))
+              (+ (or (:mean-n-up-bat  sim-result) 0)
+                  (or (:mean-n-up-gps  sim-result) 0))))])))
 
 
 (defn- calculate-residual [milestone-stats]
@@ -554,15 +525,11 @@
         stats (calculate-stats active-family calc-params config)
         curve-data (calculate-curves active-family calc-params config)
 
-        ;; Use simulation mean deaths for H1 hazard rates when available
+        ;; Use simulation median survival times per interval when available;
+        ;; fall back to analytical midpoint estimate
         sim-result (when (= (:sim-status state) :done)
                      (:sim-result state))
-        h1-hazard-rates (or (sim->hazard-rates
-                              sim-result config
-                              (:alive-bat-ms curve-data)
-                              (:alive-gps-ms curve-data)
-                              (:t-ms-arr curve-data)
-                              (:n-per-arm curve-data))
+        h1-hazard-rates (or (sim->interval-medians sim-result)
                             (:hazard-rates curve-data))
 
         ;; Calculate H0: cure fraction = 0, mOS = average(gps, bat)
@@ -749,8 +716,9 @@
           [vega/discovery-hr-chart (:hr curve-data)]]
          [:div.bg-white.p-3.rounded-xl.shadow-sm.border
           [:h4.text-xs.font-bold.text-gray-700.mb-2
-           (str "Alternate: Annualized Hazard Rates"
-                (when sim-result " (sim)"))]
+           (if sim-result
+             "Alternate: Median Survival Time by Period (sim)"
+             "Alternate: Interval Midpoints (analytical)")]
           [vega/discovery-hazard-rates-chart h1-hazard-rates]]]]
 
        ;; Column 2: Null Hypothesis (H0)
