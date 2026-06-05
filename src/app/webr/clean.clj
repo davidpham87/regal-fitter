@@ -11,9 +11,19 @@
                          lines)]
     (str/join "\n" filtered)))
 
+(defn replace-docstring-newlines
+  "Replaces literal \\n in docstrings with actual newlines."
+  [ns-str]
+  (str/replace ns-str
+               #"(?s)\(def-r-wrapper\s+([^\s\(\)]+)\s+\"([^\"]+?)\""
+               (fn [[_ name doc]]
+                 (let [clean-doc (str/replace doc "\\n" "\n")]
+                   (str "(def-r-wrapper " name "\n  \"" clean-doc "\"")))))
+
 (defn clean-gs-design-file! []
   (let [file-path "src/app/webr/gs_design.cljs"
         content (slurp file-path)
-        cleaned (remove-wrapper-comments content)]
-    (spit file-path cleaned)
-    (println "Cleaned gs_design.cljs successfully!")))
+        step1 (remove-wrapper-comments content)
+        step2 (replace-docstring-newlines step1)]
+    (spit file-path step2)
+    (println "Cleaned and updated gs_design.cljs successfully!")))
