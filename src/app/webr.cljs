@@ -82,58 +82,31 @@
         (on-error e)))))
 
 (defn eval-r-code!
-  "Evaluates arbitrary R code as a string within the WebR context.
-   Uses a WebR Shelter to isolate memory allocation and capture output streams.
-
+  "Evaluates arbitrary R code as a string within the WebR context using execR.
+   Simplifies execution by converting the R object directly into a JavaScript
+   object without requiring a manual shelter and purge cycle.
+   
    Args:
    - code: String containing the R code to execute.
    - on-done: Two-argument callback (fn [output-lines result-val]) invoked on success.
-   - on-error: One-argument callback (fn [error]) invoked on failure.
-
-   Automatically captures stdout/stderr messages and converts the final returned
-   RObject back into a standard ClojureScript data structure."
-  ([code] (eval-r-code! code on-done on-error))
+   - on-error: One-argument callback (fn [error]) invoked on failure."
+  ([code]
+   (eval-r-code! code on-done on-error))
   ([code on-done on-error]
    (assert (string? code) "R code to execute must be a string")
    (assert (fn? on-done) "on-done callback must be a function")
    (assert (fn? on-error) "on-error callback must be a function")
    (a/go
      (if-let [webr @webr-instance]
-       (let [shelter-class (.-Shelter webr)]
-         (if shelter-class
-           (let [s (new shelter-class)
-                 shelter (if (instance? js/Promise s)
-                           (<p! s)
-                           (do
-                             (when (exists? (.-init s))
-                               (<p! (.init s)))
-                             s))]
-             (try
-               (let [res (<p! (.captureR shelter code (clj->js {:autoprint true})))
-                     output-array (.-output res)
-                     result-val (.-result res)
-                     output-lines (mapv (fn [msg]
-                                          (let [t (.-type msg)
-                                                d (.-data msg)]
-                                            {:type (keyword t) :text d}))
-                                        (array-seq output-array))
-                     js-val (.toJs result-val)
-                     val (if (instance? js/Promise js-val)
-                           (<p! js-val)
-                           js-val)
-                     clj-val (try
-                               (js->clj val :keywordize-keys true)
-                               (catch :default _ (str result-val)))]
-                 (on-done output-lines clj-val))
-               (catch :default e
-                 (js/console.error "R execution failed inside shelter:" e)
-                 (on-error e))
-               (finally
-                 (try
-                   (.purge shelter)
-                   (catch :default purge-err
-                     (js/console.warn "Failed to purge WebR shelter:" purge-err))))))
-           (on-error (js/Error. "Shelter class not found on WebR instance"))))
+       (try
+         (let [js-val (<p! (.execR (.-objs webr) code))
+               clj-val (try
+                         (js->clj js-val :keywordize-keys true)
+                         (catch :default _ js-val))]
+           (on-done [] clj-val))
+         (catch :default e
+           (js/console.error "R execution failed via execR:" e)
+           (on-error e)))
        (on-error (js/Error. "WebR instance not initialized. Call init-webr! first."))))))
 
 (defn run-example-r-code!

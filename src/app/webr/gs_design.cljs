@@ -58,8 +58,8 @@
    - on-success: Callback fn [summary-text] invoked with the printed summary.
    - on-error: Callback fn [error-object] invoked on failure.
    
-   Constructs the gsDesign command, runs summary() on it, and returns the printed
-   console stdout string representation."
+   Constructs the gsDesign command, captures its printed output using R's
+   capture.output function, and returns the result as a raw string."
   ([params]
    (get-gs-design-summary! params webr/on-done webr/on-error))
   ([params on-success on-error]
@@ -76,14 +76,12 @@
                      "x <- gsDesign(k=" k ", test.type=" test-type
                      ", alpha=" alpha ", beta=" beta
                      ", sfu=" sfu ", sfl=" sfl ")\n"
-                     "print(x)")]
+                     "paste(capture.output(print(x)), collapse='\n')")]
      (webr/eval-r-code!
       r-code
-      (fn [output-lines result-val]
+      (fn [_summary-lines result-val]
         (try
-          (let [stdout-lines (filter #(= (:type %) :stdout) output-lines)
-                summary-txt (str/join "\n" (map :text stdout-lines))]
-            (on-success summary-txt))
+          (on-success result-val)
           (catch :default e
             (on-error e))))
       on-error))))
