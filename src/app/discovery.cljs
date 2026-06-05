@@ -9,7 +9,9 @@
             [app.simulator :as sim]
             [reitit.frontend.easy :as rfe]
             [cljs.numpy :as np]
-            [cljs.math :as math]))
+            [cljs.math :as math]
+            [app.webr.gs-design :as gsd]
+            ["@monaco-editor/react" :default Editor]))
 
 (defn population-cr2-lambda
   "Calculates lambda given IRM (the experimental mOS), D (delay to enroll), and k (weibull shape paraeer)"
@@ -36,15 +38,15 @@
 
 (defonce ^:private debounced-calc-update
   (debounce
-    (fn [params]
-      (swap! state/app-state assoc-in [:discovery :calc-params] params))
-    200))
+   (fn [params]
+     (swap! state/app-state assoc-in [:discovery :calc-params] params))
+   200))
 
 (defonce ^:private debounced-sim-run
   (debounce
-    (fn [family params]
-      (sim/run-discovery-simulation! family params))
-    500))
+   (fn [family params]
+     (sim/run-discovery-simulation! family params))
+   500))
 
 (defn- set-active-family! [family]
   (swap! state/app-state assoc-in [:discovery :active-family] family)
@@ -82,7 +84,7 @@
 
 (defn- calculate-stats [family params config]
   (let [[enroll-pts enroll-weights] (enrollment/expected-enrollment-times
-                                      config)
+                                     config)
         target-times (np/array #js [(:t-ia config)
                                     (:t-upd config)
                                     (:t-pr3 config)] "float64")
@@ -90,14 +92,14 @@
         bat-med-arr (np/array #js [(:bat-med params)])
         bat-shape-arr (np/array #js [(:weibull-k params)])
         bat-scale (survival/weibull-scale-from-median
-                    bat-med-arr bat-shape-arr)
+                   bat-med-arr bat-shape-arr)
         bat-shape bat-shape-arr
 
         bat-res (enrollment/expected-arm-events-and-variance
-                  survival/weibull-survival-probability
-                  [bat-scale bat-shape]
-                  enroll-pts enroll-weights target-times
-                  (:n-per-arm config) (:n-total config))
+                 survival/weibull-survival-probability
+                 [bat-scale bat-shape]
+                 enroll-pts enroll-weights target-times
+                 (:n-per-arm config) (:n-total config))
 
         gps-res (cond
                   (= family "weibull")
@@ -105,10 +107,10 @@
                         shape (np/array #js [(:weibull-k params)])
                         scale (survival/weibull-scale-from-median med shape)]
                     (enrollment/expected-arm-events-and-variance
-                      survival/weibull-survival-probability
-                      [scale shape]
-                      enroll-pts enroll-weights target-times
-                      (:n-per-arm config) (:n-total config)))
+                     survival/weibull-survival-probability
+                     [scale shape]
+                     enroll-pts enroll-weights target-times
+                     (:n-per-arm config) (:n-total config)))
 
                   (= family "cure")
                   (let [med (np/array #js [(:gps-med params)])
@@ -116,10 +118,10 @@
                         scale (survival/weibull-scale-from-median med shape)
                         cf (np/array #js [(:cure-frac params)])]
                     (enrollment/expected-arm-events-and-variance
-                      survival/cure-survival-probability
-                      [cf scale shape]
-                      enroll-pts enroll-weights target-times
-                      (:n-per-arm config) (:n-total config)))
+                     survival/cure-survival-probability
+                     [cf scale shape]
+                     enroll-pts enroll-weights target-times
+                     (:n-per-arm config) (:n-total config)))
 
                   (= family "leaky")
                   (let [med (np/array #js [(:gps-med params)])
@@ -128,10 +130,10 @@
                         cf (np/array #js [(:cure-frac params)])
                         leak (np/array #js [(:leak-yr params)])]
                     (enrollment/expected-arm-events-and-variance
-                      survival/leaky-cure-survival-probability
-                      [cf scale shape leak]
-                      enroll-pts enroll-weights target-times
-                      (:n-per-arm config) (:n-total config))))
+                     survival/leaky-cure-survival-probability
+                     [cf scale shape leak]
+                     enroll-pts enroll-weights target-times
+                     (:n-per-arm config) (:n-total config))))
 
         exp-bat (np/nd-to-array (:events bat-res))
         var-bat (np/nd-to-array (:variance bat-res))
@@ -158,21 +160,21 @@
   (let [t-max 80
         t-pts (np/linspace 0 t-max 200)
         [enroll-pts enroll-weights] (enrollment/expected-enrollment-times
-                                      config)
+                                     config)
 
         bat-med-arr (np/array #js [(:bat-med params)])
         bat-shape-arr (np/array #js [(:weibull-k params)])
         bat-scale (survival/weibull-scale-from-median
-                    bat-med-arr bat-shape-arr)
+                   bat-med-arr bat-shape-arr)
         bat-shape bat-shape-arr
 
         s-bat (survival/weibull-survival-probability t-pts bat-scale bat-shape)
 
         ev-bat (enrollment/expected-arm-events
-                 survival/weibull-survival-probability
-                 [bat-scale bat-shape]
-                 enroll-pts enroll-weights t-pts
-                 (:n-per-arm config) (:n-total config))
+                survival/weibull-survival-probability
+                [bat-scale bat-shape]
+                enroll-pts enroll-weights t-pts
+                (:n-per-arm config) (:n-total config))
 
         [s-gps ev-gps]
         (cond
@@ -182,10 +184,10 @@
                 scale (survival/weibull-scale-from-median med shape)]
             [(survival/weibull-survival-probability t-pts scale shape)
              (enrollment/expected-arm-events
-               survival/weibull-survival-probability
-               [scale shape]
-               enroll-pts enroll-weights t-pts
-               (:n-per-arm config) (:n-total config))])
+              survival/weibull-survival-probability
+              [scale shape]
+              enroll-pts enroll-weights t-pts
+              (:n-per-arm config) (:n-total config))])
 
           (= family "cure")
           (let [med (np/array #js [(:gps-med params)])
@@ -194,10 +196,10 @@
                 cf (np/array #js [(:cure-frac params)])]
             [(survival/cure-survival-probability t-pts cf scale shape)
              (enrollment/expected-arm-events
-               survival/cure-survival-probability
-               [cf scale shape]
-               enroll-pts enroll-weights t-pts
-               (:n-per-arm config) (:n-total config))])
+              survival/cure-survival-probability
+              [cf scale shape]
+              enroll-pts enroll-weights t-pts
+              (:n-per-arm config) (:n-total config))])
 
           (= family "leaky")
           (let [med (np/array #js [(:gps-med params)])
@@ -206,12 +208,12 @@
                 cf (np/array #js [(:cure-frac params)])
                 leak (np/array #js [(:leak-yr params)])]
             [(survival/leaky-cure-survival-probability
-               t-pts cf scale shape leak)
+              t-pts cf scale shape leak)
              (enrollment/expected-arm-events
-               survival/leaky-cure-survival-probability
-               [cf scale shape leak]
-               enroll-pts enroll-weights t-pts
-               (:n-per-arm config) (:n-total config))]))
+              survival/leaky-cure-survival-probability
+              [cf scale shape leak]
+              enroll-pts enroll-weights t-pts
+              (:n-per-arm config) (:n-total config))]))
 
         s-pool (np/multiply (np/add s-bat s-gps) 0.5)
         ev-total (np/add ev-bat ev-gps)
@@ -221,11 +223,11 @@
         s-pool-arr (np/nd-to-array s-pool)
 
         enrolled-bat (enrollment/expected-arm-enrolled
-                       enroll-pts enroll-weights t-pts
-                       (:n-per-arm config) (:n-total config))
+                      enroll-pts enroll-weights t-pts
+                      (:n-per-arm config) (:n-total config))
         enrolled-gps (enrollment/expected-arm-enrolled
-                       enroll-pts enroll-weights t-pts
-                       (:n-per-arm config) (:n-total config))
+                      enroll-pts enroll-weights t-pts
+                      (:n-per-arm config) (:n-total config))
         ev-bat-1d (np/reshape ev-bat #js [(.-size ^js ev-bat)])
         ev-gps-1d (np/reshape ev-gps #js [(.-size ^js ev-gps)])
         alive-bat (np/subtract enrolled-bat ev-bat-1d)
@@ -242,50 +244,50 @@
                                     (:t-upd config)
                                     (:t-pr3 config)] "float64")
         ms-enroll-bat (enrollment/expected-arm-enrolled
-                        enroll-pts enroll-weights t-milestones
-                        (:n-per-arm config) (:n-total config))
+                       enroll-pts enroll-weights t-milestones
+                       (:n-per-arm config) (:n-total config))
         ms-enroll-gps (enrollment/expected-arm-enrolled
-                        enroll-pts enroll-weights t-milestones
-                        (:n-per-arm config) (:n-total config))
+                       enroll-pts enroll-weights t-milestones
+                       (:n-per-arm config) (:n-total config))
         ms-ev-bat (enrollment/expected-arm-events
-                    survival/weibull-survival-probability
-                    [bat-scale bat-shape]
-                    enroll-pts enroll-weights t-milestones
-                    (:n-per-arm config) (:n-total config))
+                   survival/weibull-survival-probability
+                   [bat-scale bat-shape]
+                   enroll-pts enroll-weights t-milestones
+                   (:n-per-arm config) (:n-total config))
         ms-ev-gps (cond
                     (= family "weibull")
                     (let [med (np/array #js [(:gps-med params)])
                           shape (np/array #js [(:weibull-k params)])
                           scale (survival/weibull-scale-from-median
-                                  med shape)]
+                                 med shape)]
                       (enrollment/expected-arm-events
-                        survival/weibull-survival-probability
-                        [scale shape]
-                        enroll-pts enroll-weights t-milestones
-                        (:n-per-arm config) (:n-total config)))
+                       survival/weibull-survival-probability
+                       [scale shape]
+                       enroll-pts enroll-weights t-milestones
+                       (:n-per-arm config) (:n-total config)))
                     (= family "cure")
                     (let [med (np/array #js [(:gps-med params)])
                           shape (np/array #js [(:weibull-k params)])
                           scale (survival/weibull-scale-from-median
-                                  med shape)
+                                 med shape)
                           cf (np/array #js [(:cure-frac params)])]
                       (enrollment/expected-arm-events
-                        survival/cure-survival-probability
-                        [cf scale shape]
-                        enroll-pts enroll-weights t-milestones
-                        (:n-per-arm config) (:n-total config)))
+                       survival/cure-survival-probability
+                       [cf scale shape]
+                       enroll-pts enroll-weights t-milestones
+                       (:n-per-arm config) (:n-total config)))
                     (= family "leaky")
                     (let [med (np/array #js [(:gps-med params)])
                           shape (np/array #js [(:weibull-k params)])
                           scale (survival/weibull-scale-from-median
-                                  med shape)
+                                 med shape)
                           cf (np/array #js [(:cure-frac params)])
                           leak (np/array #js [(:leak-yr params)])]
                       (enrollment/expected-arm-events
-                        survival/leaky-cure-survival-probability
-                        [cf scale shape leak]
-                        enroll-pts enroll-weights t-milestones
-                        (:n-per-arm config) (:n-total config))))
+                       survival/leaky-cure-survival-probability
+                       [cf scale shape leak]
+                       enroll-pts enroll-weights t-milestones
+                       (:n-per-arm config) (:n-total config))))
 
         ms-enroll-bat-arr (np/nd-to-array ms-enroll-bat)
         ms-enroll-gps-arr (np/nd-to-array ms-enroll-gps)
@@ -380,44 +382,44 @@
         s-pool-36-val (first (np/nd-to-array s-pool-36))]
 
     {:survival (vec (concat
-                      (mapv (fn [t s] {:time t :survival s :group "Pooled"})
-                            t-arr s-pool-arr)
-                      (mapv (fn [t s] {:time t :survival s :group "GPS"})
-                            t-arr s-gps-arr)
-                      (mapv (fn [t s] {:time t :survival s :group "BAT"})
-                            t-arr s-bat-arr)
-                      [{:time 36 :survival s-pool-36-val :group "Pooled"}
-                       {:time 36 :survival s-gps-36-val :group "GPS"}
-                       {:time 36 :survival s-bat-36-val :group "BAT"}]))
+                     (mapv (fn [t s] {:time t :survival s :group "Pooled"})
+                           t-arr s-pool-arr)
+                     (mapv (fn [t s] {:time t :survival s :group "GPS"})
+                           t-arr s-gps-arr)
+                     (mapv (fn [t s] {:time t :survival s :group "BAT"})
+                           t-arr s-bat-arr)
+                     [{:time 36 :survival s-pool-36-val :group "Pooled"}
+                      {:time 36 :survival s-gps-36-val :group "GPS"}
+                      {:time 36 :survival s-bat-36-val :group "BAT"}]))
      :accrual (vec (concat
-                     (mapv (fn [t e]
-                             {:time t :events e :group "Total"})
-                           t-arr (first (np/nd-to-array ev-total)))
-                     (mapv (fn [t e]
-                             {:time t :events e :group "GPS"})
-                           t-arr (first (np/nd-to-array ev-gps)))
-                     (mapv (fn [t e]
-                             {:time t :events e :group "BAT"})
-                           t-arr (first (np/nd-to-array ev-bat)))))
+                    (mapv (fn [t e]
+                            {:time t :events e :group "Total"})
+                          t-arr (first (np/nd-to-array ev-total)))
+                    (mapv (fn [t e]
+                            {:time t :events e :group "GPS"})
+                          t-arr (first (np/nd-to-array ev-gps)))
+                    (mapv (fn [t e]
+                            {:time t :events e :group "BAT"})
+                          t-arr (first (np/nd-to-array ev-bat)))))
      :alive (let [n-tot (:n-total config)]
-               (mapv (fn [t a-tot a-gps a-bat e-tot e-gps e-bat]
-                       {:time t
-                        :total-alive a-tot
-                        :gps-alive a-gps
-                        :bat-alive a-bat
-                        :total-died e-tot
-                        :gps-died e-gps
-                        :bat-died e-bat
-                        :total-died-diff (- n-tot e-tot)
-                        :gps-died-diff (- n-per-arm e-gps)
-                        :bat-died-diff (- n-per-arm e-bat)})
-                     t-arr
-                     alive-total-arr
-                     alive-gps-arr
-                     alive-bat-arr
-                     (first (np/nd-to-array ev-total))
-                     (first (np/nd-to-array ev-gps))
-                     (first (np/nd-to-array ev-bat))))
+              (mapv (fn [t a-tot a-gps a-bat e-tot e-gps e-bat]
+                      {:time t
+                       :total-alive a-tot
+                       :gps-alive a-gps
+                       :bat-alive a-bat
+                       :total-died e-tot
+                       :gps-died e-gps
+                       :bat-died e-bat
+                       :total-died-diff (- n-tot e-tot)
+                       :gps-died-diff (- n-per-arm e-gps)
+                       :bat-died-diff (- n-per-arm e-bat)})
+                    t-arr
+                    alive-total-arr
+                    alive-gps-arr
+                    alive-bat-arr
+                    (first (np/nd-to-array ev-total))
+                    (first (np/nd-to-array ev-gps))
+                    (first (np/nd-to-array ev-bat))))
      :hr hr-data
      :hazard-rates (vec (concat
                          (calc-hr-rates 0 1 "0-IA")
@@ -476,7 +478,6 @@
             (calc 2 3 "UPD-PR3"
                   (- n-pr3-bat n-up-bat) (- n-pr3-gps n-up-gps)))))))
 
-
 (defn- calculate-residual [milestone-stats]
   (apply js/Math.max
          (map #(js/Math.abs (- (:expected %) (:target %)))
@@ -534,6 +535,164 @@
    :placebo-mode? false
    :n-sims 1000})
 
+(def functions-meta
+  [{:id :gs-design
+    :label "gsDesign"
+    :fn gsd/gs-design
+    :desc "Derives Group Sequential Clinical Trial Designs and Boundaries."
+    :params [{:name "k" :key :k :type :num :default 3}
+             {:name "test.type" :key :test-type :type :num :default 4}
+             {:name "alpha" :key :alpha :type :num :default 0.025}
+             {:name "beta" :key :beta :type :num :default 0.1}
+             {:name "sfu" :key :sfu :type :str :default "sfLDOF"}
+             {:name "sfl" :key :sfl :type :str :default "sfLDOF"}]}
+
+   {:id :gs-probability
+    :label "gsProbability"
+    :fn gsd/gs-probability
+    :desc "Boundary Crossing Probabilities. Computes probabilities and power."
+    :params [{:name "theta" :key :theta :type :num :default 0}
+             {:name "n.I" :key :n-i :type :str :default "1:3"}
+             {:name "a" :key :a :type :str :default "c(-1.5, -0.5, 0.5)"}
+             {:name "b" :key :b :type :str :default "c(2.5, 2.0, 1.5)"}]}
+
+   {:id :gs-bound-summary
+    :label "gsBoundSummary"
+    :fn gsd/gs-bound-summary
+    :desc "Provides tabular summary of a group sequential design."
+    :params [{:name "k" :key :k :type :num :default 3}
+             {:name "alpha" :key :alpha :type :num :default 0.025}
+             {:name "beta" :key :beta :type :num :default 0.1}]}
+
+   {:id :n-normal
+    :label "nNormal"
+    :fn gsd/n-normal
+    :desc "Computes sample size or power for a trial with normal endpoints."
+    :params [{:name "delta1" :key :delta1 :type :num :default 1.0}
+             {:name "sd" :key :sd :type :num :default 1.0}
+             {:name "alpha" :key :alpha :type :num :default 0.025}
+             {:name "beta" :key :beta :type :num :default 0.1}
+             {:name "ratio" :key :ratio :type :num :default 1.0}]}
+
+   {:id :n-binomial
+    :label "nBinomial"
+    :fn gsd/n-binomial
+    :desc "Computes sample size or power for a two-arm binomial trial."
+    :params [{:name "p1" :key :p1 :type :num :default 0.2}
+             {:name "p2" :key :p2 :type :num :default 0.1}
+             {:name "alpha" :key :alpha :type :num :default 0.025}
+             {:name "beta" :key :beta :type :num :default 0.1}
+             {:name "ratio" :key :ratio :type :num :default 1.0}]}
+
+   {:id :n-survival
+    :label "nSurvival"
+    :fn gsd/n-survival
+    :desc "Computes sample size/events under proportional hazards."
+    :params [{:name "lambda1" :key :lambda1 :type :num :default 0.1}
+             {:name "lambda2" :key :lambda2 :type :num :default 0.07}
+             {:name "alpha" :key :alpha :type :num :default 0.025}
+             {:name "beta" :key :beta :type :num :default 0.1}
+             {:name "ratio" :key :ratio :type :num :default 1.0}]}])
+
+(defn- select-function! [state-atom func-meta]
+  (let [default-params (into {}
+                             (map (fn [p]
+                                    [(:key p) (:default p)])
+                                  (:params func-meta)))]
+    (swap! state-atom assoc
+           :selected-id (:id func-meta)
+           :params default-params
+           :output "")))
+
+(defn- run-playground-fn! [state-atom func-meta]
+  (swap! state-atom assoc :running? true :output "Running...")
+  ((:fn func-meta)
+   (:params @state-atom)
+   (fn [output result]
+     (swap! state-atom assoc
+            :running? false
+            :output (str (when (seq output)
+                           (str "Output/Log:\n"
+                                (clojure.string/join "\n" output)
+                                "\n\n"))
+                         "Result:\n"
+                         (js/JSON.stringify (clj->js result) nil 2))))
+   (fn [err]
+     (swap! state-atom assoc
+            :running? false
+            :output (str "Error during execution:\n" (.-message err))))))
+
+(defn- gs-design-playground []
+  (r/with-let [play (r/atom {:selected-id :gs-design
+                             :params {:k 3
+                                      :test-type 4
+                                      :alpha 0.025
+                                      :beta 0.1
+                                      :sfu "sfLDOF"
+                                      :sfl "sfLDOF"}
+                             :output ""
+                             :running? false})]
+    (let [{:keys [selected-id params output running?]} @play
+          current-meta (first (filter #(= (:id %) selected-id)
+                                      functions-meta))]
+      [:div.flex.flex-col.lg:flex-row.gap-6.mt-6
+       ;; Left Column - Form
+       [:div.w-full.bg-white.p-6.rounded-xl.shadow-sm.border
+        {:class "lg:w-1/3"}
+        [:h3.font-extrabold.text-gray-800.mb-2 "Function Playground"]
+        [:p.text-xs.text-gray-500.mb-4 (:desc current-meta)]
+
+         ;; Function Selector
+        [:div.mb-4
+         [:label.block.text-xs.font-bold.text-gray-600.mb-1 "Select Function"]
+         [:select.w-full.border.rounded.p-2.text-sm.bg-gray-50
+          {:value (name selected-id)
+           :on-change (fn [e]
+                        (let [id (keyword (.. e -target -value))
+                              meta-item (first (filter #(= (:id %) id)
+                                                       functions-meta))]
+                          (select-function! play meta-item)))}
+          (for [f functions-meta]
+            ^{:key (:id f)}
+            [:option {:value (name (:id f))} (:label f)])]]
+
+         ;; Dynamic Parameters
+        (for [p (:params current-meta)]
+          ^{:key (:name p)}
+          [:div.mb-3
+           [:label.block.text-xs.font-semibold.text-gray-600 (:name p)]
+           [:input.w-full.border.rounded.p-2.text-xs.mt-1
+            {:type (if (= (:type p) :num) "number" "text")
+             :value (get params (:key p))
+             :step (when (= (:type p) :num) "any")
+             :on-change (fn [e]
+                          (let [raw-val (.. e -target -value)
+                                parsed (if (= (:type p) :num)
+                                         (js/parseFloat raw-val)
+                                         raw-val)]
+                            (swap! play assoc-in [:params (:key p)]
+                                   parsed)))}]])
+
+         ;; Run button
+        [:button.w-full.mt-4.bg-blue-600.hover:bg-blue-700.text-white.p-3
+         {:class "rounded-lg text-xs font-bold transition-colors"
+          :type "button"
+          :disabled running?
+          :on-click #(run-playground-fn! play current-meta)}
+         (if running? "Executing..." "Run Function")]]
+
+        ;; Right Column - Code Output
+       [:div.w-full.bg-white.p-6.rounded-xl.shadow-sm.border
+        {:class "lg:w-2/3"}
+        [:h3.font-extrabold.text-gray-800.mb-4 "Result Output"]
+        [:div.border.rounded {:style {:height "450px"}}
+         [:> Editor {:height "100%"
+                     :defaultLanguage "json"
+                     :value output
+                     :options #js {:readOnly true
+                                   :minimap #js {:enabled false}}
+                     :theme "vs-dark"}]]]])))
+
 (defn- discovery-view-content
   [{:keys [values set-values] :as props}]
   (let [state (get-discovery-state)
@@ -550,11 +709,11 @@
         sim-result (when (= (:sim-status state) :done)
                      (:sim-result state))
         h1-hazard-rates (or (sim->hazard-rates
-                              sim-result config
-                              (:alive-bat-ms curve-data)
-                              (:alive-gps-ms curve-data)
-                              (:t-ms-arr curve-data)
-                              (:n-per-arm curve-data))
+                             sim-result config
+                             (:alive-bat-ms curve-data)
+                             (:alive-gps-ms curve-data)
+                             (:t-ms-arr curve-data)
+                             (:n-per-arm curve-data))
                             (:hazard-rates curve-data))
 
         ;; Calculate H0: cure fraction = 0, mOS = average(gps, bat)
@@ -576,203 +735,205 @@
            "given parametric assumptions.")]
 
      [:div.flex.gap-2.mb-6.border-b
-      (for [fam ["weibull" "cure" "leaky"]]
+      (for [fam ["weibull" "cure" "leaky" "gs-design"]]
         ^{:key fam}
         [:a.px-4.py-2.text-sm.font-medium.transition-colors.inline-block.text-center
          {:class (if (= active-family fam)
                    "border-b-2 border-blue-600 text-blue-600"
                    "text-gray-500 hover:text-gray-700")
           :href (rfe/href :discovery-sub {:subtab fam})}
-         (clojure.string/capitalize fam)])]
+         (if (= fam "gs-design") "gsDesign" (clojure.string/capitalize fam))])]
 
-     ;; Controls (Full width)
-     [:div.bg-white.p-4.rounded-xl.shadow-sm.border.mb-8
-      [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
-      [:div.grid.grid-cols-1.sm:grid-cols-2.md:grid-cols-3.lg:grid-cols-6.gap-4
-       [:div.flex.items-center.p-2.bg-gray-50.rounded-lg.border.h-12
-        [:input#placebo-mode
-         {:type "checkbox"
-          :checked placebo-mode?
-          :on-change (fn [e]
-                       (let [checked? (.. e -target -checked)]
-                         (if checked?
-                           (set-values {:placebo-mode? true
-                                        :cure-frac 0.0
-                                        :gps-med (:bat-med values)})
-                           (set-values {:placebo-mode? false}))))}]
-        [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
-         {:for "placebo-mode"}
-         "Placebo Mode"]]
+     (if (= active-family "gs-design")
+       [gs-design-playground]
+       [:<>
+        ;; Controls (Full width)
+        [:div.bg-white.p-4.rounded-xl.shadow-sm.border.mb-8
+         [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
+         [:div.grid.grid-cols-1.sm:grid-cols-2.md:grid-cols-3.lg:grid-cols-6.gap-4
+          [:div.flex.items-center.p-2.bg-gray-50.rounded-lg.border.h-12
+           [:input#placebo-mode
+            {:type "checkbox"
+             :checked placebo-mode?
+             :on-change (fn [e]
+                          (let [checked? (.. e -target -checked)]
+                            (if checked?
+                              (set-values {:placebo-mode? true
+                                           :cure-frac 0.0
+                                           :gps-med (:bat-med values)})
+                              (set-values {:placebo-mode? false}))))}]]
+          [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
+           {:for "placebo-mode"}
+           "Placebo Mode"]]
 
-       [param-input (assoc props :on-change
-                           (fn [k v]
-                             (when (and placebo-mode? (= k :bat-med))
-                               (set-values {:gps-med v}))))
-        :bat-med "BAT Median" 4 25 0.5]
-       [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
-       [param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
+         [param-input (assoc props :on-change
+                             (fn [k v]
+                               (when (and placebo-mode? (= k :bat-med))
+                                 (set-values {:gps-med v}))))
+          :bat-med "BAT Median" 4 25 0.5]
+         [param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
+         [param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
 
-       (case active-family
-         "weibull"
-         [:<>
-          [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]]
+         (case active-family
+           "weibull"
+           [:<>
+            [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]]
 
-         "cure"
-         [:<>
-          [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]
-          [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]]
+           "cure"
+           [:<>
+            [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]
+            [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]]
 
-         "leaky"
-         [:<>
-          [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]
-          [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
-          [param-input props :leak-yr "Leak Rate / Year" 0.0 0.1 0.01]])]
+           "leaky"
+           [:<>
+            [param-input props :gps-med "GPS Median" 4 50 1.0 placebo-mode?]
+            [param-input props :cure-frac "Cure Fraction" 0.0 0.95 0.05 placebo-mode?]
+            [param-input props :leak-yr "Leak Rate / Year" 0.0 0.1 0.01]])]
 
-      [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
-       {:class "justify-between"}
-       [:div.flex.items-center.gap-4
-        ;; Sim count control
-        [:div.flex.items-center.gap-2.border-r.pr-4
-         [:label.text-xs.font-bold.text-gray-600.mr-1 "Sim Count"]
-         [:input.w-24
-          {:type "range" :min 100 :max 5000 :step 100
-           :value (:n-sims values)
-           :on-change (fn [e]
-                        (let [v (js/parseFloat (.. e -target -value))]
-                          (set-values {:n-sims v})
-                          (debounced-sim-run
-                            active-family
-                            (assoc calc-params :n-sims v))))}]
-         [:input.border.rounded.p-1.text-xs.w-14
-          {:type "number" :value (:n-sims values) :step 100
-           :on-change (fn [e]
-                        (let [v (js/parseFloat (.. e -target -value))]
-                          (set-values {:n-sims v})
-                          (debounced-sim-run
-                            active-family
-                            (assoc calc-params :n-sims v))))}]]
+        [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
+         {:class "justify-between"}
+         [:div.flex.items-center.gap-4
+          ;; Sim count control
+          [:div.flex.items-center.gap-2.border-r.pr-4
+           [:label.text-xs.font-bold.text-gray-600.mr-1 "Sim Count"]
+           [:input.w-24
+            {:type "range" :min 100 :max 5000 :step 100
+             :value (:n-sims values)
+             :on-change (fn [e]
+                          (let [v (js/parseFloat (.. e -target -value))]
+                            (set-values {:n-sims v})
+                            (debounced-sim-run
+                             active-family
+                             (assoc calc-params :n-sims v))))}]
+           [:input.border.rounded.p-1.text-xs.w-14
+            {:type "number" :value (:n-sims values) :step 100
+             :on-change (fn [e]
+                          (let [v (js/parseFloat (.. e -target -value))]
+                            (set-values {:n-sims v})
+                            (debounced-sim-run
+                             active-family
+                             (assoc calc-params :n-sims v))))}]]
 
-        ;; Force Run Button
-        [:button.rounded-lg.shadow-sm.transition-colors
-         {:type "button"
-          :class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
-                  "text-white" "text-xs" "font-bold"]
-          :on-click (fn [e]
-                      (.preventDefault e)
-                      (sim/run-discovery-simulation! active-family
-                                                    calc-params))
-          :disabled (= (:sim-status state) :running)}
-         "Force Run"]
+          ;; Force Run Button
+          [:button.rounded-lg.shadow-sm.transition-colors
+           {:type "button"
+            :class ["px-4" "py-2" "bg-blue-600" "hover:bg-blue-700"
+                    "text-white" "text-xs" "font-bold"]
+            :on-click (fn [e]
+                        (.preventDefault e)
+                        (sim/run-discovery-simulation! active-family
+                                                       calc-params))
+            :disabled (= (:sim-status state) :running)}
+           "Force Run"]
 
-        (when (= (:sim-status state) :running)
-          (let [nsims (or (:n-sims calc-params)
-                          (:n-sims-per-combo config))]
-            [:span.text-xs.text-gray-500.animate-pulse
-             (str "Running " nsims " trial simulations...")]))]
+          (when (= (:sim-status state) :running)
+            (let [nsims (or (:n-sims calc-params)
+                            (:n-sims-per-combo config))]
+              [:span.text-xs.text-gray-500.animate-pulse
+               (str "Running " nsims " trial simulations...")]))]
 
-       [:div.flex.items-center.gap-6
-        [:div.text-center
-         [:div.text-xs.text-gray-400.font-semibold "BAT True mOS"]
-         [:div.text-lg.font-bold.text-blue-600
-          (str (.toFixed bat-true-mos 2) "m")]]
-        (case (:sim-status state)
-          :done
-          (let [res (:sim-result state)
-                p-suc (:p-success-overall res)
-                acc-rate (:acceptance-rate res)
-                med-hr (:median-hr-final res)
-                med-t80 (:median-t80-months res)]
-            [:<>
-             [:div.text-center
-              [:div.text-xs.text-gray-400.font-semibold "P(Success)"]
-              [:div.text-lg.font-bold.text-blue-600
-               (str (.toFixed (* 100 p-suc) 1) "%")]]
-             [:div.text-center
-              [:div.text-xs.text-gray-400.font-semibold "Acceptance Rate"]
-              [:div.text-sm.font-semibold.text-gray-700
-               (str (.toFixed (* 100 acc-rate) 1) "%")]]
-             [:div.text-center
-              [:div.text-xs.text-gray-400.font-semibold "Median HR"]
-              [:div.text-sm.font-semibold.text-gray-700
-               (if (js/isNaN med-hr) "N/A" (.toFixed med-hr 3))]]
-             [:div.text-center
-              [:div.text-xs.text-gray-400.font-semibold "Median T80"]
-              [:div.text-sm.font-semibold.text-gray-700
-               (if (js/isNaN med-t80)
-                 "N/A"
-                 (str (.toFixed med-t80 1) "m"))]]])
+         [:div.flex.items-center.gap-6
+          [:div.text-center
+           [:div.text-xs.text-gray-400.font-semibold "BAT True mOS"]
+           [:div.text-lg.font-bold.text-blue-600
+            (str (.toFixed bat-true-mos 2) "m")]]
+          (case (:sim-status state)
+            :done
+            (let [res (:sim-result state)
+                  p-suc (:p-success-overall res)
+                  acc-rate (:acceptance-rate res)
+                  med-hr (:median-hr-final res)
+                  med-t80 (:median-t80-months res)]
+              [:<>
+               [:div.text-center
+                [:div.text-xs.text-gray-400.font-semibold "P(Success)"]
+                [:div.text-lg.font-bold.text-blue-600
+                 (str (.toFixed (* 100 p-suc) 1) "%")]]
+               [:div.text-center
+                [:div.text-xs.text-gray-400.font-semibold "Acceptance Rate"]
+                [:div.text-sm.font-semibold.text-gray-700
+                 (str (.toFixed (* 100 acc-rate) 1) "%")]]
+               [:div.text-center
+                [:div.text-xs.text-gray-400.font-semibold "Median HR"]
+                [:div.text-sm.font-semibold.text-gray-700
+                 (if (js/isNaN med-hr) "N/A" (.toFixed med-hr 3))]]
+               [:div.text-center
+                [:div.text-xs.text-gray-400.font-semibold "Median T80"]
+                [:div.text-sm.font-semibold.text-gray-700
+                 (if (js/isNaN med-t80)
+                   "N/A"
+                   (str (.toFixed med-t80 1) "m"))]]])
 
-          :failed-prefilter
-          [:span.text-xs.font-semibold.text-red-500
-           (str "Prefilter check failed: 0% of "
-                "trials passed event pre-screening.")]
+            :failed-prefilter
+            [:span.text-xs.font-semibold.text-red-500
+             (str "Prefilter check failed: 0% of "
+                  "trials passed event pre-screening.")]
 
-          :error
-          [:span.text-xs.font-semibold.text-red-500
-           (str "Error: " (:sim-result state))]
+            :error
+            [:span.text-xs.font-semibold.text-red-500
+             (str "Error: " (:sim-result state))]
 
-          nil)]]]
+            nil)]]
 
-     ;; Results & Charts in 2 columns
-     ^{:key (str params)}
-      [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
-       ;; Column 1: Alternate Hypothesis
-       [:div.bg-gray-50.p-4.rounded-xl.border
-        [:div.flex.justify-between.items-center.mb-4
-         [:h3.font-extrabold.text-gray-800
-          "Alternate Hypothesis (H1): GPS is effective"]]
-        [stats-row "Milestone Stats (H1)" stats]
-        [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "Alternate: Survival Curves"]
-          [vega/discovery-survival-chart (:survival curve-data)]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "Alternate: Event Accrual"]
-          [vega/discovery-accrual-chart (:accrual curve-data) stats]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "Alternate: Patients Alive"]
-          [vega/discovery-alive-chart (:alive curve-data) stats]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "Alternate: Estimated Hazard Ratios"]
-          [vega/discovery-hr-chart (:hr curve-data)]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           (str "Alternate: Annualized Hazard Rates"
-                (when sim-result " (sim)"))]
-          [vega/discovery-hazard-rates-chart h1-hazard-rates]]]]
+        ;; Results & Charts in 2 columns
+        ^{:key (str params)}
+        [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
+         ;; Column 1: Alternate Hypothesis
+         [:div.bg-gray-50.p-4.rounded-xl.border
+          [:div.flex.justify-between.items-center.mb-4
+           [:h3.font-extrabold.text-gray-800
+            "Alternate Hypothesis (H1): GPS is effective"]]
+          [stats-row "Milestone Stats (H1)" stats]
+          [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "Alternate: Survival Curves"]
+            [vega/discovery-survival-chart (:survival curve-data)]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "Alternate: Event Accrual"]
+            [vega/discovery-accrual-chart (:accrual curve-data) stats]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "Alternate: Patients Alive"]
+            [vega/discovery-alive-chart (:alive curve-data) stats]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "Alternate: Estimated Hazard Ratios"]
+            [vega/discovery-hr-chart (:hr curve-data)]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             (str "Alternate: Annualized Hazard Rates"
+                  (when sim-result " (sim)"))]
+            [vega/discovery-hazard-rates-chart h1-hazard-rates]]]]
 
-       ;; Column 2: Null Hypothesis (H0)
-       [:div.bg-gray-50.p-4.rounded-xl.border
-        [:h3.font-extrabold.text-gray-800.mb-4
-         "Null Hypothesis (H0): GPS is placebo (" avg-med " mOS" ")"]
-        [stats-row "Milestone Stats (H0)" stats-h0]
-        [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "H0: Survival Curves (Cure=0, Shared Med)"]
-          [vega/discovery-survival-chart (:survival curve-data-h0)]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "H0: Event Accrual (Cure=0, Shared Med)"]
-          [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "H0: Patients Alive"]
-          [vega/discovery-alive-chart (:alive curve-data-h0) stats-h0]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "H0: Estimated Hazard Ratios"]
-          [vega/discovery-hr-chart (:hr curve-data-h0)]]
-         [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-          [:h4.text-xs.font-bold.text-gray-700.mb-2
-           "H0: Annualized Hazard Rates"]
-          [vega/discovery-hazard-rates-chart
-           (:hazard-rates curve-data-h0)]]]]]]))
-
+         ;; Column 2: Null Hypothesis (H0)
+         [:div.bg-gray-50.p-4.rounded-xl.border
+          [:h3.font-extrabold.text-gray-800.mb-4
+           "Null Hypothesis (H0): GPS is placebo (" avg-med " mOS" ")"]
+          [stats-row "Milestone Stats (H0)" stats-h0]
+          [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "H0: Survival Curves (Cure=0, Shared Med)"]
+            [vega/discovery-survival-chart (:survival curve-data-h0)]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "H0: Event Accrual (Cure=0, Shared Med)"]
+            [vega/discovery-accrual-chart (:accrual curve-data-h0) stats-h0]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "H0: Patients Alive"]
+            [vega/discovery-alive-chart (:alive curve-data-h0) stats-h0]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "H0: Estimated Hazard Ratios"]
+            [vega/discovery-hr-chart (:hr curve-data-h0)]]
+           [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+            [:h4.text-xs.font-bold.text-gray-700.mb-2
+             "H0: Annualized Hazard Rates"]
+            [vega/discovery-hazard-rates-chart
+             (:hazard-rates curve-data-h0)]]]]]])]))
 
 (defn discovery-view []
   (r/with-let [_ (let [disc (get-discovery-state)

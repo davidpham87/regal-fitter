@@ -1,6 +1,5 @@
 (ns app.webr.macros
-  (:require [cljs.pprint :refer [cl-format]]
-            [clojure.string :as str]))
+  (:require [clojure.string :as str]))
 
 (defn clean-doc-string
   "Removes everything from a string after the first occurrence of
@@ -19,12 +18,18 @@
    using cljs.pprint/cl-format, and executes it asynchronously."
   [cljs-name r-name params-spec r-template]
   (let [docstring (clean-doc-string r-name)
-        param-keys (vec (map (fn [p] (keyword (str/replace (name (first p)) #"\." "-"))) params-spec))
-        bindings (map (fn [[p-sym default]]
-                        (let [cljs-key (keyword (str/replace (name p-sym) #"\." "-"))]
-                          `[~p-sym (or (get ~'params ~cljs-key) ~default)]))
-                      params-spec)
-        let-bindings (apply concat bindings)]
+        sanitized-specs (map (fn [[p-sym default]]
+                               (let [n (name p-sym)
+                                     clean-name (str/replace n #"\." "-")]
+                                 [(symbol clean-name)
+                                  (keyword clean-name)
+                                  default]))
+                             params-spec)
+        let-bindings (apply concat
+                            (map (fn [[clean-sym cljs-key default]]
+                                   `[~clean-sym (or (get ~'params ~cljs-key)
+                                                    ~default)])
+                                 sanitized-specs))]
     `(defn ~cljs-name
        ~docstring
        ([~'params]
@@ -35,17 +40,16 @@
         (assert (fn? ~'on-error) "on-error callback must be a function")
         (js/console.log (str "Executing R wrapper: " ~(str cljs-name)))
         (let [~@let-bindings
-              ;; Format the R code dynamically using Common Lisp cl-format.
-              ;; This ensures R code variables are cleanly substituted into templates.
-              r-code (cljs.pprint/cl-format
-                      nil
-                      (str "library(gsDesign)\n" ~r-template)
-                      ~@(map first params-spec))]
+              ~'r-code (cljs.pprint/cl-format
+                        nil
+                        (str "library(gsDesign)\n" ~r-template)
+                        ~@(map first sanitized-specs))]
           (app.webr/eval-r-code!
-           r-code
+           ~'r-code
            (fn [output-lines# result-val#]
              (try
-               (let [res-map# (js->clj result-val# :keywordize-keys true)]
+               (let [res-map# (cljs.core/js->clj
+                               result-val# :keywordize-keys true)]
                  (js/console.log "R execution succeeded.")
                  (~'on-done output-lines# res-map#))
                (catch :default e#

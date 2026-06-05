@@ -91,7 +91,7 @@
   "Derives Group Sequential Clinical Trial Designs and Describes Their
 Properties. gsDesign() is the primary function to find boundaries
 and trial size for a group sequential design."
-  [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [sfu '"sfLDOF"'] [sfl '"sfLDOF"'] [timing "NULL"] [n.I "NULL"]]
+  [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [sfu "sfLDOF"] [sfl "sfLDOF"] [timing "NULL"] [n.I "NULL"]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a, sfu=~a, sfl=~a, timing=~a, n.I=~a)\nlist(k=x$k, timing=x$timing, upper_bounds=x$upper$bound, lower_bounds=x$lower$bound, n_I=x$n.I)")
 
 (def-r-wrapper gs-probability

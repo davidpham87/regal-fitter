@@ -20,10 +20,16 @@
                  (let [clean-doc (str/replace doc "\\n" "\n")]
                    (str "(def-r-wrapper " name "\n  \"" clean-doc "\"")))))
 
+(defn fix-invalid-quotes
+  "Fixes reader-hostile single-quoted strings like '\"sfLDOF\"'."
+  [ns-str]
+  (str/replace ns-str #"'\"([^\"]+)\"'" "\"$1\""))
+
 (defn clean-gs-design-file! []
   (let [file-path "src/app/webr/gs_design.cljs"
         content (slurp file-path)
         step1 (remove-wrapper-comments content)
-        step2 (replace-docstring-newlines step1)]
-    (spit file-path step2)
+        step2 (replace-docstring-newlines step1)
+        step3 (fix-invalid-quotes step2)]
+    (spit file-path step3)
     (println "Cleaned and updated gs_design.cljs successfully!")))
