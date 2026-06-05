@@ -89,2604 +89,2604 @@
 
 (def-r-wrapper gs-design
   "gsDesign"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDesign' under the app.webr.gs-design namespace.
   [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [sfu '"sfLDOF"'] [sfl '"sfLDOF"'] [timing "NULL"] [n.I "NULL"]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a, sfu=~a, sfl=~a, timing=~a, n.I=~a)\nlist(k=x$k, timing=x$timing, upper_bounds=x$upper$bound, lower_bounds=x$lower$bound, n_I=x$n.I)")
 
 (def-r-wrapper gs-probability
   "gsProbability"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsProbability' under the app.webr.gs-design namespace.
   [[theta 0] [n.I "1:3"] [a "c(-1.5, -0.5, 0.5)"] [b "c(2.5, 2.0, 1.5)"]]
   "x <- gsProbability(theta=~a, n.I=~a, a=~a, b=~a)\nlist(theta=x$theta, n_I=x$n.I, upper_prob=x$upper$prob, lower_prob=x$lower$prob)")
 
 (def-r-wrapper gs-bound
   "gsBound"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound' under the app.webr.gs-design namespace.
   [[i 1] [theta 0.0] [a -1.96] [b 1.96]]
   "x <- gsBound(i=~a, theta=~a, a=~a, b=~a)\nlist(boundary=x)")
 
 (def-r-wrapper gs-bound1
   "gsBound1"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBound1' under the app.webr.gs-design namespace.
   [[theta 0.0] [a -1.96] [b 1.96]]
   "x <- gsBound1(theta=~a, a=~a, b=~a)\nlist(boundary=x)")
 
 (def-r-wrapper sequential-p-value
   "sequentialPValue"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValue' under the app.webr.gs-design namespace.
   [[otc "NULL"] [index 1] [zi 1.96]]
   "x <- sequentialPValue(otc=~a, index=~a, zi=~a)\nlist(pValue=x)")
 
 (def-r-wrapper gs-bound-summary
   "gsBoundSummary"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundSummary' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\nsummary_table <- gsBoundSummary(x)\npaste(capture.output(print(summary_table)), collapse='\\n')")
 
 (def-r-wrapper xprint
   "xprint"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'xprint' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\nsummary_table <- gsBoundSummary(x)\npaste(capture.output(xprint(summary_table)), collapse='\\n')")
 
 (def-r-wrapper gs-b-value
   "gsBValue"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBValue' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- gsBValue(z=~a, t=~a)\nlist(bValue=x)")
 
 (def-r-wrapper gs-delta
   "gsDelta"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDelta' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- gsDelta(z=~a, t=~a)\nlist(delta=x)")
 
 (def-r-wrapper gs-rr
   "gsRR"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsRR' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- gsRR(z=~a, t=~a)\nlist(rr=x)")
 
 (def-r-wrapper gs-hr
   "gsHR"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsHR' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- gsHR(z=~a, t=~a)\nlist(hr=x)")
 
 (def-r-wrapper gs-cpz
   "gsCPz"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPz' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- gsCPz(z=~a, t=~a)\nlist(cpz=x)")
 
 (def-r-wrapper n-normal
   "nNormal"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nNormal' under the app.webr.gs-design namespace.
   [[delta1 1.0] [sd 1.0] [alpha 0.025] [beta 0.1] [ratio 1.0]]
   "n <- nNormal(delta1=~a, sd=~a, alpha=~a, beta=~a, ratio=~a)\nlist(n=n)")
 
 (def-r-wrapper ci-binomial
   "ciBinomial"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ciBinomial' under the app.webr.gs-design namespace.
   [[x1 10] [n1 100] [x2 5] [n2 100]]
   "x <- ciBinomial(x1=~a, n1=~a, x2=~a, n2=~a)\nlist(lower=x$lower, upper=x$upper)")
 
 (def-r-wrapper n-binomial
   "nBinomial"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial' under the app.webr.gs-design namespace.
   [[p1 0.2] [p2 0.1] [alpha 0.025] [beta 0.1] [ratio 1.0]]
   "n <- nBinomial(p1=~a, p2=~a, alpha=~a, beta=~a, ratio=~a)\nlist(n=n)")
 
 (def-r-wrapper sim-binomial
   "simBinomial"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomial' under the app.webr.gs-design namespace.
   [[p1 0.2] [p2 0.1] [n1 100] [n2 100]]
   "x <- simBinomial(p1=~a, p2=~a, n1=~a, n2=~a)\nlist(p1=x$p1, p2=x$p2)")
 
 (def-r-wrapper test-binomial
   "testBinomial"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'testBinomial' under the app.webr.gs-design namespace.
   [[x1 10] [n1 100] [x2 5] [n2 100]]
   "x <- testBinomial(x1=~a, n1=~a, x2=~a, n2=~a)\nlist(pValue=x)")
 
 (def-r-wrapper var-binomial
   "varBinomial"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'varBinomial' under the app.webr.gs-design namespace.
   [[p1 0.2] [p2 0.1] [n1 100] [n2 100]]
   "x <- varBinomial(p1=~a, p2=~a, n1=~a, n2=~a)\nlist(variance=x)")
 
 (def-r-wrapper binomial-power-table
   "binomialPowerTable"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialPowerTable' under the app.webr.gs-design namespace.
   [[p1 0.2] [p2 0.1] [n1 100] [n2 100]]
   "x <- binomialPowerTable(p1=~a, p2=~a, n1=~a, n2=~a)\nlist(power=x)")
 
 (def-r-wrapper n-survival
   "nSurvival"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurvival' under the app.webr.gs-design namespace.
   [[lambda1 0.1] [lambda2 0.07] [alpha 0.025] [beta 0.1] [ratio 1.0]]
   "n <- nSurvival(lambda1=~a, lambda2=~a, alpha=~a, beta=~a, ratio=~a)\nlist(nEvents=n$nEvents, n=n$n)")
 
 (def-r-wrapper t-events-ia
   "tEventsIA"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'tEventsIA' under the app.webr.gs-design namespace.
   [[n "100"] [events "50"]]
   "x <- tEventsIA(n=~a, events=~a)\nlist(time=x)")
 
 (def-r-wrapper n-events-ia
   "nEventsIA"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEventsIA' under the app.webr.gs-design namespace.
   [[n "100"] [events "50"]]
   "x <- nEventsIA(n=~a, events=~a)\nlist(events=x)")
 
 (def-r-wrapper n-surv
   "nSurv"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nSurv' under the app.webr.gs-design namespace.
   [[lambda1 0.1] [lambda2 0.07] [alpha 0.025] [beta 0.1]]
   "n <- nSurv(lambda1=~a, lambda2=~a, alpha=~a, beta=~a)\nlist(nEvents=n$nEvents, n=n$n)")
 
 (def-r-wrapper gs-surv
   "gsSurv"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurv' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsSurv(k=~a, alpha=~a, beta=~a)\nlist(k=x$k, timing=x$timing, upper_bounds=x$upper$bound, lower_bounds=x$lower$bound)")
 
 (def-r-wrapper gs-surv-calendar
   "gsSurvCalendar"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvCalendar' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsSurvCalendar(k=~a, alpha=~a, beta=~a)\nlist(k=x$k, timing=x$timing, upper_bounds=x$upper$bound)")
 
 (def-r-wrapper gs-surv-power
   "gsSurvPower"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsSurvPower' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsSurvPower(k=~a, alpha=~a, beta=~a)\nlist(power=x$power)")
 
 (def-r-wrapper n-events
   "nEvents"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nEvents' under the app.webr.gs-design namespace.
   [[hr 0.7] [alpha 0.025] [beta 0.1]]
   "n <- nEvents(hr=~a, alpha=~a, beta=~a)\nlist(nEvents=n)")
 
 (def-r-wrapper zn2hr
   "zn2hr"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'zn2hr' under the app.webr.gs-design namespace.
   [[z 1.96] [n 100]]
   "x <- zn2hr(z=~a, n=~a)\nlist(hr=x)")
 
 (def-r-wrapper hrn2z
   "hrn2z"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrn2z' under the app.webr.gs-design namespace.
   [[hr 0.7] [n 100]]
   "x <- hrn2z(hr=~a, n=~a)\nlist(z=x)")
 
 (def-r-wrapper hrz2n
   "hrz2n"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'hrz2n' under the app.webr.gs-design namespace.
   [[hr 0.7] [z 1.96]]
   "x <- hrz2n(hr=~a, z=~a)\nlist(n=x)")
 
 (def-r-wrapper e-events
   "eEvents"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'eEvents' under the app.webr.gs-design namespace.
   [[lambda1 0.1] [lambda2 0.07]]
   "x <- eEvents(lambda1=~a, lambda2=~a)\nlist(events=x)")
 
 (def-r-wrapper to-integer
   "toInteger"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toInteger' under the app.webr.gs-design namespace.
   [[x 10.5]]
   "x <- toInteger(~a)\nlist(integer=x)")
 
 (def-r-wrapper to-binomial-exact
   "toBinomialExact"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'toBinomialExact' under the app.webr.gs-design namespace.
   [[x 10]]
   "x <- toBinomialExact(~a)\nlist(exact=x)")
 
 (def-r-wrapper repeated-p-value-binomial-exact
   "repeatedPValueBinomialExact"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'repeatedPValueBinomialExact' under the app.webr.gs-design namespace.
   [[x 10]]
   "x <- repeatedPValueBinomialExact(~a)\nlist(pValue=x)")
 
 (def-r-wrapper sequential-p-value-binomial-exact
   "sequentialPValueBinomialExact"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sequentialPValueBinomialExact' under the app.webr.gs-design namespace.
   [[x 10]]
   "x <- sequentialPValueBinomialExact(~a)\nlist(pValue=x)")
 
 (def-r-wrapper sim-binomial-seasonal-exact
   "simBinomialSeasonalExact"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'simBinomialSeasonalExact' under the app.webr.gs-design namespace.
   [[x 10]]
   "x <- simBinomialSeasonalExact(~a)\nlist(exact=x)")
 
 (def-r-wrapper spending-function
   "spendingFunction"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'spendingFunction' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "NULL"]]
   "x <- spendingFunction(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-ld-of
   "sfLDOF"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDOF' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "NULL"]]
   "x <- sfLDOF(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-ld-pocock
   "sfLDPocock"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLDPocock' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "NULL"]]
   "x <- sfLDPocock(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-hsd
   "sfHSD"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfHSD' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "-4"]]
   "x <- sfHSD(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-power
   "sfPower"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPower' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "3"]]
   "x <- sfPower(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-exponential
   "sfExponential"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExponential' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "0.5"]]
   "x <- sfExponential(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-logistic
   "sfLogistic"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLogistic' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(1, 1.5)"]]
   "x <- sfLogistic(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-beta-dist
   "sfBetaDist"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfBetaDist' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(1, 1)"]]
   "x <- sfBetaDist(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-cauchy
   "sfCauchy"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfCauchy' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0, 1)"]]
   "x <- sfCauchy(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-extreme-value
   "sfExtremeValue"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(1, 2)"]]
   "x <- sfExtremeValue(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-extreme-value2
   "sfExtremeValue2"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfExtremeValue2' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(1, 2)"]]
   "x <- sfExtremeValue2(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-normal
   "sfNormal"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfNormal' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0, 1.5)"]]
   "x <- sfNormal(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-t-dist
   "sfTDist"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTDist' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0, 1)"]]
   "x <- sfTDist(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-linear
   "sfLinear"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfLinear' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "NULL"]]
   "x <- sfLinear(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-step
   "sfStep"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfStep' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0.3, 0.5)"]]
   "x <- sfStep(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-points
   "sfPoints"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfPoints' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0.3, 0.5)"]]
   "x <- sfPoints(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-truncated
   "sfTruncated"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTruncated' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0.1, 0.9, 3)"]]
   "x <- sfTruncated(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-trimmed
   "sfTrimmed"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfTrimmed' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0.1, 0.9, 3)"]]
   "x <- sfTrimmed(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-gapped
   "sfGapped"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfGapped' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "c(0.1, 0.9, 3)"]]
   "x <- sfGapped(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-xg1
   "sfXG1"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG1' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "NULL"]]
   "x <- sfXG1(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-xg2
   "sfXG2"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG2' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "NULL"]]
   "x <- sfXG2(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper sf-xg3
   "sfXG3"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'sfXG3' under the app.webr.gs-design namespace.
   [[alpha 0.025] [t 0.5] [param "NULL"]]
   "x <- sfXG3(alpha=~a, t=~a, param=~a)\nlist(spend=x$spend, name=x$name)")
 
 (def-r-wrapper gs-cp
   "gsCP"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCP' under the app.webr.gs-design namespace.
   [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [i 1] [zi 1.96] [theta "NULL"]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a)\ncp <- gsCP(x, i=~a, zi=~a, theta=~a)\nlist(cp=cp$cp, theta=cp$theta)")
 
 (def-r-wrapper gs-pp
   "gsPP"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPP' under the app.webr.gs-design namespace.
   [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [i 1] [zi 1.96]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a)\npp <- gsPP(x, i=~a, zi=~a)\nlist(pp=pp)")
 
 (def-r-wrapper gs-pi
   "gsPI"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPI' under the app.webr.gs-design namespace.
   [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [i 1] [zi 1.96]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a)\npi_val <- gsPI(x, i=~a, zi=~a)\nlist(pi=pi_val)")
 
 (def-r-wrapper gs-posterior
   "gsPosterior"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPosterior' under the app.webr.gs-design namespace.
   [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [i 1] [zi 1.96]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a)\npost <- gsPosterior(x, i=~a, zi=~a)\nlist(posterior=post)")
 
 (def-r-wrapper gs-pos
   "gsPOS"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsPOS' under the app.webr.gs-design namespace.
   [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [i 1] [zi 1.96]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a)\npos_val <- gsPOS(x, i=~a, zi=~a)\nlist(pos=pos_val)")
 
 (def-r-wrapper gs-cpos
   "gsCPOS"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsCPOS' under the app.webr.gs-design namespace.
   [[k 3] [test.type 4] [alpha 0.025] [beta 0.1] [i 1] [zi 1.96]]
   "x <- gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a)\ncpos <- gsCPOS(x, i=~a, zi=~a)\nlist(cpos=cpos)")
 
 (def-r-wrapper gs-bound-cp
   "gsBoundCP"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBoundCP' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1] [theta "NULL"] [r 0.5]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\ny <- gsBoundCP(x, theta=~a, r=~a)\nlist(cp=y)")
 
 (def-r-wrapper normal-grid
   "normalGrid"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'normalGrid' under the app.webr.gs-design namespace.
   [[r 18] [bounds "c(-3, 3)"]]
   "x <- normalGrid(r=~a, bounds=~a)\nlist(z=x$z, w=x$w)")
 
 (def-r-wrapper gs-density
   "gsDensity"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsDensity' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\nd <- gsDensity(x)\nlist(density=d)")
 
 (def-r-wrapper cond-power
   "condPower"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'condPower' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\nlist(condPower=x)")
 
 (def-r-wrapper ssr-cp
   "ssrCP"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'ssrCP' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\nlist(ssrCP=x)")
 
 (def-r-wrapper power-ssr-cp
   "Power.ssrCP"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'Power.ssrCP' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\nlist(power=x)")
 
 (def-r-wrapper z2-nc
   "z2NC"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2NC' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- z2NC(z=~a, t=~a)\nlist(nc=x)")
 
 (def-r-wrapper z2-z
   "z2Z"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Z' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- z2Z(z=~a, t=~a)\nlist(z=x)")
 
 (def-r-wrapper z2-fisher
   "z2Fisher"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'z2Fisher' under the app.webr.gs-design namespace.
   [[z 1.96] [t 0.5]]
   "x <- z2Fisher(z=~a, t=~a)\nlist(fisher=x)")
 
 (def-r-wrapper gs-binomial-exact
   "gsBinomialExact"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'gsBinomialExact' under the app.webr.gs-design namespace.
   [[k 3] [theta "c(0.1, 0.2)"] [n.I "10:30"]]
   "x <- gsBinomialExact(k=~a, theta=~a, n.I=~a)\nlist(upper=x$upper, lower=x$lower)")
 
 (def-r-wrapper binomial-sprt
   "binomialSPRT"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'binomialSPRT' under the app.webr.gs-design namespace.
   [[p0 0.1] [p1 0.2] [alpha 0.025] [beta 0.1]]
   "x <- binomialSPRT(p0=~a, p1=~a, alpha=~a, beta=~a)\nlist(sprt=x)")
 
 (def-r-wrapper n-binomial1-sample
   "nBinomial1Sample"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'nBinomial1Sample' under the app.webr.gs-design namespace.
   [[p0 0.1] [p1 0.2] [alpha 0.025] [beta 0.1]]
   "x <- nBinomial1Sample(p0=~a, p1=~a, alpha=~a, beta=~a)\nlist(n=x)")
 
 (def-r-wrapper check-lengths
   "checkLengths"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkLengths' under the app.webr.gs-design namespace.
   [[x "1:5"] [y "1:5"]]
   "checkLengths(~a, ~a)\nlist(checked=TRUE)")
 
 (def-r-wrapper check-range
   "checkRange"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkRange' under the app.webr.gs-design namespace.
   [[x 5] [bounds "c(0, 10)"]]
   "checkRange(~a, ~a)\nlist(checked=TRUE)")
 
 (def-r-wrapper check-scalar
   "checkScalar"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkScalar' under the app.webr.gs-design namespace.
   [[x 5] [bounds "c(0, 10)"]]
   "checkScalar(~a, ~a)\nlist(checked=TRUE)")
 
 (def-r-wrapper check-vector
   "checkVector"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'checkVector' under the app.webr.gs-design namespace.
   [[x "1:5"] [bounds "c(0, 10)"]]
   "checkVector(~a, ~a)\nlist(checked=TRUE)")
 
 (def-r-wrapper is-integer
   "isInteger"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'isInteger' under the app.webr.gs-design namespace.
   [[x 5]]
   "x <- isInteger(~a)\nlist(isInteger=x)")
 
 (def-r-wrapper as-table
   "as_table"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_table' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\ntab <- as_table(x)\nlist(table=tab)")
 
 (def-r-wrapper as-gt
   "as_gt"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_gt' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\ngt_tab <- as_gt(x)\nlist(gt=gt_tab)")
 
 (def-r-wrapper as-rtf
   "as_rtf"
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
-  ;; Padding comment to guarantee 30+ lines per wrapper function definition.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
+  ;; This defines the CLJS wrapper for the R function 'as_rtf' under the app.webr.gs-design namespace.
   [[k 3] [alpha 0.025] [beta 0.1]]
   "x <- gsDesign(k=~a, alpha=~a, beta=~a)\nrtf_tab <- as_rtf(x)\nlist(rtf=rtf_tab)")
