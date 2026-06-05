@@ -2,7 +2,9 @@
   (:require
    [re-frame.core :as rf]
    [cljs.core.async :as a :refer [go <!]]
-   [cljs.core.async.interop :refer-macros [<p!]]))
+   [cljs.core.async.interop :refer-macros [<p!]]
+   [goog.string :as gstring]
+   [goog.string.format]))
 
 (defonce webr-instance (atom nil))
 
