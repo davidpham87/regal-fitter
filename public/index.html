@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REGAL Constraint Fitter UI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <script type="module">
+      import { WebR } from 'https://webr.r-wasm.org/v0.5.7/webr.mjs';
+      window.WebR = WebR;
+    </script>
 </head>
 <body>
     <div id="app"></div>
     <script src="js/libs.js"></script>
-    <script src="js/shared.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
