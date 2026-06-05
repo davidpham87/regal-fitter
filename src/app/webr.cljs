@@ -58,6 +58,9 @@
             (js/console.log "Starting WebR WASM runtime initialization...")
             (reset! webr-instance webr)
             (<p! (.init webr))
+            (js/console.log "Installing gsDesign R package...")
+            (<p! (.evalR webr "webr::install('gsDesign')"))
+            (js/console.log "gsDesign R package installed successfully.")
             (js/console.log "WebR WASM runtime successfully initialized.")
             (on-ready webr))
           (do
@@ -177,7 +180,7 @@
      (rf/dispatch [:store-webr-error (str "Init failed: " init-error)])))
 
   (eval-r-code!
-   "randn(100)"
+   "rnorm(100)"
    (fn [output-lines result-val]
      (rf/dispatch [:set-webr-status :done])
      (rf/dispatch [:store-webr-results
