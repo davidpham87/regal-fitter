@@ -28,9 +28,9 @@
    :prefilter-tol-ia 3.5
    :prefilter-tol-upd 3.5
    :prefilter-tol-pr3 3.5
-   :tol-ia 1.5
-   :tol-upd 1.5
-   :tol-pr3 1.5
+   :tol-ia 3
+   :tol-upd 3
+   :tol-pr3 3
 
    :tol-increment-ia-upd 3
    :tol-increment-upd-pr3 3
@@ -54,7 +54,7 @@
    :seed 20260508
 
    :bat-med-grid [8 22 1]
-   :bat-shape-grid [0.7 1.0 0.1]
+   :bat-shape-grid [0.8 1.01 0.1]
 
    :gps-med-grid-lo 20.0
    :gps-med-grid-hi 60.0
@@ -200,18 +200,18 @@
            :view :config-form ;; :config-form, :config-json, :results
            :active-page :home
            :discovery {:active-family "leaky"
-                       :params {:bat-med 8.0
-                                :weibull-k 1.0
+                       :params {:bat-med 10.0
+                                :weibull-k 0.85
                                 :delay 3.0
-                                :gps-med 12.0
+                                :gps-med 15
                                 :cure-frac 0.2
                                 :leak-yr 0.07
                                 :placebo-mode? false
                                 :n-sims 1000}
-                       :calc-params {:bat-med 8.0
-                                     :weibull-k 1.0
+                       :calc-params {:bat-med 10.0
+                                     :weibull-k 0.85
                                      :delay 3.0
-                                     :gps-med 12.0
+                                     :gps-med 15
                                      :cure-frac 0.2
                                      :leak-yr 0.07
                                      :placebo-mode? false
@@ -327,3 +327,8 @@
 (defn update-discovery-params! [new-params]
   (swap! app-state assoc-in [:discovery :params] new-params)
   (sync-to-url! new-params))
+
+(comment
+  (:webr @app-state)
+  {:status :error, :output nil, :result nil, :error "TypeError: inst_45580.captureR is not a function"}
+  )

@@ -192,6 +192,66 @@
                      "list(cp=cp$cp, theta=cp$theta, r=cp$r)")]
      (webr/eval-r-code! r-code on-done on-error))))
 
+(defn gs-bound-cp
+  "Executes the R function gsBoundCP to calculate conditional power at boundaries.
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :k (int, total analyses)
+     :alpha (double, Type I error)
+     :beta (double, Type II error)
+     :theta (double, hypothetical effect size)
+     :r (double, information fraction at conditioning)
+   - on-done: Callback fn [output-lines result-val] on success (optional).
+   - on-error: Callback fn [error] on failure (optional)."
+  ([params]
+   (gs-bound-cp params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [k (or (:k params) 3)
+         alpha (or (:alpha params) 0.025)
+         beta (or (:beta params) 0.1)
+         theta (or (:theta params) "NULL")
+         r (or (:r params) 0.5)
+         r-code (str "library(gsDesign)\n"
+                     "x <- gsDesign(k=" k ", alpha=" alpha ", beta=" beta ")\n"
+                     "y <- gsBoundCP(x, theta=" theta ", r=" r ")\n"
+                     "list(cp=y)")]
+     (js/console.log "Executing gsBoundCP calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn gs-bound
+  "Executes R function gsBound to calculate sequential boundary values.
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :i (int, analysis index)
+     :theta (double, effect size)
+     :a (double, lower boundary value)
+     :b (double, upper boundary value)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (gs-bound params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [i (or (:i params) 1)
+         theta (or (:theta params) 0.0)
+         a (or (:a params) -1.96)
+         b (or (:b params) 1.96)
+         r-code (str "library(gsDesign)\n"
+                     "x <- gsBound(i=" i
+                     ", theta=" theta
+                     ", a=" a
+                     ", b=" b ")\n"
+                     "list(boundary=x)")]
+     (js/console.log "Executing gsBound calculation in WebR with theta:" theta)
+     (webr/eval-r-code! r-code on-done on-error))))
+
 (defn n-normal
   "Executes the R function nNormal to calculate sample size for normal endpoints.
    
@@ -288,34 +348,87 @@
                      "list(nEvents=n$nEvents, n=n$n)")]
      (webr/eval-r-code! r-code on-done on-error))))
 
-(defn gs-bound
-  "Executes R function gsBound to calculate sequential boundary values.
+(defn hsa
+  "Executes the R function hsa to compute sample size / event counts
+   under the proportional hazards model.
    
    Args:
    - params: Map containing R parameter settings:
-     :i (int, analysis index)
-     :theta (double, effect size)
-     :a (double, lower boundary value)
-     :b (double, upper boundary value)
+     :hr (double, hazard ratio)
+     :alpha (double, Type I error)
+     :beta (double, Type II error)
+     :ratio (double, randomization ratio)
    - on-done: Callback fn [output-lines result-val] (optional).
    - on-error: Callback fn [error] (optional)."
   ([params]
-   (gs-bound params webr/on-done webr/on-error))
+   (hsa params webr/on-done webr/on-error))
   ([params on-done on-error]
    (assert (map? params) "params must be a map")
    (assert (fn? on-done) "on-done callback must be a function")
    (assert (fn? on-error) "on-error callback must be a function")
-   (let [i (or (:i params) 1)
-         theta (or (:theta params) 0.0)
-         a (or (:a params) -1.96)
-         b (or (:b params) 1.96)
+   (let [hr (or (:hr params) 0.7)
+         alpha (or (:alpha params) 0.025)
+         beta (or (:beta params) 0.1)
+         ratio (or (:ratio params) 1.0)
          r-code (str "library(gsDesign)\n"
-                     "x <- gsBound(i=" i
-                     ", theta=" theta
-                     ", a=" a
-                     ", b=" b ")\n"
-                     "list(boundary=x)")]
-     (js/console.log "Executing gsBound calculation in WebR with theta:" theta)
+                     "x <- hsa(hr=" hr
+                     ", alpha=" alpha
+                     ", beta=" beta
+                     ", ratio=" ratio ")\n"
+                     "list(n=x$n, events=x$nEvents)")]
+     (js/console.log "Executing hsa calculation in WebR with HR:" hr)
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn gs-bound-summary
+  "Executes R function gsBoundSummary to get boundary summary tables.
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :k (int, analyses)
+     :alpha (double, Type I error)
+     :beta (double, Type II error)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (gs-bound-summary params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [k (or (:k params) 3)
+         alpha (or (:alpha params) 0.025)
+         beta (or (:beta params) 0.1)
+         r-code (str "library(gsDesign)\n"
+                     "x <- gsDesign(k=" k ", alpha=" alpha ", beta=" beta ")\n"
+                     "summary_table <- gsBoundSummary(x)\n"
+                     "paste(capture.output(print(summary_table)), collapse='\n')")]
+     (js/console.log "Executing gsBoundSummary calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn xprint
+  "Executes R function xprint to format and print summary tables.
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :k (int, analyses)
+     :alpha (double, Type I error)
+     :beta (double, Type II error)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (xprint params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [k (or (:k params) 3)
+         alpha (or (:alpha params) 0.025)
+         beta (or (:beta params) 0.1)
+         r-code (str "library(gsDesign)\n"
+                     "x <- gsDesign(k=" k ", alpha=" alpha ", beta=" beta ")\n"
+                     "summary_table <- gsBoundSummary(x)\n"
+                     "paste(capture.output(xprint(summary_table)), collapse='\n')")]
+     (js/console.log "Executing xprint calculation in WebR")
      (webr/eval-r-code! r-code on-done on-error))))
 
 (defn sf-ld-of
@@ -424,4 +537,247 @@
                      ", param=" param ")\n"
                      "list(spend=x$spend, name=x$name)")]
      (js/console.log "Executing sfPower spending function calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-exponential
+  "Executes R function sfExponential (Exponential spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-exponential params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "0.5")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfExponential(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfExponential spending function calculation")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-linear
+  "Executes R function sfLinear (Linear spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-linear params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "NULL")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfLinear(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfLinear spending function calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-logistic
+  "Executes R function sfLogistic (Logistic spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-logistic params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "c(1, 1.5)")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfLogistic(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfLogistic spending function calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-normal
+  "Executes R function sfNormal (Normal spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-normal params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "c(0, 1.5)")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfNormal(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfNormal spending function calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-extreme-value
+  "Executes R function sfExtremeValue (Extreme Value spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-extreme-value params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "c(1, 2)")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfExtremeValue(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfExtremeValue spending function calculation")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-beta-dist
+  "Executes R function sfBetaDist (Beta Distribution spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-beta-dist params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "c(1, 1)")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfBetaDist(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfBetaDist spending function calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-step
+  "Executes R function sfStep (Step spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-step params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "c(0.3, 0.5)")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfStep(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfStep spending function calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-truncated
+  "Executes R function sfTruncated (Truncated spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-truncated params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "c(0.1, 0.9, 3)")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfTruncated(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfTruncated spending function calculation in WebR")
+     (webr/eval-r-code! r-code on-done on-error))))
+
+(defn sf-points
+  "Executes R function sfPoints (User-specified points spending function).
+   
+   Args:
+   - params: Map containing R parameter settings:
+     :alpha (double, Type I or II error)
+     :t (double/vector, information fraction)
+     :param (optional R parameter list)
+   - on-done: Callback fn [output-lines result-val] (optional).
+   - on-error: Callback fn [error] (optional)."
+  ([params]
+   (sf-points params webr/on-done webr/on-error))
+  ([params on-done on-error]
+   (assert (map? params) "params must be a map")
+   (assert (fn? on-done) "on-done callback must be a function")
+   (assert (fn? on-error) "on-error callback must be a function")
+   (let [alpha (or (:alpha params) 0.025)
+         t (if (:t params) (str "c(" (str/join "," (:t params)) ")") "0.5")
+         param (or (:param params) "c(0.3, 0.5)")
+         r-code (str "library(gsDesign)\n"
+                     "x <- sfPoints(alpha=" alpha
+                     ", t=" t
+                     ", param=" param ")\n"
+                     "list(spend=x$spend, name=x$name)")]
+     (js/console.log "Executing sfPoints spending function calculation in WebR")
      (webr/eval-r-code! r-code on-done on-error))))
