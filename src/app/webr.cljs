@@ -84,7 +84,7 @@
 (defn eval-r-code!
   "Evaluates arbitrary R code as a string within the WebR context using execR.
    Simplifies execution by converting the R object directly into a JavaScript
-   object without requiring a manual shelter and purge cycle.
+   object using Promise chaining (then/catch), completely avoiding core.async.
    
    Args:
    - code: String containing the R code to execute.
@@ -96,18 +96,23 @@
    (assert (string? code) "R code to execute must be a string")
    (assert (fn? on-done) "on-done callback must be a function")
    (assert (fn? on-error) "on-error callback must be a function")
-   (a/go
-     (if-let [webr @webr-instance]
-       (try
-         (let [js-val (<p! (.execR (.-objs webr) code))
-               clj-val (try
-                         (js->clj js-val :keywordize-keys true)
-                         (catch :default _ js-val))]
-           (on-done [] clj-val))
-         (catch :default e
-           (js/console.error "R execution failed via execR:" e)
-           (on-error e)))
-       (on-error (js/Error. "WebR instance not initialized. Call init-webr! first."))))))
+   (if-let [webr @webr-instance]
+     (try
+       (let [promise (.execR (.-objs webr) code)]
+         (-> promise
+             (.then (fn [js-val]
+                      (try
+                        (let [clj-val (js->clj js-val :keywordize-keys true)]
+                          (on-done [] clj-val))
+                        (catch :default e
+                          (on-done [] js-val)))))
+             (.catch (fn [err]
+                       (js/console.error "Promise execution failed in execR:" err)
+                       (on-error err)))))
+       (catch :default e
+         (js/console.error "Synchronous failure calling execR:" e)
+         (on-error e)))
+     (on-error (js/Error. "WebR instance not initialized. Call init-webr! first.")))))
 
 (defn run-example-r-code!
   "Demonstrates how to initialize WebR and execute arbitrary R code,
@@ -177,9 +182,9 @@
        :error error})))
 
 (rf/reg-sub
-  :webr-evaluation
-  (fn [db _]
-    (get-webr-evaluation db)))
+ :webr-evaluation
+ (fn [db _]
+   (get-webr-evaluation db)))
 
 (comment
 
