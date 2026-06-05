@@ -1,5 +1,14 @@
 (ns app.webr.macros
-  (:require [cljs.pprint :refer [cl-format]]))
+  (:require [cljs.pprint :refer [cl-format]]
+            [clojure.string :as str]))
+
+(defn clean-doc-string
+  "Removes everything from a string after the first occurrence of
+   \\nDocumentation (including \\nDocumentation itself)."
+  [s]
+  (if-let [idx (str/index-of s "\nDocumentation")]
+    (subs s 0 idx)
+    s))
 
 (defmacro def-r-wrapper
   "Generates a standardized, 30+ line ClojureScript wrapper function
@@ -9,15 +18,10 @@
    performs parameter validation, constructs the R script via string formatting
    using cljs.pprint/cl-format, and executes it asynchronously."
   [cljs-name r-name params-spec r-template]
-  (let [docstring (str "Executes R function " r-name " in WebR runtime.\n\n"
-                       "Allows ClojureScript callers to execute R's group sequential methods.\n\n"
-                       "Args:\n"
-                       "  - params: Map containing function arguments\n"
-                       "  - on-done: Success callback fn [output-lines result]\n"
-                       "  - on-error: Error callback fn [error]")
-        param-keys (vec (map (fn [p] (keyword (clojure.string/replace (name (first p)) #"\." "-"))) params-spec))
+  (let [docstring (clean-doc-string r-name)
+        param-keys (vec (map (fn [p] (keyword (str/replace (name (first p)) #"\." "-"))) params-spec))
         bindings (map (fn [[p-sym default]]
-                        (let [cljs-key (keyword (clojure.string/replace (name p-sym) #"\." "-"))]
+                        (let [cljs-key (keyword (str/replace (name p-sym) #"\." "-"))]
                           `[~p-sym (or (get ~'params ~cljs-key) ~default)]))
                       params-spec)
         let-bindings (apply concat bindings)]
