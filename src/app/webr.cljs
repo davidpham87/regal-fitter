@@ -32,6 +32,16 @@
                            (assoc-in [:webr :error] error-msg))]
      {:app-state updated-state})))
 
+(defn on-done [output-lines result-val]
+  (rf/dispatch [:set-webr-status :done])
+  (rf/dispatch [:store-webr-results
+                {:output output-lines
+                 :result result-val}]))
+
+(defn on-error [error]
+  (rf/dispatch [:set-webr-status :error])
+  (rf/dispatch [:store-webr-error (str error)]))
+
 (defn init-webr!
   "Initializes the WebR WASM runtime instance.
    Loads the runtime using PostMessage channel type and points to the R-wasm CDN.
@@ -82,16 +92,7 @@
 
    Automatically captures stdout/stderr messages and converts the final returned
    RObject back into a standard ClojureScript data structure."
-  ([code] (eval-r-code!
-           code
-           (fn [output-lines result-val]
-             (rf/dispatch [:set-webr-status :done])
-             (rf/dispatch [:store-webr-results
-                           {:output output-lines
-                            :result result-val}]))
-           (fn [error]
-             (rf/dispatch [:set-webr-status :error])
-             (rf/dispatch [:store-webr-error (str error)]))))
+  ([code] (eval-r-code! code on-done on-error))
   ([code on-done on-error]
    (assert (string? code) "R code to execute must be a string")
    (assert (fn? on-done) "on-done callback must be a function")
@@ -169,6 +170,43 @@
      (fn [init-error]
        (rf/dispatch [:set-webr-status :error])
        (rf/dispatch [:store-webr-error (str "Init failed: " init-error)])))))
+
+(defn get-webr-evaluation
+  "Retrieves the WebR evaluation state from the application database.
+   Provides fallback maps for status, output, result, and error keys to
+   guarantee that callers never receive nil references.
+   
+   Args:
+   - db: The app-db map from re-frame.
+   
+   Returns:
+   - Map: {:status keyword, :output vector, :result any, :error string}"
+  [db]
+  (assert (or (nil? db) (map? db)) "db must be a map or nil")
+  (let [webr-data (:webr db)
+        status (or (:status webr-data) :idle)
+        output (or (:output webr-data) [])
+        result (:result webr-data)
+        error (:error webr-data)]
+    (js/console.log "Retrieving WebR evaluation state. Status:" status)
+    (when (not-empty error)
+      (js/console.warn "WebR evaluation has an active error state:" error))
+    (when (and (= status :done) (nil? result))
+      (js/console.warn "WebR evaluation state is done but result is nil"))
+    (js/console.log "Evaluation retrieval complete. Output line count:" (count output))
+    (if (and (nil? webr-data) (not (nil? db)))
+      (do
+        (js/console.warn "No :webr key found in app-db. Initializing default state.")
+        {:status :idle :output [] :result nil :error nil})
+      {:status status
+       :output output
+       :result result
+       :error error})))
+
+(rf/reg-sub
+  :webr-evaluation
+  (fn [db _]
+    (get-webr-evaluation db)))
 
 (comment
 
