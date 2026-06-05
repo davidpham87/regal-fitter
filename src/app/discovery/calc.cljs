@@ -1,4 +1,4 @@
-(ns app.discovery-calc
+(ns app.discovery.calc
   (:require [app.regal-fit.survival :as survival]
             [app.regal-fit.enrollment :as enrollment]
             [app.discovery.gps :as gps]

@@ -7,7 +7,7 @@
             [reitit.frontend.easy :as rfe]
             [cljs.math :as math]
             [clojure.string :as cstr]
-            [app.discovery-calc :as dc]
+            [app.discovery.calc :as dc]
             [app.discovery.ui :as dui]
             [app.discovery.hazard :as dhz]
             [app.discovery.playground :as play]))
