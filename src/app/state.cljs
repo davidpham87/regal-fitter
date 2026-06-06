@@ -293,10 +293,16 @@
                      params (js/URLSearchParams. (or (aget parts 1) ""))
                      _ (.set params "state" b64)
                      new-hash (str path "?" (.toString params))
-                     url (js/URL. js/window.location.href)]
+                     url (js/URL. js/window.location.href)
+                     search-params (js/URLSearchParams. (.-search url))
+                     keys-to-del (js/Array.from (.keys search-params))]
+                 (doseq [k keys-to-del]
+                   (when (not= k "location")
+                     (.delete search-params k)))
                  (set! (.-hash url) new-hash)
-                 (set! (.-search url) "")
-                 (.replaceState js/window.history nil "" (.toString url)))))))
+                 (set! (.-search url) (.toString search-params))
+                 (.replaceState js/window.history nil ""
+                                (.toString url)))))))
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v)
