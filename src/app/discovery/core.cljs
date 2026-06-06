@@ -277,11 +277,24 @@
       (calc 1 2 "IA-UPD")
       (calc 2 3 "UPD-PR3")))))
 
+(defonce active-metric (r/atom :rate))
+
+(defn- merge-hazard-and-medians
+  [rates medians]
+  (let [medians-by-key (into {} (map (fn [m]
+                                       [[(:interval m) (:group m)] m])
+                                     medians))]
+    (mapv (fn [r]
+            (let [key [(:interval r) (:group r)]
+                  m (get medians-by-key key)]
+              (assoc r :median (:median m))))
+          rates)))
+
 ;; ---------------------------------------------------------------------------
 ;; Chart grids
 ;; ---------------------------------------------------------------------------
 
-(defn- chart-grid [curve-data h1-hazard-rates sim-result title]
+(defn- chart-grid [curve-data h1-hazard-rates active-metric sim-result title]
   [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
    [:div.bg-white.p-3.rounded-xl.shadow-sm.border
     [:h4.text-xs.font-bold.text-gray-700.mb-2
@@ -302,30 +315,48 @@
      (str title ": Estimated Hazard Ratios")]
     [vega/discovery-hr-chart (:hr curve-data)]]
    [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Annualized Hazard Rates"
-          (when sim-result " (sim)"))]
-    [vega/discovery-hazard-rates-chart h1-hazard-rates]]])
+    [:div.flex.justify-between.items-center.mb-2
+     [:h4.text-xs.font-bold.text-gray-700
+      (str title ": " (if (= @active-metric :rate)
+                        "Annualized Hazard Rates"
+                        "Median Overall Survival")
+           (when sim-result " (sim)"))]
+     [:div.flex.gap-1.bg-gray-100.p-0.5.rounded-md.text-xxs
+      [:button.px-2.py-0.5.rounded.font-bold
+       {:type "button"
+        :class (if (= @active-metric :rate)
+                 "bg-white text-gray-800 shadow-sm"
+                 "text-gray-500 hover:text-gray-800")
+        :on-click #(reset! active-metric :rate)}
+       "Hazard Rate"]
+      [:button.px-2.py-0.5.rounded.font-bold
+       {:type "button"
+        :class (if (= @active-metric :median)
+                 "bg-white text-gray-800 shadow-sm"
+                 "text-gray-500 hover:text-gray-800")
+        :on-click #(reset! active-metric :median)}
+       "Median OS"]]]
+    [vega/discovery-hazard-rates-chart h1-hazard-rates @active-metric]]])
 
 ;; ---------------------------------------------------------------------------
 ;; H1 / H0 sections
 ;; ---------------------------------------------------------------------------
 
-(defn- h1-section [stats curve-data h1-hazard-rates sim-result]
+(defn- h1-section [stats curve-data h1-hazard-rates active-metric sim-result]
   [:div.bg-gray-50.p-4.rounded-xl.border
    [:div.flex.justify-between.items-center.mb-4
     [:h3.font-extrabold.text-gray-800
      "Alternate Hypothesis (H1): GPS is effective"]]
    [dui/stats-row "Milestone Stats (H1)" stats]
-   [chart-grid curve-data h1-hazard-rates sim-result "Alternate"]])
+   [chart-grid curve-data h1-hazard-rates active-metric sim-result "Alternate"]])
 
-(defn- h0-section [stats-h0 curve-data-h0 h0-hazard-rates avg-med]
+(defn- h0-section [stats-h0 curve-data-h0 h0-hazard-rates active-metric avg-med]
   [:div.bg-gray-50.p-4.rounded-xl.border
    [:h3.font-extrabold.text-gray-800.mb-4
     (str "Null Hypothesis (H0): GPS is placebo ("
          avg-med " mOS)")]
    [dui/stats-row "Milestone Stats (H0)" stats-h0]
-   [chart-grid curve-data-h0 h0-hazard-rates nil "H0"]])
+   [chart-grid curve-data-h0 h0-hazard-rates active-metric nil "H0"]])
 
 ;; ---------------------------------------------------------------------------
 ;; discovery-view-content
@@ -346,13 +377,20 @@
 
         sim-result (when (= (:sim-status state) :done)
                      (:sim-result state))
-        h1-hazard-rates
+        h1-rates-raw
         (or (dhz/sim->hazard-rates
              sim-result config
              (:alive-bat-ms curve-data)
              (:alive-gps-ms curve-data)
              (:t-ms-arr curve-data))
             (analytical-hazard-rates curve-data config))
+
+        h1-medians-raw
+        (or (dc/sim->interval-medians sim-result)
+            (:hazard-rates curve-data))
+
+        h1-hazard-rates
+        (merge-hazard-and-medians h1-rates-raw h1-medians-raw)
 
         avg-med  (/ (+ (:gps-med calc-params)
                        (:bat-med calc-params))
@@ -366,8 +404,11 @@
         curve-data-h0 (assoc (dc/calculate-curves
                               active-family h0-params config)
                              :stats stats-h0)
-        h0-hazard-rates
+        h0-rates-raw
         (analytical-hazard-rates curve-data-h0 config)
+
+        h0-hazard-rates
+        (merge-hazard-and-medians h0-rates-raw (:hazard-rates curve-data-h0))
 
         bat-lambda (population-cr2-lambda
                     (:bat-med calc-params)
@@ -391,8 +432,9 @@
          state config bat-true-mos]
         ^{:key (str params)}
         [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
-         [h1-section stats curve-data h1-hazard-rates sim-result]
-         [h0-section stats-h0 curve-data-h0 h0-hazard-rates avg-med]]])]))
+         [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
+         [h0-section stats-h0 curve-data-h0 h0-hazard-rates
+                     active-metric avg-med]]])]))
 
 ;; ---------------------------------------------------------------------------
 ;; Public entry point

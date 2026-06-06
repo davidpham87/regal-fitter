@@ -378,25 +378,31 @@
              :encoding {:y {:field "y" :type "quantitative"}}}]
     :config {:view {:stroke "transparent"}}}])
 
-(defn discovery-hazard-rates-chart [rates-data]
+(defn discovery-hazard-rates-chart [rates-data metric]
   (let [color-scale {:domain ["Pooled" "GPS" "BAT"]
                      :range  ["#4488cc" "#55bb88" "#ee6677"]}
         x-enc {:field "interval" :type "nominal"
                :title "Milestone Interval"
                :sort  ["0-IA" "IA-UPD" "UPD-PR3"]}
-        grp-enc {:field "group" :type "nominal"}]
+        grp-enc {:field "group" :type "nominal"}
+        metric-name (name metric)
+        title-str (if (= metric :rate)
+                    "Annualized Hazard Rate"
+                    "Median Survival Time (months)")
+        fmt-str (if (= metric :rate) ".4f" ".2f")]
     [vega-lite
      {:width 300 :height 300
-      :title "Annualized Hazard Rates & Event Counts by Period"
+      :title (str (if (= metric :rate) "Annualized Hazard Rates"
+                      "Median Survival Time")
+                  " by Period")
       :data {:values rates-data}
-      :resolve {:scale {:y "independent"}}
       :layer
       [{:mark {:type "bar" :opacity 0.8}
         :encoding
         {:x x-enc
          :xOffset grp-enc
-         :y {:field "rate" :type "quantitative"
-             :title "Annualized Hazard Rate (per year)"
+         :y {:field metric-name :type "quantitative"
+             :title title-str
              :axis {:titleColor "#555"}}
          :color {:field "group" :type "nominal"
                  :scale color-scale
@@ -405,44 +411,15 @@
                     :title "Interval"}
                    {:field "group" :type "nominal"
                     :title "Group"}
-                   {:field "rate" :type "quantitative"
-                    :format ".4f"
-                    :title "Hazard Rate (yearly)"}
-                   {:field "events" :type "quantitative"
-                    :format ".1f" :title "Mean Events"}]}}
+                   {:field metric-name :type "quantitative"
+                    :format fmt-str
+                    :title title-str}]}}
        {:mark {:type "text" :align "center" :baseline "bottom" :dy -4}
         :encoding
         {:x x-enc
          :xOffset grp-enc
-         :y {:field "rate" :type "quantitative"}
-         :text {:field "rate" :type "quantitative" :format ".4f"}
-         :color {:field "group" :type "nominal" :scale color-scale}}}
-       {:mark {:type "point" :size 90 :opacity 1.0
-               :filled true :stroke "white" :strokeWidth 1}
-        :encoding
-        {:x x-enc
-         :xOffset grp-enc
-         :y {:field "events" :type "quantitative"
-             :title "Mean Events in Period"
-             :axis {:titleColor "#888" :orient "right"}}
-         :color {:field "group" :type "nominal"
-                 :scale color-scale
-                 :legend nil}
-         :tooltip [{:field "interval" :type "nominal"
-                    :title "Interval"}
-                   {:field "group" :type "nominal"
-                    :title "Group"}
-                   {:field "events" :type "quantitative"
-                    :format ".1f" :title "Mean Events"}
-                   {:field "rate" :type "quantitative"
-                    :format ".4f"
-                    :title "Hazard Rate (yearly)"}]}}
-       {:mark {:type "text" :align "left" :baseline "middle" :dx 6}
-        :encoding
-        {:x x-enc
-         :xOffset grp-enc
-         :y {:field "events" :type "quantitative"}
-         :text {:field "events" :type "quantitative" :format ".1f"}
+         :y {:field metric-name :type "quantitative"}
+         :text {:field metric-name :type "quantitative" :format fmt-str}
          :color {:field "group" :type "nominal" :scale color-scale}}}]
       :config {:view {:stroke "transparent"}}}]))
 
