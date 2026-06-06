@@ -3,4 +3,5 @@
    Requires and re-exports all wrapped R base distribution functions."
   (:require [webr.r-base.unif]
             [webr.r-base.discrete]
-            [webr.r-base.continuous]))
+            [webr.r-base.continuous]
+            [webr.r-base.tests]))
