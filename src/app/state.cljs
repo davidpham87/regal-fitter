@@ -282,27 +282,14 @@
 
                       :else
                       (assoc app-state :active-page page))
+          new-state (assoc new-state :current-route
+                           {:page page
+                            :path-params path-params
+                            :query-params query-params})
           effects {:app-state new-state}]
-
       (if-let [state-str (or (:state path-params) (:state query-params))]
         (assoc effects :decode-url-state {:page page :state-str state-str})
         effects))))
-
-(defn- update-path-with-state [path-parts b64]
-  (let [base (aget path-parts 1)]
-    (cond
-      (or (= base "fitter") (= base "discovery"))
-      (let [sub (or (aget path-parts 2)
-                    (if (= base "fitter") "config-form" "weibull"))]
-        (if (= sub "enrollment")
-          (array (aget path-parts 0) base sub)
-          (array (aget path-parts 0) base sub b64)))
-
-      (= base "placebo-stress")
-      (array (aget path-parts 0) base b64)
-
-      :else
-      (array (aget path-parts 0) base b64))))
 
 (defn- sync-to-url! [data]
   (let [clean (if (map? data)
@@ -310,32 +297,37 @@
                 data)]
     (-> (state-url/encode-state clean)
         (.then (fn [b64]
-                 (let [hash js/window.location.hash
-                       parts (.split hash "?")
-                       path-with-hash (aget parts 0)
-                       hash-search (or (aget parts 1) "")
-                       hash-search-params (js/URLSearchParams. hash-search)
-                       _ (let [keys (js/Array.from (.keys hash-search-params))]
-                           (doseq [k keys]
-                             (when (not= k "location")
-                               (.delete hash-search-params k))))
-                       hash-search-str (.toString hash-search-params)
-                       path-parts (.split path-with-hash "/")
-                       new-path-parts (update-path-with-state path-parts b64)
-                       new-path (.join new-path-parts "/")
-                       new-hash (if (seq hash-search-str)
-                                  (str new-path "?" hash-search-str)
-                                  new-path)
-                       url (js/URL. js/window.location.href)
-                       search-params (js/URLSearchParams. (.-search url))
-                       keys-to-del (js/Array.from (.keys search-params))]
-                   (doseq [k keys-to-del]
-                     (when (not= k "location")
-                       (.delete search-params k)))
-                   (set! (.-hash url) new-hash)
-                   (set! (.-search url) (.toString search-params))
-                   (.replaceState js/window.history nil ""
-                                  (.toString url))))))))
+                 (let [curr-route (:current-route @app-state)
+                       page (:page curr-route)
+                       path-params (:path-params curr-route)
+                       query-params (:query-params curr-route)
+                       loc (:location query-params)
+                       q-params (if loc {:location loc} {})
+                       subtab (:subtab path-params)
+                       [dest-route dest-path-params]
+                       (cond
+                         (= subtab "enrollment")
+                         [(cond
+                            (#{:fitter-sub :fitter-sub-state} page) :fitter-sub
+                            :else page)
+                          path-params]
+
+                         (#{:fitter :fitter-sub :fitter-sub-state} page)
+                         [:fitter-sub-state
+                          {:subtab (or subtab "config-form") :state b64}]
+
+                         (#{:placebo-stress :placebo-stress-state} page)
+                         [:placebo-stress-state {:state b64}]
+
+                         (#{:discovery :discovery-sub :discovery-sub-state} page)
+                         [:discovery-sub-state
+                          {:subtab (or subtab "weibull") :state b64}]
+
+                         :else
+                         [page path-params])]
+                   (when dest-route
+                     (rfe/replace-state dest-route dest-path-params
+                                        q-params))))))))
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v)
