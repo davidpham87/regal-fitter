@@ -1,7 +1,7 @@
 (ns app.ui.form-test
   (:require [cljs.test :refer-macros [deftest is testing]]
-            [app.discovery :as discovery]
-            [app.views :as views]
+            [app.discovery.core :as discovery]
+            [app.views.core :as views]
             [reagent.core :as r]
             [fork.reagent :as fork]))
 

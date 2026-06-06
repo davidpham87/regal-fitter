@@ -294,7 +294,9 @@
       (or (= base "fitter") (= base "discovery"))
       (let [sub (or (aget path-parts 2)
                     (if (= base "fitter") "config-form" "weibull"))]
-        (array (aget path-parts 0) base sub b64))
+        (if (= sub "enrollment")
+          (array (aget path-parts 0) base sub)
+          (array (aget path-parts 0) base sub b64)))
 
       (= base "placebo-stress")
       (array (aget path-parts 0) base b64)
