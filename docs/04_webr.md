@@ -248,20 +248,11 @@ rather than the previous pipeline step:
 
 ```clojure
 ;; Assume "design" was computed earlier in a separate run!
-(pipe/promise-pipe!
-  [(pipe/from-result "design"
-                     (fn [r]
-                       (str "gsBoundSummary(gsDesign(k="
-                            (-> r :k) "))")))
-   {:id "summary-formatted" :code "capture.output(print(last_result))"}])
-```
-
----
-
 ## 6. Wrapping R functions — `def-r-wrapper`
 
 The `def-r-wrapper` macro generates **three** ClojureScript definitions
-for every R function it wraps.
+for every R function it wraps, following the Clojure `!` convention:
+plain name = pure/data, bang = side effects.
 
 ```clojure
 (ns my-ns
@@ -280,40 +271,45 @@ for every R function it wraps.
 
 ### What gets generated
 
+| Name | Pure? | Returns |
+|---|---|---|
+| `my-gs-design-code` | ✅ | R code string |
+| `my-gs-design` | ✅ | Pipe step map `{:code …}` |
+| `my-gs-design!` | ❌ | Node id (fires WebR async) |
+
 #### `my-gs-design-code` — pure R code builder
 
-No side effects.  Takes params, returns the R code string with defaults
-applied.  Safe to call anywhere, including inside `:code-fn` steps.
+Takes params, returns the R code string with defaults applied.
+No side effects — safe inside `:code-fn` steps or at render time.
 
 ```clojure
 (my-gs-design-code {:k 3 :alpha 0.025})
 ;;=> "library(gsDesign)\ngsDesign(k=3, test.type=4, alpha=0.025, beta=0.1)"
 ```
 
-#### `my-gs-design->step` — pipe step builder
+#### `my-gs-design` — pure step builder *(default interaction point)*
 
-Returns a ready-made step map for use in `concat-pipe!` or
-`promise-pipe!`.  Accepts an optional opts map that is merged in
-(`:id`, `:deps`, `:code-fn` all supported).
+Returns a step map ready for `concat-pipe!` / `promise-pipe!`.
+Accepts an optional opts map merged into the step (`:id`, `:deps` …).
 
 ```clojure
-(my-gs-design->step {:k 3})
+(my-gs-design {:k 3})
 ;;=> {:code "library(gsDesign)\ngsDesign(k=3, ...)"}
 
-(my-gs-design->step {:k 3} {:id "design" :deps []})
+(my-gs-design {:k 3} {:id "design" :deps []})
 ;;=> {:code "..." :id "design" :deps []}
 ```
 
-#### `my-gs-design` — async executor (unchanged)
+#### `my-gs-design!` — async executor *(bang = side effects)*
 
-Fires immediately.  Two arities:
+Fires WebR immediately.  Two arities:
 
 ```clojure
 ;; Single-arity: auto-id, auto-init, default re-frame callbacks
-(my-gs-design {:k 3 :test-type 4 :alpha 0.025 :beta 0.1})
+(my-gs-design! {:k 3 :test-type 4 :alpha 0.025 :beta 0.1})
 
-;; Three-arity: explicit callbacks (fn [id output result] ...)
-(my-gs-design
+;; Three-arity: explicit callbacks
+(my-gs-design!
   {:k 3 :test-type 4}
   (fn [id _output result] (println "Done:" id result))
   (fn [id err]            (println "Error at" id err)))
@@ -326,15 +322,15 @@ Fires immediately.  Two arities:
 
 ;; --- concat-pipe!: all steps in one R session call ---
 (pipe/concat-pipe!
-  [(my-gs-design->step {:k 3 :alpha 0.025} {:id "design"})
-   (my-gs-probability->step {:theta 0.3}   {:id "power"})]
+  [(my-gs-design     {:k 3 :alpha 0.025} {:id "design"})
+   (my-gs-probability {:theta 0.3}        {:id "power"})]
   {:id "full-pipeline"})
 
 ;; --- promise-pipe!: sequential, each step sees prior result ---
 (pipe/promise-pipe!
-  [(my-gs-design->step {:k 3} {:id "design"})
+  [(my-gs-design {:k 3} {:id "design"})
 
-   ;; Use -code-fn to build R code from the prior result
+   ;; Dynamic step: R code built from prior result
    {:id      "power"
     :deps    ["design"]
     :code-fn (fn [prev-result]
@@ -342,9 +338,9 @@ Fires immediately.  Two arities:
                  {:theta 0.35
                   :n-i   (-> prev-result :n-i first)}))}])
 
-;; --- Mixed: static step + dynamic step ---
+;; --- Reference an already-completed graph node ---
 (pipe/promise-pipe!
-  [(my-gs-design->step {:k 3} {:id "d"})
+  [(my-gs-design {:k 3} {:id "d"})
    (pipe/from-result "d"
                      (fn [r]
                        (my-gs-bound-summary-code {:k (:k r)})))])
@@ -354,7 +350,6 @@ Note: `test.type` in R becomes `:test-type` in ClojureScript params
 (dots replaced by dashes automatically by the macro).
 
 ---
-
 
 ## 7. Viewing the graph in the REPL
 

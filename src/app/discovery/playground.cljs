@@ -7,7 +7,7 @@
 (def functions-meta
   [{:id :gs-design
     :label "gsDesign"
-    :fn gsd/gs-design
+    :fn gsd/gs-design!
     :desc "Derives Group Sequential Clinical Trial Designs and Boundaries."
     :params [{:name "k" :key :k :type :num :default 3}
              {:name "test.type" :key :test-type :type :num :default 4}
@@ -18,7 +18,7 @@
 
    {:id :gs-probability
     :label "gsProbability"
-    :fn gsd/gs-probability
+    :fn gsd/gs-probability!
     :desc "Boundary Crossing Probabilities. Computes probabilities and power."
     :params [{:name "theta" :key :theta :type :num :default 0}
              {:name "n.I" :key :n-i :type :str :default "1:3"}
@@ -27,7 +27,7 @@
 
    {:id :gs-bound-summary
     :label "gsBoundSummary"
-    :fn gsd/gs-bound-summary
+    :fn gsd/gs-bound-summary!
     :desc "Provides tabular summary of a group sequential design."
     :params [{:name "k" :key :k :type :num :default 3}
              {:name "alpha" :key :alpha :type :num :default 0.025}
@@ -35,7 +35,7 @@
 
    {:id :n-normal
     :label "nNormal"
-    :fn gsd/n-normal
+    :fn gsd/n-normal!
     :desc "Computes sample size or power for a trial with normal endpoints."
     :params [{:name "delta1" :key :delta1 :type :num :default 1.0}
              {:name "sd" :key :sd :type :num :default 1.0}
@@ -45,7 +45,7 @@
 
    {:id :n-binomial
     :label "nBinomial"
-    :fn gsd/n-binomial
+    :fn gsd/n-binomial!
     :desc "Computes sample size or power for a two-arm binomial trial."
     :params [{:name "p1" :key :p1 :type :num :default 0.2}
              {:name "p2" :key :p2 :type :num :default 0.1}
@@ -55,7 +55,7 @@
 
    {:id :n-survival
     :label "nSurvival"
-    :fn gsd/n-survival
+    :fn gsd/n-survival!
     :desc "Computes sample size/events under proportional hazards."
     :params [{:name "lambda1" :key :lambda1 :type :num :default 0.1}
              {:name "lambda2" :key :lambda2 :type :num :default 0.07}
