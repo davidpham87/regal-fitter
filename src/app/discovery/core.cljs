@@ -321,7 +321,9 @@
         params        (merge default-params values)
 
         stats      (dc/calculate-stats active-family calc-params config)
-        curve-data (dc/calculate-curves active-family calc-params config)
+        curve-data (assoc (dc/calculate-curves
+                           active-family calc-params config)
+                          :stats stats)
 
         sim-result (when (= (:sim-status state) :done)
                      (:sim-result state))
@@ -342,8 +344,9 @@
                          :cure-frac 0.0)
         stats-h0      (dc/calculate-stats
                        active-family h0-params config)
-        curve-data-h0 (dc/calculate-curves
-                       active-family h0-params config)
+        curve-data-h0 (assoc (dc/calculate-curves
+                              active-family h0-params config)
+                             :stats stats-h0)
 
         bat-lambda (population-cr2-lambda
                     (:bat-med calc-params)

@@ -52,27 +52,34 @@
                  family params enroll-pts enroll-weights
                  target-times n-per-arm n-total bat-res)
 
-        exp-bat (np/nd-to-array (:events bat-res))
-        var-bat (np/nd-to-array (:variance bat-res))
-        exp-gps (np/nd-to-array (:events gps-res))
-        var-gps (np/nd-to-array (:variance gps-res))
-
         targets [(:n-ev-ia config)
                  (:n-ev-upd config)
                  (:n-ev-pr3 config)]
-        labels  ["IA (46.0m)" "UPD (58.0m)" "PR3 (62.97m)"]]
+        times   [(:t-ia config)
+                 (:t-upd config)
+                 (:t-pr3 config)]
+        names   ["IA" "UPD" "PR3"]
+        labels  [(str "IA (" (:t-ia config) "m)")
+                 (str "UPD (" (:t-upd config) "m)")
+                 (str "PR3 (" (:t-pr3 config) "m)")]
+        exp-bat (np/nd-to-array (:events bat-res))
+        var-bat (np/nd-to-array (:variance bat-res))
+        exp-gps (np/nd-to-array (:events gps-res))
+        var-gps (np/nd-to-array (:variance gps-res))]
 
-    (mapv (fn [label target e-bat v-bat e-gps v-gps]
+    (mapv (fn [name label time target e-bat v-bat e-gps v-gps]
             (let [expected (+ e-bat e-gps)
                   variance (+ v-bat v-gps)
                   sd       (js/Math.sqrt variance)
                   std-dev  (/ (- expected target) sd)]
-              {:label   label
-               :target  target
+              {:name     name
+               :label    label
+               :time     time
+               :target   target
                :expected expected
                :sd       sd
                :std-dev  std-dev}))
-          labels targets
+          names labels times targets
           (first exp-bat) (first var-bat)
           (first exp-gps) (first var-gps))))
 

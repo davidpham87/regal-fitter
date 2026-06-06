@@ -214,14 +214,10 @@
              :legend {:orient "bottom"}}}])
 
 (defn discovery-accrual-chart [curve-data event-stats]
-  (let [markers (mapv (fn [s] {:time (case (:label s)
-                                      "IA (46.0m)" 46.0
-                                      "UPD (58.0m)" 58.0
-                                      "PR3 (62.97m)" 62.97
-                                      0.0)
-                              :expected (:expected s)
-                              :target (:target s)
-                              :label (:label s)})
+  (let [markers (mapv (fn [s] {:time (:time s 0.0)
+                               :expected (:expected s)
+                               :target (:target s)
+                               :label (:label s)})
                       event-stats)]
     [vega-lite
      {:width 300 :height 300
@@ -274,10 +270,8 @@
 
 (defn discovery-alive-chart [curve-data event-stats]
   (let [milestones (keep (fn [s]
-                           (case (:label s)
-                             "IA (46.0m)" {:time 46.0 :label "IA"}
-                             "UPD (58.0m)" {:time 58.0 :label "UPD"}
-                             nil))
+                           (when (#{"IA" "UPD"} (:name s))
+                             {:time (:time s) :label (:name s)}))
                          event-stats)]
     [vega-lite
      {:width 300 :height 300
