@@ -3,6 +3,7 @@
    [cljs.core.async :as a :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [re-frame.core :as rf]
+   [re-frame.db :as db]
    [webr.graph :as graph]))
 
 ;; ---------------------------------------------------------------------------
@@ -178,3 +179,8 @@
           (rf/dispatch [::set-status :error])
           (rf/dispatch [::set-error (str "Init failed: " e)]))))
      nid)))
+
+
+(comment
+  @db/app-db
+  )

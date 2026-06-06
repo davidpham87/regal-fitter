@@ -79,7 +79,7 @@
 
 (defn- family-tabs [active-family]
   [:div.flex.gap-2.mb-6.border-b
-   (for [fam ["weibull" "cure" "leaky" "gs-design"]]
+   (for [fam ["weibull" "cure" "leaky" "r-repl"]]
      ^{:key fam}
      [:a
       {:class (str "px-4 py-2 text-sm font-medium transition-colors "
@@ -88,8 +88,8 @@
                      "border-b-2 border-blue-600 text-blue-600"
                      "text-gray-500 hover:text-gray-700"))
        :href (rfe/href :discovery-sub {:subtab fam})}
-      (if (= fam "gs-design")
-        "gsDesign"
+      (if (= fam "r-repl")
+        "R REPL (Portal)"
         (cstr/capitalize fam))])])
 
 ;; ---------------------------------------------------------------------------
@@ -360,7 +360,7 @@
 
      [family-tabs active-family]
 
-     (if (= active-family "gs-design")
+     (if (= active-family "r-repl")
        [play/gs-design-playground]
        [:<>
         [controls-panel props active-family calc-params
