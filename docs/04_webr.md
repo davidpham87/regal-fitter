@@ -260,9 +260,8 @@ rather than the previous pipeline step:
 
 ## 6. Wrapping R functions — `def-r-wrapper`
 
-The `def-r-wrapper` macro generates a typed ClojureScript wrapper
-for any R function.  It handles parameter defaults, R code templating,
-and WebR dispatch automatically.
+The `def-r-wrapper` macro generates **three** ClojureScript definitions
+for every R function it wraps.
 
 ```clojure
 (ns my-ns
@@ -270,17 +269,44 @@ and WebR dispatch automatically.
   (:require-macros [webr.macros :refer [def-r-wrapper]]))
 
 (def-r-wrapper
-  my-gs-design          ;; ClojureScript fn name
+  my-gs-design          ;; base name
   "gsDesign"            ;; R function name (used as docstring base)
   [[k        3]         ;; [param-name default-value]
-   [test.type 4]        ;; dots in param names are sanitised to dashes
+   [test.type 4]        ;; dots sanitised to dashes  (:test-type)
    [alpha     0.025]
    [beta      0.1]]
   "gsDesign(k=~a, test.type=~a, alpha=~a, beta=~a)")
-                        ;; cl-format template; ~a positions match param order
 ```
 
-The generated function has two arities:
+### What gets generated
+
+#### `my-gs-design-code` — pure R code builder
+
+No side effects.  Takes params, returns the R code string with defaults
+applied.  Safe to call anywhere, including inside `:code-fn` steps.
+
+```clojure
+(my-gs-design-code {:k 3 :alpha 0.025})
+;;=> "library(gsDesign)\ngsDesign(k=3, test.type=4, alpha=0.025, beta=0.1)"
+```
+
+#### `my-gs-design->step` — pipe step builder
+
+Returns a ready-made step map for use in `concat-pipe!` or
+`promise-pipe!`.  Accepts an optional opts map that is merged in
+(`:id`, `:deps`, `:code-fn` all supported).
+
+```clojure
+(my-gs-design->step {:k 3})
+;;=> {:code "library(gsDesign)\ngsDesign(k=3, ...)"}
+
+(my-gs-design->step {:k 3} {:id "design" :deps []})
+;;=> {:code "..." :id "design" :deps []}
+```
+
+#### `my-gs-design` — async executor (unchanged)
+
+Fires immediately.  Two arities:
 
 ```clojure
 ;; Single-arity: auto-id, auto-init, default re-frame callbacks
@@ -293,10 +319,42 @@ The generated function has two arities:
   (fn [id err]            (println "Error at" id err)))
 ```
 
+### Using wrappers in a pipe
+
+```clojure
+(require '[webr.pipe :as pipe])
+
+;; --- concat-pipe!: all steps in one R session call ---
+(pipe/concat-pipe!
+  [(my-gs-design->step {:k 3 :alpha 0.025} {:id "design"})
+   (my-gs-probability->step {:theta 0.3}   {:id "power"})]
+  {:id "full-pipeline"})
+
+;; --- promise-pipe!: sequential, each step sees prior result ---
+(pipe/promise-pipe!
+  [(my-gs-design->step {:k 3} {:id "design"})
+
+   ;; Use -code-fn to build R code from the prior result
+   {:id      "power"
+    :deps    ["design"]
+    :code-fn (fn [prev-result]
+               (my-gs-probability-code
+                 {:theta 0.35
+                  :n-i   (-> prev-result :n-i first)}))}])
+
+;; --- Mixed: static step + dynamic step ---
+(pipe/promise-pipe!
+  [(my-gs-design->step {:k 3} {:id "d"})
+   (pipe/from-result "d"
+                     (fn [r]
+                       (my-gs-bound-summary-code {:k (:k r)})))])
+```
+
 Note: `test.type` in R becomes `:test-type` in ClojureScript params
 (dots replaced by dashes automatically by the macro).
 
 ---
+
 
 ## 7. Viewing the graph in the REPL
 
