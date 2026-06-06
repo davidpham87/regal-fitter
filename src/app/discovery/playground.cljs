@@ -41,11 +41,54 @@
          "# Compute boundary summaries\n"
          "gsBoundSummary(design)")))
 
+(defn make-regal-fit-sim-script []
+  (let [config (:config @state/app-state)
+        n-total (:n-total config 126)
+        n-per-arm (:n-per-arm config 63)
+        t-ia (:t-ia config 46.0)
+        t-upd (:t-upd config 58.0)
+        t-pr3 (:t-pr3 config 62.97)
+        n-ev-ia (:n-ev-ia config 60)
+        n-ev-upd (:n-ev-upd config 72)
+        n-ev-pr3 (:n-ev-pr3 config 78)
+        n-ev-final (:n-ev-final config 80)]
+    (str "# REGAL Simulation using app.state defaults\n"
+         "library(survival)\n\n"
+         "n_total <- " n-total "\n"
+         "n_per_arm <- " n-per-arm "\n"
+         "t_ia <- " t-ia "\n"
+         "t_upd <- " t-upd "\n"
+         "t_pr3 <- " t-pr3 "\n"
+         "n_ev_ia   <- " n-ev-ia "\n"
+         "n_ev_upd  <- " n-ev-upd "\n"
+         "n_ev_pr3  <- " n-ev-pr3 "\n"
+         "n_ev_final <- " n-ev-final "\n\n"
+         "# Simulate one cohort trial\n"
+         "enroll <- sort(runif(n_total, min = 0, max = 38))\n"
+         "arms <- sample(c(rep(0, n_per_arm), rep(1, n_per_arm)))\n"
+         "surv <- numeric(n_total)\n"
+         "surv[arms == 0] <- rweibull(n_per_arm, shape = 0.85, "
+         "scale = 10.0 / log(2)^1.17)\n"
+         "surv[arms == 1] <- rweibull(n_per_arm, shape = 0.85, "
+         "scale = 15.0 / log(2)^1.17)\n\n"
+         "fu_ia <- pmax(t_ia - enroll, 0)\n"
+         "time_ia <- pmin(surv, fu_ia)\n"
+         "ev_ia <- surv <= fu_ia\n\n"
+         "# Logrank test using survival package\n"
+         "sd <- survdiff(Surv(time_ia, ev_ia) ~ arms)\n"
+         "print(sd)\n"
+         "fit <- coxph(Surv(time_ia, ev_ia) ~ arms)\n"
+         "summary(fit)")))
+
 (defn get-preset-scripts []
   [{:id :gs-design-state
     :title "gsDesign bounds (State Config)"
     :desc "Compute trial boundaries using state.cljs configs."
     :code (make-gs-design-script)}
+   {:id :regal-fit-sim
+    :title "REGAL Simulation (R implementation)"
+    :desc "Run a trial simulation using state.cljs configs."
+    :code (make-regal-fit-sim-script)}
    {:id :basic-norm
     :title "Normal Distribution Density"
     :desc "Compute dnorm density values for a list of coordinates."
