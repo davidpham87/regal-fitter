@@ -11,13 +11,14 @@
     (* 12.0 (/ ev-int (* avg-alive len)))
     0.0))
 
-(defn- arm-avg-alive
-  "Mean alive count over interval [t1, t2] in `alive-ms` vector.
-   At t1=0 we use `n-per-arm` as the initial count."
+(defn- arm-denominator-alive
+  "Determines the denominator count for hazard rate calculation."
   [alive-ms t1 t2 n-per-arm]
-  (let [a-t1 (if (zero? t1) n-per-arm (nth alive-ms t1))
-        a-t2 (nth alive-ms t2)]
-    (* 0.5 (+ a-t1 a-t2))))
+  (if (zero? t1)
+    (let [a-t1 n-per-arm
+          a-t2 (nth alive-ms t2)]
+      (* 0.5 (+ a-t1 a-t2)))
+    (nth alive-ms t1)))
 
 (defn calc-interval-rate
   "Returns three hazard-rate records (GPS, BAT, Pooled) for one
@@ -26,13 +27,13 @@
    alive-bat-ms alive-gps-ms t-ms-arr]
   (let [n-per-arm (:n-per-arm config)
         len       (- (nth t-ms-arr t2) (nth t-ms-arr t1))
-        avg-bat   (arm-avg-alive alive-bat-ms t1 t2 n-per-arm)
-        avg-gps   (arm-avg-alive alive-gps-ms t1 t2 n-per-arm)
-        avg-pool  (+ avg-bat avg-gps)
-        h-bat     (interval-rate ev-bat-int avg-bat len)
-        h-gps     (interval-rate ev-gps-int avg-gps len)
+        den-bat   (arm-denominator-alive alive-bat-ms t1 t2 n-per-arm)
+        den-gps   (arm-denominator-alive alive-gps-ms t1 t2 n-per-arm)
+        den-pool  (+ den-bat den-gps)
+        h-bat     (interval-rate ev-bat-int den-bat len)
+        h-gps     (interval-rate ev-gps-int den-gps len)
         h-pool    (interval-rate (+ ev-bat-int ev-gps-int)
-                                 avg-pool len)]
+                                 den-pool len)]
     [{:interval label :rate h-gps  :group "GPS"    :events ev-gps-int}
      {:interval label :rate h-bat  :group "BAT"    :events ev-bat-int}
      {:interval label :rate h-pool :group "Pooled" :events (+ ev-bat-int
