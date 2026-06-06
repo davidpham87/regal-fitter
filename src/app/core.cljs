@@ -1,12 +1,12 @@
 (ns app.core
-  (:require [app.ui.core :as ui]
+  (:require [app.simulator :as sim]
+            [app.ui.core :as ui]
             [app.worker-pool :as wp]
-            [app.simulator :as sim]
+            [portal.web :as p]
+            [re-frame.core :as re-frame]
             [reagent.dom :as rdom]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]
-            [re-frame.core :as re-frame]
-            [portal.web :as p]
             [webr.core :as webr]))
 
 (def routes
@@ -37,11 +37,15 @@
   (sim/init!)
   (init-routes!)
   ;; Open portal in the browser context
-  (p/open)
+  ;; (p/open)
   ;; Initialize WebR on application boot
-  (webr/init-webr!
-   (fn [webr] (js/console.log "WebR ready on boot!"))
-   (fn [err] (js/console.error "WebR boot initialization failed:" err)))
+  (let [start-webr! (fn []
+                      (webr/init-webr!
+                       (fn [webr] (js/console.log "WebR ready on boot!"))
+                       (fn [err] (js/console.error "WebR boot initialization failed:" err))))]
+    (if (exists? js/WebR)
+      (start-webr!)
+      (.addEventListener js/window "webr-script-loaded" start-webr!)))
   (rdom/render [ui/main-view] (js/document.getElementById "app")))
 
 (defn reload-testing []

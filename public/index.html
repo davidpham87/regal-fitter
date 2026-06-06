@@ -8,6 +8,7 @@
     <script type="module">
       import { WebR } from 'https://webr.r-wasm.org/v0.5.7/webr.mjs';
       window.WebR = WebR;
+      window.dispatchEvent(new Event('webr-script-loaded'));
     </script>
 </head>
 <body>
