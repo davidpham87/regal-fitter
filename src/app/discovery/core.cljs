@@ -336,6 +336,7 @@
                  "text-gray-500 hover:text-gray-800")
         :on-click #(reset! active-metric :median)}
        "Median OS"]]]
+    ^{:key (str title "-" @active-metric)}
     [vega/discovery-hazard-rates-chart h1-hazard-rates @active-metric]]])
 
 ;; ---------------------------------------------------------------------------
