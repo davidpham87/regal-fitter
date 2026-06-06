@@ -1,4 +1,4 @@
-(ns r-base.norm
+(ns webr.r-base.norm
   "Normal distribution wrappers for WebR.
    Generates -code, step-builder, and ! executor for each of:
    dnorm, pnorm, qnorm, rnorm.

@@ -1,4 +1,4 @@
-(ns r-base.discrete
+(ns webr.r-base.discrete
   "Discrete distribution wrappers for WebR.
    Covers: Binomial, Poisson, Negative Binomial,
            Geometric, Hypergeometric.

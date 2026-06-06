@@ -1,4 +1,4 @@
-(ns r-base.unif
+(ns webr.r-base.unif
   "Uniform distribution wrappers for WebR.
    Generates -code, step-builder, and ! executor for each of:
    dunif, punif, qunif, runif."

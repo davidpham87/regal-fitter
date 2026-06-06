@@ -1,4 +1,4 @@
-(ns r-base.continuous
+(ns webr.r-base.continuous
   "Continuous distribution wrappers for WebR.
    Covers: Student-t, Chi-squared, F, Exponential,
            Gamma, Beta, Weibull, Log-normal.
