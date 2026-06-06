@@ -113,6 +113,37 @@
 ;; Core evaluation — id-aware
 ;; ---------------------------------------------------------------------------
 
+(defn clean-webr-value
+  "Recursively formats/cleans parsed WebR objects.
+   Specifically, if a node is a WebR list map:
+     {:type \"list\", :names [...], :values [...]}
+   it transforms it into a standard Clojure map by zipping the names with
+   recursively cleaned values.
+
+   Otherwise recursively processes sequences, maps, and returns leaves as-is."
+  [val]
+  (cond
+    (and (map? val) (= (:type val) "list") (seq (:names val)))
+    (let [names  (map keyword (:names val))
+          values (map clean-webr-value (:values val))]
+      (zipmap names values))
+
+    (and (map? val) (= (:type val) "list") (nil? (:names val)) (= (count (:values val)) 1))
+    (clean-webr-value (first (:values val)))
+
+    (map? val)
+    (if (contains? val :values)
+      (let [inner-values (:values val)]
+        (if (and (coll? inner-values) (not (map? inner-values)) (= (count inner-values) 1))
+          (clean-webr-value (first inner-values))
+          (clean-webr-value inner-values)))
+      (update-vals val clean-webr-value))
+
+    (sequential? val)
+    (mapv clean-webr-value val)
+
+    :else val))
+
 (defn eval-r-code!
   "Evaluates R `code` in the WebR instance.
 
@@ -138,8 +169,9 @@
          (-> (.evalR webr code)
              (.then (fn [res] (.toJs res)))
              (.then (fn [js-val]
-                      (let [result (try (js->clj js-val :keywordize-keys true)
-                                        (catch :default _ js-val))]
+                      (let [parsed (try (js->clj js-val :keywordize-keys true)
+                                        (catch :default _ js-val))
+                            result (clean-webr-value parsed)]
                         (tap> result)
                         (graph/set-done! nid [] result)
                         (done-cb [] result))))
