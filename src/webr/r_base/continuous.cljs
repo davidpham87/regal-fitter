@@ -1,10 +1,42 @@
 (ns webr.r-base.continuous
   "Continuous distribution wrappers for WebR.
-   Covers: Student-t, Chi-squared, F, Exponential,
+   Covers: Normal, Student-t, Chi-squared, F, Exponential,
            Gamma, Beta, Weibull, Log-normal.
    Each function generates -code, step-builder, and ! executor."
   (:require [webr.core])
   (:require-macros [webr.macros :refer [def-r-wrapper]]))
+
+;; ===========================================================================
+;; Normal (dnorm pnorm qnorm rnorm)
+;; ===========================================================================
+
+(def-r-wrapper dnorm
+  "Density of the Normal distribution.
+   Returns list(density=<value>)."
+  [[x 0] [mean 0] [sd 1] [log "FALSE"]]
+  "list(density = dnorm(~a, mean=~a, sd=~a, log=~a))"
+  "")
+
+(def-r-wrapper pnorm
+  "CDF (distribution function) of the Normal distribution.
+   Returns list(prob=<value>)."
+  [[q 0] [mean 0] [sd 1] [lower.tail "TRUE"] [log.p "FALSE"]]
+  "list(prob = pnorm(~a, mean=~a, sd=~a, lower.tail=~a, log.p=~a))"
+  "")
+
+(def-r-wrapper qnorm
+  "Quantile function of the Normal distribution.
+   Returns list(quantile=<value>)."
+  [[p 0.5] [mean 0] [sd 1] [lower.tail "TRUE"] [log.p "FALSE"]]
+  "list(quantile = qnorm(~a, mean=~a, sd=~a, lower.tail=~a, log.p=~a))"
+  "")
+
+(def-r-wrapper rnorm
+  "Random deviates from the Normal distribution.
+   Returns list(samples=<vector>)."
+  [[n 1] [mean 0] [sd 1]]
+  "list(samples = as.list(rnorm(~a, mean=~a, sd=~a)))"
+  "")
 
 ;; ===========================================================================
 ;; Student-t  (dt pt qt rt)
