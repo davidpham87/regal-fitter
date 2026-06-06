@@ -39,10 +39,11 @@
   ;; Open portal in the browser context
   ;; (p/open)
   ;; Initialize WebR on application boot
-  (let [start-webr! (fn []
-                      (webr/init-webr!
-                       (fn [webr] (js/console.log "WebR ready on boot!"))
-                       (fn [err] (js/console.error "WebR boot initialization failed:" err))))]
+  (let [start-webr!
+        (fn []
+          (webr/init-webr!
+           (fn [webr] (js/console.log "WebR ready on boot!"))
+           (fn [err] (js/console.error "WebR boot initialization failed:" err))))]
     (if (exists? js/WebR)
       (start-webr!)
       (.addEventListener js/window "webr-script-loaded" start-webr!)))
