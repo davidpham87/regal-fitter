@@ -300,9 +300,6 @@
                  (let [curr-route (:current-route @app-state)
                        page (:page curr-route)
                        path-params (:path-params curr-route)
-                       query-params (:query-params curr-route)
-                       loc (:location query-params)
-                       q-params (if loc {:location loc} {})
                        subtab (:subtab path-params)
                        [dest-route dest-path-params]
                        (cond
@@ -326,8 +323,7 @@
                          :else
                          [page path-params])]
                    (when dest-route
-                     (rfe/replace-state dest-route dest-path-params
-                                        q-params))))))))
+                     (rfe/replace-state dest-route dest-path-params))))))))
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v)
