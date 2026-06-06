@@ -1,7 +1,7 @@
-(ns app.webr.gs-design
-  (:require [app.webr :as webr]
+(ns webr.gs-design
+  (:require [webr.core :as webr]
             [clojure.string :as str])
-  (:require-macros [app.webr.macros :refer [def-r-wrapper]]))
+  (:require-macros [webr.macros :refer [def-r-wrapper]]))
 
 (defn generate-gs-design!
   "Executes gsDesign function in WebR to generate group sequential boundaries.

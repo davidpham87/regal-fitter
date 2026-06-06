@@ -1,5 +1,5 @@
 (ns app.webr-example
-  (:require [app.webr :as webr]
+  (:require [webr.core :as webr]
             [re-frame.core :as rf]))
 
 (defn run-example-r-code!

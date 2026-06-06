@@ -1,4 +1,4 @@
-(ns app.webr
+(ns webr.core
   (:require
    [re-frame.core :as rf]
    [cljs.core.async :as a :refer [go <!]]

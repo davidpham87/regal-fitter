@@ -1,4 +1,4 @@
-(ns app.webr.clean
+(ns webr.clean
   (:require [clojure.string :as str]
             [clojure.java.io :as io]))
 
@@ -26,7 +26,7 @@
   (str/replace ns-str #"'\"([^\"]+)\"'" "\"$1\""))
 
 (defn clean-gs-design-file! []
-  (let [file-path "src/app/webr/gs_design.cljs"
+  (let [file-path "src/webr/gs_design.cljs"
         content (slurp file-path)
         step1 (remove-wrapper-comments content)
         step2 (replace-docstring-newlines step1)

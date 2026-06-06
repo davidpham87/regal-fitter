@@ -1,4 +1,4 @@
-(ns app.webr.macros
+(ns webr.macros
   (:require [clojure.string :as str]))
 
 (defn clean-doc-string
@@ -33,7 +33,7 @@
     `(defn ~cljs-name
        ~docstring
        ([~'params]
-        (~cljs-name ~'params app.webr/on-done app.webr/on-error))
+        (~cljs-name ~'params webr.core/on-done webr.core/on-error))
        ([~'params ~'on-done ~'on-error]
         (assert (map? ~'params) "params must be a map")
         (assert (fn? ~'on-done) "on-done callback must be a function")
@@ -44,7 +44,7 @@
                         nil
                         (str "library(gsDesign)\n" ~r-template)
                         ~@(map first sanitized-specs))]
-          (app.webr/eval-r-code!
+          (webr.core/eval-r-code!
            ~'r-code
            (fn [output-lines# result-val#]
              (try
