@@ -139,6 +139,7 @@
              (.then (fn [js-val]
                       (let [result (try (js->clj js-val :keywordize-keys true)
                                         (catch :default _ js-val))]
+                        (tap> result)
                         (graph/set-done! nid [] result)
                         (done-cb [] result))))
              (.catch (fn [err]

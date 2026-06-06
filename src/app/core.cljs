@@ -5,7 +5,8 @@
             [reagent.dom :as rdom]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]
-            [re-frame.core :as re-frame]))
+            [re-frame.core :as re-frame]
+            [portal.web :as p]))
 
 (def routes
   [["/"
@@ -34,6 +35,8 @@
   (wp/init-pool! nil)
   (sim/init!)
   (init-routes!)
+  ;; Open portal in the browser context
+  (p/open)
   (rdom/render [ui/main-view] (js/document.getElementById "app")))
 
 (defn reload-testing []
