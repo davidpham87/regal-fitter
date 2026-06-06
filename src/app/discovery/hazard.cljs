@@ -49,9 +49,12 @@
                                                               ev-gps-int)
       :median (rate->median h-pool)}]))
 
-;; ---------------------------------------------------------------------------
-;; sim->hazard-rates
-;; ---------------------------------------------------------------------------
+(defn- median->rate
+  "Computes annualized hazard rate from median survival time in months."
+  [median]
+  (if (pos? median)
+    (/ (* 12.0 (js/Math.log 2)) median)
+    0.0))
 
 (defn sim->hazard-rates
   "Derives annualised hazard rates from simulation result means.
@@ -64,12 +67,20 @@
           n-up-gps  (or (:mean-n-up-gps  sim-result) 0)
           n-pr3-bat (or (:mean-n-pr3-bat sim-result) 0)
           n-pr3-gps (or (:mean-n-pr3-gps sim-result) 0)
+          med-gps   (or (:mean-med-ia-gps sim-result) 0.0)
+          med-bat   (or (:mean-med-ia-bat sim-result) 0.0)
+          med-pool  (or (:mean-med-ia-pool sim-result) 0.0)
           calc #(calc-interval-rate
                  %1 %2 %3 %4 %5 config
                  alive-bat-ms alive-gps-ms t-ms-arr)]
       (vec
        (concat
-        (calc 0 1 "0-IA" n-ia-bat n-ia-gps)
+        [{:interval "0-IA" :rate (median->rate med-gps) :group "GPS"
+          :events n-ia-gps :median med-gps}
+         {:interval "0-IA" :rate (median->rate med-bat) :group "BAT"
+          :events n-ia-bat :median med-bat}
+         {:interval "0-IA" :rate (median->rate med-pool) :group "Pooled"
+          :events (+ n-ia-bat n-ia-gps) :median med-pool}]
         (calc 1 2 "IA-UPD"
               (- n-up-bat n-ia-bat)
               (- n-up-gps n-ia-gps))
