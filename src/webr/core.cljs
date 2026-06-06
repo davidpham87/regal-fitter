@@ -1,209 +1,178 @@
 (ns webr.core
   (:require
-   [re-frame.core :as rf]
    [cljs.core.async :as a :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
-   [goog.string :as gstring]
-   [goog.string.format]))
+   [re-frame.core :as rf]
+   [webr.graph :as graph]))
+
+;; ---------------------------------------------------------------------------
+;; WebR singleton
+;; ---------------------------------------------------------------------------
 
 (defonce webr-instance (atom nil))
 
-(rf/reg-event-fx
- :set-webr-status
- [(rf/inject-cofx :app-state)]
- (fn [{:keys [app-state]} [_ status]]
-   {:app-state (assoc-in app-state [:webr :status] status)}))
+;; ---------------------------------------------------------------------------
+;; re-frame events  (fully-qualified ::keywords = :webr.core/keyword)
+;; ---------------------------------------------------------------------------
 
-(rf/reg-event-fx
- :store-webr-results
- [(rf/inject-cofx :app-state)]
- (fn [{:keys [app-state]} [_ {:keys [output result]}]]
-   (let [updated-state (-> app-state
-                           (assoc-in [:webr :output] output)
-                           (assoc-in [:webr :result] result)
-                           (assoc-in [:webr :error] nil))]
-     {:app-state updated-state})))
+(rf/reg-event-db
+ ::set-status
+ (fn [db [_ status]]
+   (assoc-in db [:webr :status] status)))
 
-(rf/reg-event-fx
- :store-webr-error
- [(rf/inject-cofx :app-state)]
- (fn [{:keys [app-state]} [_ error-msg]]
-   (let [updated-state (-> app-state
-                           (assoc-in [:webr :output] nil)
-                           (assoc-in [:webr :result] nil)
-                           (assoc-in [:webr :error] error-msg))]
-     {:app-state updated-state})))
+(rf/reg-event-db
+ ::set-node
+ (fn [db [_ id node]]
+   (assoc-in db [:webr :nodes id] node)))
 
-(defn on-done [output-lines result-val]
-  (rf/dispatch [:set-webr-status :done])
-  (rf/dispatch [:store-webr-results
-                {:output output-lines
-                 :result result-val}]))
+(rf/reg-event-db
+ ::set-error
+ (fn [db [_ error-msg]]
+   (-> db
+       (assoc-in [:webr :error]  error-msg)
+       (assoc-in [:webr :result] nil)
+       (assoc-in [:webr :output] nil))))
 
-(defn on-error [error]
-  (rf/dispatch [:set-webr-status :error])
-  (rf/dispatch [:store-webr-error (str error)]))
+;; ---------------------------------------------------------------------------
+;; re-frame subscriptions  (fully-qualified)
+;; ---------------------------------------------------------------------------
+
+(rf/reg-sub
+ ::status
+ (fn [db _] (get-in db [:webr :status] :idle)))
+
+(rf/reg-sub
+ ::nodes
+ (fn [db _] (get-in db [:webr :nodes] {})))
+
+(rf/reg-sub
+ ::node
+ (fn [db [_ id]] (get-in db [:webr :nodes id])))
+
+(rf/reg-sub
+ ::error
+ (fn [db _] (get-in db [:webr :error])))
+
+;; ---------------------------------------------------------------------------
+;; Default callbacks that write into re-frame db
+;; ---------------------------------------------------------------------------
+
+(defn on-done
+  "Default on-done: syncs the graph node into re-frame db."
+  [id output result]
+  (rf/dispatch [::set-status :done])
+  (rf/dispatch [::set-node id (graph/get-node id)]))
+
+(defn on-error
+  "Default on-error: updates graph node and re-frame db."
+  [id err]
+  (rf/dispatch [::set-status :error])
+  (rf/dispatch [::set-node id (graph/get-node id)])
+  (rf/dispatch [::set-error (str err)]))
+
+;; ---------------------------------------------------------------------------
+;; WebR initialization
+;; ---------------------------------------------------------------------------
 
 (defn init-webr!
   "Initializes the WebR WASM runtime instance.
-   Loads the runtime using PostMessage channel type and points to the R-wasm CDN.
 
    Args:
-   - on-ready: A single-argument callback function invoked with the WebR instance.
-   - on-error: A single-argument callback function invoked with the error object.
-
-   Ensures that multiple concurrent initialization calls do not conflict by utilizing
-   atom checks and try-catch safety boundaries."
-  [on-ready on-error]
+   - on-ready: (fn [webr-instance]) — called when WebR is ready.
+   - on-error: (fn [error])         — called on init failure."
+  [on-ready on-err]
   (assert (fn? on-ready) "on-ready callback must be a function")
-  (assert (fn? on-error) "on-error callback must be a function")
-  (a/go
+  (assert (fn? on-err)   "on-error callback must be a function")
+  (go
     (try
       (if-let [existing @webr-instance]
         (do
           (js/console.log "WebR already initialized, returning cached instance.")
           (on-ready existing))
         (if (exists? js/WebR)
-          (let [options {:channelType 3 ;; PostMessage
-                         :baseUrl "https://webr.r-wasm.org/v0.5.7/"}
-                webr (new js/WebR (clj->js options))]
+          (let [opts {:channelType 3
+                      :baseUrl "https://webr.r-wasm.org/v0.5.7/"}
+                webr (new js/WebR (clj->js opts))]
             (js/console.log "Starting WebR WASM runtime initialization...")
             (reset! webr-instance webr)
             (<p! (.init webr))
             (js/console.log "Installing gsDesign R package...")
             (<p! (.evalR webr "webr::install('gsDesign')"))
-            (js/console.log "gsDesign R package installed successfully.")
-            (js/console.log "WebR WASM runtime successfully initialized.")
+            (js/console.log "gsDesign installed. WebR ready.")
             (on-ready webr))
           (do
-            (js/console.error "WebR global object js/WebR not found on window context.")
-            (on-error (js/Error. "WebR script not loaded in index.html")))))
+            (js/console.error "js/WebR global not found.")
+            (on-err (js/Error. "WebR script not loaded in index.html")))))
       (catch :default e
-        (js/console.error "Unhandled exception during WebR initialization:" e)
+        (js/console.error "WebR init failed:" e)
         (reset! webr-instance nil)
-        (on-error e)))))
+        (on-err e)))))
+
+;; ---------------------------------------------------------------------------
+;; Core evaluation — id-aware
+;; ---------------------------------------------------------------------------
 
 (defn eval-r-code!
-  "Evaluates arbitrary R code as a string within the WebR context using execR.
-   Simplifies execution by converting the R object directly into a JavaScript
-   object using Promise chaining (then/catch), completely avoiding core.async.
-   
-   Args:
-   - code: String containing the R code to execute.
-   - on-done: Two-argument callback (fn [output-lines result-val]) invoked on success.
-   - on-error: One-argument callback (fn [error]) invoked on failure."
-  ([code]
-   (eval-r-code! code on-done on-error))
-  ([code on-done on-error]
-   (assert (string? code) "R code to execute must be a string")
-   (assert (fn? on-done) "on-done callback must be a function")
-   (assert (fn? on-error) "on-error callback must be a function")
-   (if-let [webr @webr-instance]
-     (try
-       (let [promise (.execR (.-objs webr) code)]
-         (-> promise
+  "Evaluates R `code` in the WebR instance.
+
+   Options map:
+     :id     — Node id (auto-generated if omitted).
+     :deps   — Vector of upstream node ids this depends on.
+     :on-done  — (fn [id output result]) — defaults to re-frame dispatch.
+     :on-error — (fn [id error])          — defaults to re-frame dispatch.
+
+   Returns the node id immediately (before async completion)."
+  ([code] (eval-r-code! code {}))
+  ([code {:keys [id deps on-done* on-error*]
+          :or   {deps []}}]
+   (assert (string? code) "R code must be a string")
+   (let [nid     (graph/normalize-id id)
+         done-cb (or on-done*  (partial on-done  nid))
+         err-cb  (or on-error* (partial on-error nid))]
+     (graph/create-node! nid code deps)
+     (graph/set-running! nid)
+     (rf/dispatch [::set-status :running])
+     (if-let [webr @webr-instance]
+       (try
+         (-> (.execR (.-objs webr) code)
              (.then (fn [js-val]
-                      (try
-                        (let [clj-val (js->clj js-val :keywordize-keys true)]
-                          (on-done [] clj-val))
-                        (catch :default e
-                          (on-done [] js-val)))))
+                      (let [result (try (js->clj js-val :keywordize-keys true)
+                                        (catch :default _ js-val))]
+                        (graph/set-done! nid [] result)
+                        (done-cb [] result))))
              (.catch (fn [err]
-                       (js/console.error "Promise execution failed in execR:" err)
-                       (on-error err)))))
-       (catch :default e
-         (js/console.error "Synchronous failure calling execR:" e)
-         (on-error e)))
-     (on-error (js/Error. "WebR instance not initialized. Call init-webr! first.")))))
+                       (js/console.error "execR failed:" err)
+                       (graph/set-error! nid (str err))
+                       (err-cb err))))
+         (catch :default e
+           (js/console.error "Sync failure in eval-r-code!:" e)
+           (graph/set-error! nid (str e))
+           (err-cb e)))
+       (let [msg "WebR not initialized. Call init-webr! first."]
+         (graph/set-error! nid msg)
+         (err-cb (js/Error. msg))))
+     nid)))
 
-(defn run-example-r-code!
-  "Demonstrates how to initialize WebR and execute arbitrary R code,
-   dispatching the outcomes (success or failure) back to the application
-   via re-frame.
+;; ---------------------------------------------------------------------------
+;; Ensure WebR is ready then evaluate
+;; ---------------------------------------------------------------------------
 
-   Args:
-   - r-code-string: The string of R code to be executed.
-
-   Steps:
-   - Dispatches a status event to indicate R execution is starting.
-   - Calls `webr/init-webr!` to ensure the WASM environment is loaded.
-   - Calls `webr/eval-r-code!` to run the code.
-   - Dispatches success or failure events to update the global app-db."
-  [r-code-string]
-  (assert (string? r-code-string) "R code must be a string")
-  (rf/dispatch [:set-webr-status :initializing])
-
-  (when-not @webr-instance
-    (init-webr!
-     (fn [webr-instance]
-       (rf/dispatch [:set-webr-status :running])
-       (eval-r-code!
-        r-code-string
-        (fn [output-lines result-val]
-          (rf/dispatch [:set-webr-status :done])
-          (rf/dispatch [:store-webr-results
-                        {:output output-lines
-                         :result result-val}]))
-        (fn [error]
-          (rf/dispatch [:set-webr-status :error])
-          (rf/dispatch [:store-webr-error (str error)]))))
-     (fn [init-error]
-       (rf/dispatch [:set-webr-status :error])
-       (rf/dispatch [:store-webr-error (str "Init failed: " init-error)])))))
-
-(defn get-webr-evaluation
-  "Retrieves the WebR evaluation state from the application database.
-   Provides fallback maps for status, output, result, and error keys to
-   guarantee that callers never receive nil references.
-   
-   Args:
-   - db: The app-db map from re-frame.
-   
-   Returns:
-   - Map: {:status keyword, :output vector, :result any, :error string}"
-  [db]
-  (assert (or (nil? db) (map? db)) "db must be a map or nil")
-  (let [webr-data (:webr db)
-        status (or (:status webr-data) :idle)
-        output (or (:output webr-data) [])
-        result (:result webr-data)
-        error (:error webr-data)]
-    (js/console.log "Retrieving WebR evaluation state. Status:" status)
-    (when (not-empty error)
-      (js/console.warn "WebR evaluation has an active error state:" error))
-    (when (and (= status :done) (nil? result))
-      (js/console.warn "WebR evaluation state is done but result is nil"))
-    (js/console.log "Evaluation retrieval complete. Output line count:" (count output))
-    (if (and (nil? webr-data) (not (nil? db)))
-      (do
-        (js/console.warn "No :webr key found in app-db. Initializing default state.")
-        {:status :idle :output [] :result nil :error nil})
-      {:status status
-       :output output
-       :result result
-       :error error})))
-
-(rf/reg-sub
- :webr-evaluation
- (fn [db _]
-   (get-webr-evaluation db)))
-
-(comment
-
-  (init-webr!
-   (fn [webr-instance]
-     (rf/dispatch [:set-webr-status :running]))
-   (fn [init-error]
-     (rf/dispatch [:set-webr-status :error])
-     (rf/dispatch [:store-webr-error (str "Init failed: " init-error)])))
-
-  (eval-r-code!
-   "rnorm(100)"
-   (fn [output-lines result-val]
-     (rf/dispatch [:set-webr-status :done])
-     (rf/dispatch [:store-webr-results
-                   {:output output-lines
-                    :result result-val}]))
-   (fn [error]
-     (rf/dispatch [:set-webr-status :error])
-     (rf/dispatch [:store-webr-error (str error)]))))
+(defn run!
+  "Ensures WebR is initialized, then calls eval-r-code!.
+   Same options as eval-r-code!. Returns node id."
+  ([code] (run! code {}))
+  ([code opts]
+   (let [nid (graph/normalize-id (:id opts))]
+     (rf/dispatch [::set-status :initializing])
+     (if @webr-instance
+       (eval-r-code! code (assoc opts :id nid))
+       (init-webr!
+        (fn [_]
+          (rf/dispatch [::set-status :ready])
+          (eval-r-code! code (assoc opts :id nid)))
+        (fn [e]
+          (graph/create-node! nid code (:deps opts []))
+          (graph/set-error! nid (str "Init failed: " e))
+          (rf/dispatch [::set-status :error])
+          (rf/dispatch [::set-error (str "Init failed: " e)]))))
+     nid)))

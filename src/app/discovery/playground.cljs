@@ -77,7 +77,7 @@
   (swap! state-atom assoc :running? true :output "Running...")
   ((:fn func-meta)
    (:params @state-atom)
-   (fn [output result]
+   (fn [_id output result]
      (swap! state-atom assoc
             :running? false
             :output (str (when (seq output)
@@ -86,7 +86,7 @@
                                 "\n\n"))
                          "Result:\n"
                          (js/JSON.stringify (clj->js result) nil 2))))
-   (fn [err]
+   (fn [_id err]
      (swap! state-atom assoc
             :running? false
             :output (str "Error:\n" (.-message err))))))
