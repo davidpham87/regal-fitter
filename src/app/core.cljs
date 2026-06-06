@@ -6,7 +6,8 @@
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]
             [re-frame.core :as re-frame]
-            [portal.web :as p]))
+            [portal.web :as p]
+            [webr.core :as webr]))
 
 (def routes
   [["/"
@@ -37,6 +38,10 @@
   (init-routes!)
   ;; Open portal in the browser context
   (p/open)
+  ;; Initialize WebR on application boot
+  (webr/init-webr!
+   (fn [webr] (js/console.log "WebR ready on boot!"))
+   (fn [err] (js/console.error "WebR boot initialization failed:" err)))
   (rdom/render [ui/main-view] (js/document.getElementById "app")))
 
 (defn reload-testing []
