@@ -20,14 +20,16 @@
    2. `gs-design`       — pure step builder.
       (params)        -> step map {:code <r-code>}
       (params opts)   -> step map merged with opts (:id, :deps …)
-      Use directly inside concat-pipe! / promise-pipe! step vectors.
-      This is the *default* interaction point — no side effects.
 
    3. `gs-design!`      — async executor (bang = side effects).
       (params)                    auto-id, default re-frame callbacks.
-      (params on-done* on-error*) explicit (fn [id output result]) cbs."
-  [cljs-name r-name params-spec r-template]
-  (let [docstring     (clean-doc-string r-name)
+      (params on-done* on-error*) explicit (fn [id output result]) cbs.
+
+   Optional 5th arg `preamble` is prepended to the R code string.
+   Defaults to \"library(gsDesign)\\n\". Pass \"\" for base R functions."
+  [cljs-name r-name params-spec r-template & [preamble]]
+  (let [preamble-str  (or preamble "library(gsDesign)\n")
+        docstring     (clean-doc-string r-name)
         sanitized-specs
         (map (fn [[p-sym default]]
                (let [n          (name p-sym)
@@ -44,10 +46,13 @@
                                        ~default)])
                     sanitized-specs))
 
+        ;; Build the full template string at macro-expansion time
+        full-template (str preamble-str r-template)
+
         r-code-expr
         `(cljs.pprint/cl-format
           nil
-          (str "library(gsDesign)\n" ~r-template)
+          ~full-template
           ~@(map first sanitized-specs))
 
         code-name (symbol (str (name cljs-name) "-code"))
@@ -72,7 +77,6 @@
        ;; -----------------------------------------------------------
        (defn ~cljs-name
          ~(str "Returns a pipe step map for " (name cljs-name) ".\n"
-               "Use inside concat-pipe! or promise-pipe!.\n"
                "  (params)       -> {:code <r-code>}\n"
                "  (params opts)  -> {:code <r-code> …merged opts…}\n"
                "To fire WebR directly, use " (name cljs-name) "!")
