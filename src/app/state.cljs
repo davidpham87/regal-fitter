@@ -242,13 +242,13 @@
  (fn [{:keys [app-state]} [_ page decoded]]
    (let [new-state (cond
                      (#{:fitter :fitter-sub} page)
-                     (assoc app-state :config decoded)
+                     (update app-state :config merge decoded)
 
                      (= page :placebo-stress)
-                     (assoc app-state :stress-test-config decoded)
+                     (update app-state :stress-test-config merge decoded)
 
                      (#{:discovery :discovery-sub} page)
-                     (assoc-in app-state [:discovery :params] decoded)
+                     (update-in app-state [:discovery :params] merge decoded)
 
                      :else
                      app-state)]
@@ -303,34 +303,37 @@
       (array (aget path-parts 0) base b64))))
 
 (defn- sync-to-url! [data]
-  (-> (state-url/encode-state data)
-      (.then (fn [b64]
-               (let [hash js/window.location.hash
-                     parts (.split hash "?")
-                     path-with-hash (aget parts 0)
-                     hash-search (or (aget parts 1) "")
-                     hash-search-params (js/URLSearchParams. hash-search)
-                     _ (let [keys (js/Array.from (.keys hash-search-params))]
-                         (doseq [k keys]
-                           (when (not= k "location")
-                             (.delete hash-search-params k))))
-                     hash-search-str (.toString hash-search-params)
-                     path-parts (.split path-with-hash "/")
-                     new-path-parts (update-path-with-state path-parts b64)
-                     new-path (.join new-path-parts "/")
-                     new-hash (if (seq hash-search-str)
-                                (str new-path "?" hash-search-str)
-                                new-path)
-                     url (js/URL. js/window.location.href)
-                     search-params (js/URLSearchParams. (.-search url))
-                     keys-to-del (js/Array.from (.keys search-params))]
-                 (doseq [k keys-to-del]
-                   (when (not= k "location")
-                     (.delete search-params k)))
-                 (set! (.-hash url) new-hash)
-                 (set! (.-search url) (.toString search-params))
-                 (.replaceState js/window.history nil ""
-                                (.toString url)))))))
+  (let [clean (if (map? data)
+                (dissoc data :enroll-bands :enrollment-mode)
+                data)]
+    (-> (state-url/encode-state clean)
+        (.then (fn [b64]
+                 (let [hash js/window.location.hash
+                       parts (.split hash "?")
+                       path-with-hash (aget parts 0)
+                       hash-search (or (aget parts 1) "")
+                       hash-search-params (js/URLSearchParams. hash-search)
+                       _ (let [keys (js/Array.from (.keys hash-search-params))]
+                           (doseq [k keys]
+                             (when (not= k "location")
+                               (.delete hash-search-params k))))
+                       hash-search-str (.toString hash-search-params)
+                       path-parts (.split path-with-hash "/")
+                       new-path-parts (update-path-with-state path-parts b64)
+                       new-path (.join new-path-parts "/")
+                       new-hash (if (seq hash-search-str)
+                                  (str new-path "?" hash-search-str)
+                                  new-path)
+                       url (js/URL. js/window.location.href)
+                       search-params (js/URLSearchParams. (.-search url))
+                       keys-to-del (js/Array.from (.keys search-params))]
+                   (doseq [k keys-to-del]
+                     (when (not= k "location")
+                       (.delete search-params k)))
+                   (set! (.-hash url) new-hash)
+                   (set! (.-search url) (.toString search-params))
+                   (.replaceState js/window.history nil ""
+                                  (.toString url))))))))
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v)
