@@ -410,6 +410,13 @@
                     :title "Hazard Rate (yearly)"}
                    {:field "events" :type "quantitative"
                     :format ".1f" :title "Mean Events"}]}}
+       {:mark {:type "text" :align "center" :baseline "bottom" :dy -4}
+        :encoding
+        {:x x-enc
+         :xOffset grp-enc
+         :y {:field "rate" :type "quantitative"}
+         :text {:field "rate" :type "quantitative" :format ".4f"}
+         :color {:field "group" :type "nominal" :scale color-scale}}}
        {:mark {:type "point" :size 90 :opacity 1.0
                :filled true :stroke "white" :strokeWidth 1}
         :encoding
@@ -429,7 +436,14 @@
                     :format ".1f" :title "Mean Events"}
                    {:field "rate" :type "quantitative"
                     :format ".4f"
-                    :title "Hazard Rate (yearly)"}]}}]
+                    :title "Hazard Rate (yearly)"}]}}
+       {:mark {:type "text" :align "left" :baseline "middle" :dx 6}
+        :encoding
+        {:x x-enc
+         :xOffset grp-enc
+         :y {:field "events" :type "quantitative"}
+         :text {:field "events" :type "quantitative" :format ".1f"}
+         :color {:field "group" :type "nominal" :scale color-scale}}}]
       :config {:view {:stroke "transparent"}}}]))
 
 
