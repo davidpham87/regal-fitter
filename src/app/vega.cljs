@@ -387,7 +387,7 @@
         grp-enc {:field "group" :type "nominal"}]
     [vega-lite
      {:width 300 :height 300
-      :title "Median Survival Time & Event Counts by Period"
+      :title "Annualized Hazard Rates & Event Counts by Period"
       :data {:values rates-data}
       :resolve {:scale {:y "independent"}}
       :layer
@@ -395,8 +395,8 @@
         :encoding
         {:x x-enc
          :xOffset grp-enc
-         :y {:field "median" :type "quantitative"
-             :title "Median Survival Time (months)"
+         :y {:field "rate" :type "quantitative"
+             :title "Annualized Hazard Rate (per year)"
              :axis {:titleColor "#555"}}
          :color {:field "group" :type "nominal"
                  :scale color-scale
@@ -405,9 +405,9 @@
                     :title "Interval"}
                    {:field "group" :type "nominal"
                     :title "Group"}
-                   {:field "median" :type "quantitative"
-                    :format ".2f"
-                    :title "Median Survival (mo)"}
+                   {:field "rate" :type "quantitative"
+                    :format ".4f"
+                    :title "Hazard Rate (yearly)"}
                    {:field "events" :type "quantitative"
                     :format ".1f" :title "Mean Events"}]}}
        {:mark {:type "point" :size 90 :opacity 1.0
@@ -427,9 +427,9 @@
                     :title "Group"}
                    {:field "events" :type "quantitative"
                     :format ".1f" :title "Mean Events"}
-                   {:field "median" :type "quantitative"
-                    :format ".2f"
-                    :title "Median Survival (mo)"}]}}]
+                   {:field "rate" :type "quantitative"
+                    :format ".4f"
+                    :title "Hazard Rate (yearly)"}]}}]
       :config {:view {:stroke "transparent"}}}]))
 
 

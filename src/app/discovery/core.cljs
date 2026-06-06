@@ -257,6 +257,26 @@
        (str (.toFixed bat-true-mos 2) "m")]]
      [sim-result-summary state]]]])
 
+(defn- analytical-hazard-rates
+  "Computes analytical annualized hazard rates using the Weibull model."
+  [curve-data config]
+  (let [ms-ev-bat  (:ms-ev-bat-arr curve-data)
+        ms-ev-gps  (:ms-ev-gps-arr curve-data)
+        alive-bat  (:alive-bat-ms curve-data)
+        alive-gps  (:alive-gps-ms curve-data)
+        t-ms       (:t-ms-arr curve-data)
+        calc (fn [t1 t2 label]
+               (let [ev-bat (- (nth ms-ev-bat t2) (nth ms-ev-bat t1))
+                     ev-gps (- (nth ms-ev-gps t2) (nth ms-ev-gps t1))]
+                 (dhz/calc-interval-rate
+                  t1 t2 label ev-bat ev-gps config
+                  alive-bat alive-gps t-ms)))]
+    (vec
+     (concat
+      (calc 0 1 "0-IA")
+      (calc 1 2 "IA-UPD")
+      (calc 2 3 "UPD-PR3")))))
+
 ;; ---------------------------------------------------------------------------
 ;; Chart grids
 ;; ---------------------------------------------------------------------------
@@ -299,14 +319,13 @@
    [dui/stats-row "Milestone Stats (H1)" stats]
    [chart-grid curve-data h1-hazard-rates sim-result "Alternate"]])
 
-(defn- h0-section [stats-h0 curve-data-h0 avg-med]
+(defn- h0-section [stats-h0 curve-data-h0 h0-hazard-rates avg-med]
   [:div.bg-gray-50.p-4.rounded-xl.border
    [:h3.font-extrabold.text-gray-800.mb-4
     (str "Null Hypothesis (H0): GPS is placebo ("
          avg-med " mOS)")]
    [dui/stats-row "Milestone Stats (H0)" stats-h0]
-   [chart-grid curve-data-h0 (:hazard-rates curve-data-h0)
-    nil "H0"]])
+   [chart-grid curve-data-h0 h0-hazard-rates nil "H0"]])
 
 ;; ---------------------------------------------------------------------------
 ;; discovery-view-content
@@ -333,7 +352,7 @@
              (:alive-bat-ms curve-data)
              (:alive-gps-ms curve-data)
              (:t-ms-arr curve-data))
-            (:hazard-rates curve-data))
+            (analytical-hazard-rates curve-data config))
 
         avg-med  (/ (+ (:gps-med calc-params)
                        (:bat-med calc-params))
@@ -347,6 +366,8 @@
         curve-data-h0 (assoc (dc/calculate-curves
                               active-family h0-params config)
                              :stats stats-h0)
+        h0-hazard-rates
+        (analytical-hazard-rates curve-data-h0 config)
 
         bat-lambda (population-cr2-lambda
                     (:bat-med calc-params)
@@ -371,7 +392,7 @@
         ^{:key (str params)}
         [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
          [h1-section stats curve-data h1-hazard-rates sim-result]
-         [h0-section stats-h0 curve-data-h0 avg-med]]])]))
+         [h0-section stats-h0 curve-data-h0 h0-hazard-rates avg-med]]])]))
 
 ;; ---------------------------------------------------------------------------
 ;; Public entry point

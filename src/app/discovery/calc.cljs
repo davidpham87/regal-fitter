@@ -362,10 +362,12 @@
            (apply calc-hr-rates (concat [1 2 "IA-UPD"] hr-rates-args))
            (apply calc-hr-rates (concat [2 3 "UPD-PR3"] hr-rates-args))))
 
-     :alive-bat-ms alive-bat-ms
-     :alive-gps-ms alive-gps-ms
-     :t-ms-arr     t-ms-arr
-     :n-per-arm    n-per-arm}))
+     :alive-bat-ms  alive-bat-ms
+     :alive-gps-ms  alive-gps-ms
+     :t-ms-arr      t-ms-arr
+     :n-per-arm     n-per-arm
+     :ms-ev-bat-arr ms-ev-bat-arr
+     :ms-ev-gps-arr ms-ev-gps-arr}))
 
 ;; ---------------------------------------------------------------------------
 ;; sim->interval-medians  (unchanged)

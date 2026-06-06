@@ -33,9 +33,10 @@
         h-gps     (interval-rate ev-gps-int avg-gps len)
         h-pool    (interval-rate (+ ev-bat-int ev-gps-int)
                                  avg-pool len)]
-    [{:interval label :rate h-gps  :group "GPS"}
-     {:interval label :rate h-bat  :group "BAT"}
-     {:interval label :rate h-pool :group "Pooled"}]))
+    [{:interval label :rate h-gps  :group "GPS"    :events ev-gps-int}
+     {:interval label :rate h-bat  :group "BAT"    :events ev-bat-int}
+     {:interval label :rate h-pool :group "Pooled" :events (+ ev-bat-int
+                                                              ev-gps-int)}]))
 
 ;; ---------------------------------------------------------------------------
 ;; sim->hazard-rates
