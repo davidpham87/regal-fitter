@@ -2,10 +2,51 @@
   (:require [reagent.core :as r]
             [webr.core :as webr]
             [portal.web :as p]
+            [app.state :as state]
             ["@monaco-editor/react" :default Editor]))
 
-(def preset-scripts
-  [{:id :basic-norm
+(defn make-gs-design-script []
+  (let [config (:config @state/app-state)
+        power-cfg (:power-config @state/app-state)
+        ev-ia (:n-ev-ia config 60)
+        ev-upd (:n-ev-upd config 72)
+        ev-pr3 (:n-ev-pr3 config 78)
+        ev-final (:n-ev-final config 80)
+        use-pr3? (:use-pr3-anchor config true)
+        alpha (:alpha power-cfg 0.025)
+        power (:power power-cfg 0.9)
+        beta (- 1 power)
+        k (if use-pr3? 4 3)
+        n-i-str (if use-pr3?
+                  (str "c(" ev-ia ", " ev-upd ", " ev-pr3 ", " ev-final ")")
+                  (str "c(" ev-ia ", " ev-upd ", " ev-final ")"))]
+    (str "# gsDesign boundary computation using initial data from state.cljs\n"
+         "library(gsDesign)\n\n"
+         "# Injected parameters from simulation configuration:\n"
+         "target_events <- " ev-final "\n"
+         "alpha         <- " alpha "  # Type I error rate (1-sided)\n"
+         "beta          <- " beta "  # Type II error rate\n"
+         "k             <- " k "     # Number of analyses\n"
+         "n_I           <- " n-i-str " # Cumulative events\n\n"
+         "# Compute group sequential boundaries\n"
+         "design <- gsDesign(\n"
+         "  k = k,\n"
+         "  test.type = 4,              # Two-sided asymmetric boundary\n"
+         "  alpha = alpha,\n"
+         "  beta = beta,\n"
+         "  n.I = n_I,\n"
+         "  sfu = sfLDOF,               # Lan-DeMets O'Brien-Fleming efficacy\n"
+         "  sfl = sfLDOF                # Lan-DeMets O'Brien-Fleming futility\n"
+         ")\n\n"
+         "# Compute boundary summaries\n"
+         "gsBoundSummary(design)")))
+
+(defn get-preset-scripts []
+  [{:id :gs-design-state
+    :title "gsDesign bounds (State Config)"
+    :desc "Compute trial boundaries using state.cljs configs."
+    :code (make-gs-design-script)}
+   {:id :basic-norm
     :title "Normal Distribution Density"
     :desc "Compute dnorm density values for a list of coordinates."
     :code "dnorm(x = c(-1.5, 0, 1.5), mean = 0, sd = 1)"}
@@ -42,7 +83,8 @@
 (defn portal-frame
   "Renders a container for the Portal iframe."
   []
-  [:div {:class "w-full rounded-xl border border-gray-200 overflow-hidden shadow-inner bg-gray-50"
+  [:div {:class (str "w-full rounded-xl border border-gray-200 "
+                     "overflow-hidden shadow-inner bg-gray-50")
          :style {:height "450px" :margin 0 :padding 0}
          :ref (fn [el]
                 (when el
@@ -51,91 +93,101 @@
                            :theme :portal.colors/nord})))}])
 
 (defn gs-design-playground []
-  (r/with-let [code-atom (r/atom (:code (first preset-scripts)))
-               running? (r/atom false)
-               active-view (r/atom :editor) ;; :editor or :portal
-               selected-script-id (r/atom (:id (first preset-scripts)))]
-    [:div.mt-6.space-y-6
-     [:div.bg-gradient-to-r.from-blue-50.to-indigo-50.p-4.rounded-xl.border.border-blue-100
-      [:h3.font-extrabold.text-blue-900.mb-1 "R REPL & Interactive Portal"]
-      [:p.text-xs.text-blue-950
-       "Choose a script template from the library or edit R code. Evaluating automatically publishes results to the embedded Portal viewer."]]
+  (let [presets (get-preset-scripts)]
+    (r/with-let [code-atom (r/atom (:code (first presets)))
+                 running? (r/atom false)
+                 active-view (r/atom :editor)
+                 selected-script-id (r/atom (:id (first presets)))]
+      [:div.mt-6.space-y-6
+       [:div.bg-gradient-to-r.from-blue-50.to-indigo-50.p-4.rounded-xl
+        {:class "border border-blue-100"}
+        [:h3.font-extrabold.text-blue-900.mb-1
+         "R REPL & Interactive Portal"]
+        [:p.text-xs.text-blue-950
+         (str "Choose a script template from the library or edit R code. "
+              "Evaluating automatically publishes results to Portal.")]]
 
-     [:div.flex.flex-col.lg:flex-row.gap-6
-      ;; 1/5 View: List of scripts
-      [:div.w-full.bg-white.p-4.rounded-xl.border.flex.flex-col.gap-3
-       {:class "lg:w-1/5"}
-       [:h4.font-extrabold.text-gray-800.text-sm.border-b.pb-2 "Script Library"]
-       [:div.space-y-2.overflow-y-auto {:style {:max-height "450px"}}
-        (for [script preset-scripts]
-          ^{:key (:id script)}
-          [:div.p-3.rounded-lg.border.cursor-pointer.transition-all
-           {:class (if (= @selected-script-id (:id script))
-                     "border-blue-500 bg-blue-50/50 shadow-sm"
-                     "border-gray-200 hover:bg-gray-50")
-            :on-click (fn []
-                        (reset! selected-script-id (:id script))
-                        (reset! code-atom (:code script)))}
-           [:div.font-bold.text-xs.text-gray-800 (:title script)]
-           [:div.text-xxs.text-gray-500.mt-1.leading-snug (:desc script)]])]]
+       [:div.flex.flex-col.lg:flex-row.gap-6
+        ;; 1/5 View: List of scripts
+        [:div.w-full.bg-white.p-4.rounded-xl.border.flex.flex-col.gap-3
+         {:class "lg:w-1/5"}
+         [:h4.font-extrabold.text-gray-800.text-sm.border-b.pb-2
+          "Script Library"]
+         [:div.space-y-2.overflow-y-auto {:style {:max-height "450px"}}
+          (for [script presets]
+            ^{:key (:id script)}
+            [:div.p-3.rounded-lg.border.cursor-pointer.transition-all
+             {:class (if (= @selected-script-id (:id script))
+                       "border-blue-500 bg-blue-50/50 shadow-sm"
+                       "border-gray-200 hover:bg-gray-50")
+              :on-click (fn []
+                          (reset! selected-script-id (:id script))
+                          (reset! code-atom (:code script)))}
+             [:div.font-bold.text-xs.text-gray-800 (:title script)]
+             [:div.text-xxs.text-gray-500.mt-1.leading-snug
+              (:desc script)]])]]
 
-      ;; 4/5 View: Card containing Tabbed Editor/Portal
-      [:div.w-full.bg-white.rounded-xl.border.shadow-sm.flex.flex-col.overflow-hidden
-       {:class "lg:w-4/5"}
-       
-       ;; Tab navigation header
-       [:div.bg-gray-50.border-b.px-6.py-3.flex.justify-between.items-center.flex-wrap.gap-4
-        [:div.flex.gap-2
-         [:button.px-4.py-1.5.text-xs.font-bold.rounded-lg.transition-all
-          {:type "button"
-           :class (if (= @active-view :editor)
-                    "bg-white shadow border border-gray-200 text-gray-800"
-                    "text-gray-500 hover:text-gray-800")
-           :on-click #(reset! active-view :editor)}
-          "Code Editor"]
-         [:button.px-4.py-1.5.text-xs.font-bold.rounded-lg.transition-all
-          {:type "button"
-           :class (if (= @active-view :portal)
-                    "bg-white shadow border border-gray-200 text-gray-800"
-                    "text-gray-500 hover:text-gray-800")
-           :on-click #(reset! active-view :portal)}
-          "Portal Viewer"]]
-        
-        ;; Execution controls
-        [:div.flex.items-center.gap-3
-         (when (= @active-view :editor)
-           [:button.px-4.py-2.bg-blue-600.hover:bg-blue-700.text-white.text-xs.font-bold.rounded-lg.transition-colors.shadow-md
+        ;; 4/5 View: Card containing Tabbed Editor/Portal
+        [:div.w-full.bg-white.rounded-xl.border.shadow-sm.flex.flex-col
+         {:class "lg:w-4/5 overflow-hidden"}
+
+         ;; Tab navigation header
+         [:div.bg-gray-50.border-b.px-6.py-3.flex.justify-between.flex-wrap
+          {:class "items-center gap-4"}
+          [:div.flex.gap-2
+           [:button.px-4.py-1.5.text-xs.font-bold.rounded-lg.transition-all
             {:type "button"
-             :disabled @running?
-             :on-click (fn []
-                         (reset! running? true)
-                         (webr/eval-r-code! @code-atom
-                                            {:on-done* (fn [_output result]
-                                                         (reset! running? false)
-                                                         (p/submit result)
-                                                         (reset! active-view :portal))
-                                             :on-error* (fn [err]
-                                                          (reset! running? false)
-                                                          (p/submit err)
-                                                          (reset! active-view :portal))}))}
-            (if @running? "Evaluating..." "Run R Script")])
-         (when (= @active-view :portal)
-           [:button.text-xs.text-red-500.hover:underline
+             :class (if (= @active-view :editor)
+                      "bg-white shadow border border-gray-200 text-gray-800"
+                      "text-gray-500 hover:text-gray-800")
+             :on-click (fn [] (reset! active-view :editor))}
+            "Code Editor"]
+           [:button.px-4.py-1.5.text-xs.font-bold.rounded-lg.transition-all
             {:type "button"
-             :on-click #(p/clear)}
-            "Clear Portal"])]]
+             :class (if (= @active-view :portal)
+                      "bg-white shadow border border-gray-200 text-gray-800"
+                      "text-gray-500 hover:text-gray-800")
+             :on-click (fn [] (reset! active-view :portal))}
+            "Portal Viewer"]]
 
-       ;; Body area toggling between editor and portal
-       [:div.p-6
-        (case @active-view
-          :editor
-          [:div.border.rounded-xl.overflow-hidden {:style {:height "450px"}}
-           [:> Editor {:height "100%"
-                       :defaultLanguage "r"
-                       :value @code-atom
-                       :onChange (fn [val _] (reset! code-atom val))
-                       :options #js {:minimap #js {:enabled false}}
-                       :theme "vs-light"}]]
-          
-          :portal
-          [portal-frame])]]]]))
+          ;; Execution controls
+          [:div.flex.items-center.gap-3
+           (when (= @active-view :editor)
+             [:button.px-4.py-2.text-white.text-xs.font-bold.rounded-lg
+              {:type "button"
+               :class (str "bg-blue-600 hover:bg-blue-700 "
+                           "transition-colors shadow-md")
+               :disabled @running?
+               :on-click (fn []
+                           (reset! running? true)
+                           (webr/eval-r-code!
+                            @code-atom
+                            {:on-done* (fn [_output result]
+                                         (reset! running? false)
+                                         (p/submit result)
+                                         (reset! active-view :portal))
+                             :on-error* (fn [err]
+                                          (reset! running? false)
+                                          (p/submit err)
+                                          (reset! active-view :portal))}))}
+              (if @running? "Evaluating..." "Run R Script")])
+           (when (= @active-view :portal)
+             [:button.text-xs.text-red-500.hover:underline
+              {:type "button"
+               :on-click #(p/clear)}
+              "Clear Portal"])]]
+
+         ;; Body area toggling between editor and portal
+         [:div.p-6
+          (case @active-view
+            :editor
+            [:div.border.rounded-xl.overflow-hidden {:style {:height "450px"}}
+             [:> Editor {:height "100%"
+                         :defaultLanguage "r"
+                         :value @code-atom
+                         :onChange (fn [val _] (reset! code-atom val))
+                         :options #js {:minimap #js {:enabled false}}
+                         :theme "vs-light"}]]
+
+            :portal
+            [portal-frame])]]]])))
