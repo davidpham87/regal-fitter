@@ -259,40 +259,62 @@
   [(rf/inject-cofx :app-state)]
   (fn [{:keys [app-state]} [_ page path-params query-params]]
     (let [new-state (cond
-                      (= page :fitter-sub)
+                      (#{:fitter-sub :fitter-sub-state} page)
                       (assoc app-state :active-page :fitter
                              :view (keyword (:subtab path-params)))
 
-                      (= page :discovery-sub)
+                      (#{:discovery-sub :discovery-sub-state} page)
                       (-> app-state
                           (assoc :active-page :discovery)
-                          (assoc-in [:discovery :active-family] (:subtab path-params)))
+                          (assoc-in [:discovery :active-family]
+                                    (:subtab path-params)))
 
-                      (= page :fitter)
+                      (#{:fitter :fitter-state} page)
                       (assoc app-state :active-page :fitter :view :config-form)
 
-                      (= page :discovery)
+                      (#{:discovery :discovery-state} page)
                       (-> app-state
                           (assoc :active-page :discovery)
                           (assoc-in [:discovery :active-family] "weibull"))
+
+                      (#{:placebo-stress :placebo-stress-state} page)
+                      (assoc app-state :active-page :placebo-stress)
 
                       :else
                       (assoc app-state :active-page page))
           effects {:app-state new-state}]
 
-      (if-let [state-str (:state query-params)]
+      (if-let [state-str (or (:state path-params) (:state query-params))]
         (assoc effects :decode-url-state {:page page :state-str state-str})
         effects))))
+
+(defn- update-path-with-state [path-parts b64]
+  (let [base (aget path-parts 1)]
+    (cond
+      (or (= base "fitter") (= base "discovery"))
+      (let [subtab (or (aget path-parts 2)
+                       (if (= base "fitter") "config-form" "weibull"))]
+        (array (aget path-parts 0) base subtab b64))
+
+      (= base "placebo-stress")
+      (array (aget path-parts 0) base b64)
+
+      :else
+      (array (aget path-parts 0) base b64))))
 
 (defn- sync-to-url! [data]
   (-> (state-url/encode-state data)
       (.then (fn [b64]
                (let [hash js/window.location.hash
                      parts (.split hash "?")
-                     path (aget parts 0)
-                     params (js/URLSearchParams. (or (aget parts 1) ""))
-                     _ (.set params "state" b64)
-                     new-hash (str path "?" (.toString params))
+                     path-with-hash (aget parts 0)
+                     search (or (aget parts 1) "")
+                     path-parts (.split path-with-hash "/")
+                     new-path-parts (update-path-with-state path-parts b64)
+                     new-path (.join new-path-parts "/")
+                     new-hash (if (seq search)
+                                (str new-path "?" search)
+                                new-path)
                      url (js/URL. js/window.location.href)
                      search-params (js/URLSearchParams. (.-search url))
                      keys-to-del (js/Array.from (.keys search-params))]

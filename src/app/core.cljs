@@ -16,12 +16,18 @@
     {:name :fitter}]
    ["/fitter/:subtab"
     {:name :fitter-sub}]
+   ["/fitter/:subtab/:state"
+    {:name :fitter-sub-state}]
    ["/placebo-stress"
     {:name :placebo-stress}]
+   ["/placebo-stress/:state"
+    {:name :placebo-stress-state}]
    ["/discovery"
     {:name :discovery}]
    ["/discovery/:subtab"
-    {:name :discovery-sub}]])
+    {:name :discovery-sub}]
+   ["/discovery/:subtab/:state"
+    {:name :discovery-sub-state}]])
 
 (defn init-routes! []
   (rfe/start!
