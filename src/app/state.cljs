@@ -1,8 +1,7 @@
 (ns app.state
-  (:require [reagent.core :as r]
+  (:require [app.state-url :as state-url]
             [re-frame.core :as rf]
-            [malli.core :as m]
-            [app.state-url :as state-url]
+            [reagent.core :as r]
             [reitit.frontend.easy :as rfe]))
 
 ;; --- Default Config ---
@@ -232,7 +231,7 @@
 (rf/reg-fx
  :decode-url-state
  (fn [{:keys [page state-str]}]
-   (-> (state-url/decode-state state-str)
+   #_(-> (state-url/decode-state state-str)
        (.then (fn [decoded]
                 (rf/dispatch [:apply-decoded-state page decoded]))))))
 
@@ -240,7 +239,7 @@
  :apply-decoded-state
  [(rf/inject-cofx :app-state)]
  (fn [{:keys [app-state]} [_ page decoded]]
-   (let [new-state (cond
+   #_(let [new-state (cond
                      (#{:fitter :fitter-sub} page)
                      (update app-state :config merge decoded)
 
@@ -284,15 +283,14 @@
                       (assoc app-state :active-page page))
           new-state (assoc new-state :current-route
                            {:page page
-                            :path-params path-params
-                            :query-params query-params})
+                            :path-params path-params})
           effects {:app-state new-state}]
-      (if-let [state-str (or (:state path-params) (:state query-params))]
+      (if-let [state-str (or (:state path-params) #_(:state query-params))]
         (assoc effects :decode-url-state {:page page :state-str state-str})
         effects))))
 
 (defn- sync-to-url! [data]
-  (let [clean (if (map? data)
+  #_(let [clean (if (map? data)
                 (dissoc data :enroll-bands :enrollment-mode)
                 data)]
     (-> (state-url/encode-state clean)
