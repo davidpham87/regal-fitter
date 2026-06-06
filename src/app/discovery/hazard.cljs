@@ -20,6 +20,13 @@
       (* 0.5 (+ a-t1 a-t2)))
     (nth alive-ms t1)))
 
+(defn- rate->median
+  "Computes median survival time in months from annualized hazard rate."
+  [rate]
+  (if (pos? rate)
+    (/ (* 12.0 (js/Math.log 2)) rate)
+    0.0))
+
 (defn calc-interval-rate
   "Returns three hazard-rate records (GPS, BAT, Pooled) for one
    calendar interval between milestone indices t1 and t2."
@@ -34,10 +41,13 @@
         h-gps     (interval-rate ev-gps-int den-gps len)
         h-pool    (interval-rate (+ ev-bat-int ev-gps-int)
                                  den-pool len)]
-    [{:interval label :rate h-gps  :group "GPS"    :events ev-gps-int}
-     {:interval label :rate h-bat  :group "BAT"    :events ev-bat-int}
+    [{:interval label :rate h-gps  :group "GPS"    :events ev-gps-int
+      :median (rate->median h-gps)}
+     {:interval label :rate h-bat  :group "BAT"    :events ev-bat-int
+      :median (rate->median h-bat)}
      {:interval label :rate h-pool :group "Pooled" :events (+ ev-bat-int
-                                                              ev-gps-int)}]))
+                                                              ev-gps-int)
+      :median (rate->median h-pool)}]))
 
 ;; ---------------------------------------------------------------------------
 ;; sim->hazard-rates

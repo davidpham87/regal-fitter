@@ -279,16 +279,6 @@
 
 (defonce active-metric (r/atom :rate))
 
-(defn- merge-hazard-and-medians
-  [rates medians]
-  (let [medians-by-key (into {} (map (fn [m]
-                                       [[(:interval m) (:group m)] m])
-                                     medians))]
-    (mapv (fn [r]
-            (let [key [(:interval r) (:group r)]
-                  m (get medians-by-key key)]
-              (assoc r :median (:median m))))
-          rates)))
 
 ;; ---------------------------------------------------------------------------
 ;; Chart grids
@@ -378,20 +368,13 @@
 
         sim-result (when (= (:sim-status state) :done)
                      (:sim-result state))
-        h1-rates-raw
+        h1-hazard-rates
         (or (dhz/sim->hazard-rates
              sim-result config
              (:alive-bat-ms curve-data)
              (:alive-gps-ms curve-data)
              (:t-ms-arr curve-data))
             (analytical-hazard-rates curve-data config))
-
-        h1-medians-raw
-        (or (dc/sim->interval-medians sim-result)
-            (:hazard-rates curve-data))
-
-        h1-hazard-rates
-        (merge-hazard-and-medians h1-rates-raw h1-medians-raw)
 
         avg-med  (/ (+ (:gps-med calc-params)
                        (:bat-med calc-params))
@@ -405,11 +388,8 @@
         curve-data-h0 (assoc (dc/calculate-curves
                               active-family h0-params config)
                              :stats stats-h0)
-        h0-rates-raw
-        (analytical-hazard-rates curve-data-h0 config)
-
         h0-hazard-rates
-        (merge-hazard-and-medians h0-rates-raw (:hazard-rates curve-data-h0))
+        (analytical-hazard-rates curve-data-h0 config)
 
         bat-lambda (population-cr2-lambda
                     (:bat-med calc-params)
