@@ -291,23 +291,19 @@
 (defn- sync-to-url! [data]
   (-> (state-url/encode-state data)
       (.then (fn [b64]
-               (let [hash js/window.location.hash
+               (let [url (js/URL. js/window.location.href)
+                     hash js/window.location.hash
                      parts (.split hash "?")
-                     path-with-hash (aget parts 0)
                      hash-search (or (aget parts 1) "")
-                     url (js/URL. js/window.location.href)
                      search-params (js/URLSearchParams. (.-search url))
                      loc (or (.get search-params "location")
                              (let [h-params (js/URLSearchParams. hash-search)]
                                (.get h-params "location")))
-                     new-hash-params (js/URLSearchParams.)
-                     _ (when loc (.set new-hash-params "location" loc))
-                     _ (.set new-hash-params "state" b64)
-                     new-hash (str path-with-hash
-                                   "?"
-                                   (.toString new-hash-params))]
-                 (set! (.-hash url) new-hash)
-                 (set! (.-search url) "")
+                     new-search-params (js/URLSearchParams.)
+                     _ (when loc (.set new-search-params "location" loc))
+                     _ (.set new-search-params "state" b64)]
+                 (set! (.-hash url) "")
+                 (set! (.-search url) (.toString new-search-params))
                  (.replaceState js/window.history nil ""
                                 (.toString url)))))))
 
