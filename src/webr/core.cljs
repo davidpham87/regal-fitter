@@ -120,24 +120,30 @@
    it transforms it into a standard Clojure map by zipping the names with
    recursively cleaned values.
 
-   Otherwise recursively processes sequences, maps, and returns leaves as-is."
+   If the list has nil names but contains values that are named lists, we extract those.
+   If it's a leaf node like a double/integer/character vector, we return its values vector."
   [val]
   (cond
+    ;; Handle named lists (e.g. data frames or structured results)
     (and (map? val) (= (:type val) "list") (seq (:names val)))
     (let [names  (map keyword (:names val))
           values (map clean-webr-value (:values val))]
       (zipmap names values))
 
+    ;; Handle unnamed list containing a single named list (like a multi-page dataframe or summary response)
     (and (map? val) (= (:type val) "list") (nil? (:names val)) (= (count (:values val)) 1))
     (clean-webr-value (first (:values val)))
 
+    ;; Handle leaf vectors (like double, integer, logical, character)
+    (and (map? val) (contains? val :type) (contains? val :values))
+    (let [inner-values (:values val)]
+      ;; If it's a vector/sequence, return it (after cleaning any nested parts)
+      (if (sequential? inner-values)
+        (mapv clean-webr-value inner-values)
+        (clean-webr-value inner-values)))
+
     (map? val)
-    (if (contains? val :values)
-      (let [inner-values (:values val)]
-        (if (and (coll? inner-values) (not (map? inner-values)) (= (count inner-values) 1))
-          (clean-webr-value (first inner-values))
-          (clean-webr-value inner-values)))
-      (update-vals val clean-webr-value))
+    (update-vals val clean-webr-value)
 
     (sequential? val)
     (mapv clean-webr-value val)
