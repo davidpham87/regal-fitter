@@ -134,14 +134,14 @@
      (rf/dispatch [::set-status :running])
      (if-let [webr @webr-instance]
        (try
-         (-> (.execR (.-objs webr) code)
+         (-> (.evalR webr code)
              (.then (fn [js-val]
                       (let [result (try (js->clj js-val :keywordize-keys true)
                                         (catch :default _ js-val))]
                         (graph/set-done! nid [] result)
                         (done-cb [] result))))
              (.catch (fn [err]
-                       (js/console.error "execR failed:" err)
+                       (js/console.error "evalR failed:" err)
                        (graph/set-error! nid (str err))
                        (err-cb err))))
          (catch :default e
