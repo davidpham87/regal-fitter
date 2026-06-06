@@ -136,11 +136,15 @@
 
     ;; Handle leaf vectors (like double, integer, logical, character)
     (and (map? val) (contains? val :type) (contains? val :values))
-    (let [inner-values (:values val)]
-      ;; If it's a vector/sequence, return it (after cleaning any nested parts)
-      (if (sequential? inner-values)
-        (mapv clean-webr-value inner-values)
-        (clean-webr-value inner-values)))
+    (let [names        (:names val)
+          inner-values (:values val)]
+      (if (and (seq names) (sequential? inner-values))
+        (let [ks (map keyword names)
+              vs (mapv clean-webr-value inner-values)]
+          (zipmap ks vs))
+        (if (sequential? inner-values)
+          (mapv clean-webr-value inner-values)
+          (clean-webr-value inner-values))))
 
     (map? val)
     (update-vals val clean-webr-value)
