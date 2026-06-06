@@ -288,41 +288,26 @@
         (assoc effects :decode-url-state {:page page :state-str state-str})
         effects))))
 
-(defn- update-path-with-state [path-parts b64]
-  (let [base (aget path-parts 1)]
-    (cond
-      (or (= base "fitter") (= base "discovery"))
-      (let [subtab (or (aget path-parts 2)
-                       (if (= base "fitter") "config-form" "weibull"))]
-        (array (aget path-parts 0) base subtab b64))
-
-      (= base "placebo-stress")
-      (array (aget path-parts 0) base b64)
-
-      :else
-      (array (aget path-parts 0) base b64))))
-
 (defn- sync-to-url! [data]
   (-> (state-url/encode-state data)
       (.then (fn [b64]
                (let [hash js/window.location.hash
                      parts (.split hash "?")
                      path-with-hash (aget parts 0)
-                     search (or (aget parts 1) "")
-                     path-parts (.split path-with-hash "/")
-                     new-path-parts (update-path-with-state path-parts b64)
-                     new-path (.join new-path-parts "/")
-                     new-hash (if (seq search)
-                                (str new-path "?" search)
-                                new-path)
+                     hash-search (or (aget parts 1) "")
                      url (js/URL. js/window.location.href)
                      search-params (js/URLSearchParams. (.-search url))
-                     keys-to-del (js/Array.from (.keys search-params))]
-                 (doseq [k keys-to-del]
-                   (when (not= k "location")
-                     (.delete search-params k)))
+                     loc (or (.get search-params "location")
+                             (let [h-params (js/URLSearchParams. hash-search)]
+                               (.get h-params "location")))
+                     new-hash-params (js/URLSearchParams.)
+                     _ (when loc (.set new-hash-params "location" loc))
+                     _ (.set new-hash-params "state" b64)
+                     new-hash (str path-with-hash
+                                   "?"
+                                   (.toString new-hash-params))]
                  (set! (.-hash url) new-hash)
-                 (set! (.-search url) (.toString search-params))
+                 (set! (.-search url) "")
                  (.replaceState js/window.history nil ""
                                 (.toString url)))))))
 
