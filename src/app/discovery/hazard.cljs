@@ -61,29 +61,29 @@
    Returns nil when sim-result is nil."
   [sim-result config alive-bat-ms alive-gps-ms t-ms-arr]
   (when sim-result
-    (let [n-ia-bat  (or (:mean-n-ia-bat  sim-result) 0)
-          n-ia-gps  (or (:mean-n-ia-gps  sim-result) 0)
-          n-up-bat  (or (:mean-n-up-bat  sim-result) 0)
-          n-up-gps  (or (:mean-n-up-gps  sim-result) 0)
-          n-pr3-bat (or (:mean-n-pr3-bat sim-result) 0)
-          n-pr3-gps (or (:mean-n-pr3-gps sim-result) 0)
-          med-gps   (or (:mean-med-ia-gps sim-result) 0.0)
-          med-bat   (or (:mean-med-ia-bat sim-result) 0.0)
-          med-pool  (or (:mean-med-ia-pool sim-result) 0.0)
+    (let [n-interim-analysis-bat  (or (:mean-n-interim-analysis-bat  sim-result) 0)
+          n-interim-analysis-gps  (or (:mean-n-interim-analysis-gps  sim-result) 0)
+          n-update-bat  (or (:mean-n-update-bat  sim-result) 0)
+          n-update-gps  (or (:mean-n-update-gps  sim-result) 0)
+          n-phase3-bat (or (:mean-n-phase3-bat sim-result) 0)
+          n-phase3-gps (or (:mean-n-phase3-gps sim-result) 0)
+          med-gps   (or (:mean-med-interim-analysis-gps sim-result) 0.0)
+          med-bat   (or (:mean-med-interim-analysis-bat sim-result) 0.0)
+          med-pool  (or (:mean-med-interim-analysis-pool sim-result) 0.0)
           calc #(calc-interval-rate
                  %1 %2 %3 %4 %5 config
                  alive-bat-ms alive-gps-ms t-ms-arr)]
       (vec
        (concat
         [{:interval "0-IA" :rate (median->rate med-gps) :group "GPS"
-          :events n-ia-gps :median med-gps}
+          :events n-interim-analysis-gps :median med-gps}
          {:interval "0-IA" :rate (median->rate med-bat) :group "BAT"
-          :events n-ia-bat :median med-bat}
+          :events n-interim-analysis-bat :median med-bat}
          {:interval "0-IA" :rate (median->rate med-pool) :group "Pooled"
-          :events (+ n-ia-bat n-ia-gps) :median med-pool}]
+          :events (+ n-interim-analysis-bat n-interim-analysis-gps) :median med-pool}]
         (calc 1 2 "IA-UPD"
-              (- n-up-bat n-ia-bat)
-              (- n-up-gps n-ia-gps))
+              (- n-update-bat n-interim-analysis-bat)
+              (- n-update-gps n-interim-analysis-gps))
         (calc 2 3 "UPD-PR3"
-              (- n-pr3-bat n-up-bat)
-              (- n-pr3-gps n-up-gps)))))))
+              (- n-phase3-bat n-update-bat)
+              (- n-phase3-gps n-update-gps)))))))

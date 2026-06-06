@@ -134,14 +134,14 @@
 
 (defn- calc-hr
   "Calculates hazard ratio record between milestone indices t1 and t2."
-  [t1 t2 label ms-ev-bat-arr ms-ev-gps-arr alive-bat-ms
+  [t1 t2 label ms-events-bat-arr ms-events-gps-arr alive-bat-ms
    alive-gps-ms n-per-arm]
-  (let [ev-gps (- (nth ms-ev-gps-arr t2) (nth ms-ev-gps-arr t1))
-        ev-bat (- (nth ms-ev-bat-arr t2) (nth ms-ev-bat-arr t1))
+  (let [events-gps (- (nth ms-events-gps-arr t2) (nth ms-events-gps-arr t1))
+        events-bat (- (nth ms-events-bat-arr t2) (nth ms-events-bat-arr t1))
         a-gps  (if (zero? t1) n-per-arm (nth alive-gps-ms t1))
         a-bat  (if (zero? t1) n-per-arm (nth alive-bat-ms t1))
-        h-gps  (if (pos? a-gps) (/ ev-gps a-gps) 0.0)
-        h-bat  (if (pos? a-bat) (/ ev-bat a-bat) 0.0)]
+        h-gps  (if (pos? a-gps) (/ events-gps a-gps) 0.0)
+        h-bat  (if (pos? a-bat) (/ events-bat a-bat) 0.0)]
     {:interval label
      :hr (if (pos? h-bat) (/ h-gps h-bat) 0.0)}))
 
@@ -151,21 +151,21 @@
 
 (defn- calc-hr-rates
   "Returns GPS/BAT/Pooled hazard-rate records for milestone interval."
-  [t1 t2 label ms-ev-bat-arr ms-ev-gps-arr alive-bat-ms
-   alive-gps-ms t-ms-arr s-bat-fn s-gps-fn s-pool-fn]
+  [t1 t2 label ms-events-bat-arr ms-events-gps-arr alive-bat-ms
+   alive-gps-ms t-ms-arr survival-bat-fn survival-gps-fn survival-pooled-fn]
   (let [t-start   (nth t-ms-arr t1)
         t-end     (nth t-ms-arr t2)
-        ev-gps    (- (nth ms-ev-gps-arr t2) (nth ms-ev-gps-arr t1))
-        ev-bat    (- (nth ms-ev-bat-arr t2) (nth ms-ev-bat-arr t1))
-        med-gps   (find-interval-median s-gps-fn  t-start t-end)
-        med-bat   (find-interval-median s-bat-fn  t-start t-end)
-        med-pool  (find-interval-median s-pool-fn t-start t-end)]
-    [{:interval label :median med-gps  :events ev-gps
+        events-gps    (- (nth ms-events-gps-arr t2) (nth ms-events-gps-arr t1))
+        events-bat    (- (nth ms-events-bat-arr t2) (nth ms-events-bat-arr t1))
+        med-gps   (find-interval-median survival-gps-fn  t-start t-end)
+        med-bat   (find-interval-median survival-bat-fn  t-start t-end)
+        med-pool  (find-interval-median survival-pooled-fn t-start t-end)]
+    [{:interval label :median med-gps  :events events-gps
       :group "GPS"}
-     {:interval label :median med-bat  :events ev-bat
+     {:interval label :median med-bat  :events events-bat
       :group "BAT"}
      {:interval label :median med-pool
-      :events (+ ev-gps ev-bat) :group "Pooled"}]))
+      :events (+ events-gps events-bat) :group "Pooled"}]))
 
 ;; ---------------------------------------------------------------------------
 ;; GPS point-function builders (for binary search)
@@ -237,32 +237,32 @@
         n-total   (:n-total config)
 
         ;; BAT arm arrays
-        s-bat  (bat-survival  params t-pts)
-        ev-bat (bat-events params enroll-pts enroll-weights
+        survival-bat  (bat-survival  params t-pts)
+        events-bat (bat-events params enroll-pts enroll-weights
                            t-pts n-per-arm n-total)
 
         ;; GPS arm arrays (falls back to BAT when family unknown)
-        s-gps  (gps/gps-survival
-                family params t-pts s-bat)
-        ev-gps (gps/gps-events
+        survival-gps  (gps/gps-survival
+                family params t-pts survival-bat)
+        events-gps (gps/gps-events
                 family params enroll-pts enroll-weights
-                t-pts n-per-arm n-total ev-bat)
+                t-pts n-per-arm n-total events-bat)
 
         ;; Pooled / total
-        s-pool   (np/multiply (np/add s-bat s-gps) 0.5)
-        ev-total (np/add ev-bat ev-gps)
+        survival-pooled   (np/multiply (np/add survival-bat survival-gps) 0.5)
+        events-total (np/add events-bat events-gps)
 
         ;; Convert to plain arrays
         t-arr       (np/nd-to-array t-pts)
-        s-bat-arr   (np/nd-to-array s-bat)
-        s-gps-arr   (np/nd-to-array s-gps)
-        s-pool-arr  (np/nd-to-array s-pool)
+        survival-bat-arr   (np/nd-to-array survival-bat)
+        survival-gps-arr   (np/nd-to-array survival-gps)
+        survival-pooled-arr  (np/nd-to-array survival-pooled)
 
         ;; Alive counts
         alive-bat   (alive-series enroll-pts enroll-weights
-                                  t-pts n-per-arm n-total ev-bat)
+                                  t-pts n-per-arm n-total events-bat)
         alive-gps   (alive-series enroll-pts enroll-weights
-                                  t-pts n-per-arm n-total ev-gps)
+                                  t-pts n-per-arm n-total events-gps)
         alive-total (np/add alive-bat alive-gps)
 
         alive-bat-arr   (np/nd-to-array alive-bat)
@@ -275,65 +275,65 @@
                                     (:t-upd config)
                                     (:t-pr3 config)]
                                "float64")
-        ms-ev-bat (milestone-events
+        ms-events-bat (milestone-events
                    params enroll-pts enroll-weights
                    t-milestones n-per-arm n-total)
-        ms-ev-gps (gps/gps-events
+        ms-events-gps (gps/gps-events
                    family params enroll-pts enroll-weights
-                   t-milestones n-per-arm n-total ms-ev-bat)
+                   t-milestones n-per-arm n-total ms-events-bat)
 
         ms-enroll (enrollment/expected-arm-enrolled
                    enroll-pts enroll-weights
                    t-milestones n-per-arm n-total)
         ms-enroll-arr  (np/nd-to-array ms-enroll)
-        ms-ev-bat-arr  (first (np/nd-to-array ms-ev-bat))
-        ms-ev-gps-arr  (first (np/nd-to-array ms-ev-gps))
-        alive-bat-ms   (mapv - ms-enroll-arr ms-ev-bat-arr)
-        alive-gps-ms   (mapv - ms-enroll-arr ms-ev-gps-arr)
+        ms-events-bat-arr  (first (np/nd-to-array ms-events-bat))
+        ms-events-gps-arr  (first (np/nd-to-array ms-events-gps))
+        alive-bat-ms   (mapv - ms-enroll-arr ms-events-bat-arr)
+        alive-gps-ms   (mapv - ms-enroll-arr ms-events-gps-arr)
         t-ms-arr       (np/nd-to-array t-milestones)
 
         ;; Point functions for binary search
-        s-bat-fn   (bat-point-fn  params)
-        s-gps-fn   (gps-point-fn  family params)
-        s-pool-fn  (fn [t] (* 0.5 (+ (s-bat-fn t) (s-gps-fn t))))
+        survival-bat-fn   (bat-point-fn  params)
+        survival-gps-fn   (gps-point-fn  family params)
+        survival-pooled-fn  (fn [t] (* 0.5 (+ (survival-bat-fn t) (survival-gps-fn t))))
 
         ;; t=36 reference values
         t-36       (np/array #js [36] "float64")
-        s-bat-36   (bat-survival params t-36)
-        s-gps-36   (gps/gps-survival family params t-36 s-bat-36)
-        s-pool-36  (np/multiply (np/add s-bat-36 s-gps-36) 0.5)
+        survival-bat-36   (bat-survival params t-36)
+        survival-gps-36   (gps/gps-survival family params t-36 survival-bat-36)
+        survival-pooled-36  (np/multiply (np/add survival-bat-36 survival-gps-36) 0.5)
 
-        s-bat-36-val  (first (np/nd-to-array s-bat-36))
-        s-gps-36-val  (first (np/nd-to-array s-gps-36))
-        s-pool-36-val (first (np/nd-to-array s-pool-36))
+        survival-bat-36-val  (first (np/nd-to-array survival-bat-36))
+        survival-gps-36-val  (first (np/nd-to-array survival-gps-36))
+        survival-pooled-36-val (first (np/nd-to-array survival-pooled-36))
 
         ;; Shared helper for hr / hr-rates
-        hr-args [ms-ev-bat-arr ms-ev-gps-arr
+        hr-args [ms-events-bat-arr ms-events-gps-arr
                  alive-bat-ms alive-gps-ms n-per-arm]
-        hr-rates-args [ms-ev-bat-arr ms-ev-gps-arr
+        hr-rates-args [ms-events-bat-arr ms-events-gps-arr
                        alive-bat-ms alive-gps-ms t-ms-arr
-                       s-bat-fn s-gps-fn s-pool-fn]]
+                       survival-bat-fn survival-gps-fn survival-pooled-fn]]
 
     {:survival
      (vec (concat
            (mapv #(hash-map :time %1 :survival %2 :group "Pooled")
-                 t-arr s-pool-arr)
+                 t-arr survival-pooled-arr)
            (mapv #(hash-map :time %1 :survival %2 :group "GPS")
-                 t-arr s-gps-arr)
+                 t-arr survival-gps-arr)
            (mapv #(hash-map :time %1 :survival %2 :group "BAT")
-                 t-arr s-bat-arr)
-           [{:time 36 :survival s-pool-36-val :group "Pooled"}
-            {:time 36 :survival s-gps-36-val  :group "GPS"}
-            {:time 36 :survival s-bat-36-val  :group "BAT"}]))
+                 t-arr survival-bat-arr)
+           [{:time 36 :survival survival-pooled-36-val :group "Pooled"}
+            {:time 36 :survival survival-gps-36-val  :group "GPS"}
+            {:time 36 :survival survival-bat-36-val  :group "BAT"}]))
 
      :accrual
      (vec (concat
            (mapv #(hash-map :time %1 :events %2 :group "Total")
-                 t-arr (first (np/nd-to-array ev-total)))
+                 t-arr (first (np/nd-to-array events-total)))
            (mapv #(hash-map :time %1 :events %2 :group "GPS")
-                 t-arr (first (np/nd-to-array ev-gps)))
+                 t-arr (first (np/nd-to-array events-gps)))
            (mapv #(hash-map :time %1 :events %2 :group "BAT")
-                 t-arr (first (np/nd-to-array ev-bat)))))
+                 t-arr (first (np/nd-to-array events-bat)))))
 
      :alive
      (let [n-tot n-total]
@@ -348,9 +348,9 @@
                 :bat-died-diff   (- n-per-arm e-bat)})
              t-arr
              alive-total-arr alive-gps-arr alive-bat-arr
-             (first (np/nd-to-array ev-total))
-             (first (np/nd-to-array ev-gps))
-             (first (np/nd-to-array ev-bat))))
+             (first (np/nd-to-array events-total))
+             (first (np/nd-to-array events-gps))
+             (first (np/nd-to-array events-bat))))
 
      :hr
      (mapv #(apply calc-hr (concat % hr-args))
@@ -366,8 +366,8 @@
      :alive-gps-ms  alive-gps-ms
      :t-ms-arr      t-ms-arr
      :n-per-arm     n-per-arm
-     :ms-ev-bat-arr ms-ev-bat-arr
-     :ms-ev-gps-arr ms-ev-gps-arr}))
+     :ms-events-bat-arr ms-events-bat-arr
+     :ms-events-gps-arr ms-events-gps-arr}))
 
 ;; ---------------------------------------------------------------------------
 ;; sim->interval-medians  (unchanged)
@@ -387,40 +387,40 @@
                   :events   (or (safe ev)  0.0)
                   :group    group})]
       [(mk "0-IA"   "GPS"
-           (:mean-med-ia-gps  sim-result)
-           (:mean-n-ia-gps    sim-result))
+           (:mean-med-interim-analysis-gps  sim-result)
+           (:mean-n-interim-analysis-gps    sim-result))
        (mk "0-IA"   "BAT"
-           (:mean-med-ia-bat  sim-result)
-           (:mean-n-ia-bat    sim-result))
+           (:mean-med-interim-analysis-bat  sim-result)
+           (:mean-n-interim-analysis-bat    sim-result))
        (mk "0-IA"   "Pooled"
-           (:mean-med-ia-pool sim-result)
-           (+ (or (:mean-n-ia-bat sim-result) 0)
-              (or (:mean-n-ia-gps sim-result) 0)))
+           (:mean-med-interim-analysis-pool sim-result)
+           (+ (or (:mean-n-interim-analysis-bat sim-result) 0)
+              (or (:mean-n-interim-analysis-gps sim-result) 0)))
        (mk "IA-UPD" "GPS"
-           (:mean-med-up-gps  sim-result)
-           (- (or (:mean-n-up-gps  sim-result) 0)
-              (or (:mean-n-ia-gps  sim-result) 0)))
+           (:mean-med-update-gps  sim-result)
+           (- (or (:mean-n-update-gps  sim-result) 0)
+              (or (:mean-n-interim-analysis-gps  sim-result) 0)))
        (mk "IA-UPD" "BAT"
-           (:mean-med-up-bat  sim-result)
-           (- (or (:mean-n-up-bat  sim-result) 0)
-              (or (:mean-n-ia-bat  sim-result) 0)))
+           (:mean-med-update-bat  sim-result)
+           (- (or (:mean-n-update-bat  sim-result) 0)
+              (or (:mean-n-interim-analysis-bat  sim-result) 0)))
        (mk "IA-UPD" "Pooled"
-           (:mean-med-up-pool sim-result)
-           (- (+ (or (:mean-n-up-bat sim-result) 0)
-                 (or (:mean-n-up-gps sim-result) 0))
-              (+ (or (:mean-n-ia-bat sim-result) 0)
-                 (or (:mean-n-ia-gps sim-result) 0))))
+           (:mean-med-update-pool sim-result)
+           (- (+ (or (:mean-n-update-bat sim-result) 0)
+                 (or (:mean-n-update-gps sim-result) 0))
+              (+ (or (:mean-n-interim-analysis-bat sim-result) 0)
+                 (or (:mean-n-interim-analysis-gps sim-result) 0))))
        (mk "UPD-PR3" "GPS"
-           (:mean-med-pr3-gps  sim-result)
-           (- (or (:mean-n-pr3-gps sim-result) 0)
-              (or (:mean-n-up-gps  sim-result) 0)))
+           (:mean-med-phase3-gps  sim-result)
+           (- (or (:mean-n-phase3-gps sim-result) 0)
+              (or (:mean-n-update-gps  sim-result) 0)))
        (mk "UPD-PR3" "BAT"
-           (:mean-med-pr3-bat  sim-result)
-           (- (or (:mean-n-pr3-bat sim-result) 0)
-              (or (:mean-n-up-bat  sim-result) 0)))
+           (:mean-med-phase3-bat  sim-result)
+           (- (or (:mean-n-phase3-bat sim-result) 0)
+              (or (:mean-n-update-bat  sim-result) 0)))
        (mk "UPD-PR3" "Pooled"
-           (:mean-med-pr3-pool sim-result)
-           (- (+ (or (:mean-n-pr3-bat sim-result) 0)
-                 (or (:mean-n-pr3-gps sim-result) 0))
-              (+ (or (:mean-n-up-bat  sim-result) 0)
-                 (or (:mean-n-up-gps  sim-result) 0))))])))
+           (:mean-med-phase3-pool sim-result)
+           (- (+ (or (:mean-n-phase3-bat sim-result) 0)
+                 (or (:mean-n-phase3-gps sim-result) 0))
+              (+ (or (:mean-n-update-bat  sim-result) 0)
+                 (or (:mean-n-update-gps  sim-result) 0))))])))
