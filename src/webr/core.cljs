@@ -135,6 +135,7 @@
      (if-let [webr @webr-instance]
        (try
          (-> (.evalR webr code)
+             (.then (fn [res] (.toJs res)))
              (.then (fn [js-val]
                       (let [result (try (js->clj js-val :keywordize-keys true)
                                         (catch :default _ js-val))]
