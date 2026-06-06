@@ -1,9 +1,9 @@
-(ns app.ui
+(ns app.ui.core
   (:require [reagent.core :as r]
             [app.state :as state]
             [app.simulator :as sim]
             [app.db :as db]
-            [app.views :as views]
+            [app.views.core :as views]
             [app.ui.sections :as sections]
             [app.ui.results :as results]
             [app.ui.enrollment :as enrollment]

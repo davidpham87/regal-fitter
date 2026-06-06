@@ -1,5 +1,5 @@
 (ns app.core
-  (:require [app.ui :as ui]
+  (:require [app.ui.core :as ui]
             [app.worker-pool :as wp]
             [app.simulator :as sim]
             [reagent.dom :as rdom]
@@ -47,9 +47,8 @@
   []
   (js/console.log "reload")
   (rdom/render #_[reload-testing]
-               [ui/main-view] (js/document.getElementById "app")))
+   [ui/main-view] (js/document.getElementById "app")))
 
 (comment
   "hello"
-  (reload!)
-  )
+  (reload!))

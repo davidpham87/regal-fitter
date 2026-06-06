@@ -1,4 +1,4 @@
-(ns app.discovery
+(ns app.discovery.core
   (:require [reagent.core :as r]
             [fork.reagent :as fork]
             [app.state :as state]

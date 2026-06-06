@@ -1,11 +1,11 @@
-(ns app.views
+(ns app.views.core
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [fork.reagent :as fork]
             [app.state :as state]
             [app.vega :as vega]
             [app.simulator :as sim]
-            [app.discovery :as discovery]
+            [app.discovery.core :as discovery]
             [reitit.frontend.easy :as rfe]
             [app.stress-test.power :as power]))
 
