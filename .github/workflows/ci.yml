@@ -71,4 +71,4 @@ jobs:
     - name: Install npm dependencies
       run: npm ci
     - name: Compile shadow-cljs app
-      run: clojure -M:cljs:shadow-cljs compile app
+      run: npm run build
