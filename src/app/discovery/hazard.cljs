@@ -65,8 +65,8 @@
           n-interim-analysis-gps  (or (:mean-n-interim-analysis-gps  sim-result) 0)
           n-update-bat  (or (:mean-n-update-bat  sim-result) 0)
           n-update-gps  (or (:mean-n-update-gps  sim-result) 0)
-          n-phase3-bat (or (:mean-n-phase3-bat sim-result) 0)
-          n-phase3-gps (or (:mean-n-phase3-gps sim-result) 0)
+          n-press-release-3-bat (or (:mean-n-press-release-3-bat sim-result) 0)
+          n-press-release-3-gps (or (:mean-n-press-release-3-gps sim-result) 0)
           med-gps   (or (:mean-med-interim-analysis-gps sim-result) 0.0)
           med-bat   (or (:mean-med-interim-analysis-bat sim-result) 0.0)
           med-pool  (or (:mean-med-interim-analysis-pool sim-result) 0.0)
@@ -85,5 +85,5 @@
               (- n-update-bat n-interim-analysis-bat)
               (- n-update-gps n-interim-analysis-gps))
         (calc 2 3 "UPD-PR3"
-              (- n-phase3-bat n-update-bat)
-              (- n-phase3-gps n-update-gps)))))))
+              (- n-press-release-3-bat n-update-bat)
+              (- n-press-release-3-gps n-update-gps)))))))

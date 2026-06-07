@@ -12,10 +12,10 @@
   ([config enroll-times survival-times n-total]
    (count-events-at-times config enroll-times survival-times nil n-total))
   ([config enroll-times survival-times arms-array n-total]
-   (let [n-interim-analysis     (atom 0) n-update     (atom 0) n-phase3     (atom 0)
+   (let [n-interim-analysis     (atom 0) n-update     (atom 0) n-press-release-3     (atom 0)
          n-interim-analysis-bat (atom 0) n-interim-analysis-gps (atom 0)
          n-update-bat (atom 0) n-update-gps (atom 0)
-         n-phase3-bat (atom 0) n-phase3-gps (atom 0)]
+         n-press-release-3-bat (atom 0) n-press-release-3-gps (atom 0)]
      (dotimes [i n-total]
        (let [enroll   (aget enroll-times i)
              survival (aget survival-times i)
@@ -39,14 +39,14 @@
                        (swap! n-update-bat inc)
                        (swap! n-update-gps inc))))
          (when dead-pr3
-           (swap! n-phase3 inc)
+           (swap! n-press-release-3 inc)
            (when arm (if (== arm 0)
-                       (swap! n-phase3-bat inc)
-                       (swap! n-phase3-gps inc))))))
-     {:n-interim-analysis @n-interim-analysis :n-update @n-update :n-phase3 @n-phase3
+                       (swap! n-press-release-3-bat inc)
+                       (swap! n-press-release-3-gps inc))))))
+     {:n-interim-analysis @n-interim-analysis :n-update @n-update :n-press-release-3 @n-press-release-3
       :n-interim-analysis-bat @n-interim-analysis-bat   :n-interim-analysis-gps @n-interim-analysis-gps
       :n-update-bat @n-update-bat   :n-update-gps @n-update-gps
-      :n-phase3-bat @n-phase3-bat :n-phase3-gps @n-phase3-gps})))
+      :n-press-release-3-bat @n-press-release-3-bat :n-press-release-3-gps @n-press-release-3-gps})))
 
 (defn- js-median
   "Returns the median of a plain JS array (sorts in place)."
@@ -66,7 +66,7 @@
   [config enroll-times survival-times arms-array n-total]
   (let [interim-analysis-bat  (js/Array.) interim-analysis-gps  (js/Array.)
         update-bat  (js/Array.) update-gps  (js/Array.)
-        phase3-bat (js/Array.) phase3-gps (js/Array.)]
+        press-release-3-bat (js/Array.) press-release-3-gps (js/Array.)]
     (dotimes [i n-total]
       (let [enroll   (aget enroll-times i)
             survival (aget survival-times i)
@@ -87,7 +87,7 @@
             (.push update-bat survival) (.push update-gps survival)))
         (when (and dead-pr3 (not dead-up))
           (if (== arm 0)
-            (.push phase3-bat survival) (.push phase3-gps survival)))))
+            (.push press-release-3-bat survival) (.push press-release-3-gps survival)))))
     (let [pool (fn [a b]
                  (let [c (js/Array.)]
                    (dotimes [i (.-length a)] (.push c (aget a i)))
@@ -99,21 +99,21 @@
        :med-update-bat   (js-median update-bat)
        :med-update-gps   (js-median update-gps)
        :med-update-pool  (js-median (pool update-bat update-gps))
-       :med-phase3-bat  (js-median phase3-bat)
-       :med-phase3-gps  (js-median phase3-gps)
-       :med-phase3-pool (js-median (pool phase3-bat phase3-gps))})))
+       :med-press-release-3-bat  (js-median press-release-3-bat)
+       :med-press-release-3-gps  (js-median press-release-3-gps)
+       :med-press-release-3-pool (js-median (pool press-release-3-bat press-release-3-gps))})))
 
 (defn- pass-events-tolerance?
   "Checks if event counts are within configured tolerances."
-  [config {:keys [n-interim-analysis n-update n-phase3]}]
+  [config {:keys [n-interim-analysis n-update n-press-release-3]}]
   (let [keep-ia (<= (js/Math.abs (- n-interim-analysis (:n-ev-ia config))) (:tol-ia config))
         keep-up (<= (js/Math.abs (- n-update (:n-ev-upd config))) (:tol-upd config))
         increment-ia-up (- n-update n-interim-analysis)
         target-increment (- (:n-ev-upd config) (:n-ev-ia config))
         diff-increment (js/Math.abs (- increment-ia-up target-increment))
         pass-pr3 (if-not (:use-pr3-anchor config) true
-                   (and (<= (js/Math.abs (- n-phase3 (:n-ev-pr3 config))) (:tol-pr3 config))
-                        (<= (js/Math.abs (- (- n-phase3 n-update) (- (:n-ev-pr3 config) (:n-ev-upd config)))) (:tol-increment-upd-pr3 config))))]
+                   (and (<= (js/Math.abs (- n-press-release-3 (:n-ev-pr3 config))) (:tol-pr3 config))
+                        (<= (js/Math.abs (- (- n-press-release-3 n-update) (- (:n-ev-pr3 config) (:n-ev-upd config)))) (:tol-increment-upd-pr3 config))))]
     (and keep-ia keep-up (<= diff-increment (:tol-increment-ia-upd config)) pass-pr3)))
 
 (defn- interim-analysis-data
@@ -215,10 +215,10 @@
                     :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
                     :n-update-bat  (:n-update-bat counts)
                     :n-update-gps  (:n-update-gps counts)
-                    :n-phase3-bat (:n-phase3-bat counts)
-                    :n-phase3-gps (:n-phase3-gps counts)}
+                    :n-press-release-3-bat (:n-press-release-3-bat counts)
+                    :n-press-release-3-gps (:n-press-release-3-gps counts)}
                    (when (:use-pr3-anchor config)
-                     {:n-ev-pr3 (:n-phase3 counts)})
+                     {:n-ev-pr3 (:n-press-release-3 counts)})
                    ;; Per-arm median survival times per interval
                    (compute-interval-medians
                     config enroll-times survival-times
@@ -323,8 +323,8 @@
           :mean-n-interim-analysis-gps  (mean-field all-stats :n-interim-analysis-gps)
           :mean-n-update-bat  (mean-field all-stats :n-update-bat)
           :mean-n-update-gps  (mean-field all-stats :n-update-gps)
-          :mean-n-phase3-bat (mean-field all-stats :n-phase3-bat)
-          :mean-n-phase3-gps (mean-field all-stats :n-phase3-gps)
+          :mean-n-press-release-3-bat (mean-field all-stats :n-press-release-3-bat)
+          :mean-n-press-release-3-gps (mean-field all-stats :n-press-release-3-gps)
           ;; Mean-of-medians survival time per arm per interval
           :mean-med-interim-analysis-bat   (mean-field all-stats :med-interim-analysis-bat)
           :mean-med-interim-analysis-gps   (mean-field all-stats :med-interim-analysis-gps)
@@ -332,9 +332,9 @@
           :mean-med-update-bat   (mean-field all-stats :med-update-bat)
           :mean-med-update-gps   (mean-field all-stats :med-update-gps)
           :mean-med-update-pool  (mean-field all-stats :med-update-pool)
-          :mean-med-phase3-bat  (mean-field all-stats :med-phase3-bat)
-          :mean-med-phase3-gps  (mean-field all-stats :med-phase3-gps)
-          :mean-med-phase3-pool (mean-field all-stats :med-phase3-pool)}))
+          :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
+          :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
+          :mean-med-press-release-3-pool (mean-field all-stats :med-press-release-3-pool)}))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."

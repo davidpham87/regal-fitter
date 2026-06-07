@@ -411,16 +411,16 @@
               (+ (or (:mean-n-interim-analysis-bat sim-result) 0)
                  (or (:mean-n-interim-analysis-gps sim-result) 0))))
        (mk "UPD-PR3" "GPS"
-           (:mean-med-phase3-gps  sim-result)
-           (- (or (:mean-n-phase3-gps sim-result) 0)
+           (:mean-med-press-release-3-gps  sim-result)
+           (- (or (:mean-n-press-release-3-gps sim-result) 0)
               (or (:mean-n-update-gps  sim-result) 0)))
        (mk "UPD-PR3" "BAT"
-           (:mean-med-phase3-bat  sim-result)
-           (- (or (:mean-n-phase3-bat sim-result) 0)
+           (:mean-med-press-release-3-bat  sim-result)
+           (- (or (:mean-n-press-release-3-bat sim-result) 0)
               (or (:mean-n-update-bat  sim-result) 0)))
        (mk "UPD-PR3" "Pooled"
-           (:mean-med-phase3-pool sim-result)
-           (- (+ (or (:mean-n-phase3-bat sim-result) 0)
-                 (or (:mean-n-phase3-gps sim-result) 0))
+           (:mean-med-press-release-3-pool sim-result)
+           (- (+ (or (:mean-n-press-release-3-bat sim-result) 0)
+                 (or (:mean-n-press-release-3-gps sim-result) 0))
               (+ (or (:mean-n-update-bat  sim-result) 0)
                  (or (:mean-n-update-gps  sim-result) 0))))])))
