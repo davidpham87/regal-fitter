@@ -351,6 +351,81 @@
    [chart-grid curve-data-h0 h0-hazard-rates active-metric nil "H0"]])
 
 ;; ---------------------------------------------------------------------------
+;; Detailed simulation results and realized medians panel
+;; ---------------------------------------------------------------------------
+
+(defn- simulation-results-panel [sim-result medians active-family calc-params]
+  (when sim-result
+    [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-8
+     [:h3.text-lg.font-bold.text-gray-800.mb-4
+      "Simulation Detailed Results & Milestones"]
+     [:div.grid.grid-cols-1.md:grid-cols-2.gap-8
+      [:div
+       [:h4.text-sm.font-bold.text-gray-700.mb-3
+        "Population Medians & Realized Months"]
+       [:table.min-w-full.divide-y.divide-gray-200.text-sm
+        [:thead
+         [:tr
+          [:th.text-left.font-semibold.text-gray-600.pb-2 "Metric"]
+          [:th.text-right.font-semibold.text-gray-600.pb-2 "BAT (Placebo)"]
+          [:th.text-right.font-semibold.text-gray-600.pb-2 "GPS (Active)"]]]
+        [:tbody.divide-y.divide-gray-200
+         [:tr
+          [:td.py-2.text-gray-600 "Input Observed mOS"]
+          [:td.py-2.text-right.font-medium (str (:bat-med calc-params) "m")]
+          [:td.py-2.text-right.font-medium (str (:gps-med calc-params) "m")]]
+         [:tr
+          [:td.py-2.text-gray-600 "True Population mOS (with delay/cure)"]
+          [:td.py-2.text-right.font-medium.text-blue-600
+           (str (.toFixed (:bat-true-mos medians) 2) "m")]
+          [:td.py-2.text-right.font-medium.text-blue-600
+           (if (= (:gps-true-mos medians) js/Infinity)
+             "Infinity"
+             (str (.toFixed (:gps-true-mos medians) 2) "m"))]]
+         [:tr
+          [:td.py-2.text-gray-600 "Trial Timeline realized mOS (50% events)"]
+          [:td.py-2.text-right.font-medium.text-green-600
+           (if (= (:bat-realized-month medians) js/Infinity)
+             "N/A"
+             (str (.toFixed (:bat-realized-month medians) 2) "m"))]
+          [:td.py-2.text-right.font-medium.text-green-600
+           (if (= (:gps-realized-month medians) js/Infinity)
+             "N/A"
+             (str (.toFixed (:gps-realized-month medians) 2) "m"))]]]]]
+      [:div
+       [:h4.text-sm.font-bold.text-gray-700.mb-3 "Stochastic Trial Outcomes"]
+       [:div.grid.grid-cols-2.gap-4
+        [:div.bg-gray-50.p-3.rounded-lg.border
+         [:div.text-xs.text-gray-400.font-semibold "Overall Trial Success"]
+         [:div.text-lg.font-bold.text-green-600
+          (str (.toFixed (* 100 (:p-success-overall sim-result)) 1) "%")]]
+        [:div.bg-gray-50.p-3.rounded-lg.border
+         [:div.text-xs.text-gray-400.font-semibold
+          "Acceptance Rate (Stage 1 Pass)"]
+         [:div.text-lg.font-bold.text-gray-700
+          (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1) "%")]]
+        [:div.bg-gray-50.p-3.rounded-lg.border
+         [:div.text-xs.text-gray-400.font-semibold "Median Hazard Ratio"]
+         [:div.text-lg.font-bold.text-blue-600
+          (if (js/isNaN (:median-hr-final sim-result))
+            "N/A"
+            (.toFixed (:median-hr-final sim-result) 3))]]
+        [:div.bg-gray-50.p-3.rounded-lg.border
+         [:div.text-xs.text-gray-400.font-semibold "Median Time to 80 Ev"]
+         [:div.text-lg.font-bold.text-blue-600
+          (if (js/isNaN (:median-t80-months sim-result))
+            "N/A"
+            (str (.toFixed (:median-t80-months sim-result) 1) "m"))]]
+        [:div.bg-gray-50.p-3.rounded-lg.border
+         [:div.text-xs.text-gray-400.font-semibold "Prob. of 80 Events"]
+         [:div.text-sm.font-semibold.text-gray-700
+          (str (.toFixed (* 100 (:p-reach80 sim-result)) 1) "%")]]
+        [:div.bg-gray-50.p-3.rounded-lg.border
+         [:div.text-xs.text-gray-400.font-semibold "Accepted / Futility Pass"]
+         [:div.text-sm.font-semibold.text-gray-700
+          (str (:n-accepted sim-result) " / " (:n-pass-events sim-result))]]]]]]))
+
+;; ---------------------------------------------------------------------------
 ;; discovery-view-content
 ;; ---------------------------------------------------------------------------
 
@@ -396,7 +471,8 @@
                     (:bat-med calc-params)
                     (or (:delay calc-params) 3.0)
                     (:weibull-k calc-params))
-        bat-true-mos (true-mos bat-lambda (:weibull-k calc-params))]
+        bat-true-mos (true-mos bat-lambda (:weibull-k calc-params))
+        medians (dc/calculate-medians active-family calc-params config)]
 
     [:div.p-6.max-w-7xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
@@ -412,6 +488,7 @@
        [:<>
         [controls-panel props active-family calc-params
          state config bat-true-mos]
+        [simulation-results-panel sim-result medians active-family calc-params]
         ^{:key (str params)}
         [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
          [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
