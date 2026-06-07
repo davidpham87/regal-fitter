@@ -34,6 +34,22 @@
       [(np/array #js [] "float64") (np/array #js [] "float64")]
       [(np/concatenate all-points) (np/concatenate all-weights)])))
 
+(defn expected-arm-enrolled
+  "Calculates expected number of enrolled patients per arm over calendar-times."
+  {:malli/schema [:=> [:cat any? any? any? :number :number] any?]}
+  [enroll-pts enroll-weights calendar-times n-per-arm n-total]
+  (let [arm-share (/ n-per-arm n-total)
+        times-2d (np/reshape calendar-times
+                             #js [(.-size calendar-times) 1])
+        enroll-2d (np/reshape enroll-pts
+                              #js [1 (.-size enroll-pts)])
+        mask (np/greater (np/subtract times-2d enroll-2d) 0.0)
+        weights-2d (np/reshape enroll-weights #js [1 (.-size enroll-pts)])
+        weighted (np/multiply mask weights-2d)
+        enrolled (np/multiply (np/sum weighted 1) arm-share)]
+    enrolled))
+
+
 (defn- calculate-events-chunk
   "Processes a chunk of survival parameters to compute expected events."
   [survival-func params-grid follow-up-3d weights-3d arm-share start end]

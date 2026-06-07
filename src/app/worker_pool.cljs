@@ -9,17 +9,17 @@
 (declare process-queue!)
 
 (defn create-worker! []
-  (let [worker (js/Worker. "js/worker.js")]
+  (let [worker (js/Worker. "js/worker/worker_loader.js")]
     (set! (.-onmessage worker)
           (fn [event]
-            (let [data (.-data event)
-                  job-id (.-id data)
-                  type (.-type data)
+            (let [data (.-data ^js event)
+                  job-id (.-id ^js data)
+                  type (.-type ^js data)
                   result (js->clj
-                          (.-result data)
+                          (.-result ^js data)
                           :keywordize-keys true)
-                  success? (.-success data)
-                  error (.-error data)]
+                  success? (.-success ^js data)
+                  error (.-error ^js data)]
 
               (when (= type "SIMULATION_RESULT")
                 (when-let [cb (get @job-callbacks
@@ -68,3 +68,14 @@
 (defn clear-queue! []
   (reset! job-queue [])
   (reset! job-callbacks {}))
+
+(defn abort-pool! []
+  (reset! job-queue [])
+  (reset! job-callbacks {})
+  (doseq [w @pool]
+    (.terminate w))
+  (doseq [w @busy-workers]
+    (.terminate w))
+  (reset! pool [])
+  (reset! busy-workers #{})
+  (init-pool! nil))

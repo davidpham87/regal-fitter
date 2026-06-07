@@ -94,21 +94,22 @@
              [fork/form
               {:initial-values init-vals
                :keywordize-keys true
-               :on-submit (fn [{:keys [values]}]
-                            (let [m-val (js/parseFloat (:median-month values))
-                                  k-val (js/parseFloat (:k values))]
-                              (when (and (not (js/isNaN m-val))
-                                         (not (js/isNaN k-val)))
-                                (let [n-total 126
-                                      total-months 38
-                                      new-bands (rfe/get-s-curve-enrollment-bands
-                                                 n-total total-months
-                                                 m-val k-val)]
-                                  (state/set-config! :enroll-bands new-bands)
-                                  (swap! state/app-state assoc-in
-                                         [:enrollment-mode :median-month] m-val)
-                                  (swap! state/app-state assoc-in
-                                         [:enrollment-mode :k] k-val)))))}
+               :on-submit
+               (fn [{:keys [values]}]
+                 (let [m-val (js/parseFloat (:median-month values))
+                       k-val (js/parseFloat (:k values))]
+                   (when (and (not (js/isNaN m-val))
+                              (not (js/isNaN k-val)))
+                     (let [n-total 126
+                           total-months 38
+                           new-bands (rfe/get-s-curve-enrollment-bands
+                                      n-total total-months
+                                      m-val k-val)]
+                       (state/set-config! :enroll-bands new-bands)
+                       (swap! state/app-state assoc-in
+                              [:enrollment-mode :median-month] m-val)
+                       (swap! state/app-state assoc-in
+                              [:enrollment-mode :k] k-val)))))}
               (fn [{:keys [values handle-change handle-submit]}]
                 [:form.mb-6.p-4.border.rounded-xl.bg-gray-50
                  {:on-submit handle-submit}

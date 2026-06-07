@@ -61,13 +61,14 @@
   (let [bat-ev-slice (np/slice bat-ev start-idx end-idx)
         bat-ev-3d (np/reshape bat-ev-slice
                               #js [(- end-idx start-idx) 1 num-anchors])
-        total-events (.toArray
+        total-events (np/nd-to-array
                       (np/add bat-ev-3d
                               (np/reshape gps-ev
                                           #js [1 grid-gps num-anchors])))
         bat-survival (when apply-pool
-                       (.toArray (np/slice bat-S-T start-idx end-idx)))
-        gps-survival (when apply-pool (.toArray gps-S-T))]
+                       (np/nd-to-array
+                        (np/slice bat-S-T start-idx end-idx)))
+        gps-survival (when apply-pool (np/nd-to-array gps-S-T))]
     (keep (fn [pair]
             (let [local-bat (first pair) global-gps (second pair)]
               (when-let [res (validate-scenario local-bat global-gps total-events bat-survival gps-survival apply-pool apply-pr3 config)]
@@ -99,15 +100,15 @@
         bat-shape-cfg (get-grid-params :bat-shape-grid config)
         bat-shapes (np/arange (:start bat-shape-cfg) (:stop bat-shape-cfg) (:step bat-shape-cfg))
         bat-mesh (np/meshgrid [bat-meds bat-shapes] #js {:indexing "ij"})
-        bat-med-flat (.ravel (aget bat-mesh 0))
-        bat-shape-flat (.ravel (aget bat-mesh 1))
+        bat-med-flat (np/ravel (aget bat-mesh 0))
+        bat-shape-flat (np/ravel (aget bat-mesh 1))
         bat-scale-flat (survival/weibull-scale-from-median bat-med-flat bat-shape-flat)
         gps-meds (np/geomspace (:gps-med-grid-lo config) (:gps-med-grid-hi config) (:gps-med-grid-n config))
         gps-shape-cfg (get-grid-params :gps-shape-grid config)
         gps-shapes (np/arange (:start gps-shape-cfg) (:stop gps-shape-cfg) (:step gps-shape-cfg))
         gps-mesh (np/meshgrid [gps-meds gps-shapes] #js {:indexing "ij"})
-        gps-med-flat (.ravel (aget gps-mesh 0))
-        gps-shape-flat (.ravel (aget gps-mesh 1))
+        gps-med-flat (np/ravel (aget gps-mesh 0))
+        gps-shape-flat (np/ravel (aget gps-mesh 1))
         gps-scale-flat (survival/weibull-scale-from-median gps-med-flat gps-shape-flat)
         bat-ev (enrollment/expected-arm-events survival/weibull-survival-probability [bat-scale-flat bat-shape-flat] enroll-pts enroll-weights target-pts (:n-per-arm config) (:n-total config))
         gps-ev (enrollment/expected-arm-events survival/weibull-survival-probability [gps-scale-flat gps-shape-flat] enroll-pts enroll-weights target-pts (:n-per-arm config) (:n-total config))
@@ -130,8 +131,8 @@
         bat-shape-cfg (get-grid-params :bat-shape-grid config)
         bat-shapes (np/arange (:start bat-shape-cfg) (:stop bat-shape-cfg) (:step bat-shape-cfg))
         bat-mesh (np/meshgrid [bat-meds bat-shapes] #js {:indexing "ij"})
-        bat-med-flat (.ravel (aget bat-mesh 0))
-        bat-shape-flat (.ravel (aget bat-mesh 1))
+        bat-med-flat (np/ravel (aget bat-mesh 0))
+        bat-shape-flat (np/ravel (aget bat-mesh 1))
         bat-scale-flat (survival/weibull-scale-from-median bat-med-flat bat-shape-flat)
         cf-cfg (get-grid-params :cure-frac-grid config)
         cf-grid (np/arange (:start cf-cfg) (:stop cf-cfg) (:step cf-cfg))
@@ -140,9 +141,9 @@
         unc-shape-cfg (get-grid-params :cure-unc-shape-grid config)
         unc-shapes (np/arange (:start unc-shape-cfg) (:stop unc-shape-cfg) (:step unc-shape-cfg))
         gps-mesh (np/meshgrid [cf-grid unc-meds unc-shapes] #js {:indexing "ij"})
-        cf-flat (.ravel (aget gps-mesh 0))
-        unc-med-flat (.ravel (aget gps-mesh 1))
-        unc-shape-flat (.ravel (aget gps-mesh 2))
+        cf-flat (np/ravel (aget gps-mesh 0))
+        unc-med-flat (np/ravel (aget gps-mesh 1))
+        unc-shape-flat (np/ravel (aget gps-mesh 2))
         unc-scale-flat (survival/weibull-scale-from-median unc-med-flat unc-shape-flat)
         bat-ev (enrollment/expected-arm-events survival/weibull-survival-probability [bat-scale-flat bat-shape-flat] enroll-pts enroll-weights target-pts (:n-per-arm config) (:n-total config))
         gps-ev (enrollment/expected-arm-events survival/cure-survival-probability [cf-flat unc-scale-flat unc-shape-flat] enroll-pts enroll-weights target-pts (:n-per-arm config) (:n-total config))
@@ -165,8 +166,8 @@
         bat-shape-cfg (get-grid-params :bat-shape-grid config)
         bat-shapes (np/arange (:start bat-shape-cfg) (:stop bat-shape-cfg) (:step bat-shape-cfg))
         bat-mesh (np/meshgrid [bat-meds bat-shapes] #js {:indexing "ij"})
-        bat-med-flat (.ravel (aget bat-mesh 0))
-        bat-shape-flat (.ravel (aget bat-mesh 1))
+        bat-med-flat (np/ravel (aget bat-mesh 0))
+        bat-shape-flat (np/ravel (aget bat-mesh 1))
         bat-scale-flat (survival/weibull-scale-from-median bat-med-flat bat-shape-flat)
         cf-cfg (get-grid-params :leaky-cure-frac-grid config)
         cf-grid (np/arange (:start cf-cfg) (:stop cf-cfg) (:step cf-cfg))
@@ -177,10 +178,10 @@
         leaks-cfg (get-grid-params :leak-grid config)
         leaks (np/arange (:start leaks-cfg) (:stop leaks-cfg) (:step leaks-cfg))
         gps-mesh (np/meshgrid [cf-grid unc-meds unc-shapes leaks] #js {:indexing "ij"})
-        cf-flat (.ravel (aget gps-mesh 0))
-        unc-med-flat (.ravel (aget gps-mesh 1))
-        unc-shape-flat (.ravel (aget gps-mesh 2))
-        leak-flat (.ravel (aget gps-mesh 3))
+        cf-flat (np/ravel (aget gps-mesh 0))
+        unc-med-flat (np/ravel (aget gps-mesh 1))
+        unc-shape-flat (np/ravel (aget gps-mesh 2))
+        leak-flat (np/ravel (aget gps-mesh 3))
         unc-scale-flat (survival/weibull-scale-from-median unc-med-flat unc-shape-flat)
         bat-ev (enrollment/expected-arm-events survival/weibull-survival-probability [bat-scale-flat bat-shape-flat] enroll-pts enroll-weights target-pts (:n-per-arm config) (:n-total config))
         gps-ev (enrollment/expected-arm-events survival/leaky-cure-survival-probability [cf-flat unc-scale-flat unc-shape-flat leak-flat] enroll-pts enroll-weights target-pts (:n-per-arm config) (:n-total config))

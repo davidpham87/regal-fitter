@@ -1,11 +1,13 @@
 (ns app.core
-  (:require [app.ui :as ui]
+  (:require [app.simulator :as sim]
+            [app.ui.core :as ui]
             [app.worker-pool :as wp]
-            [app.simulator :as sim]
+            [portal.web :as p]
+            [re-frame.core :as re-frame]
             [reagent.dom :as rdom]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe]
-            [re-frame.core :as re-frame]))
+            [webr.core :as webr]))
 
 (def routes
   [["/"
@@ -14,12 +16,18 @@
     {:name :fitter}]
    ["/fitter/:subtab"
     {:name :fitter-sub}]
+   ["/fitter/:subtab/:state"
+    {:name :fitter-sub-state}]
    ["/placebo-stress"
     {:name :placebo-stress}]
+   ["/placebo-stress/:state"
+    {:name :placebo-stress-state}]
    ["/discovery"
     {:name :discovery}]
    ["/discovery/:subtab"
-    {:name :discovery-sub}]])
+    {:name :discovery-sub}]
+   ["/discovery/:subtab/:state"
+    {:name :discovery-sub-state}]])
 
 (defn init-routes! []
   (rfe/start!
@@ -34,7 +42,21 @@
   (wp/init-pool! nil)
   (sim/init!)
   (init-routes!)
+  ;; Open portal in the browser context
+  ;; (p/open)
+  ;; Initialize WebR on application boot
+  (let [start-webr!
+        (fn []
+          (webr/init-webr!
+           (fn [webr] (js/console.log "WebR ready on boot!"))
+           (fn [err] (js/console.error "WebR boot initialization failed:" err))))]
+    (if (exists? js/WebR)
+      (start-webr!)
+      (.addEventListener js/window "webr-script-loaded" start-webr!)))
   (rdom/render [ui/main-view] (js/document.getElementById "app")))
+
+(defn reload-testing []
+  [:h1 "hello, shadow-cljs hot reloading is!"])
 
 (defn ^export ^:dev/after-load reload!
   "Reload hook for shadow-cljs. Re-mounts the application after code changes.
@@ -43,10 +65,9 @@
     nil: Re-renders the app."
   []
   (js/console.log "reload")
-  (rdom/render #_[:h1 "Hello"]
-               [ui/main-view] (js/document.getElementById "app")))
+  (rdom/render #_[reload-testing]
+   [ui/main-view] (js/document.getElementById "app")))
 
 (comment
   "hello"
-  (reload!)
-  )
+  (reload!))

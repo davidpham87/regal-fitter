@@ -89,6 +89,12 @@
           (swap! state/app-state assoc :status :error
                                        :error-message (.-message e)))))))
 
+(defn abort-simulation! []
+  (wp/abort-pool!)
+  (swap! state/app-state assoc
+         :status :idle
+         :error-message "Aborted by user"))
+
 (defn- build-discovery-rec [family params]
   (let [bat-med-arr (np/array #js [(:bat-med params)])
         bat-shape-arr (np/array #js [(:weibull-k params)])

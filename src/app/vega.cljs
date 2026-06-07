@@ -64,19 +64,59 @@
 (defn results-charts [family items]
   (let [data (build-stratified-data items 1.0)
         tot-wt (reduce + (map :weight data))
-        vdata (map (fn [d]
-                     {:bat-mid (:bat-mid d)
-                      :success (* 100 (or (:p-success-overall d) 0))
-                      :hr-final (or (:median-hr-final d) 0)
-                      :p-bat (if (pos? tot-wt)
-                               (* 100 (/ (:weight d) tot-wt))
-                               0)})
-                   data)]
+        vdata (let [running-sum (atom 0.0)]
+                (mapv (fn [d]
+                        (let [p-val (if (pos? tot-wt)
+                                      (* 100 (/ (:weight d) tot-wt))
+                                      0.0)
+                              cum-p (swap! running-sum + p-val)
+                              succ (* 100 (or (:p-success-overall d) 0))]
+                          {:bat-mid (:bat-mid d)
+                           :success succ
+                           :succ-lbl (str (.toFixed succ 0) "%")
+                           :hr-final (or (:median-hr-final d) 0)
+                           :p-bat p-val
+                           :cum-p (js/Math.min 100.0 cum-p)}))
+                      data))]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
        [:div "No accepted combinations in this family to display charts."]
        [:div.flex.flex-wrap.gap-4
+        [vega-lite
+         {:width 320 :height 240 :data {:values vdata}
+          :title "Cumulative BAT mOS & P(success)"
+          :layer [{:mark {:type "line" :point true}
+                   :encoding {:x {:field "bat-mid"
+                                  :type "quantitative"
+                                  :title "BAT mOS (months)"}
+                              :y {:field "cum-p"
+                                  :type "quantitative"
+                                  :title "Percentage (%)"
+                                  :scale {:domain [0 100]}}
+                              :color {:datum "Cumulative BAT mOS (CDF)"
+                                      :type "nominal"
+                                      :scale {:range ["#44aa77" "#4488cc"]}}
+                              :tooltip [{:field "bat-mid" :type "quantitative"
+                                         :title "BAT mOS (months)"}
+                                        {:field "cum-p" :type "quantitative"
+                                         :title "Cumulative Probability (%)"}]}}
+                  {:mark {:type "line" :point true}
+                   :encoding {:x {:field "bat-mid"
+                                  :type "quantitative"}
+                              :y {:field "success"
+                                  :type "quantitative"}
+                              :color {:datum "P(success)"}
+                              :tooltip [{:field "bat-mid" :type "quantitative"
+                                         :title "BAT mOS (months)"}
+                                        {:field "success" :type "quantitative"
+                                         :title "P(success) %"}]}}
+                  {:mark {:type "text" :align "left" :dx 5 :dy -5
+                          :fontSize 9 :fontWeight "bold"}
+                   :encoding {:x {:field "bat-mid" :type "quantitative"}
+                              :y {:field "cum-p" :type "quantitative"}
+                              :text {:field "succ-lbl" :type "nominal"}
+                              :color {:value "#333"}}}]}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Posterior Probability of BAT mOS"
@@ -92,26 +132,6 @@
                                 :title "BAT mOS (months)"}
                                {:field "p-bat" :type "quantitative"
                                 :title "Probability (%)"}]}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "P(success) by BAT mOS"
-          :layer [{:mark {:type "line" :point true}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"
-                                  :title "BAT mOS (months)"}
-                              :y {:field "success"
-                                  :type "quantitative"
-                                  :title "P(success) %"
-                                  :scale {:domain [0 100]}}
-                              :color {:value "#4488cc"}
-                              :tooltip [{:field "bat-mid" :type "quantitative"
-                                         :title "BAT mOS (months)"}
-                                        {:field "success" :type "quantitative"
-                                         :title "P(success) %"}]}}
-                  {:mark "rule" :data {:values [{:y 50}]}
-                   :encoding {:y {:field "y" :type "quantitative"}
-                              :color {:value "gray"}
-                              :strokeDash {:value [4 4]}}}]}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Implied Final HR by BAT mOS"
@@ -194,14 +214,10 @@
              :legend {:orient "bottom"}}}])
 
 (defn discovery-accrual-chart [curve-data event-stats]
-  (let [markers (mapv (fn [s] {:time (case (:label s)
-                                      "IA (46.0m)" 46.0
-                                      "UPD (58.0m)" 58.0
-                                      "PR3 (62.97m)" 62.97
-                                      0.0)
-                              :expected (:expected s)
-                              :target (:target s)
-                              :label (:label s)})
+  (let [markers (mapv (fn [s] {:time (:time s 0.0)
+                               :expected (:expected s)
+                               :target (:target s)
+                               :label (:label s)})
                       event-stats)]
     [vega-lite
      {:width 300 :height 300
@@ -251,6 +267,163 @@
                           :y {:field "expected" :type "quantitative"}}}]
       :config {:view {:stroke "transparent"}
                :legend {:orient "bottom"}}}]))
+
+(defn discovery-alive-chart [curve-data event-stats]
+  (let [milestones (keep (fn [s]
+                           (when (#{"IA" "UPD"} (:name s))
+                             {:time (:time s) :label (:name s)}))
+                         event-stats)]
+    [vega-lite
+     {:width 300 :height 300
+      :title "Patients: Alive vs Died"
+      :data {:values curve-data}
+      :layer [{:transform [{:fold ["total-alive"
+                                   "gps-alive"
+                                   "bat-alive"
+                                   "total-died"
+                                   "gps-died"
+                                   "bat-died"]
+                            :as ["group" "count"]}]
+               :mark {:type "line" :strokeWidth 2}
+               :encoding {:x {:field "time" :type "quantitative"
+                              :title "Months"
+                              :axis {:values [0 10 20 30 40 50
+                                              60 70 80]}}
+                          :y {:field "count" :type "quantitative"
+                              :title "Patients"}
+                          :color {:field "group" :type "nominal"
+                                  :scale {:domain ["total-alive"
+                                                   "gps-alive"
+                                                   "bat-alive"
+                                                   "total-died"
+                                                   "gps-died"
+                                                   "bat-died"]
+                                          :range ["#aa5599"
+                                                  "#55bb88"
+                                                  "#ee6677"
+                                                  "#aa5599"
+                                                  "#55bb88"
+                                                  "#ee6677"]}}
+                          :strokeDash {:field "group" :type "nominal"
+                                       :scale {:domain ["total-alive"
+                                                        "gps-alive"
+                                                        "bat-alive"
+                                                        "total-died"
+                                                        "gps-died"
+                                                        "bat-died"]
+                                                :range [[] [] []
+                                                        [4 4]
+                                                        [4 4]
+                                                        [4 4]]}}}}
+              {:params [{:name "hover"
+                         :select {:type "point"
+                                  :on "mouseover"
+                                  :nearest true
+                                  :clear "mouseout"
+                                  :fields ["time"]}}]
+               :mark {:type "rule" :color "#bbb" :strokeWidth 0}
+               :encoding {:x {:field "time" :type "quantitative"}
+                          :tooltip [{:field "time" :type "quantitative"
+                                     :title "Months"}
+                                    {:field "total-alive" :type "quantitative"
+                                     :format ".1f" :title "Total Alive"}
+                                    {:field "gps-alive" :type "quantitative"
+                                     :format ".1f" :title "GPS Alive"}
+                                    {:field "bat-alive" :type "quantitative"
+                                     :format ".1f" :title "BAT Alive"}
+                                    {:field "total-died" :type "quantitative"
+                                     :format ".1f" :title "Total Died"}
+                                    {:field "gps-died" :type "quantitative"
+                                     :format ".1f" :title "GPS Died"}
+                                    {:field "bat-died" :type "quantitative"
+                                     :format ".1f" :title "BAT Died"}
+                                    {:field "total-died-diff" :type "quantitative"
+                                     :format ".1f" :title "Total - Died"}
+                                    {:field "gps-died-diff" :type "quantitative"
+                                     :format ".1f" :title "GPS/2 - Died"}
+                                    {:field "bat-died-diff" :type "quantitative"
+                                     :format ".1f" :title "BAT/2 - Died"}]}}
+              {:mark {:type "rule" :color "gray" :strokeDash [4 4]}
+               :data {:values milestones}
+               :encoding {:x {:field "time" :type "quantitative"}}}
+              {:mark {:type "text" :align "left" :dx 5 :dy -140 :color "gray"}
+               :data {:values milestones}
+               :encoding {:x {:field "time" :type "quantitative"}
+                          :text {:field "label" :type "nominal"}}}]
+      :config {:view {:stroke "transparent"}
+               :legend {:orient "bottom"}}}]))
+
+(defn discovery-hr-chart [hr-data]
+  [vega-lite
+   {:width 300 :height 300
+    :title "Estimated Hazard Ratios"
+    :data {:values hr-data}
+    :layer [{:mark {:type "bar" :size 40}
+             :encoding {:x {:field "interval" :type "nominal"
+                            :title "Milestone Interval"
+                            :sort ["0-IA" "IA-UPD" "UPD-PR3"]}
+                        :y {:field "hr" :type "quantitative"
+                            :title "Hazard Ratio"
+                            :scale {:domain [0 1.5]}}
+                        :color {:field "interval" :type "nominal"
+                                :scale {:domain ["0-IA" "IA-UPD" "UPD-PR3"]
+                                        :range ["#4488cc" "#55bb88" "#ee6677"]}
+                                :legend nil}
+                        :tooltip [{:field "interval" :type "nominal"
+                                   :title "Interval"}
+                                  {:field "hr" :type "quantitative"
+                                   :format ".3f" :title "HR"}]}}
+            {:mark {:type "rule" :color "red" :strokeDash [4 4]}
+             :data {:values [{:y 1.0}]}
+             :encoding {:y {:field "y" :type "quantitative"}}}]
+    :config {:view {:stroke "transparent"}}}])
+
+(defn discovery-hazard-rates-chart [rates-data metric]
+  (let [color-scale {:domain ["Pooled" "GPS" "BAT"]
+                     :range  ["#4488cc" "#55bb88" "#ee6677"]}
+        x-enc {:field "interval" :type "nominal"
+               :title "Milestone Interval"
+               :sort  ["0-IA" "IA-UPD" "UPD-PR3"]}
+        grp-enc {:field "group" :type "nominal"}
+        metric-name (name metric)
+        title-str (if (= metric :rate)
+                    "Annualized Hazard Rate"
+                    "Median Survival Time (months)")
+        fmt-str (if (= metric :rate) ".4f" ".2f")]
+    [vega-lite
+     {:width 300 :height 300
+      :title (str (if (= metric :rate) "Annualized Hazard Rates"
+                      "Median Survival Time")
+                  " by Period")
+      :data {:values rates-data}
+      :layer
+      [{:mark {:type "bar" :opacity 0.8}
+        :encoding
+        {:x x-enc
+         :xOffset grp-enc
+         :y {:field metric-name :type "quantitative"
+             :title title-str
+             :axis {:titleColor "#555"}}
+         :color {:field "group" :type "nominal"
+                 :scale color-scale
+                 :legend {:title "Group"}}
+         :tooltip [{:field "interval" :type "nominal"
+                    :title "Interval"}
+                   {:field "group" :type "nominal"
+                    :title "Group"}
+                   {:field metric-name :type "quantitative"
+                    :format fmt-str
+                    :title title-str}]}}
+       {:mark {:type "text" :align "center" :baseline "bottom" :dy -4}
+        :encoding
+        {:x x-enc
+         :xOffset grp-enc
+         :y {:field metric-name :type "quantitative"}
+         :text {:field metric-name :type "quantitative" :format fmt-str}
+         :color {:field "group" :type "nominal" :scale color-scale}}}]
+      :config {:view {:stroke "transparent"}}}]))
+
+
 
 (defn stress-test-charts [results]
   (let [vdata (map (fn [r]
