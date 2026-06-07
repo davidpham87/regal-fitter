@@ -1,6 +1,7 @@
 (ns app.discovery.core
   (:require [reagent.core :as r]
-            [fork.reagent :as fork]
+            [re-frame.core :as rf]
+            [fork.re-frame :as fork]
             [app.state :as state]
             [app.vega :as vega]
             [app.simulator :as sim]
@@ -35,7 +36,7 @@
 ;; ---------------------------------------------------------------------------
 
 (defn- get-discovery-state []
-  (:discovery @state/app-state))
+  @(rf/subscribe [:discovery]))
 
 (defn- debounce [f ms]
   (let [timer (atom nil)]
@@ -46,7 +47,7 @@
 (defonce ^:private debounced-calc-update
   (debounce
    (fn [params]
-     (swap! state/app-state assoc-in [:discovery :calc-params] params))
+     (rf/dispatch [:set-discovery-calc-params params]))
    200))
 
 (defonce ^:private debounced-sim-run
@@ -355,8 +356,8 @@
 
 (defn- discovery-view-content
   [{:keys [values set-values] :as props}]
-  (let [state         (get-discovery-state)
-        config        (:config @state/app-state)
+  (let [state         @(rf/subscribe [:discovery])
+        config        @(rf/subscribe [:config])
         active-family (:active-family state)
         calc-params   (merge default-params (:calc-params state) values)
         params        (merge default-params values)
@@ -423,22 +424,21 @@
 
 (defn discovery-view []
   (r/with-let
-    [_ (let [disc   (get-discovery-state)
+    [_ (let [disc   @(rf/subscribe [:discovery])
              fam    (:active-family disc)
              params (merge (:calc-params disc) (:params disc))]
          (sim/run-discovery-simulation! fam params))]
-    (let [state (get-discovery-state)]
-      [fork/form
-       {:initial-values (:params state)
-        :keywordize-keys true
-        :on-change
-        (fn [{:keys [values]}]
-          (state/update-discovery-params! values)
-          (swap! state/app-state update :discovery
-                 dissoc :sim-status :sim-result)
-          (debounced-calc-update values)
-          (let [fam  (:active-family @state/app-state)
-                disc (:discovery @state/app-state)
-                calc (:calc-params disc)]
-            (debounced-sim-run fam (merge calc values))))}
-       discovery-view-content])))
+    (fn []
+      (let [state @(rf/subscribe [:discovery])]
+        [fork/form
+         {:path [:form :discovery]
+          :initial-values (:params state)
+          :keywordize-keys true
+          :on-change
+          (fn [{:keys [values]}]
+            (rf/dispatch [:update-discovery-params values])
+            (rf/dispatch [:set-discovery-sim-status nil])
+            (rf/dispatch [:set-discovery-sim-result nil])
+            (debounced-calc-update values)
+            (debounced-sim-run (:active-family state) (merge (:calc-params state) values)))}
+         discovery-view-content]))))
