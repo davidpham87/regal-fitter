@@ -510,7 +510,7 @@
      :bat-realized-month
      (find-realized-median-month
       survival/weibull-survival-probability
-      [bat-true-scale-val k]
+      [(np/array #js [bat-true-scale-val]) (np/array #js [k])]
       enroll-pts enroll-weights n-per-arm n-total target-ev)
       
      :gps-realized-month
@@ -521,8 +521,8 @@
         "leaky" survival/leaky-cure-survival-probability
         survival/weibull-survival-probability)
       (case family
-        "weibull" [gps-true-scale-val k]
-        "cure" [gps-cf gps-true-scale-val k]
-        "leaky" [gps-cf gps-true-scale-val k gps-leak]
-        [gps-true-scale-val k])
+        "weibull" [(np/array #js [gps-true-scale-val]) (np/array #js [k])]
+        "cure" [gps-cf (np/array #js [gps-true-scale-val]) (np/array #js [k])]
+        "leaky" [gps-cf (np/array #js [gps-true-scale-val]) (np/array #js [k]) gps-leak]
+        [(np/array #js [gps-true-scale-val]) (np/array #js [k])])
       enroll-pts enroll-weights n-per-arm n-total target-ev)}))
