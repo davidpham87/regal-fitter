@@ -40,7 +40,8 @@
          :high high-val}))))
 
 (defn enrollment-view []
-  (let [n-samples (r/atom 100)]
+  (let [n-samples (r/atom 100)
+        window-param (r/atom 2)]
     (fn []
       (let [config @(rf/subscribe [:config])
             enrollment-mode @(rf/subscribe [:enrollment-mode])
@@ -53,7 +54,7 @@
         [:div.p-4.max-w-6xl.mx-auto
          [:h2.text-2xl.font-extrabold.text-gray-900.mb-4 "Enrollment Plot"]
 
-         [:div.mb-6.flex.gap-4.items-center
+         [:div.mb-6.flex.flex-wrap.gap-4.items-center
           [:button.px-4.py-2.rounded.font-semibold
            {:class (if (= (:mode enrollment-mode) :manual)
                      "bg-blue-600 text-white"
@@ -66,9 +67,28 @@
                      "bg-gray-200 text-gray-700 hover:bg-gray-300")
             :on-click #(rf/dispatch [:set-enrollment-mode-param :mode :s-curve])}
            "S-Curve Gen Mode"]
-          [:button.px-4.py-2.rounded.font-semibold.bg-gray-200.text-gray-700.hover:bg-gray-300
-           {:on-click #(rf/dispatch [:set-config-key :enroll-bands (:enroll-bands state/default-config)])}
-           "Restore Default"]]
+          [:button.px-4.py-2.rounded.font-semibold
+           {:class "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            :on-click #(rf/dispatch [:set-config-key :enroll-bands
+                                     (:enroll-bands state/default-config)])}
+           "Restore Default"]
+          [:div.flex.items-center.gap-2.bg-gray-100.p-2.rounded-lg.border
+           [:label.text-xs.font-semibold.text-gray-700 "Coarse Window:"]
+           [:input.border.p-1.rounded.w-12.text-center.text-xs
+            {:type "number" :min "1" :max "20"
+             :value @window-param
+             :on-change #(reset! window-param
+                                 (js/parseInt
+                                  (.. % -target -value) 10))}]
+           [:button.px-3.py-1.rounded.text-sm.font-semibold
+            {:class "bg-amber-600 text-white hover:bg-amber-700"
+             :on-click (fn []
+                         (let [current-bands (:enroll-bands config)
+                               w (or @window-param 2)
+                               new-bands (rfe/larger-bands current-bands w)]
+                           (rf/dispatch [:set-config-key
+                                         :enroll-bands new-bands])))}
+            "Coarser Bands"]]]
 
          (if (= (:mode enrollment-mode) :manual)
            (let [expected-json (js/JSON.stringify (clj->js bands) nil 2)]
