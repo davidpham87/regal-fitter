@@ -1,7 +1,7 @@
 (ns app.views.core
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [fork.reagent :as fork]
+            [fork.re-frame :as fork]
             [app.state :as state]
             [app.vega :as vega]
             [app.simulator :as sim]
@@ -183,13 +183,15 @@
      "Run Stress Test"]]])
 
 (defn- stress-test-form []
-  (let [config (:stress-test-config @state/app-state)]
-    [fork/form
-     {:initial-values config
-      :keywordize-keys true
-      :on-change (fn [{:keys [values]}]
-                   (state/update-stress-test-config! values))}
-     stress-test-form-content]))
+  (fn []
+    (let [config @(rf/subscribe [:stress-test-config])]
+      [fork/form
+       {:path [:form :stress-test]
+        :initial-values config
+        :keywordize-keys true
+        :on-change (fn [{:keys [values]}]
+                     (rf/dispatch [:update-stress-test-config values]))}
+       stress-test-form-content])))
 
 (defn- sortable-header [label k sort-state]
   (let [{curr-key :key desc? :desc?} @sort-state]
@@ -205,10 +207,9 @@
 (defn- stress-test-results-view []
   (let [sort-state (r/atom {:key :mos :desc? false})]
     (fn []
-      (let [st @state/app-state
-            results (:stress-test-results st)
-            status (:stress-test-status st)
-            progress (:stress-test-progress st)
+      (let [results @(rf/subscribe [:stress-test-results])
+            status @(rf/subscribe [:stress-test-status])
+            progress @(rf/subscribe [:stress-test-progress])
             {curr-key :key desc? :desc?} @sort-state
             sorted-results (let [sorted (sort-by curr-key results)]
                              (if desc? (reverse sorted) sorted))]
@@ -381,13 +382,15 @@
                [:span.text-red-600.font-bold "No"])]]))]]]]))
 
 (defn- power-analysis-view []
-  (let [config (:power-config @state/app-state)]
-    [fork/form
-     {:initial-values config
-      :keywordize-keys true
-      :on-change (fn [{:keys [values]}]
-                   (state/update-power-config! values))}
-     power-analysis-form-content]))
+  (fn []
+    (let [config @(rf/subscribe [:power-config])]
+      [fork/form
+       {:path [:form :power-analysis]
+        :initial-values config
+        :keywordize-keys true
+        :on-change (fn [{:keys [values]}]
+                     (rf/dispatch [:update-power-config values]))}
+       power-analysis-form-content])))
 
 (defn placebo-stress-view []
   [:div.p-6.max-w-6xl.mx-auto

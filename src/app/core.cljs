@@ -2,6 +2,8 @@
   (:require [app.simulator :as sim]
             [app.ui.core :as ui]
             [app.worker-pool :as wp]
+            [app.events]
+            [app.subs]
             [portal.web :as p]
             [re-frame.core :as re-frame]
             [reagent.dom :as rdom]
