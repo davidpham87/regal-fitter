@@ -1,5 +1,6 @@
 (ns app.ui.results
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [app.state :as state]
             [app.ui.inputs :as inputs]
             [app.vega :as vega]
@@ -125,7 +126,9 @@
                   :value edn-str}]]]))
 
 (defn results-view []
-  (let [{:keys [results progress status]} @state/app-state]
+  (let [results @(rf/subscribe [:results])
+        progress @(rf/subscribe [:progress])
+        status @(rf/subscribe [:status])]
     (r/with-let [active-tab (r/atom :charts)]
       [:div.p-4.results-view-wrapper
        [:div.flex.justify-between.items-center.mb-4
