@@ -18,21 +18,21 @@
 
 (defn- update-logrank-stats
   "Updates logrank statistics for a set of events at the same time point."
-  [{:keys [u v log-hr-num log-hr-den]} index-list n-exp-arr n-control-arr is-exp-arr]
+  [{:keys [logrank-u logrank-variance log-hazard-ratio-numerator log-hazard-ratio-denominator]} index-list n-exp-arr n-control-arr is-exp-arr]
   (let [first-idx (first index-list)
         n-exp (aget n-exp-arr first-idx)
         n-control (aget n-control-arr first-idx)
         n-total (+ n-exp n-control)]
     (if (< n-total 2)
-      {:u u :v v :log-hr-num log-hr-num :log-hr-den log-hr-den}
+      {:logrank-u logrank-u :logrank-variance logrank-variance :log-hazard-ratio-numerator log-hazard-ratio-numerator :log-hazard-ratio-denominator log-hazard-ratio-denominator}
       (let [events-exp (reduce + (map #(aget is-exp-arr %) index-list))
             events-total (count index-list)
             expected-exp (/ (* n-exp events-total) n-total)
             v-increment (/ (* n-control n-exp events-total (- n-total events-total)) (* n-total n-total (dec n-total)))]
-        {:u (+ u (- events-exp expected-exp))
-         :v (if (> n-total 1) (+ v v-increment) v)
-         :log-hr-num (+ log-hr-num (- events-exp expected-exp))
-         :log-hr-den (+ log-hr-den (* expected-exp (/ n-control n-total)))}))))
+        {:logrank-u (+ logrank-u (- events-exp expected-exp))
+         :logrank-variance (if (> n-total 1) (+ logrank-variance v-increment) logrank-variance)
+         :log-hazard-ratio-numerator (+ log-hazard-ratio-numerator (- events-exp expected-exp))
+         :log-hazard-ratio-denominator (+ log-hazard-ratio-denominator (* expected-exp (/ n-control n-total)))}))))
 
 (defn logrank-z
   "Computes the log-rank test Z-score and hazard ratio."
@@ -47,11 +47,11 @@
             event-indices (keep-indexed (fn [i e] (when e i)) events-arr)]
         (if (empty? event-indices) [0.0 1.0]
             (let [grouped-indices (partition-by #(aget times-arr %) event-indices)
-                  initial-stats {:u 0.0 :v 0.0 :log-hr-num 0.0 :log-hr-den 0.0}
+                  initial-stats {:logrank-u 0.0 :logrank-variance 0.0 :log-hazard-ratio-numerator 0.0 :log-hazard-ratio-denominator 0.0}
                   results (reduce #(update-logrank-stats %1 %2 n-exp-arr n-control-arr is-exp-arr) initial-stats grouped-indices)]
-              (if (<= (:v results) 0) [0.0 1.0]
-                  [(/ (- (:u results)) (js/Math.sqrt (:v results)))
-                   (if (> (:log-hr-den results) 0) (js/Math.exp (/ (:log-hr-num results) (:log-hr-den results))) 1.0)]))))))
+              (if (<= (:logrank-variance results) 0) [0.0 1.0]
+                  [(/ (- (:logrank-u results)) (js/Math.sqrt (:logrank-variance results)))
+                   (if (> (:log-hazard-ratio-denominator results) 0) (js/Math.exp (/ (:log-hazard-ratio-numerator results) (:log-hazard-ratio-denominator results))) 1.0)]))))))
 
 (defn km-survival-at-time
   "Calculates the Kaplan-Meier survival probability estimate at a specific time T."
