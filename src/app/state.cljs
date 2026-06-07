@@ -301,12 +301,6 @@
                        subtab (:subtab path-params)
                        [dest-route dest-path-params]
                        (cond
-                         (= subtab "enrollment")
-                         [(cond
-                            (#{:fitter-sub :fitter-sub-state} page) :fitter-sub
-                            :else page)
-                          path-params]
-
                          (#{:fitter :fitter-sub :fitter-sub-state} page)
                          [:fitter-sub-state
                           {:subtab (or subtab "config-form") :state b64}]
