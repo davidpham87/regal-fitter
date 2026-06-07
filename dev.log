@@ -1,0 +1,325 @@
+
+> clojure-base-template@0.0.1 dev
+> npx shadow-cljs watch app worker
+
+shadow-cljs - config: /app/shadow-cljs.edn
+shadow-cljs - starting via "clojure"
+Cloning: https://github.com/cognitect-labs/test-runner.git
+Checking out: https://github.com/cognitect-labs/test-runner.git at dfb30dd6605cb6c0efc275e1df1736f6e90d4d73
+Downloading: com/cognitect/transit-cljs/0.8.239/transit-cljs-0.8.239.pom from central
+Downloading: fork/fork/2.4.3/fork-2.4.3.pom from clojars
+Downloading: re-frame/re-frame/1.4.3/re-frame-1.4.3.pom from clojars
+Downloading: thheller/shadow-cljs/3.4.11/shadow-cljs-3.4.11.pom from clojars
+Downloading: refactor-nrepl/refactor-nrepl/3.13.0/refactor-nrepl-3.13.0.pom from clojars
+Downloading: cider/cider-nrepl/0.59.0/cider-nrepl-0.59.0.pom from clojars
+Downloading: org/clojure/tools.namespace/1.3.0/tools.namespace-1.3.0.pom from central
+Downloading: reagent/reagent/2.0.1/reagent-2.0.1.pom from clojars
+Downloading: org/clojure/tools.cli/1.0.206/tools.cli-1.0.206.pom from central
+Downloading: com/cognitect/transit-js/0.8.846/transit-js-0.8.846.pom from central
+Downloading: org/clojure/pom.contrib/1.0.0/pom.contrib-1.0.0.pom from central
+Downloading: org/clojure/data.json/2.5.2/data.json-2.5.2.pom from central
+Downloading: org/clojure/tools.cli/1.1.230/tools.cli-1.1.230.pom from central
+Downloading: org/clojure/tools.reader/1.6.0/tools.reader-1.6.0.pom from central
+Downloading: nrepl/nrepl/1.4.0/nrepl-1.4.0.pom from clojars
+Downloading: org/clojure/clojurescript/1.12.145/clojurescript-1.12.145.pom from central
+Downloading: org/clojure/core.async/1.9.865/core.async-1.9.865.pom from central
+Downloading: com/google/javascript/closure-compiler/v20250407/closure-compiler-v20250407.pom from central
+Downloading: org/clojure/google-closure-library/0.0-20250515-f04e4c0e/google-closure-library-0.0-20250515-f04e4c0e.pom from central
+Downloading: org/clojure/google-closure-library-third-party/0.0-20250515-f04e4c0e/google-closure-library-third-party-0.0-20250515-f04e4c0e.pom from central
+Downloading: org/sonatype/oss/oss-parent/9/oss-parent-9.pom from central
+Downloading: com/google/javascript/closure-compiler-main/v20250407/closure-compiler-main-v20250407.pom from central
+Downloading: cider/piggieback/0.6.0/piggieback-0.6.0.pom from clojars
+Downloading: com/google/javascript/closure-compiler-parent/v20250407/closure-compiler-parent-v20250407.pom from central
+Downloading: thheller/shadow-util/0.7.0/shadow-util-0.7.0.pom from clojars
+Downloading: thheller/shadow-client/1.4.0/shadow-client-1.4.0.pom from clojars
+Downloading: thheller/shadow-cljsjs/0.0.22/shadow-cljsjs-0.0.22.pom from clojars
+Downloading: hiccup/hiccup/1.0.5/hiccup-1.0.5.pom from clojars
+Downloading: fipp/fipp/0.6.27/fipp-0.6.27.pom from clojars
+Downloading: com/bhauman/cljs-test-display/0.1.1/cljs-test-display-0.1.1.pom from clojars
+Downloading: org/clojure/tools.deps/0.23.1512/tools.deps-0.23.1512.pom from central
+Downloading: org/clojure/tools.logging/1.2.4/tools.logging-1.2.4.pom from central
+Downloading: com/thheller/shadow-http/0.1.8/shadow-http-0.1.8.pom from clojars
+Downloading: cider/orchard/0.41.0/orchard-0.41.0.pom from clojars
+Downloading: compliment/compliment/0.7.1/compliment-0.7.1.pom from clojars
+Downloading: net/cgrand/macrovich/0.2.1/macrovich-0.2.1.pom from clojars
+Downloading: io/github/tonsky/clj-reload/1.0.0/clj-reload-1.0.0.pom from clojars
+Downloading: org/rksm/suitable/0.6.2/suitable-0.6.2.pom from clojars
+Downloading: org/clojure/java.classpath/1.0.0/java.classpath-1.0.0.pom from central
+Downloading: org/clojure/tools.analyzer.jvm/1.3.3/tools.analyzer.jvm-1.3.3.pom from central
+Downloading: org/clojure/pom.contrib/1.3.0/pom.contrib-1.3.0.pom from central
+Downloading: com/cognitect/transit-java/1.0.362/transit-java-1.0.362.pom from central
+Downloading: mx/cider/logjam/0.3.0/logjam-0.3.0.pom from clojars
+Downloading: org/apache/maven/resolver/maven-resolver-spi/1.8.2/maven-resolver-spi-1.8.2.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver-util/1.8.2/maven-resolver-util-1.8.2.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver-api/1.8.2/maven-resolver-api-1.8.2.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver-impl/1.8.2/maven-resolver-impl-1.8.2.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver/1.8.2/maven-resolver-1.8.2.pom from central
+Downloading: org/apache/maven/maven-parent/36/maven-parent-36.pom from central
+Downloading: org/apache/apache/26/apache-26.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver-transport-http/1.8.2/maven-resolver-transport-http-1.8.2.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver-transport-file/1.8.2/maven-resolver-transport-file-1.8.2.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver-connector-basic/1.8.2/maven-resolver-connector-basic-1.8.2.pom from central
+Downloading: org/apache/maven/maven-resolver-provider/3.8.8/maven-resolver-provider-3.8.8.pom from central
+Downloading: org/apache/maven/maven-core/3.8.8/maven-core-3.8.8.pom from central
+Downloading: org/clojure/data.xml/0.2.0-alpha9/data.xml-0.2.0-alpha9.pom from central
+Downloading: org/clojure/tools.gitlibs/2.6.206/tools.gitlibs-2.6.206.pom from central
+Downloading: com/cognitect/aws/api/0.8.723/api-0.8.723.pom from central
+Downloading: org/apache/maven/maven/3.8.8/maven-3.8.8.pom from central
+Downloading: org/eclipse/jetty/jetty-http/9.4.56.v20240826/jetty-http-9.4.56.v20240826.pom from central
+Downloading: org/eclipse/jetty/jetty-client/9.4.56.v20240826/jetty-client-9.4.56.v20240826.pom from central
+Downloading: org/apache/maven/maven-parent/35/maven-parent-35.pom from central
+Downloading: org/eclipse/jetty/jetty-project/9.4.56.v20240826/jetty-project-9.4.56.v20240826.pom from central
+Downloading: org/apache/apache/25/apache-25.pom from central
+Downloading: org/junit/junit-bom/5.10.3/junit-bom-5.10.3.pom from central
+Downloading: com/cognitect/aws/s3/871.2.29.35/s3-871.2.29.35.pom from central
+Downloading: com/cognitect/aws/endpoints/871.2.29.39/endpoints-871.2.29.39.pom from central
+Downloading: org/testcontainers/testcontainers-bom/1.20.1/testcontainers-bom-1.20.1.pom from central
+Downloading: javax/inject/javax.inject/1/javax.inject-1.pom from central
+Downloading: org/infinispan/infinispan-bom/11.0.19.Final/infinispan-bom-11.0.19.Final.pom from central
+Downloading: org/clojure/tools.analyzer/1.2.0/tools.analyzer-1.2.0.pom from central
+Downloading: org/clojure/core.memoize/1.1.266/core.memoize-1.1.266.pom from central
+Downloading: org/infinispan/infinispan-build-configuration-parent/11.0.19.Final/infinispan-build-configuration-parent-11.0.19.Final.pom from central
+Downloading: org/ow2/asm/asm/9.2/asm-9.2.pom from central
+Downloading: org/jboss/jboss-parent/36/jboss-parent-36.pom from central
+Downloading: org/ow2/ow2/1.5/ow2-1.5.pom from central
+Downloading: org/apache/maven/resolver/maven-resolver-named-locks/1.8.2/maven-resolver-named-locks-1.8.2.pom from central
+Downloading: javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.pom from central
+Downloading: org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.pom from central
+Downloading: org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.pom from central
+Downloading: net/java/jvnet-parent/3/jvnet-parent-3.pom from central
+Downloading: org/slf4j/slf4j-parent/1.7.36/slf4j-parent-1.7.36.pom from central
+Downloading: org/junit/junit-bom/5.7.1/junit-bom-5.7.1.pom from central
+Downloading: org/apache/maven/maven-model/3.8.8/maven-model-3.8.8.pom from central
+Downloading: org/slf4j/jcl-over-slf4j/1.7.36/jcl-over-slf4j-1.7.36.pom from central
+Downloading: org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.pom from central
+Downloading: org/apache/httpcomponents/httpcore/4.4.15/httpcore-4.4.15.pom from central
+Downloading: org/apache/maven/maven-repository-metadata/3.8.8/maven-repository-metadata-3.8.8.pom from central
+Downloading: org/apache/maven/maven-model-builder/3.8.8/maven-model-builder-3.8.8.pom from central
+Downloading: org/apache/httpcomponents/httpcomponents-client/4.5.13/httpcomponents-client-4.5.13.pom from central
+Downloading: org/apache/httpcomponents/httpcomponents-core/4.4.15/httpcomponents-core-4.4.15.pom from central
+Downloading: org/apache/maven/maven-settings/3.8.8/maven-settings-3.8.8.pom from central
+Downloading: org/apache/httpcomponents/httpcomponents-parent/11/httpcomponents-parent-11.pom from central
+Downloading: org/apache/maven/maven-settings-builder/3.8.8/maven-settings-builder-3.8.8.pom from central
+Downloading: org/apache/maven/maven-builder-support/3.8.8/maven-builder-support-3.8.8.pom from central
+Downloading: org/apache/apache/21/apache-21.pom from central
+Downloading: org/apache/maven/maven-artifact/3.8.8/maven-artifact-3.8.8.pom from central
+Downloading: org/apache/maven/maven-plugin-api/3.8.8/maven-plugin-api-3.8.8.pom from central
+Downloading: org/apache/maven/shared/maven-shared-utils/3.3.4/maven-shared-utils-3.3.4.pom from central
+Downloading: org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.5/org.eclipse.sisu.plexus-0.3.5.pom from central
+Downloading: org/eclipse/sisu/org.eclipse.sisu.inject/0.3.5/org.eclipse.sisu.inject-0.3.5.pom from central
+Downloading: org/eclipse/sisu/sisu-inject/0.3.5/sisu-inject-0.3.5.pom from central
+Downloading: com/google/inject/guice/4.2.2/guice-4.2.2.pom from central
+Downloading: org/apache/maven/shared/maven-shared-components/34/maven-shared-components-34.pom from central
+Downloading: org/eclipse/sisu/sisu-plexus/0.3.5/sisu-plexus-0.3.5.pom from central
+Downloading: org/codehaus/plexus/plexus-classworlds/2.6.0/plexus-classworlds-2.6.0.pom from central
+Downloading: org/apache/maven/maven-parent/34/maven-parent-34.pom from central
+Downloading: org/codehaus/plexus/plexus-interpolation/1.26/plexus-interpolation-1.26.pom from central
+Downloading: com/google/inject/guice-parent/4.2.2/guice-parent-4.2.2.pom from central
+Downloading: org/codehaus/plexus/plexus/5.1/plexus-5.1.pom from central
+Downloading: org/codehaus/plexus/plexus-component-annotations/2.1.0/plexus-component-annotations-2.1.0.pom from central
+Downloading: org/eclipse/jetty/jetty-util/9.4.56.v20240826/jetty-util-9.4.56.v20240826.pom from central
+Downloading: org/clojure/tools.logging/1.3.0/tools.logging-1.3.0.pom from central
+Downloading: com/google/google/5/google-5.pom from central
+Downloading: org/codehaus/plexus/plexus-containers/2.1.0/plexus-containers-2.1.0.pom from central
+Downloading: org/eclipse/jetty/jetty-io/9.4.56.v20240826/jetty-io-9.4.56.v20240826.pom from central
+Downloading: org/clojure/core.cache/1.1.234/core.cache-1.1.234.pom from central
+Downloading: org/codehaus/plexus/plexus-sec-dispatcher/2.0/plexus-sec-dispatcher-2.0.pom from central
+Downloading: aopalliance/aopalliance/1.0/aopalliance-1.0.pom from central
+Downloading: org/clojure/data.priority-map/1.2.0/data.priority-map-1.2.0.pom from central
+Downloading: org/codehaus/plexus/plexus/8/plexus-8.pom from central
+Downloading: org/codehaus/plexus/plexus-cipher/2.0/plexus-cipher-2.0.pom from central
+Downloading: com/cognitect/aws/api/0.8.723/api-0.8.723.jar from central
+Downloading: org/clojure/data.json/2.5.2/data.json-2.5.2.jar from central
+Downloading: javax/inject/javax.inject/1/javax.inject-1.jar from central
+Downloading: thheller/shadow-cljsjs/0.0.22/shadow-cljsjs-0.0.22.jar from clojars
+Downloading: org/clojure/tools.analyzer/1.2.0/tools.analyzer-1.2.0.jar from central
+Downloading: org/codehaus/plexus/plexus-component-annotations/2.1.0/plexus-component-annotations-2.1.0.jar from central
+Downloading: com/bhauman/cljs-test-display/0.1.1/cljs-test-display-0.1.1.jar from clojars
+Downloading: com/cognitect/aws/endpoints/871.2.29.39/endpoints-871.2.29.39.jar from central
+Downloading: org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar from central
+Downloading: org/clojure/tools.logging/1.3.0/tools.logging-1.3.0.jar from central
+Downloading: javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar from central
+Downloading: org/clojure/tools.cli/1.1.230/tools.cli-1.1.230.jar from central
+Downloading: org/eclipse/jetty/jetty-http/9.4.56.v20240826/jetty-http-9.4.56.v20240826.jar from central
+Downloading: cider/orchard/0.41.0/orchard-0.41.0.jar from clojars
+Downloading: com/thheller/shadow-http/0.1.8/shadow-http-0.1.8.jar from clojars
+Downloading: org/eclipse/jetty/jetty-util/9.4.56.v20240826/jetty-util-9.4.56.v20240826.jar from central
+Downloading: org/slf4j/jcl-over-slf4j/1.7.36/jcl-over-slf4j-1.7.36.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-transport-http/1.8.2/maven-resolver-transport-http-1.8.2.jar from central
+Downloading: org/clojure/tools.analyzer.jvm/1.3.3/tools.analyzer.jvm-1.3.3.jar from central
+Downloading: org/clojure/google-closure-library/0.0-20250515-f04e4c0e/google-closure-library-0.0-20250515-f04e4c0e.jar from central
+Downloading: com/cognitect/transit-cljs/0.8.239/transit-cljs-0.8.239.jar from central
+Downloading: org/apache/maven/maven-model-builder/3.8.8/maven-model-builder-3.8.8.jar from central
+Downloading: mx/cider/logjam/0.3.0/logjam-0.3.0.jar from clojars
+Downloading: org/codehaus/plexus/plexus-cipher/2.0/plexus-cipher-2.0.jar from central
+Downloading: org/clojure/clojurescript/1.12.145/clojurescript-1.12.145.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-transport-file/1.8.2/maven-resolver-transport-file-1.8.2.jar from central
+Downloading: org/eclipse/sisu/org.eclipse.sisu.plexus/0.3.5/org.eclipse.sisu.plexus-0.3.5.jar from central
+Downloading: thheller/shadow-cljs/3.4.11/shadow-cljs-3.4.11.jar from clojars
+Downloading: org/apache/maven/maven-settings-builder/3.8.8/maven-settings-builder-3.8.8.jar from central
+Downloading: org/clojure/tools.namespace/1.3.0/tools.namespace-1.3.0.jar from central
+Downloading: org/ow2/asm/asm/9.2/asm-9.2.jar from central
+Downloading: org/apache/maven/maven-settings/3.8.8/maven-settings-3.8.8.jar from central
+Downloading: refactor-nrepl/refactor-nrepl/3.13.0/refactor-nrepl-3.13.0.jar from clojars
+Downloading: fork/fork/2.4.3/fork-2.4.3.jar from clojars
+Downloading: org/apache/httpcomponents/httpcore/4.4.15/httpcore-4.4.15.jar from central
+Downloading: thheller/shadow-util/0.7.0/shadow-util-0.7.0.jar from clojars
+Downloading: org/codehaus/plexus/plexus-sec-dispatcher/2.0/plexus-sec-dispatcher-2.0.jar from central
+Downloading: org/apache/maven/maven-core/3.8.8/maven-core-3.8.8.jar from central
+Downloading: com/cognitect/transit-js/0.8.846/transit-js-0.8.846.jar from central
+Downloading: org/clojure/google-closure-library-third-party/0.0-20250515-f04e4c0e/google-closure-library-third-party-0.0-20250515-f04e4c0e.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-api/1.8.2/maven-resolver-api-1.8.2.jar from central
+Downloading: io/github/tonsky/clj-reload/1.0.0/clj-reload-1.0.0.jar from clojars
+Downloading: hiccup/hiccup/1.0.5/hiccup-1.0.5.jar from clojars
+Downloading: org/apache/maven/maven-resolver-provider/3.8.8/maven-resolver-provider-3.8.8.jar from central
+Downloading: org/apache/maven/shared/maven-shared-utils/3.3.4/maven-shared-utils-3.3.4.jar from central
+Downloading: org/clojure/java.classpath/1.0.0/java.classpath-1.0.0.jar from central
+Downloading: org/clojure/data.xml/0.2.0-alpha9/data.xml-0.2.0-alpha9.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-spi/1.8.2/maven-resolver-spi-1.8.2.jar from central
+Downloading: org/codehaus/plexus/plexus-classworlds/2.6.0/plexus-classworlds-2.6.0.jar from central
+Downloading: reagent/reagent/2.0.1/reagent-2.0.1.jar from clojars
+Downloading: net/cgrand/macrovich/0.2.1/macrovich-0.2.1.jar from clojars
+Downloading: com/google/javascript/closure-compiler/v20250407/closure-compiler-v20250407.jar from central
+Downloading: re-frame/re-frame/1.4.3/re-frame-1.4.3.jar from clojars
+Downloading: cider/cider-nrepl/0.59.0/cider-nrepl-0.59.0.jar from clojars
+Downloading: org/clojure/tools.deps/0.23.1512/tools.deps-0.23.1512.jar from central
+Downloading: org/codehaus/plexus/plexus-interpolation/1.26/plexus-interpolation-1.26.jar from central
+Downloading: thheller/shadow-client/1.4.0/shadow-client-1.4.0.jar from clojars
+Downloading: org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar from central
+Downloading: org/rksm/suitable/0.6.2/suitable-0.6.2.jar from clojars
+Downloading: com/google/inject/guice/4.2.2/guice-4.2.2-no_aop.jar from central
+Downloading: org/eclipse/jetty/jetty-client/9.4.56.v20240826/jetty-client-9.4.56.v20240826.jar from central
+Downloading: org/eclipse/jetty/jetty-io/9.4.56.v20240826/jetty-io-9.4.56.v20240826.jar from central
+Downloading: org/clojure/tools.reader/1.6.0/tools.reader-1.6.0.jar from central
+Downloading: org/clojure/tools.gitlibs/2.6.206/tools.gitlibs-2.6.206.jar from central
+Downloading: compliment/compliment/0.7.1/compliment-0.7.1.jar from clojars
+Downloading: com/cognitect/aws/s3/871.2.29.35/s3-871.2.29.35.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-connector-basic/1.8.2/maven-resolver-connector-basic-1.8.2.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-impl/1.8.2/maven-resolver-impl-1.8.2.jar from central
+Downloading: org/apache/maven/maven-model/3.8.8/maven-model-3.8.8.jar from central
+Downloading: org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar from central
+Downloading: org/eclipse/sisu/org.eclipse.sisu.inject/0.3.5/org.eclipse.sisu.inject-0.3.5.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-util/1.8.2/maven-resolver-util-1.8.2.jar from central
+Downloading: org/apache/maven/resolver/maven-resolver-named-locks/1.8.2/maven-resolver-named-locks-1.8.2.jar from central
+Downloading: org/clojure/core.memoize/1.1.266/core.memoize-1.1.266.jar from central
+Downloading: org/apache/maven/maven-repository-metadata/3.8.8/maven-repository-metadata-3.8.8.jar from central
+Downloading: org/clojure/data.priority-map/1.2.0/data.priority-map-1.2.0.jar from central
+Downloading: aopalliance/aopalliance/1.0/aopalliance-1.0.jar from central
+Downloading: nrepl/nrepl/1.4.0/nrepl-1.4.0.jar from clojars
+Downloading: org/apache/maven/maven-builder-support/3.8.8/maven-builder-support-3.8.8.jar from central
+Downloading: org/clojure/core.cache/1.1.234/core.cache-1.1.234.jar from central
+Downloading: org/apache/maven/maven-plugin-api/3.8.8/maven-plugin-api-3.8.8.jar from central
+Downloading: org/clojure/core.async/1.9.865/core.async-1.9.865.jar from central
+Downloading: org/apache/maven/maven-artifact/3.8.8/maven-artifact-3.8.8.jar from central
+Downloading: cider/piggieback/0.6.0/piggieback-0.6.0.jar from clojars
+shadow-cljs - :dev-http http://localhost:8080 serving ["public"]
+shadow-cljs - server version: 3.4.11 running at http://localhost:9630
+shadow-cljs - nREPL server started on port 39899
+shadow-cljs - nREPL port has been written to .shadow-cljs/nrepl.port
+shadow-cljs - watching build :app
+shadow-cljs - watching build :worker
+[:app] Configuring build.
+[:worker] Configuring build.
+[:app] Compiling ...
+[:worker] Compiling ...
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[:app] Build completed. (233 files, 232 compiled, 5 warnings, 25.21s)
+
+[1m------ WARNING #1 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/webr/core.cljs:87:3
+--------------------------------------------------------------------------------
+[2m  84 |   [on-ready on-err][0m
+[2m  85 |   (assert (fn? on-ready) "on-ready callback must be a function")[0m
+[2m  86 |   (assert (fn? on-err)   "on-error callback must be a function")[0m
+[1m  87 |   (go[0m
+---------^----------------------------------------------------------------------
+ [33;1mCannot infer target type in expression (. inst_56162 (evalR "webr::install('gsDesign')"))[0m
+--------------------------------------------------------------------------------
+[2m  88 |     (try[0m
+[2m  89 |       (if-let [existing @webr-instance][0m
+[2m  90 |         (do[0m
+[2m  91 |           (js/console.log "WebR already initialized, returning cached instance.")[0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #2 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/webr/core.cljs:179:14
+--------------------------------------------------------------------------------
+[2m 176 |      (rf/dispatch [::set-status :running])[0m
+[2m 177 |      (if-let [webr @webr-instance][0m
+[2m 178 |        (try[0m
+[1m 179 |          (-> (.evalR webr code)[0m
+--------------------^-----------------------------------------------------------
+ [33;1mCannot infer target type in expression (. webr evalR code)[0m
+--------------------------------------------------------------------------------
+[2m 180 |              (.then (fn [res] (.toJs res)))[0m
+[2m 181 |              (.then (fn [js-val][0m
+[2m 182 |                       (let [parsed (try (js->clj js-val :keywordize-keys true)[0m
+[2m 183 |                                         (catch :default _ js-val))[0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #3 - :infer-warning ---------------------------------------------[0m
+ File: /app/src/webr/core.cljs:180:31
+--------------------------------------------------------------------------------
+[2m 177 |      (if-let [webr @webr-instance][0m
+[2m 178 |        (try[0m
+[2m 179 |          (-> (.evalR webr code)[0m
+[1m 180 |              (.then (fn [res] (.toJs res)))[0m
+-------------------------------------^------------------------------------------
+ [33;1mCannot infer target type in expression (. res toJs)[0m
+--------------------------------------------------------------------------------
+[2m 181 |              (.then (fn [js-val][0m
+[2m 182 |                       (let [parsed (try (js->clj js-val :keywordize-keys true)[0m
+[2m 183 |                                         (catch :default _ js-val))[0m
+[2m 184 |                             result (clean-webr-value parsed)][0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #4 - :redef -----------------------------------------------------[0m
+ File: /app/src/webr/core.cljs:205:1
+--------------------------------------------------------------------------------
+[2m 202 | ;; Ensure WebR is ready then evaluate[0m
+[2m 203 | ;; ---------------------------------------------------------------------------[0m
+[2m 204 | [0m
+[1m 205 | (defn run![0m
+-------^------------------------------------------------------------------------
+ [33;1mrun! already refers to: cljs.core/run! being replaced by: webr.core/run![0m
+--------------------------------------------------------------------------------
+[2m 206 |   "Ensures WebR is initialized, then calls eval-r-code!.[0m
+[2m 207 |    Same options as eval-r-code!. Returns node id."[0m
+[2m 208 |   ([code] (run! code {}))[0m
+[2m 209 |   ([code opts][0m
+--------------------------------------------------------------------------------
+
+[1m------ WARNING #1 - :redef -----------------------------------------------------[0m
+ Resource: cognitect/transit.cljs:332:1
+--------------------------------------------------------------------------------
+[2m 329 |   [s][0m
+[2m 330 |   (ty/uri s))[0m
+[2m 331 | [0m
+[1m 332 | (defn uri?[0m
+-------^------------------------------------------------------------------------
+ [33;1muri? already refers to: cljs.core/uri? being replaced by: cognitect.transit/uri?[0m
+--------------------------------------------------------------------------------
+[2m 333 |   "Returns true if x is a transit URI value, false otherwise."[0m
+[2m 334 |   [x][0m
+[2m 335 |   (ty/isURI x))[0m
+[2m 336 | [0m
+--------------------------------------------------------------------------------
+[:worker] Build completed. (135 files, 134 compiled, 1 warnings, 25.65s)
+
+[1m------ WARNING #1 - :redef -----------------------------------------------------[0m
+ Resource: cognitect/transit.cljs:332:1
+--------------------------------------------------------------------------------
+[2m 329 |   [s][0m
+[2m 330 |   (ty/uri s))[0m
+[2m 331 | [0m
+[1m 332 | (defn uri?[0m
+-------^------------------------------------------------------------------------
+ [33;1muri? already refers to: cljs.core/uri? being replaced by: cognitect.transit/uri?[0m
+--------------------------------------------------------------------------------
+[2m 333 |   "Returns true if x is a transit URI value, false otherwise."[0m
+[2m 334 |   [x][0m
+[2m 335 |   (ty/isURI x))[0m
+[2m 336 | [0m
+--------------------------------------------------------------------------------
