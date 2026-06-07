@@ -508,10 +508,14 @@
                       "cure" (survival/cure-survival-probability ta gps-cf gps-true-scale-val k)
                       "leaky" (survival/leaky-cure-survival-probability ta gps-cf gps-true-scale-val k gps-leak)
                       (survival/weibull-survival-probability ta gps-true-scale-val k))))))]
-    (let [bat-mos (find-true-mos s-bat-true-fn)
-          gps-mos (find-true-mos s-gps-true-fn)]
-      {:bat-true-mos (- bat-mos delay)
-       :gps-true-mos (if (= gps-mos js/Infinity) js/Infinity (- gps-mos delay))
+    (let [gps-mos (find-true-mos s-gps-true-fn)
+          bat-true-mos (- (* bat-true-scale-val
+                             (js/Math.pow (js/Math.log 2.0) (/ 1.0 k)))
+                          delay)]
+      {:bat-true-mos bat-true-mos
+       :gps-true-mos (if (= gps-mos js/Infinity)
+                       js/Infinity
+                       (- gps-mos delay))
        
        ;; Realized median month on trial timeline
        :bat-realized-month
