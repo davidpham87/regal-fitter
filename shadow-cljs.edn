@@ -21,7 +21,7 @@
                             :pretty-print true
                             :pseudo-names true}}
 
-   :compiler-options {:optimizations :advanced
+   :compiler-options {:optimizations :simple
                       :externs       ["src/externs/webr.js"]}
 
    :devtools {:autobuild       true
@@ -39,7 +39,7 @@
    :js-options {:js-provider    :external
                 :external-index "target/worker_index.js"
                 :external-index-format :esm}
-   :compiler-options {:optimizations :advanced
+   :compiler-options {:optimizations :simple
                       :externs       ["src/externs/webr.js"]}
    :modules
    {:worker {:entries    [app.worker]

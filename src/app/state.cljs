@@ -27,14 +27,14 @@
    :prefilter-tol-ia 3.5
    :prefilter-tol-upd 3.5
    :prefilter-tol-pr3 3.5
-   :tol-ia 3
-   :tol-upd 3
-   :tol-pr3 3
+   :tol-ia 5
+   :tol-upd 1.5
+   :tol-pr3 1
 
    :tol-increment-ia-upd 3
    :tol-increment-upd-pr3 3
 
-   :futility-hr-max 0.9
+   :futility-hr-max 0.75
    :efficacy-hr-min 0.35
 
    :pool-mos-min-at-ia 12
@@ -64,10 +64,10 @@
    :cure-unc-med-grid [15 60 5]
    :cure-unc-shape-grid [0.6 1.0 0.1]
 
-   :leaky-cure-frac-grid [0.2 0.8 0.1]
+   :leaky-cure-frac-grid [0.2 0.6 0.1]
    :leaky-unc-med-grid [15 60 5]
-   :leaky-unc-shape-grid [0.6 1.0 0.1]
-   :leak-grid [0.05 0.08 0.01]
+   :leaky-unc-shape-grid [0.7 1.01 0.1]
+   :leak-grid [0.02 0.07 0.01]
 
    :families ["leaky"]
 })

@@ -1,9 +1,9 @@
 (ns app.core
-  (:require [app.simulator :as sim]
+  (:require [app.events]
+            [app.simulator :as sim]
+            [app.subs]
             [app.ui.core :as ui]
             [app.worker-pool :as wp]
-            [app.events]
-            [app.subs]
             [portal.web :as p]
             [re-frame.core :as re-frame]
             [reagent.dom :as rdom]
@@ -39,11 +39,13 @@
        (re-frame/dispatch [:navigate (:name (:data match)) (:path-params match) (:query-params match)])))
    {:use-fragment true}))
 
+
 (defn ^:export init []
   (js/console.log "App init")
   (wp/init-pool! nil)
   (sim/init!)
   (init-routes!)
+  (re-frame/dispatch [:initialize-db])
   ;; Open portal in the browser context
   ;; (p/open)
   ;; Initialize WebR on application boot

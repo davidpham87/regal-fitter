@@ -3,6 +3,16 @@
   (:require [cljs.numpy :as np]
             [app.regal-fit.survival :as survival]))
 
+(defn larger-bands
+  "Agglomerate band definition to make coarser definion of enorllment"
+  [x window]
+  (let [ys (partitionv-all window x)
+        get-count (fn [y] (reduce + (map #(->> % last) y)))
+        get-min (fn [y] (reduce min (map #(->> % first) y)))
+        get-max (fn [y] (reduce max (map #(->> % second) y)))
+        f (juxt get-min get-max get-count)]
+    (mapv f ys)))
+
 (defn- calculate-band-data
   "Computes enrollment points and weights for a single time band.
    Accepts a band [low high count] and subjects-per-unit density."
