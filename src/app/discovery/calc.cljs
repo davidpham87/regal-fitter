@@ -472,17 +472,22 @@
         n-total (:n-total config)
         target-ev (/ n-per-arm 2.0)
         
-        ;; BAT true scale (with delay)
-        bat-true-scale (survival/weibull-scale-from-median
-                        (np/array #js [(population-cr2-lambda (:bat-med params) delay k)])
-                        (np/array #js [k]))
-        bat-true-scale-val (.item bat-true-scale 0)
+        ;; BAT trial scale (without delay)
+        bat-trial-scale (survival/weibull-scale-from-median
+                         (np/array #js [(:bat-med params)])
+                         (np/array #js [k]))
+        bat-trial-scale-val (.item bat-trial-scale 0)
         
-        ;; GPS true scale (with delay)
-        gps-true-scale (survival/weibull-scale-from-median
-                        (np/array #js [(population-cr2-lambda (:gps-med params) delay k)])
-                        (np/array #js [k]))
-        gps-true-scale-val (.item gps-true-scale 0)
+        ;; GPS trial scale (without delay)
+        gps-trial-scale (survival/weibull-scale-from-median
+                         (np/array #js [(:gps-med params)])
+                         (np/array #js [k]))
+        gps-trial-scale-val (.item gps-trial-scale 0)
+
+        ;; True scale parameters (from CR2 onset)
+        bat-true-scale-val (population-cr2-lambda (:bat-med params) delay k)
+        gps-true-scale-val (population-cr2-lambda (:gps-med params) delay k)
+
         gps-cf (np/array #js [(or (:cure-frac params) 0.0)])
         gps-leak (np/array #js [(or (:leak-yr params) 0.0)])
         
@@ -503,26 +508,28 @@
                       "cure" (survival/cure-survival-probability ta gps-cf gps-true-scale-val k)
                       "leaky" (survival/leaky-cure-survival-probability ta gps-cf gps-true-scale-val k gps-leak)
                       (survival/weibull-survival-probability ta gps-true-scale-val k))))))]
-    {:bat-true-mos (find-true-mos s-bat-true-fn)
-     :gps-true-mos (find-true-mos s-gps-true-fn)
-     
-     ;; Realized median month on trial timeline
-     :bat-realized-month
-     (find-realized-median-month
-      survival/weibull-survival-probability
-      [(np/array #js [bat-true-scale-val]) (np/array #js [k])]
-      enroll-pts enroll-weights n-per-arm n-total target-ev)
-      
-     :gps-realized-month
-     (find-realized-median-month
-      (case family
-        "weibull" survival/weibull-survival-probability
-        "cure" survival/cure-survival-probability
-        "leaky" survival/leaky-cure-survival-probability
-        survival/weibull-survival-probability)
-      (case family
-        "weibull" [(np/array #js [gps-true-scale-val]) (np/array #js [k])]
-        "cure" [gps-cf (np/array #js [gps-true-scale-val]) (np/array #js [k])]
-        "leaky" [gps-cf (np/array #js [gps-true-scale-val]) (np/array #js [k]) gps-leak]
-        [(np/array #js [gps-true-scale-val]) (np/array #js [k])])
-      enroll-pts enroll-weights n-per-arm n-total target-ev)}))
+    (let [bat-mos (find-true-mos s-bat-true-fn)
+          gps-mos (find-true-mos s-gps-true-fn)]
+      {:bat-true-mos (- bat-mos delay)
+       :gps-true-mos (if (= gps-mos js/Infinity) js/Infinity (- gps-mos delay))
+       
+       ;; Realized median month on trial timeline
+       :bat-realized-month
+       (find-realized-median-month
+        survival/weibull-survival-probability
+        [(np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+        enroll-pts enroll-weights n-per-arm n-total target-ev)
+        
+       :gps-realized-month
+       (find-realized-median-month
+        (case family
+          "weibull" survival/weibull-survival-probability
+          "cure" survival/cure-survival-probability
+          "leaky" survival/leaky-cure-survival-probability
+          survival/weibull-survival-probability)
+        (case family
+          "weibull" [(np/array #js [gps-trial-scale-val]) (np/array #js [k])]
+          "cure" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k])]
+          "leaky" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k]) gps-leak]
+          [(np/array #js [gps-trial-scale-val]) (np/array #js [k])])
+        enroll-pts enroll-weights n-per-arm n-total target-ev)})))

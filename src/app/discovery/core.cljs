@@ -471,7 +471,8 @@
                     (:bat-med calc-params)
                     (or (:delay calc-params) 3.0)
                     (:weibull-k calc-params))
-        bat-true-mos (true-mos bat-lambda (:weibull-k calc-params))
+        bat-true-mos (- (true-mos bat-lambda (:weibull-k calc-params))
+                        (or (:delay calc-params) 3.0))
         medians (dc/calculate-medians active-family calc-params config)]
 
     [:div.p-6.max-w-7xl.mx-auto
