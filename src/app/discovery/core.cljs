@@ -417,10 +417,6 @@
             "N/A"
             (str (.toFixed (:median-t80-months sim-result) 1) "m"))]]
         [:div.bg-gray-50.p-3.rounded-lg.border
-         [:div.text-xs.text-gray-400.font-semibold "Prob. of 80 Events"]
-         [:div.text-sm.font-semibold.text-gray-700
-          (str (.toFixed (* 100 (:p-reach80 sim-result)) 1) "%")]]
-        [:div.bg-gray-50.p-3.rounded-lg.border
          [:div.text-xs.text-gray-400.font-semibold "Accepted / Futility Pass"]
          [:div.text-sm.font-semibold.text-gray-700
           (str (:n-accepted sim-result) " / " (:n-pass-events sim-result))]]]]]]))
