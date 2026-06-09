@@ -20,18 +20,18 @@
   "Checks if event counts at PR3 are within tolerance."
   [expected-upd expected-pr3 config apply-pr3]
   (if-not apply-pr3 true
-    (let [diff-pr3 (js/Math.abs (- expected-pr3 (:n-ev-pr3 config)))
-          increment-upd-pr3 (- expected-pr3 expected-upd)
-          target-increment (- (:n-ev-pr3 config) (:n-ev-upd config))
-          diff-increment (js/Math.abs (- increment-upd-pr3 target-increment))]
-      (and (<= diff-pr3 (:prefilter-tol-pr3 config))
-           (<= diff-increment (:tol-increment-upd-pr3 config))))))
+          (let [diff-pr3 (js/Math.abs (- expected-pr3 (:n-ev-pr3 config)))
+                increment-upd-pr3 (- expected-pr3 expected-upd)
+                target-increment (- (:n-ev-pr3 config) (:n-ev-upd config))
+                diff-increment (js/Math.abs (- increment-upd-pr3 target-increment))]
+            (and (<= diff-pr3 (:prefilter-tol-pr3 config))
+                 (<= diff-increment (:tol-increment-upd-pr3 config))))))
 
 (defn- pass-pool-gate?
   "Checks if pool OS at minimum months is above threshold."
   [bat-idx gps-idx bat-survival-arr gps-survival-arr apply-pool]
   (if-not apply-pool true
-    (>= (+ (aget bat-survival-arr bat-idx) (aget gps-survival-arr gps-idx)) 1.0)))
+          (>= (+ (aget bat-survival-arr bat-idx) (aget gps-survival-arr gps-idx)) 1.0)))
 
 (defn- validate-scenario
   "Helper function to validate a specific combination of BAT and GPS curves."

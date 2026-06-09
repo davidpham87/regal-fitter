@@ -54,7 +54,7 @@
                                              (str/lower-case (str v))
                                              q)))
                                         keys-to-show))
-                               items))
+                                items))
               sorted-items (if-let [col @sort-col]
                              (sort-by (fn [item]
                                         (let [val (get item col)]

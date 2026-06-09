@@ -21,9 +21,9 @@
              survival (aget survival-times i)
              arm      (when arms-array (aget arms-array i))
              dead-ia  (<= survival
-                         (js/Math.max (- (:t-ia config) enroll) 0.0))
+                          (js/Math.max (- (:t-ia config) enroll) 0.0))
              dead-up  (<= survival
-                         (js/Math.max (- (:t-upd config) enroll) 0.0))
+                          (js/Math.max (- (:t-upd config) enroll) 0.0))
              dead-pr3 (and (:use-pr3-anchor config)
                            (<= survival
                                (js/Math.max (- (:t-pr3 config) enroll)
@@ -72,9 +72,9 @@
             survival (aget survival-times i)
             arm      (aget arms-array i)
             dead-ia  (<= survival
-                        (js/Math.max (- (:t-ia config) enroll) 0.0))
+                         (js/Math.max (- (:t-ia config) enroll) 0.0))
             dead-up  (<= survival
-                        (js/Math.max (- (:t-upd config) enroll) 0.0))
+                         (js/Math.max (- (:t-upd config) enroll) 0.0))
             dead-pr3 (and (:use-pr3-anchor config)
                           (<= survival
                               (js/Math.max
@@ -112,8 +112,8 @@
         target-increment (- (:n-ev-upd config) (:n-ev-ia config))
         diff-increment (js/Math.abs (- increment-ia-up target-increment))
         pass-pr3 (if-not (:use-pr3-anchor config) true
-                   (and (<= (js/Math.abs (- n-press-release-3 (:n-ev-pr3 config))) (:tol-pr3 config))
-                        (<= (js/Math.abs (- (- n-press-release-3 n-update) (- (:n-ev-pr3 config) (:n-ev-upd config)))) (:tol-increment-upd-pr3 config))))]
+                         (and (<= (js/Math.abs (- n-press-release-3 (:n-ev-pr3 config))) (:tol-pr3 config))
+                              (<= (js/Math.abs (- (- n-press-release-3 n-update) (- (:n-ev-pr3 config) (:n-ev-upd config)))) (:tol-increment-upd-pr3 config))))]
     (and keep-ia keep-up (<= diff-increment (:tol-increment-ia-upd config)) pass-pr3)))
 
 (defn- interim-analysis-data
@@ -191,7 +191,7 @@
   "Computes all statistics for a successfully screened trial."
   [config enroll-times survival-times arms-array n-total]
   (let [counts (count-events-at-times
-               config enroll-times survival-times arms-array n-total)]
+                config enroll-times survival-times arms-array n-total)]
     (when (pass-events-tolerance? config counts)
       (let [interim-res (analyze-interim
                          config enroll-times survival-times
@@ -265,7 +265,7 @@
   (let [{:keys [enroll-times arms-array survival-times]}
         (generate-trial-data record config random-gen n-total n-per-arm bands)
         counts (count-events-at-times
-                 config enroll-times survival-times arms-array n-total)
+                config enroll-times survival-times arms-array n-total)
         passed-screening (or (:ignore-prefilter? config)
                              (pass-events-tolerance? config counts))
         stats (when passed-screening
@@ -296,8 +296,8 @@
           :p-reach80 (/ (count (filter :reached-80 all-stats))
                         num-accepted)
           :p-no-readout (- 1.0
-                          (/ (count (filter :reached-80 all-stats))
-                             num-accepted))
+                           (/ (count (filter :reached-80 all-stats))
+                              num-accepted))
           :median-hr-final
           (if (empty? hr-final-arr)
             js/NaN
@@ -361,7 +361,5 @@
         (when-not (empty? all-stats)
           (summarize-results all-stats n-sims (+ screen-pass more-pass) rec))))))
 
-
 (comment
-  (np-random/default-rng 42)
-  )
+  (np-random/default-rng 42))

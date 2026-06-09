@@ -33,14 +33,14 @@
       (if cached
         (callback {:success? true :result cached})
         (wp/submit-job!
-          data
-          (fn [res]
-            (when (and (:success? res) (:result res))
-              (db/set-cache k (:result res)))
-            (callback res)))))))
+         data
+         (fn [res]
+           (when (and (:success? res) (:result res))
+             (db/set-cache k (:result res)))
+           (callback res)))))))
 
 (defn- submit-simulation-jobs! [config all-accepted families results completed
-                                 total start-time]
+                                total start-time]
   (wp/clear-queue!)
   (if (= total 0)
     (do (rf/dispatch [:set-status :done])
@@ -85,7 +85,7 @@
           (rf/dispatch [:set-status :running-stage2])
           (rf/dispatch [:set-progress total-combos 0])
           (submit-simulation-jobs! config all-accepted families (atom {})
-                                    (atom 0) total-combos (js/Date.now)))
+                                   (atom 0) total-combos (js/Date.now)))
         (catch js/Error e
           (rf/dispatch [:set-status :error])
           (rf/dispatch [:set-error (.-message e)]))))))
@@ -99,7 +99,7 @@
   (let [bat-med-arr (np/array #js [(:bat-med params)])
         bat-shape-arr (np/array #js [(:weibull-k params)])
         bat-scale (.item (survival/weibull-scale-from-median
-                           bat-med-arr bat-shape-arr)
+                          bat-med-arr bat-shape-arr)
                          0)
         bat-shape (:weibull-k params)
         rec {:family family
@@ -110,7 +110,7 @@
       (let [gps-med-arr (np/array #js [(:gps-med params)])
             gps-shape-arr (np/array #js [(:weibull-k params)])
             gps-scale (.item (survival/weibull-scale-from-median
-                               gps-med-arr gps-shape-arr)
+                              gps-med-arr gps-shape-arr)
                              0)
             gps-shape (:weibull-k params)]
         (assoc rec
@@ -121,7 +121,7 @@
       (let [unc-med-arr (np/array #js [(:gps-med params)])
             unc-shape-arr (np/array #js [(:weibull-k params)])
             unc-scale (.item (survival/weibull-scale-from-median
-                               unc-med-arr unc-shape-arr)
+                              unc-med-arr unc-shape-arr)
                              0)
             unc-shape (:weibull-k params)]
         (assoc rec
@@ -133,7 +133,7 @@
       (let [unc-med-arr (np/array #js [(:gps-med params)])
             unc-shape-arr (np/array #js [(:weibull-k params)])
             unc-scale (.item (survival/weibull-scale-from-median
-                               unc-med-arr unc-shape-arr)
+                              unc-med-arr unc-shape-arr)
                              0)
             unc-shape (:weibull-k params)]
         (assoc rec
@@ -148,22 +148,22 @@
     (rf/dispatch [:set-discovery-sim-status :running])
     (rf/dispatch [:set-discovery-sim-result nil])
     (cached-submit-job!
-      {:rec rec
-       :cfg-dict (assoc config :ignore-prefilter? true)
-       :n-sims (or (:n-sims params) (:n-sims-per-combo config))
-       :seed (:seed config)}
-      (fn [{:keys [success? result error]}]
-        (if success?
-          (if result
-            (do
-              (rf/dispatch [:set-discovery-sim-status :done])
-              (rf/dispatch [:set-discovery-sim-result result]))
-            (do
-              (rf/dispatch [:set-discovery-sim-status :failed-prefilter])
-              (rf/dispatch [:set-discovery-sim-result nil])))
-          (do
-            (rf/dispatch [:set-discovery-sim-status :error])
-            (rf/dispatch [:set-discovery-sim-result error])))))))
+     {:rec rec
+      :cfg-dict (assoc config :ignore-prefilter? true)
+      :n-sims (or (:n-sims params) (:n-sims-per-combo config))
+      :seed (:seed config)}
+     (fn [{:keys [success? result error]}]
+       (if success?
+         (if result
+           (do
+             (rf/dispatch [:set-discovery-sim-status :done])
+             (rf/dispatch [:set-discovery-sim-result result]))
+           (do
+             (rf/dispatch [:set-discovery-sim-status :failed-prefilter])
+             (rf/dispatch [:set-discovery-sim-result nil])))
+         (do
+           (rf/dispatch [:set-discovery-sim-status :error])
+           (rf/dispatch [:set-discovery-sim-result error])))))))
 
 (defn- arange [start stop step]
   (let [eps 1e-9]

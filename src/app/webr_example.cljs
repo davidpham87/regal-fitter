@@ -19,21 +19,21 @@
   (assert (string? r-code-string) "R code must be a string")
   (rf/dispatch [:set-webr-status :initializing])
   (webr/init-webr!
-    (fn [webr-instance]
-      (rf/dispatch [:set-webr-status :running])
-      (webr/eval-r-code!
-        r-code-string
-        (fn [output-lines result-val]
-          (rf/dispatch [:set-webr-status :done])
-          (rf/dispatch [:store-webr-results
-                         {:output output-lines
-                          :result result-val}]))
-        (fn [error]
-          (rf/dispatch [:set-webr-status :error])
-          (rf/dispatch [:store-webr-error (str error)]))))
-    (fn [init-error]
-      (rf/dispatch [:set-webr-status :error])
-      (rf/dispatch [:store-webr-error (str "Init failed: " init-error)]))))
+   (fn [webr-instance]
+     (rf/dispatch [:set-webr-status :running])
+     (webr/eval-r-code!
+      r-code-string
+      (fn [output-lines result-val]
+        (rf/dispatch [:set-webr-status :done])
+        (rf/dispatch [:store-webr-results
+                      {:output output-lines
+                       :result result-val}]))
+      (fn [error]
+        (rf/dispatch [:set-webr-status :error])
+        (rf/dispatch [:store-webr-error (str error)]))))
+   (fn [init-error]
+     (rf/dispatch [:set-webr-status :error])
+     (rf/dispatch [:store-webr-error (str "Init failed: " init-error)]))))
 
 (defn register-webr-events!
   "Registers the re-frame event handlers used to manage the WebR lifecycle,
@@ -47,27 +47,27 @@
    Using re-frame's standard coeffects to safely interact with global app-state."
   []
   (rf/reg-event-fx
-    :set-webr-status
-    [(rf/inject-cofx :app-state)]
-    (fn [{:keys [app-state]} [_ status]]
-      {:app-state (assoc-in app-state [:webr :status] status)}))
-  
+   :set-webr-status
+   [(rf/inject-cofx :app-state)]
+   (fn [{:keys [app-state]} [_ status]]
+     {:app-state (assoc-in app-state [:webr :status] status)}))
+
   (rf/reg-event-fx
-    :store-webr-results
-    [(rf/inject-cofx :app-state)]
-    (fn [{:keys [app-state]} [_ {:keys [output result]}]]
-      (let [updated-state (-> app-state
-                              (assoc-in [:webr :output] output)
-                              (assoc-in [:webr :result] result)
-                              (assoc-in [:webr :error] nil))]
-        {:app-state updated-state})))
-  
+   :store-webr-results
+   [(rf/inject-cofx :app-state)]
+   (fn [{:keys [app-state]} [_ {:keys [output result]}]]
+     (let [updated-state (-> app-state
+                             (assoc-in [:webr :output] output)
+                             (assoc-in [:webr :result] result)
+                             (assoc-in [:webr :error] nil))]
+       {:app-state updated-state})))
+
   (rf/reg-event-fx
-    :store-webr-error
-    [(rf/inject-cofx :app-state)]
-    (fn [{:keys [app-state]} [_ error-msg]]
-      (let [updated-state (-> app-state
-                              (assoc-in [:webr :output] nil)
-                              (assoc-in [:webr :result] nil)
-                              (assoc-in [:webr :error] error-msg))]
-        {:app-state updated-state}))))
+   :store-webr-error
+   [(rf/inject-cofx :app-state)]
+   (fn [{:keys [app-state]} [_ error-msg]]
+     (let [updated-state (-> app-state
+                             (assoc-in [:webr :output] nil)
+                             (assoc-in [:webr :result] nil)
+                             (assoc-in [:webr :error] error-msg))]
+       {:app-state updated-state}))))

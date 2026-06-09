@@ -33,7 +33,7 @@
   "Calculates expected enrollment times and weights based on config."
   {:malli/schema [:=> [:cat [:map [:enroll-bands
                                    [:vector [:vector :number]]]]]
-                      [:tuple any? any?]]}
+                  [:tuple any? any?]]}
   [cfg]
   (let [subjects-per-unit 8
         bands (:enroll-bands cfg)
@@ -59,7 +59,6 @@
         enrolled (np/multiply (np/sum weighted 1) arm-share)]
     enrolled))
 
-
 (defn- calculate-events-chunk
   "Processes a chunk of survival parameters to compute expected events."
   [survival-func params-grid follow-up-3d weights-3d arm-share start end]
@@ -76,7 +75,7 @@
 (defn expected-arm-events
   "Calculates expected number of events per arm."
   {:malli/schema [:=> [:cat :function [:vector any?] any? any? any?
-                            :number :number] any?]}
+                       :number :number] any?]}
   [survival-func params-grid enroll-pts enroll-weights calendar-times
    n-per-arm n-total]
   (let [arm-share (/ n-per-arm n-total)
@@ -96,8 +95,8 @@
     (doseq [start (range 0 grid-size chunk-size)]
       (let [end (js/Math.min (+ start chunk-size) grid-size)
             events (calculate-events-chunk survival-func params-grid
-                                            follow-up-3d weights-3d
-                                            arm-share start end)]
+                                           follow-up-3d weights-3d
+                                           arm-share start end)]
         (np/set-block output-array events start)))
     output-array))
 
@@ -123,7 +122,7 @@
 (defn expected-arm-events-and-variance
   "Calculates expected number of events and variance per arm."
   {:malli/schema [:=> [:cat :function [:vector any?] any? any? any?
-                            :number :number] any?]}
+                       :number :number] any?]}
   [survival-func params-grid enroll-pts enroll-weights calendar-times
    n-per-arm n-total]
   (let [arm-share (/ n-per-arm n-total)

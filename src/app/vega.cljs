@@ -311,10 +311,10 @@
                                                         "total-died"
                                                         "gps-died"
                                                         "bat-died"]
-                                                :range [[] [] []
-                                                        [4 4]
-                                                        [4 4]
-                                                        [4 4]]}}}}
+                                               :range [[] [] []
+                                                       [4 4]
+                                                       [4 4]
+                                                       [4 4]]}}}}
               {:params [{:name "hover"
                          :select {:type "point"
                                   :on "mouseover"
@@ -422,8 +422,6 @@
          :text {:field metric-name :type "quantitative" :format fmt-str}
          :color {:field "group" :type "nominal" :scale color-scale}}}]
       :config {:view {:stroke "transparent"}}}]))
-
-
 
 (defn stress-test-charts [results]
   (let [vdata (map (fn [r]

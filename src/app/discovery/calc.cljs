@@ -239,14 +239,14 @@
         ;; BAT arm arrays
         survival-bat  (bat-survival  params t-pts)
         events-bat (bat-events params enroll-pts enroll-weights
-                           t-pts n-per-arm n-total)
+                               t-pts n-per-arm n-total)
 
         ;; GPS arm arrays (falls back to BAT when family unknown)
         survival-gps  (gps/gps-survival
-                family params t-pts survival-bat)
+                       family params t-pts survival-bat)
         events-gps (gps/gps-events
-                family params enroll-pts enroll-weights
-                t-pts n-per-arm n-total events-bat)
+                    family params enroll-pts enroll-weights
+                    t-pts n-per-arm n-total events-bat)
 
         ;; Pooled / total
         survival-pooled   (np/multiply (np/add survival-bat survival-gps) 0.5)
@@ -276,11 +276,11 @@
                                     (:t-pr3 config)]
                                "float64")
         ms-events-bat (milestone-events
-                   params enroll-pts enroll-weights
-                   t-milestones n-per-arm n-total)
+                       params enroll-pts enroll-weights
+                       t-milestones n-per-arm n-total)
         ms-events-gps (gps/gps-events
-                   family params enroll-pts enroll-weights
-                   t-milestones n-per-arm n-total ms-events-bat)
+                       family params enroll-pts enroll-weights
+                       t-milestones n-per-arm n-total ms-events-bat)
 
         ms-enroll (enrollment/expected-arm-enrolled
                    enroll-pts enroll-weights
@@ -471,13 +471,13 @@
         n-per-arm (:n-per-arm config)
         n-total (:n-total config)
         target-ev (/ n-per-arm 2.0)
-        
+
         ;; BAT trial scale (without delay)
         bat-trial-scale (survival/weibull-scale-from-median
                          (np/array #js [(:bat-med params)])
                          (np/array #js [k]))
         bat-trial-scale-val (.item bat-trial-scale 0)
-        
+
         ;; GPS trial scale (without delay)
         gps-trial-scale (survival/weibull-scale-from-median
                          (np/array #js [(:gps-med params)])
@@ -490,7 +490,7 @@
 
         gps-cf (np/array #js [(or (:cure-frac params) 0.0)])
         gps-leak (np/array #js [(or (:leak-yr params) 0.0)])
-        
+
         ;; survival functions (true scale)
         s-bat-true-fn
         (fn [t]
@@ -498,7 +498,7 @@
             (first (np/nd-to-array
                     (survival/weibull-survival-probability
                      ta bat-true-scale-val k)))))
-        
+
         s-gps-true-fn
         (fn [t]
           (let [ta (np/array #js [t] "float64")]
@@ -516,14 +516,14 @@
        :gps-true-mos (if (= gps-mos js/Infinity)
                        js/Infinity
                        (- gps-mos delay))
-       
+
        ;; Realized median month on trial timeline
        :bat-realized-month
        (find-realized-median-month
         survival/weibull-survival-probability
         [(np/array #js [bat-trial-scale-val]) (np/array #js [k])]
         enroll-pts enroll-weights n-per-arm n-total target-ev)
-        
+
        :gps-realized-month
        (find-realized-median-month
         (case family

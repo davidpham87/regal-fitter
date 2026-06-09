@@ -14,7 +14,6 @@
     [24.0, 36.0, 56]    ;; Year 3
     [36.0, 38.0, 5]]
 
-
    :t-ia 46.0
    :t-upd 58.0
    :t-pr3 62.97
@@ -69,8 +68,7 @@
    :leaky-unc-shape-grid [0.7 1.01 0.1]
    :leak-grid [0.02 0.07 0.01]
 
-   :families ["leaky"]
-})
+   :families ["leaky"]})
 
 (def light-config
   (assoc default-config
@@ -232,90 +230,90 @@
  :decode-url-state
  (fn [{:keys [page state-str]}]
    #_(-> (state-url/decode-state state-str)
-       (.then (fn [decoded]
-                (rf/dispatch [:apply-decoded-state page decoded]))))))
+         (.then (fn [decoded]
+                  (rf/dispatch [:apply-decoded-state page decoded]))))))
 
 (rf/reg-event-fx
  :apply-decoded-state
  [(rf/inject-cofx :app-state)]
  (fn [{:keys [app-state]} [_ page decoded]]
    #_(let [new-state (cond
-                     (#{:fitter :fitter-sub} page)
-                     (update app-state :config merge decoded)
+                       (#{:fitter :fitter-sub} page)
+                       (update app-state :config merge decoded)
 
-                     (= page :placebo-stress)
-                     (update app-state :stress-test-config merge decoded)
+                       (= page :placebo-stress)
+                       (update app-state :stress-test-config merge decoded)
 
-                     (#{:discovery :discovery-sub} page)
-                     (update-in app-state [:discovery :params] merge decoded)
+                       (#{:discovery :discovery-sub} page)
+                       (update-in app-state [:discovery :params] merge decoded)
 
-                     :else
-                     app-state)]
-     {:app-state new-state})))
+                       :else
+                       app-state)]
+       {:app-state new-state})))
 
 (rf/reg-event-fx
-  :navigate
-  [(rf/inject-cofx :app-state)]
-  (fn [{:keys [app-state]} [_ page path-params query-params]]
-    (let [new-state (cond
-                      (#{:fitter-sub :fitter-sub-state} page)
-                      (assoc app-state :active-page :fitter
-                             :view (keyword (:subtab path-params)))
+ :navigate
+ [(rf/inject-cofx :app-state)]
+ (fn [{:keys [app-state]} [_ page path-params query-params]]
+   (let [new-state (cond
+                     (#{:fitter-sub :fitter-sub-state} page)
+                     (assoc app-state :active-page :fitter
+                            :view (keyword (:subtab path-params)))
 
-                      (#{:discovery-sub :discovery-sub-state} page)
-                      (-> app-state
-                          (assoc :active-page :discovery)
-                          (assoc-in [:discovery :active-family]
-                                    (:subtab path-params)))
+                     (#{:discovery-sub :discovery-sub-state} page)
+                     (-> app-state
+                         (assoc :active-page :discovery)
+                         (assoc-in [:discovery :active-family]
+                                   (:subtab path-params)))
 
-                      (#{:fitter :fitter-state} page)
-                      (assoc app-state :active-page :fitter :view :config-form)
+                     (#{:fitter :fitter-state} page)
+                     (assoc app-state :active-page :fitter :view :config-form)
 
-                      (#{:discovery :discovery-state} page)
-                      (-> app-state
-                          (assoc :active-page :discovery)
-                          (assoc-in [:discovery :active-family] "weibull"))
+                     (#{:discovery :discovery-state} page)
+                     (-> app-state
+                         (assoc :active-page :discovery)
+                         (assoc-in [:discovery :active-family] "weibull"))
 
-                      (#{:placebo-stress :placebo-stress-state} page)
-                      (assoc app-state :active-page :placebo-stress)
+                     (#{:placebo-stress :placebo-stress-state} page)
+                     (assoc app-state :active-page :placebo-stress)
 
-                      :else
-                      (assoc app-state :active-page page))
-          new-state (assoc new-state :current-route
-                           {:page page
-                            :path-params path-params})
-          effects {:app-state new-state}]
-      (if-let [state-str (or (:state path-params) #_(:state query-params))]
-        (assoc effects :decode-url-state {:page page :state-str state-str})
-        effects))))
+                     :else
+                     (assoc app-state :active-page page))
+         new-state (assoc new-state :current-route
+                          {:page page
+                           :path-params path-params})
+         effects {:app-state new-state}]
+     (if-let [state-str (or (:state path-params) #_(:state query-params))]
+       (assoc effects :decode-url-state {:page page :state-str state-str})
+       effects))))
 
 (defn- sync-to-url! [data]
   #_(let [clean (if (map? data)
-                (dissoc data :enroll-bands :enrollment-mode)
-                data)]
-    (-> (state-url/encode-state clean)
-        (.then (fn [b64]
-                 (let [curr-route (:current-route @app-state)
-                       page (:page curr-route)
-                       path-params (:path-params curr-route)
-                       subtab (:subtab path-params)
-                       [dest-route dest-path-params]
-                       (cond
-                         (#{:fitter :fitter-sub :fitter-sub-state} page)
-                         [:fitter-sub-state
-                          {:subtab (or subtab "config-form") :state b64}]
+                  (dissoc data :enroll-bands :enrollment-mode)
+                  data)]
+      (-> (state-url/encode-state clean)
+          (.then (fn [b64]
+                   (let [curr-route (:current-route @app-state)
+                         page (:page curr-route)
+                         path-params (:path-params curr-route)
+                         subtab (:subtab path-params)
+                         [dest-route dest-path-params]
+                         (cond
+                           (#{:fitter :fitter-sub :fitter-sub-state} page)
+                           [:fitter-sub-state
+                            {:subtab (or subtab "config-form") :state b64}]
 
-                         (#{:placebo-stress :placebo-stress-state} page)
-                         [:placebo-stress-state {:state b64}]
+                           (#{:placebo-stress :placebo-stress-state} page)
+                           [:placebo-stress-state {:state b64}]
 
-                         (#{:discovery :discovery-sub :discovery-sub-state} page)
-                         [:discovery-sub-state
-                          {:subtab (or subtab "weibull") :state b64}]
+                           (#{:discovery :discovery-sub :discovery-sub-state} page)
+                           [:discovery-sub-state
+                            {:subtab (or subtab "weibull") :state b64}]
 
-                         :else
-                         [page path-params])]
-                   (when dest-route
-                     (rfe/replace-state dest-route dest-path-params))))))))
+                           :else
+                           [page path-params])]
+                     (when dest-route
+                       (rfe/replace-state dest-route dest-path-params))))))))
 
 (defn set-config! [k v]
   (swap! app-state assoc-in [:config k] v)
@@ -349,5 +347,4 @@
 
 (comment
   (:webr @app-state)
-  {:status :error, :output nil, :result nil, :error "TypeError: inst_45580.captureR is not a function"}
-  )
+  {:status :error, :output nil, :result nil, :error "TypeError: inst_45580.captureR is not a function"})

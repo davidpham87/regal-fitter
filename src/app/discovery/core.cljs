@@ -280,7 +280,6 @@
 
 (defonce active-metric (r/atom :rate))
 
-
 ;; ---------------------------------------------------------------------------
 ;; Chart grids
 ;; ---------------------------------------------------------------------------
@@ -490,7 +489,7 @@
         [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
          [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
          [h0-section stats-h0 curve-data-h0 h0-hazard-rates
-                     active-metric avg-med]]])]))
+          active-metric avg-med]]])]))
 
 ;; ---------------------------------------------------------------------------
 ;; Public entry point

@@ -39,7 +39,6 @@
        (re-frame/dispatch [:navigate (:name (:data match)) (:path-params match) (:query-params match)])))
    {:use-fragment true}))
 
-
 (defn ^:export init []
   (js/console.log "App init")
   (wp/init-pool! nil)

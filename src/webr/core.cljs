@@ -222,7 +222,5 @@
           (rf/dispatch [::set-error (str "Init failed: " e)]))))
      nid)))
 
-
 (comment
-  @db/app-db
-  )
+  @db/app-db)

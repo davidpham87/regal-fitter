@@ -11,7 +11,5 @@
 (defn random [rng size]
   (.random rng size))
 
-
 (comment
-  (default-rng 100)
-  )
+  (default-rng 100))
