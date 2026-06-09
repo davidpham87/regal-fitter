@@ -7,7 +7,8 @@
             [app.simulator :as sim]
             [clojure.string :as str]
             [cljs.pprint :refer [pprint]]
-            ["@monaco-editor/react" :default Editor]))
+            [app.components.editor :refer [code-editor]]
+            [app.components.tabs :refer [tab-bar]]))
 
 (defn- stage2-progress [progress]
   [:div.flex.flex-col.gap-2
@@ -118,12 +119,12 @@
         edn-str (with-out-str (pprint translated))]
     [:div.p-4
      [:h3.text-lg.font-bold.mb-2 "EDN View"]
-     [:div.border.rounded-lg.overflow-hidden {:style {:height "500px"}}
-      [:> Editor {:height "100%"
-                  :defaultLanguage "clojure"
-                  :theme "vs-dark"
-                  :options {:readOnly true}
-                  :value edn-str}]]]))
+     [code-editor
+      {:value edn-str
+       :language "clojure"
+       :theme "vs-dark"
+       :height "500px"
+       :read-only? true}]]))
 
 (defn results-view []
   (let [results @(rf/subscribe [:results])
@@ -134,17 +135,12 @@
        [:div.flex.justify-between.items-center.mb-4
         [:h2.text-xl.font-bold.results-charts-container "Results"]
         (when (seq results)
-          [:div.flex.gap-2.bg-gray-100.p-1.rounded-lg
-           (for [[tab label] [[:charts "Charts"]
-                              [:table "Table"]
-                              [:edn "EDN View"]]]
-             ^{:key tab}
-             [:button.px-3.py-1.rounded-md.text-sm.transition-all
-              {:class (if (= @active-tab tab)
-                        "bg-white text-gray-800 shadow-sm font-semibold"
-                        "text-gray-600 hover:text-gray-800")
-               :on-click #(reset! active-tab tab)}
-              label])])]
+          [tab-bar
+           {:active-tab @active-tab
+            :tabs [[:charts "Charts"]
+                   [:table "Table"]
+                   [:edn "EDN View"]]
+            :on-change #(reset! active-tab %)}])]
        (cond
          (= status :running-stage2) [stage2-progress progress]
          (seq results)
