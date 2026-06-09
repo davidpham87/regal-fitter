@@ -38,7 +38,7 @@
        [inputs/field-wrapper :tol-pr3
         [inputs/num-input props :tol-pr3 inputs/parse-double-safe] props]
        [inputs/field-wrapper :use-pr3-anchor
-        [inputs/checkbox-input props :use-pr3-anchor] props]]]}])
+        [inputs/checkbox-input props :use-pr3-anchor] props]]]]}])
 
 (defn grids-section [props]
   [collapsible-section
@@ -88,7 +88,7 @@
        [inputs/field-wrapper :leaky-unc-shape-grid
         [inputs/grid-input props :leaky-unc-shape-grid] props]
        [inputs/field-wrapper :leak-grid
-        [inputs/grid-input props :leak-grid] props]]]]]}])
+        [inputs/grid-input props :leak-grid] props]]]]}])
 
 (defn tolerances-section [props]
   [collapsible-section
@@ -116,7 +116,7 @@
          inputs/parse-double-safe] props]
        [inputs/field-wrapper :pool-mos-min-at-ia
         [inputs/num-input props :pool-mos-min-at-ia
-         inputs/parse-double-safe] props]]]]]}])
+         inputs/parse-double-safe] props]]]]}])
 
 (defn execution-section [props]
   [collapsible-section
@@ -159,4 +159,4 @@
        [inputs/field-wrapper :seed
         [inputs/num-input props :seed inputs/parse-int] props]
        [inputs/field-wrapper :families
-        [inputs/families-input props :families] props]]]]]}])
+        [inputs/families-input props :families] props]]]]}])

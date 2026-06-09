@@ -112,7 +112,7 @@
                      "point-fit fragility.")]
       :footer (str "Note: This is an independent analytical exercise and "
                    "does not constitute financial advice. SLS long position "
-                   "held by the author.")}]]]))
+                   "held by the author.")}]]])
 
 (defn- stress-test-form-content
   [{:keys [values set-values handle-change]}]
@@ -283,7 +283,7 @@
         " The average event counts at each milestone across all simulations."]
        [:li [:strong "Residual:"]
         (str " The maximum absolute discrepancy between the "
-             "simulated expected events and actual observed events.")]]]]]}])
+             "simulated expected events and actual observed events.")]]]]}])
 
 (defn- power-analysis-form-content
   [{:keys [values handle-change]}]
