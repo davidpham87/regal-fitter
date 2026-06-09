@@ -10,7 +10,7 @@
             [re-frame.core :as rf]
             [fork.re-frame :as fork]
             [reitit.frontend.easy :as rfe]
-            ["@monaco-editor/react" :default Editor]))
+            [app.components.editor :refer [code-editor]]))
 
 (def ^:private category->keys
   {:trial [:n-total :n-per-arm :enroll-bands :enforce-no-80-by-today
@@ -97,19 +97,19 @@
           (reset! text-val expected-json))
         [:div.p-4
          [:h2.text-xl.font-bold.mb-4 "Config (JSON)"]
-         [:div.border.rounded {:style {:height "600px"}}
-          [:> Editor {:height "100%"
-                      :defaultLanguage "json"
-                      :value @text-val
-                      :onChange (fn [val _]
-                                  (reset! text-val val)
-                                  (try
-                                    (let [nested (js->clj
-                                                  (js/JSON.parse val)
-                                                  :keywordize-keys true)]
-                                      (rf/dispatch [:update-config
-                                                    (nested->config nested)]))
-                                    (catch js/Error _)))}]]
+         [code-editor
+          {:height "600px"
+           :language "json"
+           :value @text-val
+           :on-change (fn [val _]
+                        (reset! text-val val)
+                        (try
+                          (let [nested (js->clj
+                                        (js/JSON.parse val)
+                                        :keywordize-keys true)]
+                            (rf/dispatch [:update-config
+                                          (nested->config nested)]))
+                          (catch js/Error _)))}]
          [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
           {:type "button"
            :on-click (fn []
