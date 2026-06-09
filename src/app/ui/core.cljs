@@ -78,8 +78,9 @@
          "Run Simulation"]]])))
 
 (defn- config->nested [config]
-  (into {} (for [[cat ks] category->keys]
-             [cat (select-keys config ks)])))
+  (into (sorted-map)
+        (for [[cat ks] category->keys]
+          [cat (into (sorted-map) (select-keys config ks))])))
 
 (defn- nested->config [nested]
   (reduce merge {} (vals nested)))
