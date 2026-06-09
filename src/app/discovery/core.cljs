@@ -367,7 +367,7 @@
         [:thead
          [:tr
           [:th.text-left.font-semibold.text-gray-600.pb-2 "Metric"]
-          [:th.text-right.font-semibold.text-gray-600.pb-2 "BAT (Placebo)"]
+          [:th.text-right.font-semibold.text-gray-600.pb-2 "BAT"]
           [:th.text-right.font-semibold.text-gray-600.pb-2 "GPS (Active)"]]]
         [:tbody.divide-y.divide-gray-200
          [:tr
@@ -467,9 +467,9 @@
                     (:bat-med calc-params)
                     (or (:delay calc-params) 3.0)
                     (:weibull-k calc-params))
-        bat-true-mos (- (true-mos bat-lambda (:weibull-k calc-params))
-                        (or (:delay calc-params) 3.0))
-        medians (dc/calculate-medians active-family calc-params config)]
+        bat-true-mos (true-mos bat-lambda (:weibull-k calc-params))
+        medians (assoc (dc/calculate-medians active-family calc-params config)
+                       :bat-true-mos bat-true-mos)]
 
     [:div.p-6.max-w-7xl.mx-auto
      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
