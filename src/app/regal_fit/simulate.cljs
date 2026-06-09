@@ -283,6 +283,50 @@
   (let [results (map (fn [_] (simulate-one-trial record config random-gen (:n-total config) (:n-per-arm config) (:enroll-bands config))) (range n-sims))]
     [(keep :stats results) (reduce + (map #(if (:passed-screening %) 1 0) results))]))
 
+(defn- gps-survival-probability-scalar [t record]
+  (let [family (:family record)]
+    (cond
+      (= family "weibull")
+      (let [scale (:gps-scale record)
+            shape (:gps-shape record)]
+        (js/Math.exp (- (js/Math.pow (/ t scale) shape))))
+
+      (= family "cure")
+      (let [cf (:cure-frac record)
+            scale (:unc-scale record)
+            shape (:unc-shape record)]
+        (+ cf (* (- 1.0 cf)
+                 (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
+
+      (= family "leaky")
+      (let [cf (:cure-frac record)
+            scale (:unc-scale record)
+            shape (:unc-shape record)
+            leak-rate-monthly (/ (:leak-yr record) 12.0)]
+        (+ (* cf (js/Math.exp (- (* leak-rate-monthly t))))
+           (* (- 1.0 cf)
+              (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
+      :else 0.0)))
+
+(defn- calculate-gps-median [record]
+  (if (= (:family record) "weibull")
+    (:gps-med record)
+    (let [f (fn [t] (gps-survival-probability-scalar t record))]
+      (if (<= (f 0.0) 0.5)
+        0.0
+        (if (> (f 1000.0) 0.5)
+          js/NaN
+          (loop [low 0.0
+                 high 1000.0
+                 iter 0]
+            (if (or (> iter 30) (< (- high low) 0.01))
+              (/ (+ low high) 2.0)
+              (let [mid (/ (+ low high) 2.0)
+                    val (f mid)]
+                (if (> val 0.5)
+                  (recur mid high (inc iter))
+                  (recur low mid (inc iter)))))))))))
+
 (defn- mean-field [all-stats k]
   (let [vs (keep k all-stats)]
     (if (empty? vs) js/NaN (/ (reduce + vs) (count vs)))))
@@ -291,8 +335,10 @@
   "Helper to build the aggregate statistics map."
   [all-stats num-attempts num-pass-events record to-nd
    finite-t80 hr-final-arr num-success num-accepted hr-low hr-high]
-  (merge record
-         {:n-attempts num-attempts
+  (let [gps-med (or (:gps-med record) (calculate-gps-median record))]
+    (merge record
+           {:gps-med gps-med
+            :n-attempts num-attempts
           :n-pass-events num-pass-events
           :n-pass-futility num-accepted
           :n-accepted num-accepted
@@ -340,7 +386,7 @@
           :mean-med-update-pool  (mean-field all-stats :med-update-pool)
           :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
           :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
-          :mean-med-press-release-3-pool (mean-field all-stats :med-press-release-3-pool)}))
+          :mean-med-press-release-3-pool (mean-field all-stats :mean-med-press-release-3-pool)})))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."

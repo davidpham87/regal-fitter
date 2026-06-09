@@ -54,7 +54,9 @@
        :hr-final-low (calculate-weighted-mean
                       :hr-final-low sub sub-w)
        :hr-final-high (calculate-weighted-mean
-                       :hr-final-high sub sub-w)})))
+                       :hr-final-high sub sub-w)
+       :gps-med (calculate-weighted-mean
+                 :gps-med sub sub-w)})))
 
 (defn build-stratified-data [results bin-width]
   (let [bat-meds (map :bat-med results)
@@ -108,6 +110,7 @@
                            :hr-final (or (:median-hr-final d) 0)
                            :hr-low (or (:hr-final-low d) 0)
                            :hr-high (or (:hr-final-high d) 0)
+                           :gps-med (or (:gps-med d) 0)
                            :p-bat p-val
                            :cum-p (js/Math.min 100.0 cum-p)}))
                       data))
@@ -242,7 +245,23 @@
                      :tooltip [{:field "hr-final" :type "quantitative"
                                 :title "Final HR"}
                                {:field "success" :type "quantitative"
-                                :title "P(success) (%)"}]}}]])]))
+                                :title "P(success) (%)"}]}}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values vdata}
+          :title "GPS mOS vs BAT mOS"
+          :mark {:type "line" :point true}
+          :encoding {:x {:field "bat-mid"
+                         :type "quantitative"
+                         :title "BAT mOS (months)"}
+                     :y {:field "gps-med"
+                         :type "quantitative"
+                         :title "GPS mOS (months)"
+                         :scale {:zero false}}
+                     :color {:value "#3b82f6"}
+                     :tooltip [{:field "bat-mid" :type "quantitative"
+                                :title "BAT mOS (months)"}
+                               {:field "gps-med" :type "quantitative"
+                                :title "GPS mOS (months)"}]}}]])]))
 
 (defn discovery-survival-chart [data]
   [vega-lite
