@@ -7,7 +7,8 @@
             [cljs.numpy :as np]
             [app.regal-fit.enrollment :as rfe]
             [fork.re-frame :as fork]
-            ["@monaco-editor/react" :default Editor]))
+            [app.components.editor :refer [code-editor]]
+            [app.components.tabs :refer [tab-bar]]))
 
 (defn- simulate-enrollment-data [bands n-samples seed]
   (let [random-gen (np-random/default-rng seed)
@@ -55,18 +56,14 @@
          [:h2.text-2xl.font-extrabold.text-gray-900.mb-4 "Enrollment Plot"]
 
          [:div.mb-6.flex.flex-wrap.gap-4.items-center
-          [:button.px-4.py-2.rounded.font-semibold
-           {:class (if (= (:mode enrollment-mode) :manual)
-                     "bg-blue-600 text-white"
-                     "bg-gray-200 text-gray-700 hover:bg-gray-300")
-            :on-click #(rf/dispatch [:set-enrollment-mode-param :mode :manual])}
-           "Manual / Editor Mode"]
-          [:button.px-4.py-2.rounded.font-semibold
-           {:class (if (= (:mode enrollment-mode) :s-curve)
-                     "bg-blue-600 text-white"
-                     "bg-gray-200 text-gray-700 hover:bg-gray-300")
-            :on-click #(rf/dispatch [:set-enrollment-mode-param :mode :s-curve])}
-           "S-Curve Gen Mode"]
+          [tab-bar
+           {:active-tab (:mode enrollment-mode)
+            :tabs [[:manual "Manual / Editor Mode"]
+                   [:s-curve "S-Curve Gen Mode"]]
+            :on-change #(rf/dispatch
+                         [:set-enrollment-mode-param :mode %])
+            :button-class (str "bg-blue-600 text-white font-semibold "
+                               "shadow-sm")}]
           [:button.px-4.py-2.rounded.font-semibold
            {:class "bg-gray-200 text-gray-700 hover:bg-gray-300"
             :on-click #(rf/dispatch [:set-config-key :enroll-bands
@@ -94,19 +91,19 @@
            (let [expected-json (js/JSON.stringify (clj->js bands) nil 2)]
              [:div.mb-6
               [:h3.text-lg.font-bold.mb-2 "Edit Enrollment Bands"]
-              [:div.border.rounded {:style {:height "250px"}}
-               [:> Editor {:height "100%"
-                           :defaultLanguage "json"
-                           :value expected-json
-                           :onChange (fn [val _]
-                                       (try
-                                         (let [parsed (js->clj
-                                                       (js/JSON.parse val)
-                                                       :keywordize-keys true)]
-                                           (when (vector? parsed)
-                                             (rf/dispatch [:set-config-key
-                                                           :enroll-bands parsed])))
-                                         (catch js/Error _)))}]]])
+              [code-editor
+               {:value expected-json
+                :language "json"
+                :height "250px"
+                :on-change (fn [val _]
+                             (try
+                               (let [parsed (js->clj
+                                             (js/JSON.parse val)
+                                             :keywordize-keys true)]
+                                 (when (vector? parsed)
+                                   (rf/dispatch [:set-config-key
+                                                 :enroll-bands parsed])))
+                               (catch js/Error _)))}]])
            (let [init-vals {:median-month (:median-month enrollment-mode)
                             :k (:k enrollment-mode)}]
              ^{:key init-vals}
