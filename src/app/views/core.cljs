@@ -7,17 +7,16 @@
             [app.simulator :as sim]
             [app.discovery.core :as discovery]
             [reitit.frontend.easy :as rfe]
-            [app.stress-test.power :as power]))
+            [app.stress-test.power :as power]
+            [app.components.card :refer [dashboard-card]]
+            [app.components.alert :refer [info-callout]]
+            [app.components.table :refer [key-value-list sortable-header]]
+            [app.components.progress :refer [progress-bar]]))
 
 (def ^:private btn-class
   (str "inline-block bg-blue-600 hover:bg-blue-700 "
        "text-white text-sm font-semibold "
        "px-4 py-2 rounded-lg transition-colors"))
-
-(defn- navigate-button [page label class-str]
-  [:a {:class (or class-str "text-blue-500 hover:underline font-semibold")
-       :href (rfe/href page)}
-   label])
 
 (defn home-view []
   [:div.p-6.max-w-4xl.mx-auto
@@ -26,43 +25,44 @@
     "A premium simulation dashboard for clinical trial design optimization."]
    [:div.grid.grid-cols-1.md:grid-cols-3.gap-6
     ;; Fitter Card
-    [:div.border.rounded-xl.p-6.bg-white.shadow-sm.flex.flex-col
-     {:class ["justify-between" "hover:shadow-md" "transition-all"]}
-     [:div
-      [:h2.text-xl.font-bold.text-gray-800.mb-2 "1. Fitter"]
-      [:p.text-sm.text-gray-600.mb-4
-       "Optimize and pre-filter trial design assumptions across Weibull, Cure,
-        and Leaky Cure families with fast parallel simulations."]]
-     [:div [navigate-button :fitter "Open Fitter" btn-class]]]
+    [dashboard-card
+     {:title "1. Fitter"
+      :description (str "Optimize and pre-filter trial design assumptions "
+                        "across Weibull, Cure, and Leaky Cure families "
+                        "with fast parallel simulations.")
+      :page :fitter
+      :button-label "Open Fitter"
+      :button-class btn-class}]
     ;; Placebo Stress Test Card
-    [:div.border.rounded-xl.p-6.bg-white.shadow-sm.flex.flex-col
-     {:class ["justify-between" "hover:shadow-md" "transition-all"]}
-     [:div
-      [:h2.text-xl.font-bold.text-gray-800.mb-2 "2. Placebo Stress Test"]
-      [:p.text-sm.text-gray-600.mb-4
-       "Assess placebo response distributions and calculate p-values of event
-        times under simulated stress conditions."]]
-     [:div [navigate-button :placebo-stress "Open Placebo Test" btn-class]]]
+    [dashboard-card
+     {:title "2. Placebo Stress Test"
+      :description (str "Assess placebo response distributions and calculate "
+                        "p-values of event times under simulated stress "
+                        "conditions.")
+      :page :placebo-stress
+      :button-label "Open Placebo Test"
+      :button-class btn-class}]
     ;; Discovery Card
-    [:div.border.rounded-xl.p-6.bg-white.shadow-sm.flex.flex-col
-     {:class ["justify-between" "hover:shadow-md" "transition-all"]}
-     [:div
-      [:h2.text-xl.font-bold.text-gray-800.mb-2 "3. Discovery"]
-      [:p.text-sm.text-gray-600.mb-4
-       "Explore and visualize survival curves and event accrual paths given
-        user-controlled trial parameters."]]
-     [:div [navigate-button :discovery "Open Discovery" btn-class]]]]
+    [dashboard-card
+     {:title "3. Discovery"
+      :description (str "Explore and visualize survival curves and event "
+                        "accrual paths given user-controlled trial "
+                        "parameters.")
+      :page :discovery
+      :button-label "Open Discovery"
+      :button-class btn-class}]]
 
    ;; README Content Variation Section
    [:div.mt-12.pt-8.border-t
     [:h2.text-2xl.font-extrabold.text-gray-800.mb-4
      "About the REGAL Constraint Fitter"]
     [:p.text-gray-600.mb-6
-     "This dashboard replicates and extends the constraint-based ABC
-      (Approximate Bayesian Computation) model for estimating the probability
-      of trial success in the REGAL Phase 3 trial of galinpepimut-S (GPS). It
-      operates purely on publicly disclosed information without using Phase 2
-      GPS data or historical AML benchmarks as biological priors."]
+     (str "This dashboard replicates and extends the constraint-based ABC "
+          "(Approximate Bayesian Computation) model for estimating the "
+          "probability of trial success in the REGAL Phase 3 trial of "
+          "galinpepimut-S (GPS). It operates purely on publicly disclosed "
+          "information without using Phase 2 GPS data or historical AML "
+          "benchmarks as biological priors.")]
 
     [:div.grid.grid-cols-1.md:grid-cols-2.gap-8.mb-8
      [:div
@@ -70,49 +70,49 @@
        "Methodology & Model Families"]
       [:p.text-sm.text-gray-600.mb-3
        [:strong "Two-Stage ABC:"]
-       " Combos are run through an analytical pre-filter "
-       "(Stage 1) to reject parameter sets that cannot mathematically meet "
-       "anchors. Surviving combos then run through trial simulations (Stage 2) "
-       "to estimate empirical success probability."]
+       (str " Combos are run through an analytical pre-filter "
+            "(Stage 1) to reject parameter sets that cannot mathematically "
+            "meet anchors. Surviving combos then run through trial "
+            "simulations (Stage 2) to estimate empirical success probability.")]
       [:p.text-sm.text-gray-600
        [:strong "Three Model Families:"]
-       " Fits trial data using three distinct "
-       "parametric assumptions: Weibull/Weibull (agnostic), standard "
-       "Cure-fraction GPS (explicit plateau), and Leaky Cure GPS (cure tail "
-       "with residual hazard rate to prevent immortality artifacts)."]]
+       (str " Fits trial data using three distinct "
+            "parametric assumptions: Weibull/Weibull (agnostic), standard "
+            "Cure-fraction GPS (explicit plateau), and Leaky Cure GPS "
+            "(cure tail with residual hazard rate to prevent immortality "
+            "artifacts).")]]
 
-     [:div.bg-gray-50.p-4.rounded-xl.border
-      [:h3.text-xs.font-bold.text-gray-500.uppercase.tracking-wider.mb-3
-       "Public Constraints Applied"]
-      [:div.space-y-2
-       (for [[k v] [["Total Enrolled" "126 patients (1:1 randomization)"]
-                    ["Interim Analysis" "60 events @ ~m46 (Dec 2024)"]
-                    ["Data Update" "72 events @ ~m58 (Dec 2025)"]
-                    ["Final Analysis" "80 events target"]
-                    ["Pool Blinded mOS" "> 12 months at IA"]
-                    ["Median Follow-Up" "13.5 ± 2 months at IA"]
-                    ["Success HR threshold" "< 0.636 (per SAP)"]]]
-         ^{:key k}
-         [:div.flex.justify-between.text-xs.border-b.pb-1
-          [:span.font-semibold.text-gray-600 k]
-          [:span.text-gray-800.font-medium v]])]]]
+     [key-value-list
+      {:title "Public Constraints Applied"
+       :items [["Total Enrolled" "126 patients (1:1 randomization)"]
+               ["Interim Analysis" "60 events @ ~m46 (Dec 2024)"]
+               ["Data Update" "72 events @ ~m58 (Dec 2025)"]
+               ["Final Analysis" "80 events target"]
+               ["Pool Blinded mOS" "> 12 months at IA"]
+               ["Median Follow-Up" "13.5 ± 2 months at IA"]
+               ["Success HR threshold" "< 0.636 (per SAP)"]]}]]
 
-    [:div.bg-blue-50.border.border-blue-100.p-5.rounded-xl.mb-6
-     [:h4.text-sm.font-bold.text-blue-800.mb-2
-      "Key Methodological Insights: Point Fit vs. Posterior Averaging"]
-     [:p.text-xs.text-blue-900.leading-relaxed.mb-2
-      "This engine reports both *Best-Fit Point Estimates* and *Posterior
-       Averages* side-by-side. Point estimation selects the single parameter
-       set that minimizes max-residuals against the public anchors, yielding
-       ~100% P(success) under strong cure assumptions."]
-     [:p.text-xs.text-blue-900.leading-relaxed
-      "Posterior averaging, however, integrates across all parameter regimes
-       that are mathematically consistent with public anchors. This yields a
-       more robust, smooth marginal success probability (ranging from 66% to
-       78% depending on the model family) and avoids point-fit fragility."]
-     [:p.text-xs.text-gray-400.italic.mt-3.pt-2.border-t.border-blue-100
-      "Note: This is an independent analytical exercise and does not
-       constitute financial advice. SLS long position held by the author."]]]])
+    [info-callout
+     {:title-el [:h4.text-sm.font-bold.text-blue-800.mb-2
+                 (str "Key Methodological Insights: "
+                      "Point Fit vs. Posterior Averaging")]
+      :description-el [:p.text-xs.text-blue-900.leading-relaxed.mb-2
+                       (str "This engine reports both *Best-Fit Point Estimates* "
+                            "and *Posterior Averages* side-by-side. Point "
+                            "estimation selects the single parameter set that "
+                            "minimizes max-residuals against the public "
+                            "anchors, yielding ~100% P(success) under strong "
+                            "cure assumptions.")]
+      :content [:p.text-xs.text-blue-900.leading-relaxed
+                (str "Posterior averaging, however, integrates across all "
+                     "parameter regimes that are mathematically consistent "
+                     "with public anchors. This yields a more robust, "
+                     "smooth marginal success probability (ranging from "
+                     "66% to 78% depending on the model family) and avoids "
+                     "point-fit fragility.")]
+      :footer (str "Note: This is an independent analytical exercise and "
+                   "does not constitute financial advice. SLS long position "
+                   "held by the author.")}]]]))
 
 (defn- stress-test-form-content
   [{:keys [values set-values handle-change]}]
@@ -193,17 +193,6 @@
                      (rf/dispatch [:update-stress-test-config values]))}
        stress-test-form-content])))
 
-(defn- sortable-header [label k sort-state]
-  (let [{curr-key :key desc? :desc?} @sort-state]
-    [:th.px-4.py-2.text-left.cursor-pointer.select-none.hover:bg-gray-100
-     {:on-click (fn []
-                  (if (= curr-key k)
-                    (swap! sort-state update :desc? not)
-                    (reset! sort-state {:key k :desc? false})))}
-     (str label
-          (when (= curr-key k)
-            (if desc? " ↓" " ↑")))]))
-
 (defn- stress-test-results-view []
   (let [sort-state (r/atom {:key :mos :desc? false})]
     (fn []
@@ -215,17 +204,12 @@
                              (if desc? (reverse sorted) sorted))]
         [:div
          (when (= status :running)
-           [:div.mb-6
-            [:p.text-sm.mb-1
-             (str "Running simulations: "
-                  (:completed progress) " / " (:total progress))]
-            [:div.w-full.bg-gray-200.rounded-full.h-2
-             [:div.bg-blue-600.h-2.rounded-full
-              {:style {:width (str (if (pos? (:total progress))
-                                     (* 100 (/ (:completed progress)
-                                               (:total progress)))
-                                     0)
-                                   "%")}}]]])
+           [progress-bar
+            {:completed (:completed progress)
+             :total (:total progress)
+             :label (str "Running simulations: "
+                         (:completed progress) " / "
+                         (:total progress))}])
          (when (seq results)
            [:div
             [:h2.text-xl.font-bold.mb-4 "Results Summary"]
@@ -249,47 +233,57 @@
                   [:tr
                    [:td.px-4.py-2 (:mos r)]
                    [:td.px-4.py-2 (:k r)]
-                   [:td.px-4.py-2 (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
-                   [:td.px-4.py-2 (if (= (:expected_hr_ia r) js/Number.POSITIVE_INFINITY) "Inf" (.toFixed (:expected_hr_ia r) 2))]
+                   [:td.px-4.py-2
+                    (str (.toFixed (* 100 (:p_joint r)) 2) "%")]
+                   [:td.px-4.py-2
+                    (if (= (:expected_hr_ia r) js/Number.POSITIVE_INFINITY)
+                      "Inf"
+                      (.toFixed (:expected_hr_ia r) 2))]
                    [:td.px-4.py-2 (.toFixed (:expected_ev_ia r) 1)]
                    [:td.px-4.py-2 (.toFixed (:expected_inc_upd r) 1)]
                    [:td.px-4.py-2 (.toFixed (:expected_inc_pr3 r) 1)]
                    [:td.px-4.py-2 (.toFixed (:residual r) 2)]]))]]]])]))))
 
 (defn- placebo-explanation-view []
-  [:div.p-6.rounded-xl.border.mb-6
-   {:class ["bg-gradient-to-r" "from-blue-50" "to-indigo-50"
-            "border-blue-100"]}
-   [:h3.text-lg.font-bold.text-blue-900.mb-3
-    "Methodology & Interpretation Guide"]
-   [:p.text-sm.text-blue-950.mb-4
-    "This stress test evaluates the likelihood of observed clinical trial "
-    "milestones under the Null Hypothesis (H0) that both treatment (GPS) and "
-    "control (BAT) arms have identical survival profiles."]
-   [:div.grid.grid-cols-1.md:grid-cols-2.gap-6.text-xs.text-blue-900
-    [:div
-     [:h4.font-semibold.text-blue-950.mb-2 "Observed Stress Milestones:"]
-     [:ul.list-disc.pl-4.space-y-1
-      [:li [:strong "Interim Analysis:"]
-       " Event count at month 46 is upper bound at ≤ 60 events."]
-      [:li [:strong "Deceleration:"]
-       " Incremental events between months 46 and 58 is upper bound at ≤ 12 events."]
-      [:li [:strong "Extension:"]
-       " Incremental events between months 58 and 63 is upper bound at ≤ 6 events."]
-      [:li [:strong "Pool mOS:"]
-       " Pool mOS is between 12.5 to 14.5 at time of interim analysis (time ia)."]]]
-    [:div
-     [:h4.font-semibold.text-blue-950.mb-2 "Key Metrics Explained:"]
-     [:ul.list-disc.pl-4.space-y-1
-      [:li [:strong "p_joint:"]
-       " The probability of a trial meeting the selected stress "
-       "milestones simultaneously under H0. A low value (e.g. < 5%) suggests "
-       "H0 is highly unlikely."]
-      [:li [:strong "Expected Events:"]
-       " The average event counts at each milestone across all simulations."]
-      [:li [:strong "Residual:"]
-       " The maximum absolute discrepancy between the "
-       "simulated expected events and actual observed events."]]]]])
+  [info-callout
+   {:container-class ["bg-gradient-to-r" "from-blue-50" "to-indigo-50"
+                      "border-blue-100"]
+    :title-el [:h3.text-lg.font-bold.text-blue-900.mb-3
+               "Methodology & Interpretation Guide"]
+    :description-el [:p.text-sm.text-blue-950.mb-4
+                     (str "This stress test evaluates the likelihood of "
+                          "observed clinical trial milestones under the Null "
+                          "Hypothesis (H0) that both treatment (GPS) and "
+                          "control (BAT) arms have identical survival "
+                          "profiles.")]
+    :content
+    [:div.grid.grid-cols-1.md:grid-cols-2.gap-6.text-xs.text-blue-900
+     [:div
+      [:h4.font-semibold.text-blue-950.mb-2 "Observed Stress Milestones:"]
+      [:ul.list-disc.pl-4.space-y-1
+       [:li [:strong "Interim Analysis:"]
+        " Event count at month 46 is upper bound at ≤ 60 events."]
+       [:li [:strong "Deceleration:"]
+        (str " Incremental events between months 46 and 58 is "
+             "upper bound at ≤ 12 events.")]
+       [:li [:strong "Extension:"]
+        (str " Incremental events between months 58 and 63 is "
+             "upper bound at ≤ 6 events.")]
+       [:li [:strong "Pool mOS:"]
+        (str " Pool mOS is between 12.5 to 14.5 at time of "
+             "interim analysis (time ia).")]]]
+     [:div
+      [:h4.font-semibold.text-blue-950.mb-2 "Key Metrics Explained:"]
+      [:ul.list-disc.pl-4.space-y-1
+       [:li [:strong "p_joint:"]
+        (str " The probability of a trial meeting the selected stress "
+             "milestones simultaneously under H0. A low value "
+             "(e.g. < 5%) suggests H0 is highly unlikely.")]
+       [:li [:strong "Expected Events:"]
+        " The average event counts at each milestone across all simulations."]
+       [:li [:strong "Residual:"]
+        (str " The maximum absolute discrepancy between the "
+             "simulated expected events and actual observed events.")]]]]]}])
 
 (defn- power-analysis-form-content
   [{:keys [values handle-change]}]
