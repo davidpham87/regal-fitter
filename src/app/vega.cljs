@@ -50,7 +50,11 @@
        :p-hr-below-threshold (calculate-weighted-mean
                               :p-hr-below-threshold sub sub-w)
        :median-hr-final (calculate-weighted-mean
-                         :median-hr-final sub sub-w)})))
+                         :median-hr-final sub sub-w)
+       :hr-final-low (calculate-weighted-mean
+                      :hr-final-low sub sub-w)
+       :hr-final-high (calculate-weighted-mean
+                       :hr-final-high sub sub-w)})))
 
 (defn build-stratified-data [results bin-width]
   (let [bat-meds (map :bat-med results)
@@ -102,6 +106,8 @@
                            :success succ
                            :succ-lbl (str (.toFixed succ 0) "%")
                            :hr-final (or (:median-hr-final d) 0)
+                           :hr-low (or (:hr-final-low d) 0)
+                           :hr-high (or (:hr-final-high d) 0)
                            :p-bat p-val
                            :cum-p (js/Math.min 100.0 cum-p)}))
                       data))
@@ -163,14 +169,22 @@
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Implied Final HR by BAT mOS"
-          :layer [{:mark {:type "line" :point true}
+          :layer [{:mark {:type "area" :opacity 0.2}
                    :encoding {:x {:field "bat-mid"
                                   :type "quantitative"
                                   :title "BAT mOS (months)"}
+                              :y {:field "hr-low"
+                                  :type "quantitative"
+                                  :scale {:domain [0 1.2]}}
+                              :y2 {:field "hr-high"
+                                   :type "quantitative"}
+                              :color {:value "#aa5599"}}}
+                  {:mark {:type "line" :point true}
+                   :encoding {:x {:field "bat-mid"
+                                  :type "quantitative"}
                               :y {:field "hr-final"
                                   :type "quantitative"
-                                  :title "Final HR"
-                                  :scale {:domain [0 1.2]}}
+                                  :title "Final HR"}
                               :color {:value "#aa5599"}
                               :tooltip [{:field "bat-mid" :type "quantitative"
                                          :title "BAT mOS (months)"}
@@ -211,7 +225,24 @@
                               :tooltip [{:field "hr-mid" :type "quantitative"
                                          :title "Hazard Ratio"}
                                         {:field "cum-p" :type "quantitative"
-                                         :title "Cumulative Probability (%)"}]}}]}]])]))
+                                         :title "Cumulative Probability (%)"}]}}]}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values vdata}
+          :title "P(success) vs Implied Final HR"
+          :mark {:type "line" :point true}
+          :encoding {:x {:field "hr-final"
+                         :type "quantitative"
+                         :title "Implied Final HR"
+                         :scale {:zero false}}
+                     :y {:field "success"
+                         :type "quantitative"
+                         :title "P(success) (%)"
+                         :scale {:domain [0 100]}}
+                     :color {:value "#22c55e"}
+                     :tooltip [{:field "hr-final" :type "quantitative"
+                                :title "Final HR"}
+                               {:field "success" :type "quantitative"
+                                :title "P(success) (%)"}]}}]])]))
 
 (defn discovery-survival-chart [data]
   [vega-lite
