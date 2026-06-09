@@ -290,7 +290,7 @@
 (defn- build-aggregate-map
   "Helper to build the aggregate statistics map."
   [all-stats num-attempts num-pass-events record to-nd
-   finite-t80 hr-final-arr num-success num-accepted]
+   finite-t80 hr-final-arr num-success num-accepted hr-low hr-high]
   (merge record
          {:n-attempts num-attempts
           :n-pass-events num-pass-events
@@ -306,6 +306,8 @@
           (if (empty? hr-final-arr)
             js/NaN
             (np/median (to-nd hr-final-arr)))
+          :hr-final-low hr-low
+          :hr-final-high hr-high
           :p-hr-below-threshold
           (if (empty? hr-final-arr)
             js/NaN
@@ -346,9 +348,23 @@
   (let [num-accepted (count all-stats)
         finite-t80 (filter #(not (js/Number.isNaN %)) (map :t80 all-stats))
         hr-final-arr (filter #(not (js/Number.isNaN %)) (map :hr-final all-stats))
-        num-success (count (filter #(and (:reached-80 %) (< (:hr-final %) 0.636)) all-stats))
-        to-nd (fn [coll] (np/array (cljs.core/to-array coll)))]
-    (build-aggregate-map all-stats num-attempts num-pass-events record to-nd finite-t80 hr-final-arr num-success num-accepted)))
+        num-success (count (filter #(and (:reached-80 %)
+                                         (< (:hr-final %) 0.636))
+                                   all-stats))
+        to-nd (fn [coll] (np/array (cljs.core/to-array coll)))
+        sorted-hrs (sort hr-final-arr)
+        n-hrs (count sorted-hrs)
+        hr-low (if (pos? n-hrs)
+                 (nth sorted-hrs (js/Math.floor (* 0.025 n-hrs)))
+                 js/NaN)
+        hr-high (if (pos? n-hrs)
+                  (let [idx (js/Math.floor (* 0.975 n-hrs))
+                        last-idx (dec n-hrs)]
+                    (nth sorted-hrs (js/Math.min last-idx idx)))
+                  js/NaN)]
+    (build-aggregate-map all-stats num-attempts num-pass-events record to-nd
+                         finite-t80 hr-final-arr num-success num-accepted
+                         hr-low hr-high)))
 
 (defn simulate-one-combo
   "Simulates multiple trials for a single scenario combination."
