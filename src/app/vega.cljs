@@ -245,23 +245,6 @@
           :config {:legend {:orient "bottom"}}}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
-          :title "P(success) vs Implied Final HR"
-          :mark {:type "line" :point true}
-          :encoding {:x {:field "hr-final"
-                         :type "quantitative"
-                         :title "Implied Final HR"
-                         :scale {:zero false}}
-                     :y {:field "success"
-                         :type "quantitative"
-                         :title "P(success) (%)"
-                         :scale {:domain [0 100]}}
-                     :color {:value "#22c55e"}
-                     :tooltip [{:field "hr-final" :type "quantitative"
-                                :title "Final HR"}
-                               {:field "success" :type "quantitative"
-                                :title "P(success) (%)"}]}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
           :title "GPS mOS vs BAT mOS"
           :mark {:type "line" :point true}
           :encoding {:x {:field "bat-mid"
