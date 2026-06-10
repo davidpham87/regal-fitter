@@ -156,7 +156,8 @@
                    :encoding {:x {:field "bat-mid" :type "quantitative"}
                               :y {:field "cum-p" :type "quantitative"}
                               :text {:field "succ-lbl" :type "nominal"}
-                              :color {:value "#333"}}}]}]
+                              :color {:value "#333"}}}]
+          :config {:legend {:orient "bottom"}}}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Posterior Probability of BAT mOS"
@@ -240,7 +241,8 @@
                                        :tooltip [{:field "hr-mid" :type "quantitative"
                                                   :title "Hazard Ratio"}
                                                  {:field "success" :type "quantitative"
-                                                  :title "P(success) (%)"}]}}]}]}]
+                                                  :title "P(success) (%)"}]}}]}]
+          :config {:legend {:orient "bottom"}}}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "P(success) vs Implied Final HR"
@@ -543,7 +545,8 @@
          :y {:field metric-name :type "quantitative"}
          :text {:field metric-name :type "quantitative" :format fmt-str}
          :color {:field "group" :type "nominal" :scale color-scale}}}]
-      :config {:view {:stroke "transparent"}}}]))
+      :config {:view {:stroke "transparent"}
+               :legend {:orient "bottom"}}}]))
 
 (defn stress-test-charts [results]
   (let [vdata (map (fn [r]
@@ -593,7 +596,8 @@
                          :type "quantitative"
                          :title "N Required"
                          :scale {:scheme "yelloworangered"
-                                 :clamp true}}}}]))
+                                 :clamp true}}}
+      :config {:legend {:orient "bottom"}}}]))
 
 (defn power-line-chart [results]
   (let [vdata (clj->js
