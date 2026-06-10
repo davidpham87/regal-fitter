@@ -144,70 +144,83 @@
           obs-inc-pr3 (:obs-inc-pr3 config)
           futility-hr-max (:futility-hr-max config)
 
-          joint-pass-count (atom 0)
-          total-passed-ia (atom 0)
-          total-ev-ia-le-60 (atom 0)
-          total-inc-upd-le-12 (atom 0)
-          total-inc-pr3-le-6 (atom 0)
+          stats
+          (loop [s 0
+                 joint-pass-count 0
+                 total-passed-ia 0
+                 total-ev-ia-le-60 0
+                 total-inc-upd-le-12 0
+                 total-inc-pr3-le-6 0
+                 sum-ev-ia 0
+                 sum-inc-upd 0
+                 sum-inc-pr3 0
+                 sum-gps-ev-ia 0]
+            (if (< s n-sims)
+              (let [e-ia (aget ev-ia s)
+                    e-upd (aget ev-upd s)
+                    e-pr3 (aget ev-pr3 s)
+                    g-ia (aget gps-ev-ia s)
+                    p-pool (== (aget pass-pool s) 1)
 
-          sum-ev-ia (atom 0)
-          sum-inc-upd (atom 0)
-          sum-inc-pr3 (atom 0)
-          sum-gps-ev-ia (atom 0)]
+                    i-upd (- e-upd e-ia)
+                    i-pr3 (- e-pr3 e-upd)
 
-      (dotimes [s n-sims]
-        (let [e-ia (aget ev-ia s)
-              e-upd (aget ev-upd s)
-              e-pr3 (aget ev-pr3 s)
-              g-ia (aget gps-ev-ia s)
-              p-pool (== (aget pass-pool s) 1)
+                    pass-hr (< g-ia
+                               (* futility-hr-max
+                                  (/ e-ia (inc futility-hr-max))))
+                    passed-ia (and pass-hr p-pool)
 
-              i-upd (- e-upd e-ia)
-              i-pr3 (- e-pr3 e-upd)
+                    c1 (or (not use-test-ia) (<= e-ia obs-ev-ia))
+                    c2 (or (not use-test-upd) (<= i-upd obs-inc-upd))
+                    c3 (or (not use-test-pr3) (<= i-pr3 obs-inc-pr3))
+                    c4 (or (not use-test-pool-mos) p-pool)
+                    c5 (or (not use-test-hr) pass-hr)
 
-              pass-hr (< g-ia
-                         (* futility-hr-max
-                            (/ e-ia (inc futility-hr-max))))
-              passed-ia (and pass-hr p-pool)]
+                    ev-ia-le-60 (<= e-ia obs-ev-ia)
+                    inc-upd-le-12 (<= i-upd obs-inc-upd)
+                    inc-pr3-le-6 (<= i-pr3 obs-inc-pr3)
+                    joint-pass (and c1 c2 c3 c4 c5)]
 
-          (swap! sum-ev-ia + e-ia)
-          (swap! sum-inc-upd + i-upd)
-          (swap! sum-inc-pr3 + i-pr3)
+                (recur (inc s)
+                       (if joint-pass (inc joint-pass-count) joint-pass-count)
+                       (if passed-ia (inc total-passed-ia) total-passed-ia)
+                       (if ev-ia-le-60 (inc total-ev-ia-le-60) total-ev-ia-le-60)
+                       (if inc-upd-le-12 (inc total-inc-upd-le-12) total-inc-upd-le-12)
+                       (if inc-pr3-le-6 (inc total-inc-pr3-le-6) total-inc-pr3-le-6)
+                       (+ sum-ev-ia e-ia)
+                       (+ sum-inc-upd i-upd)
+                       (+ sum-inc-pr3 i-pr3)
+                       (+ sum-gps-ev-ia g-ia)))
 
-          (when passed-ia (swap! total-passed-ia inc))
+              {:joint-pass-count joint-pass-count
+               :total-passed-ia total-passed-ia
+               :total-ev-ia-le-60 total-ev-ia-le-60
+               :total-inc-upd-le-12 total-inc-upd-le-12
+               :total-inc-pr3-le-6 total-inc-pr3-le-6
+               :sum-ev-ia sum-ev-ia
+               :sum-inc-upd sum-inc-upd
+               :sum-inc-pr3 sum-inc-pr3
+               :sum-gps-ev-ia sum-gps-ev-ia}))]
 
-          (swap! sum-gps-ev-ia + g-ia)
-
-          (let [c1 (or (not use-test-ia) (<= e-ia obs-ev-ia))
-                c2 (or (not use-test-upd) (<= i-upd obs-inc-upd))
-                c3 (or (not use-test-pr3) (<= i-pr3 obs-inc-pr3))
-                c4 (or (not use-test-pool-mos) p-pool)
-                c5 (or (not use-test-hr) pass-hr)]
-            (when (<= e-ia obs-ev-ia) (swap! total-ev-ia-le-60 inc))
-            (when (<= i-upd obs-inc-upd) (swap! total-inc-upd-le-12 inc))
-            (when (<= i-pr3 obs-inc-pr3) (swap! total-inc-pr3-le-6 inc))
-            (when (and c1 c2 c3 c4 c5)
-              (swap! joint-pass-count inc)))))
-
-      (let [exp-ev-ia (/ @sum-ev-ia n-sims)
-            exp-gps-ev-ia (/ @sum-gps-ev-ia n-sims)
+      (let [exp-ev-ia (/ (:sum-ev-ia stats) n-sims)
+            exp-gps-ev-ia (/ (:sum-gps-ev-ia stats) n-sims)
             exp-bat-ev-ia (- exp-ev-ia exp-gps-ev-ia)
             exp-hr-ia (if (pos? exp-bat-ev-ia)
                         (/ exp-gps-ev-ia exp-bat-ev-ia)
                         js/Number.POSITIVE_INFINITY)
-            exp-inc-upd (/ @sum-inc-upd n-sims)
-            exp-inc-pr3 (/ @sum-inc-pr3 n-sims)
+            exp-inc-upd (/ (:sum-inc-upd stats) n-sims)
+            exp-inc-pr3 (/ (:sum-inc-pr3 stats) n-sims)
             residual (js/Math.max
                       (js/Math.abs (- exp-ev-ia obs-ev-ia))
                       (js/Math.abs (- exp-inc-upd obs-inc-upd))
                       (js/Math.abs (- exp-inc-pr3 obs-inc-pr3)))]
         {:mos mos
          :k k
-         :p_pass_ia (/ @total-passed-ia n-sims)
-         :p_ev_ia_le_60 (/ @total-ev-ia-le-60 n-sims)
-         :p_inc_upd_le_12 (/ @total-inc-upd-le-12 n-sims)
-         :p_inc_pr3_le_6 (/ @total-inc-pr3-le-6 n-sims)
-         :p_joint (/ @joint-pass-count n-sims)
+         :p_pass_ia (/ (:total-passed-ia stats) n-sims)
+         :p_ev_ia_le_60 (/ (:total-ev-ia-le-60 stats) n-sims)
+         :p_inc_upd_le_12 (/ (:total-inc-upd-le-12 stats) n-sims)
+         :p_inc_pr3_le_6 (/ (:total-inc-pr3-le-6 stats) n-sims)
+         :p_joint (/ (:joint-pass-count stats) n-sims)
          :expected_ev_ia exp-ev-ia
          :expected_hr_ia exp-hr-ia
          :expected_inc_upd exp-inc-upd
