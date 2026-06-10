@@ -81,12 +81,15 @@
                          sub (filter #(and (>= (:median-hr-final %) lo)
                                            (< (:median-hr-final %) hi))
                                      valid-results)
-                         wt-sum (reduce + (map :acceptance-rate sub))]
+                         wt-sum (reduce + (map :acceptance-rate sub))
+                         sub-w (map :acceptance-rate sub)
+                         succ-mean (calculate-weighted-mean :p-success-overall sub sub-w)]
                      {:hr-mid (+ lo (/ bin-width 2))
                       :hr-lo lo
                       :hr-hi hi
                       :weight wt-sum
-                      :p-val (if (pos? tot-wt) (* 100 (/ wt-sum tot-wt)) 0.0)}))
+                      :p-val (if (pos? tot-wt) (* 100 (/ wt-sum tot-wt)) 0.0)
+                      :success (if succ-mean (* 100 succ-mean) 0.0)}))
             vdata (let [running-sum (atom 0.0)]
                     (mapv (fn [b]
                             (let [cum-p (swap! running-sum + (:p-val b))]
@@ -215,20 +218,29 @@
                                          :title "Hazard Ratio"}
                                         {:field "p-val" :type "quantitative"
                                          :title "Probability (%)"}]}}
-                  {:mark {:type "line" :point true}
-                   :encoding {:x {:field "hr-mid" :type "quantitative"}
-                              :y {:field "cum-p"
-                                  :type "quantitative"
-                                  :title "Cumulative Probability (%)"
-                                  :axis {:orient "right"}
-                                  :scale {:domain [0 100]}}
-                              :color {:datum "Cumulative (CDF)"
-                                      :type "nominal"
-                                      :scale {:range ["#ff0000"]}}
-                              :tooltip [{:field "hr-mid" :type "quantitative"
-                                         :title "Hazard Ratio"}
-                                        {:field "cum-p" :type "quantitative"
-                                         :title "Cumulative Probability (%)"}]}}]}]
+                  {:layer [{:mark {:type "line" :point true}
+                            :encoding {:x {:field "hr-mid" :type "quantitative"}
+                                       :y {:field "cum-p"
+                                           :type "quantitative"
+                                           :title "Cumulative Probability (%)"
+                                           :axis {:orient "right"}
+                                           :scale {:domain [0 100]}}
+                                       :color {:datum "Cumulative (CDF)"
+                                               :type "nominal"
+                                               :scale {:range ["#ff0000" "#22c55e"]}}
+                                       :tooltip [{:field "hr-mid" :type "quantitative"
+                                                  :title "Hazard Ratio"}
+                                                 {:field "cum-p" :type "quantitative"
+                                                  :title "Cumulative Probability (%)"}]}}
+                           {:mark {:type "line" :point true}
+                            :encoding {:x {:field "hr-mid" :type "quantitative"}
+                                       :y {:field "success"
+                                           :type "quantitative"}
+                                       :color {:datum "P(success)"}
+                                       :tooltip [{:field "hr-mid" :type "quantitative"
+                                                  :title "Hazard Ratio"}
+                                                 {:field "success" :type "quantitative"
+                                                  :title "P(success) (%)"}]}}]}]}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "P(success) vs Implied Final HR"
