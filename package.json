@@ -21,8 +21,8 @@
     "webpack-cli": "^6.0.1"
   },
   "scripts": {
-    "build": "clojure -M:cljs:shadow-cljs release app worker && npx webpack --config-name app",
-    "dev": "clojure -M:cljs:shadow-cljs watch app worker",
+    "build": "npx shadow-cljs release app worker && npx webpack --config-name app",
+    "dev": "npx shadow-cljs watch app worker",
     "webpack": "npx webpack --config-name app"
   }
 }
