@@ -61,6 +61,33 @@
       (let [edges (calculate-bat-edges bat-meds bin-width)]
         (keep #(build-bin-record % bin-width results weights) edges)))))
 
+(defn- build-hr-distribution-data [results bin-width]
+  (let [valid-results (filter #(and (:median-hr-final %) (not (js/isNaN (:median-hr-final %)))) results)
+        hrs (map :median-hr-final valid-results)
+        tot-wt (reduce + (map :acceptance-rate valid-results))]
+    (if (or (empty? valid-results) (zero? tot-wt))
+      []
+      (let [hr-min (js/Math.floor (/ (apply min hrs) bin-width))
+            hr-max (js/Math.ceil (/ (apply max hrs) bin-width))
+            edges (range (* hr-min bin-width) (+ (* hr-max bin-width) bin-width) bin-width)
+            bins (for [lo edges]
+                   (let [hi (+ lo bin-width)
+                         sub (filter #(and (>= (:median-hr-final %) lo)
+                                           (< (:median-hr-final %) hi))
+                                     valid-results)
+                         wt-sum (reduce + (map :acceptance-rate sub))]
+                     {:hr-mid (+ lo (/ bin-width 2))
+                      :hr-lo lo
+                      :hr-hi hi
+                      :weight wt-sum
+                      :p-val (if (pos? tot-wt) (* 100 (/ wt-sum tot-wt)) 0.0)}))
+            vdata (let [running-sum (atom 0.0)]
+                    (mapv (fn [b]
+                            (let [cum-p (swap! running-sum + (:p-val b))]
+                              (assoc b :cum-p (js/Math.min 100.0 cum-p))))
+                          bins))]
+        vdata))))
+
 (defn results-charts [family items]
   (let [data (build-stratified-data items 1.0)
         tot-wt (reduce + (map :weight data))
@@ -77,7 +104,8 @@
                            :hr-final (or (:median-hr-final d) 0)
                            :p-bat p-val
                            :cum-p (js/Math.min 100.0 cum-p)}))
-                      data))]
+                      data))
+        hr-data (build-hr-distribution-data items 0.025)]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
@@ -151,7 +179,39 @@
                   {:mark "rule" :data {:values [{:y 0.636}]}
                    :encoding {:y {:field "y" :type "quantitative"}
                               :color {:value "red"}
-                              :strokeDash {:value [4 4]}}}]}]])]))
+                              :strokeDash {:value [4 4]}}}]}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values hr-data}
+          :title "Hazard Ratio Distribution"
+          :resolve {:scale {:y "independent"}}
+          :layer [{:mark "bar"
+                   :encoding {:x {:field "hr-lo"
+                                  :type "quantitative"
+                                  :title "Hazard Ratio"
+                                  :bin {:binned true :step 0.025}}
+                              :x2 {:field "hr-hi"}
+                              :y {:field "p-val"
+                                  :type "quantitative"
+                                  :title "Probability (%)"}
+                              :color {:value "#ff9900"}
+                              :tooltip [{:field "hr-mid" :type "quantitative"
+                                         :title "Hazard Ratio"}
+                                        {:field "p-val" :type "quantitative"
+                                         :title "Probability (%)"}]}}
+                  {:mark {:type "line" :point true}
+                   :encoding {:x {:field "hr-mid" :type "quantitative"}
+                              :y {:field "cum-p"
+                                  :type "quantitative"
+                                  :title "Cumulative Probability (%)"
+                                  :axis {:orient "right"}
+                                  :scale {:domain [0 100]}}
+                              :color {:datum "Cumulative (CDF)"
+                                      :type "nominal"
+                                      :scale {:range ["#ff0000"]}}
+                              :tooltip [{:field "hr-mid" :type "quantitative"
+                                         :title "Hazard Ratio"}
+                                        {:field "cum-p" :type "quantitative"
+                                         :title "Cumulative Probability (%)"}]}}]}]])]))
 
 (defn discovery-survival-chart [data]
   [vega-lite
