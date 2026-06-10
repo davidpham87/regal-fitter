@@ -1,11 +1,11 @@
 (ns app.compare-node
-  (:require [cljs.nodejs :as node]
-            [cljs.numpy :as np]
-            [app.regal-fit.survival :as survival]
+  (:require ["fs" :as fs]
             [app.regal-fit.enrollment :as enrollment]
-            [app.stress-test.simulate :as stress-simulate]
+            [app.regal-fit.survival :as survival]
             [app.state :as state]
-            ["fs" :as fs]))
+            [app.stress-test.simulate :as stress-simulate]
+            [cljs.nodejs :as node]
+            [cljs.numpy :as np]))
 
 (def truth (js/JSON.parse (.readFileSync fs "truth.json" "utf8")))
 
