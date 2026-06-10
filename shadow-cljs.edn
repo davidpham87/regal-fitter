@@ -1,0 +1,61 @@
+{:deps     {:aliases [:cljs :test]}
+ :paths    ["src" "test"]
+ :dev-http {8080 {:root    "public"
+                  :headers {"Cross-Origin-Opener-Policy"   "same-origin"
+                            "Cross-Origin-Embedder-Policy" "require-corp"}}}
+
+ :nrepl {:middleware
+         [cider.nrepl/cider-middleware
+          refactor-nrepl.middleware/wrap-refactor]}
+
+ :builds
+ {:app
+  {:target     :browser
+   :output-dir "public/js/"
+   :asset-path "/js/"
+   :js-options {:js-provider    :external
+                :external-index "target/index.js"
+                :external-index-format :esm}
+
+   :dev {:compiler-options {:source-map   true
+                            :pretty-print true
+                            :pseudo-names true}}
+
+   :compiler-options {:optimizations :simple
+                      :externs       ["src/externs/webr.js"]}
+
+   :devtools {:autobuild       true
+              :after-load      app.core/reload!}
+
+   :modules
+   {:main   {:entries    [app.core]
+             :init-fn    app.core/init
+             :default    true}}}
+
+  :worker
+  {:target     :browser
+   :output-dir "public/js/worker/"
+   :asset-path "/js/worker/"
+   :js-options {:js-provider    :external
+                :external-index "target/worker_index.js"
+                :external-index-format :esm}
+   :compiler-options {:optimizations :simple
+                      :externs       ["src/externs/webr.js"]}
+   :modules
+   {:worker {:entries    [app.worker]
+             :web-worker true}}}
+
+  :test      {:target    :browser-test
+              :test-dir  "out/test"
+              :ns-regexp "-test$"
+              :js-options {:resolve {"node:fs"          false
+                                     "node:fs/promises" false}}}
+  :test-interactive
+  {:target :browser-test
+   :test-dir "public/test"
+   :asset-path "js/"
+   :ns-regexp "app.*-test$"
+   :js-options {:js-provider    :external
+                :external-index "target/test_index.js"}
+   :compiler-options {:pretty-print true}
+   :devtools {:autotest true}}}}

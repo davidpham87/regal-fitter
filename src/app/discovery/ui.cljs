@@ -7,7 +7,7 @@
 (defn param-range-input
   [val min max step disabled? set-values on-change param-key]
   [:input.w-full
-   {:type "range" :min (- min 1e-6) :max (+ max 1e-6) :step step
+   {:type "range" :min min :max max :step step
     :value val :disabled disabled?
     :on-change
     (fn [e]

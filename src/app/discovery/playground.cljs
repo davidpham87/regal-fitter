@@ -3,7 +3,8 @@
             [webr.core :as webr]
             [portal.web :as p]
             [app.state :as state]
-            ["@monaco-editor/react" :default Editor]))
+            [app.components.editor :refer [code-editor]]
+            [app.components.tabs :refer [tab-bar]]))
 
 (defn make-gs-design-script []
   (let [config (:config @state/app-state)
@@ -174,24 +175,15 @@
         [:div.w-full.bg-white.rounded-xl.border.shadow-sm.flex.flex-col
          {:class "lg:w-4/5 overflow-hidden"}
 
-         ;; Tab navigation header
          [:div.bg-gray-50.border-b.px-6.py-3.flex.justify-between.flex-wrap
           {:class "items-center gap-4"}
-          [:div.flex.gap-2
-           [:button.px-4.py-1.5.text-xs.font-bold.rounded-lg.transition-all
-            {:type "button"
-             :class (if (= @active-view :editor)
-                      "bg-white shadow border border-gray-200 text-gray-800"
-                      "text-gray-500 hover:text-gray-800")
-             :on-click (fn [] (reset! active-view :editor))}
-            "Code Editor"]
-           [:button.px-4.py-1.5.text-xs.font-bold.rounded-lg.transition-all
-            {:type "button"
-             :class (if (= @active-view :portal)
-                      "bg-white shadow border border-gray-200 text-gray-800"
-                      "text-gray-500 hover:text-gray-800")
-             :on-click (fn [] (reset! active-view :portal))}
-            "Portal Viewer"]]
+          [tab-bar
+           {:active-tab @active-view
+            :tabs [[:editor "Code Editor"]
+                   [:portal "Portal Viewer"]]
+            :on-change #(reset! active-view %)
+            :button-class (str "bg-white shadow border border-gray-200 "
+                               "text-gray-800 font-bold")}]
 
           ;; Execution controls
           [:div.flex.items-center.gap-3
@@ -224,13 +216,12 @@
          [:div.p-6
           (case @active-view
             :editor
-            [:div.border.rounded-xl.overflow-hidden {:style {:height "450px"}}
-             [:> Editor {:height "100%"
-                         :defaultLanguage "r"
-                         :value @code-atom
-                         :onChange (fn [val _] (reset! code-atom val))
-                         :options #js {:minimap #js {:enabled false}}
-                         :theme "vs-light"}]]
+            [code-editor
+             {:value @code-atom
+              :language "r"
+              :height "450px"
+              :theme "vs-light"
+              :on-change #(reset! code-atom %)}]
 
             :portal
             [portal-frame])]]]])))

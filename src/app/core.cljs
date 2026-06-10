@@ -1,5 +1,7 @@
 (ns app.core
-  (:require [app.simulator :as sim]
+  (:require [app.events]
+            [app.simulator :as sim]
+            [app.subs]
             [app.ui.core :as ui]
             [app.worker-pool :as wp]
             [portal.web :as p]
@@ -42,6 +44,7 @@
   (wp/init-pool! nil)
   (sim/init!)
   (init-routes!)
+  (re-frame/dispatch [:initialize-db])
   ;; Open portal in the browser context
   ;; (p/open)
   ;; Initialize WebR on application boot

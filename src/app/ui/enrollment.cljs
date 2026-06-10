@@ -1,12 +1,14 @@
 (ns app.ui.enrollment
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [app.state :as state]
             [app.vega :as vega]
             [cljs.numpy-random :as np-random]
             [cljs.numpy :as np]
             [app.regal-fit.enrollment :as rfe]
-            [fork.reagent :as fork]
-            ["@monaco-editor/react" :default Editor]))
+            [fork.re-frame :as fork]
+            [app.components.editor :refer [code-editor]]
+            [app.components.tabs :refer [tab-bar]]))
 
 (defn- simulate-enrollment-data [bands n-samples seed]
   (let [random-gen (np-random/default-rng seed)
@@ -39,11 +41,11 @@
          :high high-val}))))
 
 (defn enrollment-view []
-  (let [n-samples (r/atom 100)]
+  (let [n-samples (r/atom 100)
+        window-param (r/atom 2)]
     (fn []
-      (let [state @state/app-state
-            config (:config state)
-            enrollment-mode (:enrollment-mode state)
+      (let [config @(rf/subscribe [:config])
+            enrollment-mode @(rf/subscribe [:enrollment-mode])
             bands (:enroll-bands config)
             seed (:seed config)
             valid-samples (if (and (number? @n-samples) (pos? @n-samples))
@@ -53,41 +55,55 @@
         [:div.p-4.max-w-6xl.mx-auto
          [:h2.text-2xl.font-extrabold.text-gray-900.mb-4 "Enrollment Plot"]
 
-         [:div.mb-6.flex.gap-4.items-center
+         [:div.mb-6.flex.flex-wrap.gap-4.items-center
+          [tab-bar
+           {:active-tab (:mode enrollment-mode)
+            :tabs [[:manual "Manual / Editor Mode"]
+                   [:s-curve "S-Curve Gen Mode"]]
+            :on-change #(rf/dispatch
+                         [:set-enrollment-mode-param :mode %])
+            :button-class (str "bg-blue-600 text-white font-semibold "
+                               "shadow-sm")}]
           [:button.px-4.py-2.rounded.font-semibold
-           {:class (if (= (:mode enrollment-mode) :manual)
-                     "bg-blue-600 text-white"
-                     "bg-gray-200 text-gray-700 hover:bg-gray-300")
-            :on-click #(swap! state/app-state assoc-in
-                              [:enrollment-mode :mode] :manual)}
-           "Manual / Editor Mode"]
-          [:button.px-4.py-2.rounded.font-semibold
-           {:class (if (= (:mode enrollment-mode) :s-curve)
-                     "bg-blue-600 text-white"
-                     "bg-gray-200 text-gray-700 hover:bg-gray-300")
-            :on-click #(swap! state/app-state assoc-in [:enrollment-mode :mode] :s-curve)}
-           "S-Curve Gen Mode"]
-          [:button.px-4.py-2.rounded.font-semibold.bg-gray-200.text-gray-700.hover:bg-gray-300
-           {:on-click #(state/set-config! :enroll-bands (:enroll-bands state/default-config))}
-           "Restore Default"]]
+           {:class "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            :on-click #(rf/dispatch [:set-config-key :enroll-bands
+                                     (:enroll-bands state/default-config)])}
+           "Restore Default"]
+          [:div.flex.items-center.gap-2.bg-gray-100.p-2.rounded-lg.border
+           [:label.text-xs.font-semibold.text-gray-700 "Coarse Window:"]
+           [:input.border.p-1.rounded.w-12.text-center.text-xs
+            {:type "number" :min "1" :max "20"
+             :value @window-param
+             :on-change #(reset! window-param
+                                 (js/parseInt
+                                  (.. % -target -value) 10))}]
+           [:button.px-3.py-1.rounded.text-sm.font-semibold
+            {:class "bg-amber-600 text-white hover:bg-amber-700"
+             :on-click (fn []
+                         (let [current-bands (:enroll-bands config)
+                               w (or @window-param 2)
+                               new-bands (rfe/larger-bands current-bands w)]
+                           (rf/dispatch [:set-config-key
+                                         :enroll-bands new-bands])))}
+            "Coarser Bands"]]]
 
          (if (= (:mode enrollment-mode) :manual)
            (let [expected-json (js/JSON.stringify (clj->js bands) nil 2)]
              [:div.mb-6
               [:h3.text-lg.font-bold.mb-2 "Edit Enrollment Bands"]
-              [:div.border.rounded {:style {:height "250px"}}
-               [:> Editor {:height "100%"
-                           :defaultLanguage "json"
-                           :value expected-json
-                           :onChange (fn [val _]
-                                       (try
-                                         (let [parsed (js->clj
-                                                       (js/JSON.parse val)
-                                                       :keywordize-keys true)]
-                                           (when (vector? parsed)
-                                             (state/set-config!
-                                              :enroll-bands parsed)))
-                                         (catch js/Error _)))}]]])
+              [code-editor
+               {:value expected-json
+                :language "json"
+                :height "250px"
+                :on-change (fn [val _]
+                             (try
+                               (let [parsed (js->clj
+                                             (js/JSON.parse val)
+                                             :keywordize-keys true)]
+                                 (when (vector? parsed)
+                                   (rf/dispatch [:set-config-key
+                                                 :enroll-bands parsed])))
+                               (catch js/Error _)))}]])
            (let [init-vals {:median-month (:median-month enrollment-mode)
                             :k (:k enrollment-mode)}]
              ^{:key init-vals}
@@ -105,11 +121,9 @@
                            new-bands (rfe/get-s-curve-enrollment-bands
                                       n-total total-months
                                       m-val k-val)]
-                       (state/set-config! :enroll-bands new-bands)
-                       (swap! state/app-state assoc-in
-                              [:enrollment-mode :median-month] m-val)
-                       (swap! state/app-state assoc-in
-                              [:enrollment-mode :k] k-val)))))}
+                       (rf/dispatch [:set-config-key :enroll-bands new-bands])
+                       (rf/dispatch [:set-enrollment-mode-param :median-month m-val])
+                       (rf/dispatch [:set-enrollment-mode-param :k k-val])))))}
               (fn [{:keys [values handle-change handle-submit]}]
                 [:form.mb-6.p-4.border.rounded-xl.bg-gray-50
                  {:on-submit handle-submit}

@@ -5,6 +5,8 @@
             [app.regal-fit.prefilter :as prefilter]
             [app.regal-fit.survival :as survival]
             [cljs.numpy :as np]
+            [re-frame.core :as rf]
+            [re-frame.db :as rf-db]
             [cljs.core.async :refer [go <! >! timeout chan]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 
@@ -31,17 +33,18 @@
       (if cached
         (callback {:success? true :result cached})
         (wp/submit-job!
-          data
-          (fn [res]
-            (when (and (:success? res) (:result res))
-              (db/set-cache k (:result res)))
-            (callback res)))))))
+         data
+         (fn [res]
+           (when (and (:success? res) (:result res))
+             (db/set-cache k (:result res)))
+           (callback res)))))))
 
 (defn- submit-simulation-jobs! [config all-accepted families results completed
-                                 total start-time]
+                                total start-time]
   (wp/clear-queue!)
   (if (= total 0)
-    (swap! state/app-state assoc :status :done :view :results)
+    (do (rf/dispatch [:set-status :done])
+        (rf/dispatch [:set-view :results]))
     (doseq [fam families]
       (let [fam-kw (keyword fam)]
         (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
@@ -52,23 +55,22 @@
             :seed (+ (:seed config) (* idx 7919))}
            (fn [{:keys [success? result error]}]
              (swap! completed inc)
-             (swap! state/app-state assoc-in
-                    [:progress :completed] @completed)
+             (rf/dispatch [:set-progress total @completed])
              (when (and success? result)
                (swap! results update fam-kw (fnil conj []) result))
              (when (= @completed total)
                (log (str "All simulations done in "
                          (/ (- (js/Date.now) start-time) 1000) "s"))
-               (swap! state/app-state assoc :status :done
-                                            :results @results
-                                            :view :results)))))))))
+               (rf/dispatch [:set-status :done])
+               (rf/dispatch [:set-results @results])
+               (rf/dispatch [:set-view :results])))))))))
 
 (defn start-simulation! []
-  (let [config (:config @state/app-state)
+  (let [config (:config @rf-db/app-db)
         families (:families config)]
-    (swap! state/app-state assoc :status :running-stage1
-                                 :results {}
-                                 :error-message nil)
+    (rf/dispatch [:set-status :running-stage1])
+    (rf/dispatch [:set-results {}])
+    (rf/dispatch [:set-error nil])
     (go
       (<! (timeout 50))
       (try
@@ -80,26 +82,24 @@
                                        (assoc acc (keyword fam) accepted)))
                                    {} families)
               total-combos (reduce + (map count (vals all-accepted)))]
-          (swap! state/app-state assoc :status :running-stage2
-                                       :progress {:total total-combos
-                                                  :completed 0})
+          (rf/dispatch [:set-status :running-stage2])
+          (rf/dispatch [:set-progress total-combos 0])
           (submit-simulation-jobs! config all-accepted families (atom {})
-                                    (atom 0) total-combos (js/Date.now)))
+                                   (atom 0) total-combos (js/Date.now)))
         (catch js/Error e
-          (swap! state/app-state assoc :status :error
-                                       :error-message (.-message e)))))))
+          (rf/dispatch [:set-status :error])
+          (rf/dispatch [:set-error (.-message e)]))))))
 
 (defn abort-simulation! []
   (wp/abort-pool!)
-  (swap! state/app-state assoc
-         :status :idle
-         :error-message "Aborted by user"))
+  (rf/dispatch [:set-status :idle])
+  (rf/dispatch [:set-error "Aborted by user"]))
 
 (defn- build-discovery-rec [family params]
   (let [bat-med-arr (np/array #js [(:bat-med params)])
         bat-shape-arr (np/array #js [(:weibull-k params)])
         bat-scale (.item (survival/weibull-scale-from-median
-                           bat-med-arr bat-shape-arr)
+                          bat-med-arr bat-shape-arr)
                          0)
         bat-shape (:weibull-k params)
         rec {:family family
@@ -110,7 +110,7 @@
       (let [gps-med-arr (np/array #js [(:gps-med params)])
             gps-shape-arr (np/array #js [(:weibull-k params)])
             gps-scale (.item (survival/weibull-scale-from-median
-                               gps-med-arr gps-shape-arr)
+                              gps-med-arr gps-shape-arr)
                              0)
             gps-shape (:weibull-k params)]
         (assoc rec
@@ -121,7 +121,7 @@
       (let [unc-med-arr (np/array #js [(:gps-med params)])
             unc-shape-arr (np/array #js [(:weibull-k params)])
             unc-scale (.item (survival/weibull-scale-from-median
-                               unc-med-arr unc-shape-arr)
+                              unc-med-arr unc-shape-arr)
                              0)
             unc-shape (:weibull-k params)]
         (assoc rec
@@ -133,7 +133,7 @@
       (let [unc-med-arr (np/array #js [(:gps-med params)])
             unc-shape-arr (np/array #js [(:weibull-k params)])
             unc-scale (.item (survival/weibull-scale-from-median
-                               unc-med-arr unc-shape-arr)
+                              unc-med-arr unc-shape-arr)
                              0)
             unc-shape (:weibull-k params)]
         (assoc rec
@@ -143,33 +143,27 @@
                :leak-yr (:leak-yr params))))))
 
 (defn run-discovery-simulation! [family params]
-  (let [config (:config @state/app-state)
+  (let [config (:config @rf-db/app-db)
         rec (build-discovery-rec family params)]
-    (swap! state/app-state assoc-in [:discovery :sim-status] :running)
-    (swap! state/app-state assoc-in [:discovery :sim-result] nil)
+    (rf/dispatch [:set-discovery-sim-status :running])
+    (rf/dispatch [:set-discovery-sim-result nil])
     (cached-submit-job!
-      {:rec rec
-       :cfg-dict (assoc config :ignore-prefilter? true)
-       :n-sims (or (:n-sims params) (:n-sims-per-combo config))
-       :seed (:seed config)}
-      (fn [{:keys [success? result error]}]
-        (if success?
-          (if result
-            (do
-              (swap! state/app-state assoc-in
-                     [:discovery :sim-status] :done)
-              (swap! state/app-state assoc-in
-                     [:discovery :sim-result] result))
-            (do
-              (swap! state/app-state assoc-in
-                     [:discovery :sim-status] :failed-prefilter)
-              (swap! state/app-state assoc-in
-                     [:discovery :sim-result] nil)))
-          (do
-            (swap! state/app-state assoc-in
-                   [:discovery :sim-status] :error)
-            (swap! state/app-state assoc-in
-                   [:discovery :sim-result] error)))))))
+     {:rec rec
+      :cfg-dict (assoc config :ignore-prefilter? true)
+      :n-sims (or (:n-sims params) (:n-sims-per-combo config))
+      :seed (:seed config)}
+     (fn [{:keys [success? result error]}]
+       (if success?
+         (if result
+           (do
+             (rf/dispatch [:set-discovery-sim-status :done])
+             (rf/dispatch [:set-discovery-sim-result result]))
+           (do
+             (rf/dispatch [:set-discovery-sim-status :failed-prefilter])
+             (rf/dispatch [:set-discovery-sim-result nil])))
+         (do
+           (rf/dispatch [:set-discovery-sim-status :error])
+           (rf/dispatch [:set-discovery-sim-result error])))))))
 
 (defn- arange [start stop step]
   (let [eps 1e-9]
@@ -178,9 +172,8 @@
       (if (< curr (- stop eps))
         (recur (+ curr step) (conj acc curr))
         acc))))
-
 (defn start-stress-test! [form-values]
-  (let [main-config (:config @state/app-state)
+  (let [main-config (:config @rf-db/app-db)
         stress-config form-values
         config (merge main-config
                       stress-config
@@ -207,14 +200,13 @@
                            (js/Math.floor (* (js/Math.random) 100000)))
                   :config config})
         total-combos (count combos)]
-    (swap! state/app-state assoc :stress-test-status :running
-                                 :stress-test-results []
-                                 :stress-test-progress {:total total-combos
-                                                        :completed 0}
-                                 :error-message nil)
+    (rf/dispatch [:set-stress-test-status :running])
+    (rf/dispatch [:set-stress-test-results []])
+    (rf/dispatch [:set-stress-test-progress total-combos 0])
+    (rf/dispatch [:set-error nil])
     (wp/clear-queue!)
     (if (= total-combos 0)
-      (swap! state/app-state assoc :stress-test-status :done)
+      (rf/dispatch [:set-stress-test-status :done])
       (let [completed (atom 0)
             results (atom [])
             start-time (js/Date.now)]
@@ -223,14 +215,11 @@
            combo
            (fn [{:keys [success? result error]}]
              (swap! completed inc)
-             (swap! state/app-state assoc-in
-                    [:stress-test-progress :completed] @completed)
+             (rf/dispatch [:set-stress-test-progress total-combos @completed])
              (when (and success? result)
                (swap! results conj result))
              (when (= @completed total-combos)
                (log (str "Stress test simulations done in "
                          (/ (- (js/Date.now) start-time) 1000) "s"))
-               (swap! state/app-state
-                      assoc
-                      :stress-test-status :done
-                      :stress-test-results @results)))))))))
+               (rf/dispatch [:set-stress-test-status :done])
+               (rf/dispatch [:set-stress-test-results @results])))))))))

@@ -1,12 +1,43 @@
 (ns app.ui.results
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [app.state :as state]
             [app.ui.inputs :as inputs]
             [app.vega :as vega]
             [app.simulator :as sim]
             [clojure.string :as str]
             [cljs.pprint :refer [pprint]]
-            ["@monaco-editor/react" :default Editor]))
+            [app.components.editor :refer [code-editor]]
+            [app.components.tabs :refer [tab-bar]]))
+
+(defn- expected-success-probability [items]
+  (let [valid-items (filter #(and (:p-success-overall %)
+                                  (:acceptance-rate %)
+                                  (not (js/isNaN (:p-success-overall %)))
+                                  (not (js/isNaN (:acceptance-rate %))))
+                            items)
+        tot-wt (reduce + (map :acceptance-rate valid-items))]
+    (if (and (seq valid-items) (pos? tot-wt))
+      (/ (reduce + (map #(* (:p-success-overall %) (:acceptance-rate %))
+                        valid-items))
+         tot-wt)
+      0.0)))
+
+(defn- summary-banner [results]
+  [:div.grid.grid-cols-1.md:grid-cols-3.gap-4.mb-6
+   (for [[fam items] results]
+     (let [p-succ (expected-success-probability items)
+           pct-str (str (.toFixed (* 100 p-succ) 1) "%")]
+       ^{:key fam}
+       [:div.p-5.rounded-2xl.border.shadow-sm.bg-gradient-to-br
+        {:class (str "from-white to-gray-50 transition-all duration-300 "
+                     "hover:shadow-md hover:-translate-y-0.5 border-gray-100")}
+        [:div.text-xs.font-semibold.tracking-wider.text-gray-400.uppercase
+         (str (name fam) " Expected Success")]
+        [:div.mt-2.text-3xl.font-bold.tracking-tight.text-indigo-600
+         pct-str]
+        [:div.mt-1.text-xs.text-gray-500
+         (str "Based on " (count items) " accepted combos")]]))])
 
 (defn- stage2-progress [progress]
   [:div.flex.flex-col.gap-2
@@ -52,7 +83,7 @@
                                              (str/lower-case (str v))
                                              q)))
                                         keys-to-show))
-                               items))
+                                items))
               sorted-items (if-let [col @sort-col]
                              (sort-by (fn [item]
                                         (let [val (get item col)]
@@ -117,40 +148,39 @@
         edn-str (with-out-str (pprint translated))]
     [:div.p-4
      [:h3.text-lg.font-bold.mb-2 "EDN View"]
-     [:div.border.rounded-lg.overflow-hidden {:style {:height "500px"}}
-      [:> Editor {:height "100%"
-                  :defaultLanguage "clojure"
-                  :theme "vs-dark"
-                  :options {:readOnly true}
-                  :value edn-str}]]]))
+     [code-editor
+      {:value edn-str
+       :language "clojure"
+       :theme "vs-dark"
+       :height "500px"
+       :read-only? true}]]))
 
 (defn results-view []
-  (let [{:keys [results progress status]} @state/app-state]
+  (let [results @(rf/subscribe [:results])
+        progress @(rf/subscribe [:progress])
+        status @(rf/subscribe [:status])]
     (r/with-let [active-tab (r/atom :charts)]
       [:div.p-4.results-view-wrapper
        [:div.flex.justify-between.items-center.mb-4
         [:h2.text-xl.font-bold.results-charts-container "Results"]
         (when (seq results)
-          [:div.flex.gap-2.bg-gray-100.p-1.rounded-lg
-           (for [[tab label] [[:charts "Charts"]
-                              [:table "Table"]
-                              [:edn "EDN View"]]]
-             ^{:key tab}
-             [:button.px-3.py-1.rounded-md.text-sm.transition-all
-              {:class (if (= @active-tab tab)
-                        "bg-white text-gray-800 shadow-sm font-semibold"
-                        "text-gray-600 hover:text-gray-800")
-               :on-click #(reset! active-tab tab)}
-              label])])]
+          [tab-bar
+           {:active-tab @active-tab
+            :tabs [[:charts "Charts"]
+                   [:table "Table"]
+                   [:edn "EDN View"]]
+            :on-change #(reset! active-tab %)}])]
        (cond
          (= status :running-stage2) [stage2-progress progress]
          (seq results)
-         (case @active-tab
-           :charts [:div
+         [:div
+          [summary-banner results]
+          (case @active-tab
+            :charts [:div
+                     (for [[fam items] results]
+                       ^{:key fam} [vega/results-charts (name fam) items])]
+            :table [:div
                     (for [[fam items] results]
-                      ^{:key fam} [vega/results-charts (name fam) items])]
-           :table [:div
-                   (for [[fam items] results]
-                     ^{:key fam} [results-table fam items])]
-           :edn [results-edn-view results])
+                      ^{:key fam} [results-table fam items])]
+            :edn [results-edn-view results])]
          :else [:div.text-gray-500 "Run a simulation to see results."])])))

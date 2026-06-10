@@ -50,7 +50,13 @@
        :p-hr-below-threshold (calculate-weighted-mean
                               :p-hr-below-threshold sub sub-w)
        :median-hr-final (calculate-weighted-mean
-                         :median-hr-final sub sub-w)})))
+                         :median-hr-final sub sub-w)
+       :hr-final-low (calculate-weighted-mean
+                      :hr-final-low sub sub-w)
+       :hr-final-high (calculate-weighted-mean
+                       :hr-final-high sub sub-w)
+       :gps-med (calculate-weighted-mean
+                 :gps-med sub sub-w)})))
 
 (defn build-stratified-data [results bin-width]
   (let [bat-meds (map :bat-med results)
@@ -60,6 +66,36 @@
       []
       (let [edges (calculate-bat-edges bat-meds bin-width)]
         (keep #(build-bin-record % bin-width results weights) edges)))))
+
+(defn- build-hr-distribution-data [results bin-width]
+  (let [valid-results (filter #(and (:median-hr-final %) (not (js/isNaN (:median-hr-final %)))) results)
+        hrs (map :median-hr-final valid-results)
+        tot-wt (reduce + (map :acceptance-rate valid-results))]
+    (if (or (empty? valid-results) (zero? tot-wt))
+      []
+      (let [hr-min (js/Math.floor (/ (apply min hrs) bin-width))
+            hr-max (js/Math.ceil (/ (apply max hrs) bin-width))
+            edges (range (* hr-min bin-width) (+ (* hr-max bin-width) bin-width) bin-width)
+            bins (for [lo edges]
+                   (let [hi (+ lo bin-width)
+                         sub (filter #(and (>= (:median-hr-final %) lo)
+                                           (< (:median-hr-final %) hi))
+                                     valid-results)
+                         wt-sum (reduce + (map :acceptance-rate sub))
+                         sub-w (map :acceptance-rate sub)
+                         succ-mean (calculate-weighted-mean :p-success-overall sub sub-w)]
+                     {:hr-mid (+ lo (/ bin-width 2))
+                      :hr-lo lo
+                      :hr-hi hi
+                      :weight wt-sum
+                      :p-val (if (pos? tot-wt) (* 100 (/ wt-sum tot-wt)) 0.0)
+                      :success (if succ-mean (* 100 succ-mean) 0.0)}))
+            vdata (let [running-sum (atom 0.0)]
+                    (mapv (fn [b]
+                            (let [cum-p (swap! running-sum + (:p-val b))]
+                              (assoc b :cum-p (js/Math.min 100.0 cum-p))))
+                          bins))]
+        vdata))))
 
 (defn results-charts [family items]
   (let [data (build-stratified-data items 1.0)
@@ -75,9 +111,13 @@
                            :success succ
                            :succ-lbl (str (.toFixed succ 0) "%")
                            :hr-final (or (:median-hr-final d) 0)
+                           :hr-low (or (:hr-final-low d) 0)
+                           :hr-high (or (:hr-final-high d) 0)
+                           :gps-med (or (:gps-med d) 0)
                            :p-bat p-val
                            :cum-p (js/Math.min 100.0 cum-p)}))
-                      data))]
+                      data))
+        hr-data (build-hr-distribution-data items 0.025)]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
@@ -116,7 +156,8 @@
                    :encoding {:x {:field "bat-mid" :type "quantitative"}
                               :y {:field "cum-p" :type "quantitative"}
                               :text {:field "succ-lbl" :type "nominal"}
-                              :color {:value "#333"}}}]}]
+                              :color {:value "#333"}}}]
+          :config {:legend {:orient "bottom"}}}]
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Posterior Probability of BAT mOS"
@@ -135,14 +176,22 @@
         [vega-lite
          {:width 320 :height 240 :data {:values vdata}
           :title "Implied Final HR by BAT mOS"
-          :layer [{:mark {:type "line" :point true}
+          :layer [{:mark {:type "area" :opacity 0.2}
                    :encoding {:x {:field "bat-mid"
                                   :type "quantitative"
                                   :title "BAT mOS (months)"}
+                              :y {:field "hr-low"
+                                  :type "quantitative"
+                                  :scale {:domain [0 1.2]}}
+                              :y2 {:field "hr-high"
+                                   :type "quantitative"}
+                              :color {:value "#aa5599"}}}
+                  {:mark {:type "line" :point true}
+                   :encoding {:x {:field "bat-mid"
+                                  :type "quantitative"}
                               :y {:field "hr-final"
                                   :type "quantitative"
-                                  :title "Final HR"
-                                  :scale {:domain [0 1.2]}}
+                                  :title "Final HR"}
                               :color {:value "#aa5599"}
                               :tooltip [{:field "bat-mid" :type "quantitative"
                                          :title "BAT mOS (months)"}
@@ -151,7 +200,65 @@
                   {:mark "rule" :data {:values [{:y 0.636}]}
                    :encoding {:y {:field "y" :type "quantitative"}
                               :color {:value "red"}
-                              :strokeDash {:value [4 4]}}}]}]])]))
+                              :strokeDash {:value [4 4]}}}]}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values hr-data}
+          :title "Hazard Ratio Distribution"
+          :resolve {:scale {:y "independent"}}
+          :layer [{:mark "bar"
+                   :encoding {:x {:field "hr-lo"
+                                  :type "quantitative"
+                                  :title "Hazard Ratio"
+                                  :bin {:binned true :step 0.025}}
+                              :x2 {:field "hr-hi"}
+                              :y {:field "p-val"
+                                  :type "quantitative"
+                                  :title "Probability (%)"}
+                              :color {:value "#ff9900"}
+                              :tooltip [{:field "hr-mid" :type "quantitative"
+                                         :title "Hazard Ratio"}
+                                        {:field "p-val" :type "quantitative"
+                                         :title "Probability (%)"}]}}
+                  {:layer [{:mark {:type "line" :point true}
+                            :encoding {:x {:field "hr-mid" :type "quantitative"}
+                                       :y {:field "cum-p"
+                                           :type "quantitative"
+                                           :title "Cumulative Probability (%)"
+                                           :axis {:orient "right"}
+                                           :scale {:domain [0 100]}}
+                                       :color {:datum "Cumulative (CDF)"
+                                               :type "nominal"
+                                               :scale {:range ["#ff0000" "#22c55e"]}}
+                                       :tooltip [{:field "hr-mid" :type "quantitative"
+                                                  :title "Hazard Ratio"}
+                                                 {:field "cum-p" :type "quantitative"
+                                                  :title "Cumulative Probability (%)"}]}}
+                           {:mark {:type "line" :point true}
+                            :encoding {:x {:field "hr-mid" :type "quantitative"}
+                                       :y {:field "success"
+                                           :type "quantitative"}
+                                       :color {:datum "P(success)"}
+                                       :tooltip [{:field "hr-mid" :type "quantitative"
+                                                  :title "Hazard Ratio"}
+                                                 {:field "success" :type "quantitative"
+                                                  :title "P(success) (%)"}]}}]}]
+          :config {:legend {:orient "bottom"}}}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values vdata}
+          :title "GPS mOS vs BAT mOS"
+          :mark {:type "line" :point true}
+          :encoding {:x {:field "bat-mid"
+                         :type "quantitative"
+                         :title "BAT mOS (months)"}
+                     :y {:field "gps-med"
+                         :type "quantitative"
+                         :title "GPS mOS (months)"
+                         :scale {:zero false}}
+                     :color {:value "#3b82f6"}
+                     :tooltip [{:field "bat-mid" :type "quantitative"
+                                :title "BAT mOS (months)"}
+                               {:field "gps-med" :type "quantitative"
+                                :title "GPS mOS (months)"}]}}]])]))
 
 (defn discovery-survival-chart [data]
   [vega-lite
@@ -311,10 +418,10 @@
                                                         "total-died"
                                                         "gps-died"
                                                         "bat-died"]
-                                                :range [[] [] []
-                                                        [4 4]
-                                                        [4 4]
-                                                        [4 4]]}}}}
+                                               :range [[] [] []
+                                                       [4 4]
+                                                       [4 4]
+                                                       [4 4]]}}}}
               {:params [{:name "hover"
                          :select {:type "point"
                                   :on "mouseover"
@@ -421,9 +528,8 @@
          :y {:field metric-name :type "quantitative"}
          :text {:field metric-name :type "quantitative" :format fmt-str}
          :color {:field "group" :type "nominal" :scale color-scale}}}]
-      :config {:view {:stroke "transparent"}}}]))
-
-
+      :config {:view {:stroke "transparent"}
+               :legend {:orient "bottom"}}}]))
 
 (defn stress-test-charts [results]
   (let [vdata (map (fn [r]
@@ -473,7 +579,8 @@
                          :type "quantitative"
                          :title "N Required"
                          :scale {:scheme "yelloworangered"
-                                 :clamp true}}}}]))
+                                 :clamp true}}}
+      :config {:legend {:orient "bottom"}}}]))
 
 (defn power-line-chart [results]
   (let [vdata (clj->js

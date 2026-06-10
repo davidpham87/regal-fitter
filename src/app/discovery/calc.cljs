@@ -239,14 +239,14 @@
         ;; BAT arm arrays
         survival-bat  (bat-survival  params t-pts)
         events-bat (bat-events params enroll-pts enroll-weights
-                           t-pts n-per-arm n-total)
+                               t-pts n-per-arm n-total)
 
         ;; GPS arm arrays (falls back to BAT when family unknown)
         survival-gps  (gps/gps-survival
-                family params t-pts survival-bat)
+                       family params t-pts survival-bat)
         events-gps (gps/gps-events
-                family params enroll-pts enroll-weights
-                t-pts n-per-arm n-total events-bat)
+                    family params enroll-pts enroll-weights
+                    t-pts n-per-arm n-total events-bat)
 
         ;; Pooled / total
         survival-pooled   (np/multiply (np/add survival-bat survival-gps) 0.5)
@@ -276,11 +276,11 @@
                                     (:t-pr3 config)]
                                "float64")
         ms-events-bat (milestone-events
-                   params enroll-pts enroll-weights
-                   t-milestones n-per-arm n-total)
+                       params enroll-pts enroll-weights
+                       t-milestones n-per-arm n-total)
         ms-events-gps (gps/gps-events
-                   family params enroll-pts enroll-weights
-                   t-milestones n-per-arm n-total ms-events-bat)
+                       family params enroll-pts enroll-weights
+                       t-milestones n-per-arm n-total ms-events-bat)
 
         ms-enroll (enrollment/expected-arm-enrolled
                    enroll-pts enroll-weights
@@ -424,3 +424,116 @@
                  (or (:mean-n-press-release-3-gps sim-result) 0))
               (+ (or (:mean-n-update-bat  sim-result) 0)
                  (or (:mean-n-update-gps  sim-result) 0))))])))
+
+(defn- population-cr2-lambda
+  "Calculates lambda given IRM (experimental mOS), D (delay), and k."
+  [irm d k]
+  (let [numerator   (- (js/Math.pow (+ irm d) k) (js/Math.pow d k))
+        denominator (js/Math.log 2)
+        base        (/ numerator denominator)
+        exponent    (/ 1.0 k)]
+    (js/Math.pow base exponent)))
+
+(defn- find-true-mos [s-fn]
+  (if (and s-fn (< (s-fn 1000.0) 0.5))
+    (loop [low 0.0 high 1000.0 i 0]
+      (if (>= i 30)
+        (* 0.5 (+ low high))
+        (let [mid (* 0.5 (+ low high))]
+          (if (> (s-fn mid) 0.5)
+            (recur mid high (inc i))
+            (recur low mid (inc i))))))
+    js/Infinity))
+
+(defn- find-realized-median-month
+  "Finds the trial month where the expected events reach target-ev."
+  [s-fn args enroll-pts enroll-weights n-per-arm n-total target-ev]
+  (let [ev-fn (fn [t]
+                (let [ta (np/array #js [t] "float64")
+                      ev (enrollment/expected-arm-events
+                          s-fn args enroll-pts enroll-weights ta
+                          n-per-arm n-total)]
+                  (first (np/nd-to-array ev))))]
+    (if (< (ev-fn 200.0) target-ev)
+      js/Infinity
+      (loop [low 0.0 high 200.0 i 0]
+        (if (>= i 30)
+          (* 0.5 (+ low high))
+          (let [mid (* 0.5 (+ low high))]
+            (if (< (ev-fn mid) target-ev)
+              (recur mid high (inc i))
+              (recur low mid (inc i)))))))))
+
+(defn calculate-medians [family params config]
+  (let [delay (or (:delay params) 3.0)
+        k (:weibull-k params)
+        [enroll-pts enroll-weights] (enrollment/expected-enrollment-times config)
+        n-per-arm (:n-per-arm config)
+        n-total (:n-total config)
+        target-ev (/ n-per-arm 2.0)
+
+        ;; BAT trial scale (without delay)
+        bat-trial-scale (survival/weibull-scale-from-median
+                         (np/array #js [(:bat-med params)])
+                         (np/array #js [k]))
+        bat-trial-scale-val (.item bat-trial-scale 0)
+
+        ;; GPS trial scale (without delay)
+        gps-trial-scale (survival/weibull-scale-from-median
+                         (np/array #js [(:gps-med params)])
+                         (np/array #js [k]))
+        gps-trial-scale-val (.item gps-trial-scale 0)
+
+        ;; True scale parameters (from CR2 onset)
+        bat-true-scale-val (population-cr2-lambda (:bat-med params) delay k)
+        gps-true-scale-val (population-cr2-lambda (:gps-med params) delay k)
+
+        gps-cf (np/array #js [(or (:cure-frac params) 0.0)])
+        gps-leak (np/array #js [(or (:leak-yr params) 0.0)])
+
+        ;; survival functions (true scale)
+        s-bat-true-fn
+        (fn [t]
+          (let [ta (np/array #js [t] "float64")]
+            (first (np/nd-to-array
+                    (survival/weibull-survival-probability
+                     ta bat-true-scale-val k)))))
+
+        s-gps-true-fn
+        (fn [t]
+          (let [ta (np/array #js [t] "float64")]
+            (first (np/nd-to-array
+                    (case family
+                      "weibull" (survival/weibull-survival-probability ta gps-true-scale-val k)
+                      "cure" (survival/cure-survival-probability ta gps-cf gps-true-scale-val k)
+                      "leaky" (survival/leaky-cure-survival-probability ta gps-cf gps-true-scale-val k gps-leak)
+                      (survival/weibull-survival-probability ta gps-true-scale-val k))))))]
+    (let [gps-mos (find-true-mos s-gps-true-fn)
+          bat-true-mos (- (* bat-true-scale-val
+                             (js/Math.pow (js/Math.log 2.0) (/ 1.0 k)))
+                          delay)]
+      {:bat-true-mos bat-true-mos
+       :gps-true-mos (if (= gps-mos js/Infinity)
+                       js/Infinity
+                       (- gps-mos delay))
+
+       ;; Realized median month on trial timeline
+       :bat-realized-month
+       (find-realized-median-month
+        survival/weibull-survival-probability
+        [(np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+        enroll-pts enroll-weights n-per-arm n-total target-ev)
+
+       :gps-realized-month
+       (find-realized-median-month
+        (case family
+          "weibull" survival/weibull-survival-probability
+          "cure" survival/cure-survival-probability
+          "leaky" survival/leaky-cure-survival-probability
+          survival/weibull-survival-probability)
+        (case family
+          "weibull" [(np/array #js [gps-trial-scale-val]) (np/array #js [k])]
+          "cure" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k])]
+          "leaky" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k]) gps-leak]
+          [(np/array #js [gps-trial-scale-val]) (np/array #js [k])])
+        enroll-pts enroll-weights n-per-arm n-total target-ev)})))

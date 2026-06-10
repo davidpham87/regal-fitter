@@ -1,8 +1,8 @@
 (ns cljs.numpy
   (:refer-clojure :exclude [array add subtract multiply divide exp power log sqrt abs
-                             clip maximum minimum where isinf isfinite isnan
-                             sum mean median percentile average prod cumsum unique argsort sort
-                             concatenate size shape empty])
+                            clip maximum minimum where isinf isfinite isnan
+                            sum mean median percentile average prod cumsum unique argsort sort
+                            concatenate size shape empty])
   (:require ["numpy-ts" :as np-ts]))
 
 (def array np-ts/array)
