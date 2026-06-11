@@ -220,7 +220,13 @@
   (run-grid-point 5 100 1000)
   (run-grid-point 15 100 126)
   (run-grid-point 15 100 1000)
-  (run-grid-point 20 2000 126))
+  (run-grid-point 20 2000 126)
+  (run-grid-point 200 10 126)
+  (run-grid-point 500 10 126)
+  (run-grid-point 200 10 1000)
+  (run-grid-point 100 20 126)
+  (run-grid-point 200 20 126)
+  (run-grid-point 500 20 126))
 
 (defn -main [& args]
   (compare-stress-test)
@@ -250,12 +256,9 @@
         ;; Benchmarks at different sizes
         (run-benchmark seed 126 100)
         (run-benchmark seed 126 2000)
-        (run-benchmark seed 1000 50)
-        (run-benchmark seed 5000 20)
-        (run-benchmark seed 10000 10))
+        (run-benchmark seed 126 10000))
       (js/console.log
        "Error: One or more simulations returned nil results."))))
 
 (defn main []
   (apply -main []))
-
