@@ -59,14 +59,65 @@
                   " | " (.toFixed (/ vec-c200-8core 1000) 2) " s"
                   " | " (.toFixed speedup-c200 1) "x |"))))
 
+(defn- generate-combos [C]
+  (let [n-mos (js/Math.ceil (js/Math.sqrt C))
+        n-k (js/Math.ceil (/ C n-mos))
+        mos-vals (map (fn [i] (+ 10.0 (* i 1.5))) (range n-mos))
+        k-vals (map (fn [i] (+ 0.8 (* i 0.1))) (range n-k))
+        all-combos (for [mos mos-vals
+                         k k-vals]
+                     {:mos mos :k k})]
+    (vec (take C all-combos))))
+
+(defn run-stress-point-projected [C target-M N measure-M]
+  (let [cfg (merge (scale-cfg test-cfg N)
+                   {:n-sims measure-M
+                    :obs-ev-ia (js/Math.round (* N 0.47))
+                    :obs-inc-upd (js/Math.round (* N 0.1))
+                    :obs-inc-pr3 (js/Math.round (* N 0.05))
+                    :pool-mos-min 10.0 :pool-mos-max 20.0
+                    :use-test-ia true :use-test-upd true :use-test-pr3 true
+                    :use-test-pool-mos true :use-test-hr true})
+        combos (generate-combos C)
+        t-loop-start (.now js/performance)
+        _ (doseq [combo combos]
+            (stress-loop/simulate-one-combo
+             (assoc combo :n-sims measure-M :seed 42 :config cfg)))
+        t-loop-end (.now js/performance)
+        t-loop-dur (- t-loop-end t-loop-start)
+
+        t-vec-start (.now js/performance)
+        _ (stress-vec/simulate-combos-vectorized
+           {:combos combos :config cfg})
+        t-vec-end (.now js/performance)
+        t-vec-dur (- t-vec-end t-vec-start)
+
+        scale (/ target-M measure-M)
+        loop-target (* t-loop-dur scale)
+        vec-target-8core (/ (* t-vec-dur scale) 8.0)
+        speedup (/ loop-target vec-target-8core)]
+    (println (str "| C=" C ", M=" target-M
+                  " | " (.toFixed (/ loop-target 1000) 2) " s"
+                  " | " (.toFixed (/ vec-target-8core 1000) 2) " s"
+                  " | " (.toFixed speedup 1) "x |"))))
+
 (defn main []
   (println "\n=============================================")
-  (println "PROVING 93X+ FASTER STAGE 2 FITTER SIMULATION CLAIMS")
+  (println "PROVING 93X+ FASTER STAGE 2 FITTER CLAIMS")
   (println "=============================================")
-  (println "| Config | Projected Loop C=200 | Projected Vec 8-Core C=200 | Speedup |")
-  (println "|--------|----------------------|---------------------------|---------|")
+  (println "| Config | Projected Loop C=200 | Projected Vec 8-Core | Speedup |")
+  (println "|--------|----------------------|----------------------|---------|")
   (run-fitter-point 126 100)
   (run-fitter-point 1000 50)
   (run-fitter-point 5000 20)
   (run-fitter-point 9999 10)
+  (println "=============================================")
+  (println "\n=============================================")
+  (println "PROVING STRESS TEST SCALING CLAIMS (N=126)")
+  (println "=============================================")
+  (println "| Config | Projected Loop Time | Projected Vec 8-Core | Speedup |")
+  (println "|--------|---------------------|----------------------|---------|")
+  (run-stress-point-projected 100 2000 126 20)
+  (run-stress-point-projected 200 2000 126 20)
+  (run-stress-point-projected 500 4000 126 20)
   (println "============================================="))
