@@ -99,7 +99,7 @@
 
         t-vec2d-start (.now js/performance)
         _ (sim-vec/simulate-one-combo-2d
-           {:rec test-rec :cfg-dict cfg :n-sims n-sims :seed seed :chunk-size 2000})
+           {:rec test-rec :cfg-dict cfg :n-sims n-sims :seed seed})
         t-vec2d-end (.now js/performance)
         t-vec2d-duration (- t-vec2d-end t-vec2d-start)
 
@@ -170,9 +170,60 @@
                            (.toFixed t-vec-duration 2) " ms"))
       (js/console.log (str "Stress Test Speedup: "
                            (.toFixed speedup 2) "x")))))
+(defn- generate-combos [C]
+  (let [n-mos (js/Math.ceil (js/Math.sqrt C))
+        n-k (js/Math.ceil (/ C n-mos))
+        mos-vals (map (fn [i] (+ 10.0 (* i 1.5))) (range n-mos))
+        k-vals (map (fn [i] (+ 0.8 (* i 0.1))) (range n-k))
+        all-combos (for [mos mos-vals
+                         k k-vals]
+                     {:mos mos :k k})]
+    (vec (take C all-combos))))
+
+(defn- run-grid-point [C M N]
+  (let [cfg (merge (scale-cfg test-cfg N)
+                   {:n-sims M
+                    :obs-ev-ia (js/Math.round (* N 0.47))
+                    :obs-inc-upd (js/Math.round (* N 0.1))
+                    :obs-inc-pr3 (js/Math.round (* N 0.05))
+                    :pool-mos-min 10.0
+                    :pool-mos-max 20.0
+                    :use-test-ia true
+                    :use-test-upd true
+                    :use-test-pr3 true
+                    :use-test-pool-mos true
+                    :use-test-hr true})
+        combos (generate-combos C)
+        t-loop-start (.now js/performance)
+        _ (doseq [combo combos]
+            (stress-loop/simulate-one-combo
+             (assoc combo :n-sims M :seed 42 :config cfg)))
+        t-loop-end (.now js/performance)
+        t-loop-dur (- t-loop-end t-loop-start)
+        t-vec-start (.now js/performance)
+        _ (stress-vec/simulate-combos-vectorized
+           {:combos combos :config cfg})
+        t-vec-end (.now js/performance)
+        t-vec-dur (- t-vec-end t-vec-start)
+        speedup (/ t-loop-dur t-vec-dur)]
+    (js/console.log
+     (str "| " C " | " M " | " N " | "
+          (.toFixed t-loop-dur 1) " ms | "
+          (.toFixed t-vec-dur 1) " ms | "
+          (.toFixed speedup 2) "x |"))))
+
+(defn run-grid-benchmark []
+  (js/console.log "\n--- Multi-Dimensional Grid Benchmark ---")
+  (js/console.log "| C | M | N | Loop Time | Vec Time | Speedup |")
+  (js/console.log "|---|---|---|-----------|----------|---------|")
+  (run-grid-point 5 100 126)
+  (run-grid-point 5 100 1000)
+  (run-grid-point 15 100 126)
+  (run-grid-point 15 100 1000))
 
 (defn -main [& args]
   (compare-stress-test)
+  (run-grid-benchmark)
   (js/console.log "\nStarting equivalence verification...")
   (let [seed 42
         n-sims 100

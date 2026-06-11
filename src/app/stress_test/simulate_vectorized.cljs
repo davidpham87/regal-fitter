@@ -94,7 +94,9 @@
   (let [C (count combos)
         M (:n-sims config)
         R (* C M)
-        chunk-size 2000
+        N (:n-total config)
+        max-chunk-size (js/Math.floor (/ 300000 N))
+        chunk-size (js/Math.max 100 (js/Math.min 2000 max-chunk-size))
         random-gen (np-random/default-rng 42)
         scales (js/Float64Array. R)
         shapes (js/Float64Array. R)]

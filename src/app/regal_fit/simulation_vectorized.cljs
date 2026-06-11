@@ -679,7 +679,10 @@
   [{:keys [rec cfg-dict n-sims seed chunk-size]}]
   (let [random-gen (np-random/default-rng (or seed 42))
         config cfg-dict
-        chunk-sz (or chunk-size 2000)
+        N (:n-total config)
+        max-chunk-size (js/Math.floor (/ 300000 N))
+        chunk-sz (or chunk-size
+                     (js/Math.max 100 (js/Math.min 2000 max-chunk-size)))
         n-screen (js/Math.min (:n-sims-screen config) n-sims)
         [screen-stats screen-pass] (run-sim-chunk-2d
                                     rec config n-screen random-gen)]
