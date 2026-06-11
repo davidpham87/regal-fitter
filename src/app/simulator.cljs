@@ -212,20 +212,34 @@
     (wp/clear-queue!)
     (if (= total-combos 0)
       (rf/dispatch [:set-stress-test-status :done])
-      (let [start-time (js/Date.now)]
-        (cached-submit-job!
-         {:type "RUN_STRESS_TEST_BATCH"
-          :combos combos
-          :config config}
-         (fn [{:keys [success? result error]}]
-           (if success?
-             (do
-               (log (str "Stress test simulations done in "
-                         (/ (- (js/Date.now) start-time) 1000) "s"))
-               (rf/dispatch
-                [:set-stress-test-progress total-combos total-combos])
-               (rf/dispatch [:set-stress-test-status :done])
-               (rf/dispatch [:set-stress-test-results result]))
-             (do
-               (rf/dispatch [:set-stress-test-status :error])
-               (rf/dispatch [:set-error error])))))))))
+      (let [num-workers (js/Math.max 1 (+ (count @wp/pool)
+                                          (count @wp/busy-workers)))
+            chunk-size (js/Math.ceil (/ total-combos num-workers))
+            chunks (partition-all chunk-size combos)
+            completed (atom 0)
+            results (atom [])
+            start-time (js/Date.now)
+            has-error (atom false)]
+        (doseq [chunk chunks]
+          (cached-submit-job!
+           {:type "RUN_STRESS_TEST_BATCH"
+            :combos chunk
+            :config config}
+           (fn [{:keys [success? result error]}]
+             (if success?
+               (when (not @has-error)
+                 (swap! completed + (count chunk))
+                 (swap! results into result)
+                 (rf/dispatch
+                  [:set-stress-test-progress total-combos @completed])
+                 (when (>= @completed total-combos)
+                   (log (str "Stress test done in "
+                             (/ (- (js/Date.now) start-time) 1000) "s"))
+                   (rf/dispatch [:set-stress-test-status :done])
+                   (rf/dispatch
+                    [:set-stress-test-results
+                     (vec (sort-by (juxt :mos :k) @results))])))
+               (do
+                 (reset! has-error true)
+                 (rf/dispatch [:set-stress-test-status :error])
+                 (rf/dispatch [:set-error error]))))))))))
