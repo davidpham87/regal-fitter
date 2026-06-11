@@ -192,13 +192,8 @@
                        (nth k-grid-cfg 2))
         combos (for [mos mos-vals
                      k k-vals]
-                 {:type "RUN_STRESS_TEST"
-                  :mos mos
-                  :k k
-                  :n-sims (:n-sims config)
-                  :seed (+ (:seed config)
-                           (js/Math.floor (* (js/Math.random) 100000)))
-                  :config config})
+                 {:mos mos
+                  :k k})
         total-combos (count combos)]
     (rf/dispatch [:set-stress-test-status :running])
     (rf/dispatch [:set-stress-test-results []])
@@ -207,19 +202,20 @@
     (wp/clear-queue!)
     (if (= total-combos 0)
       (rf/dispatch [:set-stress-test-status :done])
-      (let [completed (atom 0)
-            results (atom [])
-            start-time (js/Date.now)]
-        (doseq [combo combos]
-          (cached-submit-job!
-           combo
-           (fn [{:keys [success? result error]}]
-             (swap! completed inc)
-             (rf/dispatch [:set-stress-test-progress total-combos @completed])
-             (when (and success? result)
-               (swap! results conj result))
-             (when (= @completed total-combos)
+      (let [start-time (js/Date.now)]
+        (cached-submit-job!
+         {:type "RUN_STRESS_TEST_BATCH"
+          :combos combos
+          :config config}
+         (fn [{:keys [success? result error]}]
+           (if success?
+             (do
                (log (str "Stress test simulations done in "
                          (/ (- (js/Date.now) start-time) 1000) "s"))
+               (rf/dispatch
+                [:set-stress-test-progress total-combos total-combos])
                (rf/dispatch [:set-stress-test-status :done])
-               (rf/dispatch [:set-stress-test-results @results])))))))))
+               (rf/dispatch [:set-stress-test-results result]))
+             (do
+               (rf/dispatch [:set-stress-test-status :error])
+               (rf/dispatch [:set-error error])))))))))

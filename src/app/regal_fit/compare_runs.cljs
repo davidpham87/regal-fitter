@@ -2,6 +2,8 @@
   "Comparison script to verify correctness and benchmark performance."
   (:require [app.regal-fit.simulate :as sim-loop]
             [app.regal-fit.simulation-vectorized :as sim-vec]
+            [app.stress-test.simulate :as stress-loop]
+            [app.stress-test.simulate-vectorized :as stress-vec]
             [cljs.numpy :as np]))
 
 (def test-rec
@@ -114,8 +116,64 @@
     (js/console.log (str "Speedup 2D vs Loop: "
                          (.toFixed speedup-2d 2) "x"))))
 
+(defn compare-stress-test []
+  (js/console.log "\n--- Starting Stress Test Comparison ---")
+  (let [cfg (merge test-cfg
+                   {:n-sims 100
+                    :obs-ev-ia (:n-ev-ia test-cfg)
+                    :obs-inc-upd (- (:n-ev-upd test-cfg) (:n-ev-ia test-cfg))
+                    :obs-inc-pr3 (- (:n-ev-pr3 test-cfg) (:n-ev-upd test-cfg))
+                    :pool-mos-min 10.0
+                    :pool-mos-max 20.0
+                    :use-test-ia true
+                    :use-test-upd true
+                    :use-test-pr3 true
+                    :use-test-pool-mos true
+                    :use-test-hr true})
+        combos [{:mos 12.0 :k 0.9}
+                {:mos 15.0 :k 1.0}
+                {:mos 18.0 :k 1.1}]
+        res-loop (mapv (fn [combo]
+                         (stress-loop/simulate-one-combo
+                          (assoc combo :n-sims 100 :seed 42 :config cfg)))
+                       combos)
+        res-vec (stress-vec/simulate-combos-vectorized
+                 {:combos combos :config cfg})]
+    (js/console.log "Loop stress output sample (first combo):"
+                    (clj->js (first res-loop)))
+    (js/console.log "Vec stress output sample (first combo):"
+                    (clj->js (first res-vec)))
+
+    ;; Large benchmark
+    (let [cfg-bench (assoc cfg :n-sims 500)
+          combos-bench (for [mos (range 10.0 20.0 2.0)
+                             k (range 0.8 1.3 0.1)]
+                         {:mos mos :k k})
+          t-loop-start (.now js/performance)
+          _ (doseq [combo combos-bench]
+              (stress-loop/simulate-one-combo
+               (assoc combo :n-sims 500 :seed 42 :config cfg-bench)))
+          t-loop-end (.now js/performance)
+          t-loop-duration (- t-loop-end t-loop-start)
+
+          t-vec-start (.now js/performance)
+          _ (stress-vec/simulate-combos-vectorized
+             {:combos combos-bench :config cfg-bench})
+          t-vec-end (.now js/performance)
+          t-vec-duration (- t-vec-end t-vec-start)
+
+          speedup (/ t-loop-duration t-vec-duration)]
+      (js/console.log (str "Large Stress Test (25 combos x 500 sims):"))
+      (js/console.log (str "Loop Stress Time: "
+                           (.toFixed t-loop-duration 2) " ms"))
+      (js/console.log (str "Vectorized Stress Time: "
+                           (.toFixed t-vec-duration 2) " ms"))
+      (js/console.log (str "Stress Test Speedup: "
+                           (.toFixed speedup 2) "x")))))
+
 (defn -main [& args]
-  (js/console.log "Starting equivalence verification...")
+  (compare-stress-test)
+  (js/console.log "\nStarting equivalence verification...")
   (let [seed 42
         n-sims 100
         res-loop (sim-loop/simulate-one-combo
