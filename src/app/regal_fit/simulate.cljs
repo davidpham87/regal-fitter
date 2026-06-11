@@ -249,7 +249,8 @@
   (let [enroll (js/Float64Array. n-total)
         arms (js/Int8Array. n-total)
         survival (js/Float64Array. n-total)
-        raw-enroll (js/Array.)]
+        raw-enroll (js/Array.)
+        censoring-rate (or (:censoring config) 0.0)]
     (doseq [[lo hi n] bands]
       (when (> n 0) (doseq [r (np/nd-to-array (np-random/uniform random-gen lo hi n))] (.push raw-enroll r))))
     (.sort raw-enroll (fn [a b] (- a b)))
@@ -261,20 +262,35 @@
           bat-draws (np/nd-to-array (rnd/draw-bat-times record num-bat random-gen))
           gps-draws (np/nd-to-array (rnd/draw-gps-times record num-gps random-gen))]
       (populate-survival-times n-total arms bat-draws gps-draws survival)
-      {:enroll-times enroll :arms-array arms :survival-times survival})))
+      (let [censored-count
+            (if (> censoring-rate 0)
+              (let [rands (np/nd-to-array (np-random/random random-gen n-total))]
+                (loop [i 0
+                       c 0]
+                  (if (< i n-total)
+                    (if (< (aget rands i) censoring-rate)
+                      (do
+                        (aset survival i js/Infinity)
+                        (recur (inc i) (inc c)))
+                      (recur (inc i) c))
+                    c)))
+              0)]
+        {:enroll-times enroll :arms-array arms :survival-times survival :censored-count censored-count}))))
 
 (defn- simulate-one-trial
   "Simulates a single trial and returns whether it passed screening and its stats."
   [record config random-gen n-total n-per-arm bands]
-  (let [{:keys [enroll-times arms-array survival-times]}
+  (let [{:keys [enroll-times arms-array survival-times censored-count]}
         (generate-trial-data record config random-gen n-total n-per-arm bands)
         counts (count-events-at-times
                 config enroll-times survival-times arms-array n-total)
         passed-screening (or (:ignore-prefilter? config)
                              (pass-events-tolerance? config counts))
         stats (when passed-screening
-                (calculate-trial-stats config enroll-times survival-times
-                                       arms-array n-total))]
+                (let [trial-stats (calculate-trial-stats config enroll-times survival-times
+                                                         arms-array n-total)]
+                  (when trial-stats
+                    (assoc trial-stats :n-censored censored-count))))]
     {:passed-screening passed-screening :stats stats}))
 
 (defn- run-sim-chunk
@@ -386,7 +402,8 @@
           :mean-med-update-pool  (mean-field all-stats :med-update-pool)
           :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
           :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
-          :mean-med-press-release-3-pool (mean-field all-stats :mean-med-press-release-3-pool)})))
+          :mean-med-press-release-3-pool (mean-field all-stats :mean-med-press-release-3-pool)
+          :mean-n-censored (mean-field all-stats :n-censored)})))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."

@@ -64,6 +64,7 @@
    :cure-frac    0.2
    :leak-yr      0.07
    :placebo-mode? false
+   :censoring    0.0
    :n-sims       1000})
 
 (defn- set-active-family! [family]
@@ -242,6 +243,7 @@
      :bat-med "BAT Median" 4 25 0.5]
     [dui/param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
     [dui/param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
+    [dui/param-input props :censoring "Censoring Rate" 0.0 0.5 0.01]
     [family-params props active-family]]
 
    [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
@@ -418,7 +420,11 @@
         [:div.bg-gray-50.p-3.rounded-lg.border
          [:div.text-xs.text-gray-400.font-semibold "Accepted / Futility Pass"]
          [:div.text-sm.font-semibold.text-gray-700
-          (str (:n-accepted sim-result) " / " (:n-pass-events sim-result))]]]]]]))
+          (str (:n-accepted sim-result) " / " (:n-pass-events sim-result))]]
+        [:div.bg-gray-50.p-3.rounded-lg.border
+         [:div.text-xs.text-gray-400.font-semibold "Events + Censored"]
+         [:div.text-sm.font-semibold.text-gray-700
+          (str (.toFixed (+ (:n-ev-final calc-params 80) (or (:mean-n-censored sim-result) 0)) 1))]]]]]]))
 
 ;; ---------------------------------------------------------------------------
 ;; discovery-view-content
