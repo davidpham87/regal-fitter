@@ -522,16 +522,179 @@
                          finite-t80 hr-final-arr num-success num-accepted
                          hr-low hr-high)))
 
-(defn simulate-one-combo
-  "Simulates multiple trials for a single scenario combination using vectorized loops."
-  [{:keys [rec cfg-dict n-sims seed]}]
+(defn- run-sim-chunk-2d
+  "Runs a batch of simulations in parallel using 2D vectorized operations."
+  [record config n-sims random-gen]
+  (if (<= n-sims 0)
+    [[] 0]
+    (let [n-total (:n-total config)
+          n-per-arm (:n-per-arm config)
+          bands (:enroll-bands config)
+          ;; 1. Generate enrollment times in 2D
+          band-draws (mapv (fn [[lo hi n]]
+                             (np-random/uniform
+                              random-gen lo hi (clj->js [n-sims n])))
+                           bands)
+          raw-enroll (np-ts/concatenate (clj->js band-draws) 1)
+          enroll (np-ts/sort raw-enroll 1)
+          ;; 2. Assign arms in 2D
+          random-vals (np-random/random random-gen (clj->js [n-sims n-total]))
+          ranks (np-ts/argsort (np-ts/argsort random-vals 1) 1)
+          arms (np-ts/array (np-ts/where (np-ts/less ranks n-per-arm) 1.0 0.0))
+          ;; 3. Draw survival times in 2D
+          num-gps n-per-arm
+          num-bat (- n-total n-per-arm)
+          bat-draws (draw-bat-times-vectorized
+                     record (clj->js [n-sims num-bat]) random-gen)
+          gps-draws (draw-gps-times-vectorized
+                     record (clj->js [n-sims num-gps]) random-gen)
+          ;; 4. Merge survival times in 2D
+          survival-flat (np-ts/zeros (clj->js [(* n-sims n-total)]))
+          arms-flat (np-ts/ravel arms)
+          bat-indices (np-ts/flatnonzero (np-ts/equal arms-flat 0.0))
+          gps-indices (np-ts/flatnonzero (np-ts/equal arms-flat 1.0))]
+      (np-ts/put survival-flat (.toArray bat-indices) (np-ts/ravel bat-draws))
+      (np-ts/put survival-flat (.toArray gps-indices) (np-ts/ravel gps-draws))
+      (let [survival (np-ts/reshape survival-flat (clj->js [n-sims n-total]))
+            ;; 5. Compute event counts at IA, UPD, PR3 in 2D
+            shape (clj->js [n-sims n-total])
+            t-ia-full (np-ts/full shape (:t-ia config))
+            fu-ia (np-ts/maximum (np-ts/subtract t-ia-full enroll) 0.0)
+            dead-ia (np-ts/less_equal survival fu-ia)
+            n-ia (np-ts/sum dead-ia 1)
+
+            t-upd-full (np-ts/full shape (:t-upd config))
+            fu-upd (np-ts/maximum (np-ts/subtract t-upd-full enroll) 0.0)
+            dead-upd (np-ts/less_equal survival fu-upd)
+            n-upd (np-ts/sum dead-upd 1)
+
+            t-pr3-full (np-ts/full shape (:t-pr3 config))
+            fu-pr3 (np-ts/maximum (np-ts/subtract t-pr3-full enroll) 0.0)
+            dead-pr3 (np-ts/less_equal survival fu-pr3)
+            n-pr3 (if (:use-pr3-anchor config)
+                    (np-ts/sum dead-pr3 1)
+                    (np-ts/zeros (clj->js [n-sims])))
+
+            is-bat (np-ts/equal arms 0.0)
+            is-gps (np-ts/equal arms 1.0)
+
+            dead-ia-bat (np-ts/logical_and dead-ia is-bat)
+            dead-ia-gps (np-ts/logical_and dead-ia is-gps)
+            dead-up-bat (np-ts/logical_and dead-upd is-bat)
+            dead-up-gps (np-ts/logical_and dead-upd is-gps)
+            dead-pr3-bat (np-ts/logical_and dead-pr3 is-bat)
+            dead-pr3-gps (np-ts/logical_and dead-pr3 is-gps)
+
+            n-ia-bat (np-ts/sum dead-ia-bat 1)
+            n-ia-gps (np-ts/sum dead-ia-gps 1)
+            n-up-bat (np-ts/sum dead-up-bat 1)
+            n-up-gps (np-ts/sum dead-up-gps 1)
+            n-pr3-bat (if (:use-pr3-anchor config)
+                        (np-ts/sum dead-pr3-bat 1)
+                        (np-ts/zeros (clj->js [n-sims])))
+            n-pr3-gps (if (:use-pr3-anchor config)
+                        (np-ts/sum dead-pr3-gps 1)
+                        (np-ts/zeros (clj->js [n-sims])))
+
+            ;; 6. Check events tolerance in 2D
+            keep-ia (np-ts/less_equal
+                     (np-ts/abs (np-ts/subtract n-ia (:n-ev-ia config)))
+                     (:tol-ia config))
+            keep-up (np-ts/less_equal
+                     (np-ts/abs (np-ts/subtract n-upd (:n-ev-upd config)))
+                     (:tol-upd config))
+            increment-ia-up (np-ts/subtract n-upd n-ia)
+            target-increment (- (:n-ev-upd config) (:n-ev-ia config))
+            diff-increment (np-ts/abs
+                            (np-ts/subtract
+                             increment-ia-up target-increment))
+            keep-inc (np-ts/less_equal
+                      diff-increment (:tol-increment-ia-upd config))
+
+            pass-pr3 (if-not (:use-pr3-anchor config)
+                       (np-ts/full (clj->js [n-sims]) true)
+                       (let [c1 (np-ts/less_equal
+                                 (np-ts/abs
+                                  (np-ts/subtract n-pr3 (:n-ev-pr3 config)))
+                                 (:tol-pr3 config))
+                             inc-upd-pr3 (np-ts/subtract n-pr3 n-upd)
+                             target-inc-upd-pr3 (- (:n-ev-pr3 config)
+                                                    (:n-ev-upd config))
+                             diff-inc-upd-pr3 (np-ts/abs
+                                               (np-ts/subtract
+                                                inc-upd-pr3
+                                                target-inc-upd-pr3))
+                             c2 (np-ts/less_equal
+                                 diff-inc-upd-pr3
+                                 (:tol-increment-upd-pr3 config))]
+                         (np-ts/logical_and c1 c2)))
+
+            passed-screening (if (:ignore-prefilter? config)
+                               (np-ts/full (clj->js [n-sims]) true)
+                               (np-ts/logical_and
+                                (np-ts/logical_and keep-ia keep-up)
+                                (np-ts/logical_and keep-inc pass-pr3)))
+
+            ;; 7. Extract the trials that passed screening
+            passed-indices (np-ts/flatnonzero passed-screening)
+            passed-indices-arr (np/nd-to-array passed-indices)
+            n-pass (alength passed-indices-arr)
+
+            results (loop [i 0
+                           acc []]
+                      (if (< i n-pass)
+                        (let [idx (aget passed-indices-arr i)
+                              enroll-row (.take enroll (clj->js [idx]) 0)
+                              survival-row (.take survival (clj->js [idx]) 0)
+                              arms-row (.take arms (clj->js [idx]) 0)
+                              enroll-1d (np-ts/reshape
+                                         enroll-row (clj->js [n-total]))
+                              survival-1d (np-ts/reshape
+                                           survival-row (clj->js [n-total]))
+                              arms-1d (np-ts/reshape
+                                       arms-row (clj->js [n-total]))
+                              stats (calculate-trial-stats-vectorized
+                                     config enroll-1d survival-1d arms-1d)]
+                          (recur (inc i) (if stats (conj acc stats) acc)))
+                        acc))]
+        [results n-pass]))))
+
+(defn- run-sim-in-chunks-2d
+  "Runs remaining simulations in chunks using 2D vectorized operations."
+  [record config remaining chunk-size random-gen]
+  (loop [rem remaining
+         all-stats []
+         all-pass 0]
+    (if (> rem 0)
+      (let [this-chunk (js/Math.min rem chunk-size)
+            [chunk-stats chunk-pass] (run-sim-chunk-2d
+                                      record config this-chunk random-gen)]
+        (recur (- rem this-chunk)
+               (concat all-stats chunk-stats)
+               (+ all-pass chunk-pass)))
+      [all-stats all-pass])))
+
+(defn simulate-one-combo-2d
+  "Simulates combo using 2D vectorized chunks."
+  [{:keys [rec cfg-dict n-sims seed chunk-size]}]
   (let [random-gen (np-random/default-rng (or seed 42))
         config cfg-dict
+        chunk-sz (or chunk-size 2000)
         n-screen (js/Math.min (:n-sims-screen config) n-sims)
-        [screen-stats screen-pass] (run-sim-chunk-vectorized rec config n-screen random-gen)]
+        [screen-stats screen-pass] (run-sim-chunk-2d
+                                    rec config n-screen random-gen)]
     (when (>= (count screen-stats) (:n-screen-min-pass config))
       (let [remaining (- n-sims n-screen)
-            [more-stats more-pass] (if (> remaining 0) (run-sim-chunk-vectorized rec config remaining random-gen) [[] 0])
+            [more-stats more-pass] (if (> remaining 0)
+                                     (run-sim-in-chunks-2d
+                                      rec config remaining chunk-sz random-gen)
+                                     [[] 0])
             all-stats (concat screen-stats more-stats)]
         (when-not (empty? all-stats)
           (summarize-results all-stats n-sims (+ screen-pass more-pass) rec))))))
+
+(defn simulate-one-combo
+  "Simulates multiple trials for a scenario combination using 2D chunked vectorized operations."
+  [args]
+  (simulate-one-combo-2d args))
+

@@ -88,42 +88,64 @@
            {:rec test-rec :cfg-dict cfg :n-sims n-sims :seed seed})
         t-loop-end (.now js/performance)
         t-loop-duration (- t-loop-end t-loop-start)
-        
+
         t-vec-start (.now js/performance)
         _ (sim-vec/simulate-one-combo
            {:rec test-rec :cfg-dict cfg :n-sims n-sims :seed seed})
         t-vec-end (.now js/performance)
         t-vec-duration (- t-vec-end t-vec-start)
-        
-        speedup (/ t-loop-duration t-vec-duration)]
-    (js/console.log (str "Loop execution time: " (.toFixed t-loop-duration 2) " ms"))
-    (js/console.log (str "Vectorized execution time: " (.toFixed t-vec-duration 2) " ms"))
-    (js/console.log (str "Speedup factor: " (.toFixed speedup 2) "x"))))
+
+        t-vec2d-start (.now js/performance)
+        _ (sim-vec/simulate-one-combo-2d
+           {:rec test-rec :cfg-dict cfg :n-sims n-sims :seed seed :chunk-size 2000})
+        t-vec2d-end (.now js/performance)
+        t-vec2d-duration (- t-vec2d-end t-vec2d-start)
+
+        speedup-1d (/ t-loop-duration t-vec-duration)
+        speedup-2d (/ t-loop-duration t-vec2d-duration)]
+    (js/console.log (str "Loop execution time: "
+                         (.toFixed t-loop-duration 2) " ms"))
+    (js/console.log (str "Vectorized 1D execution time: "
+                         (.toFixed t-vec-duration 2) " ms"))
+    (js/console.log (str "Vectorized 2D execution time: "
+                         (.toFixed t-vec2d-duration 2) " ms"))
+    (js/console.log (str "Speedup 1D vs Loop: "
+                         (.toFixed speedup-1d 2) "x"))
+    (js/console.log (str "Speedup 2D vs Loop: "
+                         (.toFixed speedup-2d 2) "x"))))
 
 (defn -main [& args]
   (js/console.log "Starting equivalence verification...")
   (let [seed 42
         n-sims 100
-        res-loop (sim-loop/simulate-one-combo {:rec test-rec :cfg-dict test-cfg :n-sims n-sims :seed seed})
-        res-vec (sim-vec/simulate-one-combo {:rec test-rec :cfg-dict test-cfg :n-sims n-sims :seed seed})]
-    
-    (if (and res-loop res-vec)
-      (let [equiv? (compare-results res-loop res-vec)]
+        res-loop (sim-loop/simulate-one-combo
+                  {:rec test-rec :cfg-dict test-cfg :n-sims n-sims :seed seed})
+        res-vec (sim-vec/simulate-one-combo
+                 {:rec test-rec :cfg-dict test-cfg :n-sims n-sims :seed seed})
+        res-vec-2d (sim-vec/simulate-one-combo-2d
+                    {:rec test-rec :cfg-dict test-cfg :n-sims n-sims :seed seed})]
+
+    (if (and res-loop res-vec res-vec-2d)
+      (let [equiv-1d? (compare-results res-loop res-vec)
+            equiv-2d? (compare-results res-loop res-vec-2d)]
         (js/console.log "Loop:" (clj->js res-loop))
-        (js/console.log "Vec:" (clj->js res-vec))
-        (if equiv?
+        (js/console.log "Vec 1D:" (clj->js res-vec))
+        (js/console.log "Vec 2D:" (clj->js res-vec-2d))
+        (if (and equiv-1d? equiv-2d?)
           (js/console.log
-           "SUCCESS: Loop and Vectorized implementations are EQUIVALENT!")
+           "SUCCESS: Loop, 1D, and 2D implementations are EQUIVALENT!")
           (js/console.log
-           "FAILURE: Loop and Vectorized implementations differ!"))
-        
+           "FAILURE: Loop, 1D, or 2D implementations differ!"))
+
         ;; Benchmarks at different sizes
         (run-benchmark seed 126 100)
+        (run-benchmark seed 126 2000)
         (run-benchmark seed 1000 50)
         (run-benchmark seed 5000 20)
         (run-benchmark seed 10000 10))
       (js/console.log
-       "Error: One or both simulations returned nil results."))))
+       "Error: One or more simulations returned nil results."))))
 
 (defn main []
   (apply -main []))
+
