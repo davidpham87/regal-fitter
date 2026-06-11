@@ -270,7 +270,22 @@
                       data))
         hr-data (build-hr-distribution-data items 0.025)
         km-data (build-km-curves-data items 20)
-        km-ci-data (build-km-ci-data items)]
+        km-ci-data (build-km-ci-data items)
+
+        ;; Calculate overall weighted medians
+        valid-items (filter #(and (:acceptance-rate %)
+                                  (not (js/isNaN (:acceptance-rate %))))
+                            items)
+        weights (map :acceptance-rate valid-items)
+        sum-wt (reduce + weights)
+        bat-med-w (if (and (seq weights) (pos? sum-wt))
+                    (/ (reduce + (map * (map :bat-med valid-items) weights))
+                       sum-wt)
+                    0.0)
+        gps-med-w (if (and (seq weights) (pos? sum-wt))
+                    (/ (reduce + (map * (map :gps-med valid-items) weights))
+                       sum-wt)
+                    0.0)]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
@@ -454,7 +469,10 @@
           :config {:legend {:orient "bottom"}}}]
         [vega-lite
          {:width 320 :height 240 :data {:values km-ci-data}
-          :title "KM Curves with 95% Confidence Interval"
+          :title {:text "KM Curves with 95% Confidence Interval"
+                  :subtitle (str "Median OS: BAT = "
+                                 (.toFixed bat-med-w 1) "m, GPS = "
+                                 (.toFixed gps-med-w 1) "m")}
           :layer [{:mark {:type "area" :opacity 0.2}
                    :encoding {:x {:field "time"
                                   :type "quantitative"
@@ -491,7 +509,19 @@
                                         {:field "high"
                                          :type "quantitative"
                                          :format ".3f"
-                                         :title "97.5% CI"}]}}]
+                                         :title "97.5% CI"}]}}
+                  {:mark {:type "rule" :color "gray" :strokeWidth 1
+                          :strokeDash [2 2]}
+                   :data {:values [{:y 0.5}]}
+                   :encoding {:y {:field "y" :type "quantitative"}}}
+                  {:mark {:type "rule" :color "#ee6677" :strokeWidth 1.2
+                          :strokeDash [3 3]}
+                   :data {:values [{:x bat-med-w}]}
+                   :encoding {:x {:field "x" :type "quantitative"}}}
+                  {:mark {:type "rule" :color "#55bb88" :strokeWidth 1.2
+                          :strokeDash [3 3]}
+                   :data {:values [{:x gps-med-w}]}
+                   :encoding {:x {:field "x" :type "quantitative"}}}]
           :config {:legend {:orient "bottom"}}}]
         ])]))
 
