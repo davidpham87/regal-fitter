@@ -50,7 +50,7 @@
            {:rec test-rec :cfg-dict cfg :n-sims M :seed 42})
         t-vec-end (.now js/performance)
         t-vec-dur (- t-vec-end t-vec-start)
-        
+
         loop-c200 (* t-loop-dur 200)
         vec-c200-8core (/ (* t-vec-dur 200) 8.0)
         speedup-c200 (/ loop-c200 vec-c200-8core)]
@@ -108,9 +108,10 @@
   (println "| Config | Projected Loop C=200 | Projected Vec 8-Core | Speedup |")
   (println "|--------|----------------------|----------------------|---------|")
   (run-fitter-point 126 100)
-  (run-fitter-point 1000 50)
-  (run-fitter-point 5000 20)
-  (run-fitter-point 9999 10)
+  (run-fitter-point 126 1000)
+  (run-fitter-point 126 2000)
+  (run-fitter-point 126 4000)
+
   (println "=============================================")
   (println "\n=============================================")
   (println "PROVING STRESS TEST SCALING CLAIMS (N=126)")
