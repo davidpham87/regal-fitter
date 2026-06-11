@@ -66,6 +66,13 @@
    :js-options {:resolve {"node:fs"          false
                           "node:fs/promises" false}}}
 
+  :compare-truth
+  {:target :node-script
+   :main app.compare-node/main
+   :output-to "out/compare_truth.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
   :benchmark
   {:target :node-script
    :main app.regal-fit.benchmark-claims/main
