@@ -256,6 +256,7 @@
         ;; Benchmarks at different sizes
         (run-benchmark seed 126 100)
         (run-benchmark seed 126 2000)
+        (run-benchmark seed 126 5000)
         (run-benchmark seed 126 10000))
       (js/console.log
        "Error: One or more simulations returned nil results."))))
