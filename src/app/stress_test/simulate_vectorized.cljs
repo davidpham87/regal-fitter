@@ -121,7 +121,8 @@
         chunk-size (js/Math.max 100 (js/Math.min 2000 max-chunk-size))
         random-gen (np-random/default-rng 42)
         scales (js/Float64Array. R)
-        shapes (js/Float64Array. R)]
+        shapes (js/Float64Array. R)
+        ^js js-cfg (clj->js config)]
     (dotimes [r R]
       (let [c (quot r M)
             combo (nth combos c)
@@ -131,18 +132,18 @@
         (aset scales r scale)
         (aset shapes r k)))
 
-    (let [stats-by-combo (cljs.core/to-array
-                          (mapv (fn [_]
-                                  (atom {:joint-pass-count 0
-                                         :total-passed-ia 0
-                                         :total-ev-ia-le-60 0
-                                         :total-inc-upd-le-12 0
-                                         :total-inc-pr3-le-6 0
-                                         :sum-ev-ia 0
-                                         :sum-inc-upd 0
-                                         :sum-inc-pr3 0
-                                         :sum-gps-ev-ia 0}))
-                                (range C)))]
+    (let [stats-by-combo (js/Array. C)]
+      (dotimes [c C]
+        (aset stats-by-combo c
+              #js {:joint_pass_count 0
+                   :total_passed_ia 0
+                   :total_ev_ia_le_60 0
+                   :total_inc_upd_le_12 0
+                   :total_inc_pr3_le_6 0
+                   :sum_ev_ia 0
+                   :sum_inc_upd 0
+                   :sum_inc_pr3 0
+                   :sum_gps_ev_ia 0}))
 
       (loop [offset 0]
         (when (< offset R)
@@ -152,9 +153,11 @@
                 chunk-shapes (.slice shapes offset (+ offset this-chunk))
 
                 scale-array (np-ts/reshape
-                             (np-ts/array chunk-scales) (clj->js [this-chunk 1]))
+                             (np-ts/array chunk-scales)
+                             (clj->js [this-chunk 1]))
                 shape-array (np-ts/reshape
-                             (np-ts/array chunk-shapes) (clj->js [this-chunk 1]))
+                             (np-ts/array chunk-shapes)
+                             (clj->js [this-chunk 1]))
 
                 [n-ia n-upd n-pr3 n-ia-gps time-ia event-ia arms
                  sorted-indices]
@@ -172,7 +175,7 @@
             (dotimes [i this-chunk]
               (let [r (+ offset i)
                     c (quot r M)
-                    combo-atom (aget stats-by-combo c)
+                    ^js stats (aget stats-by-combo c)
 
                     e-ia (js/Number (aget n-ia-arr i))
                     e-upd (js/Number (aget n-upd-arr i))
@@ -185,85 +188,84 @@
 
                     s-min (km-survival-pre-sorted-js
                            time-1d event-1d row-indices
-                           (:pool-mos-min config))
+                           (.-pool_mos_min js-cfg))
                     s-max (km-survival-pre-sorted-js
                            time-1d event-1d row-indices
-                           (:pool-mos-max config))
+                           (.-pool_mos_max js-cfg))
                     p-pool (and (> s-min 0.5) (< s-max 0.5))
 
                     i-upd (- e-upd e-ia)
                     i-pr3 (- e-pr3 e-upd)
 
                     pass-hr (< g-ia
-                               (* (:futility-hr-max config)
-                                  (/ e-ia (inc (:futility-hr-max config)))))
+                               (* (.-futility_hr_max js-cfg)
+                                  (/ e-ia (inc (.-futility_hr_max js-cfg)))))
                     passed-ia (and pass-hr p-pool)
 
-                    c1 (or (not (:use-test-ia config))
-                           (<= e-ia (:obs-ev-ia config)))
-                    c2 (or (not (:use-test-upd config))
-                           (<= i-upd (:obs-inc-upd config)))
-                    c3 (or (not (:use-test-pr3 config))
-                           (<= i-pr3 (:obs-inc-pr3 config)))
-                    c4 (or (not (:use-test-pool-mos config)) p-pool)
-                    c5 (or (not (:use-test-hr config)) pass-hr)
+                    c1 (or (not (.-use_test_ia js-cfg))
+                           (<= e-ia (.-obs_ev_ia js-cfg)))
+                    c2 (or (not (.-use_test_upd js-cfg))
+                           (<= i-upd (.-obs_inc_upd js-cfg)))
+                    c3 (or (not (.-use_test_pr3 js-cfg))
+                           (<= i-pr3 (.-obs_inc_pr3 js-cfg)))
+                    c4 (or (not (.-use_test_pool_mos js-cfg)) p-pool)
+                    c5 (or (not (.-use_test_hr js-cfg)) pass-hr)
 
-                    ev-ia-le-60 (<= e-ia (:obs-ev-ia config))
-                    inc-upd-le-12 (<= i-upd (:obs-inc-upd config))
-                    inc-pr3-le-6 (<= i-pr3 (:obs-inc-pr3 config))
+                    ev-ia-le-60 (<= e-ia (.-obs_ev_ia js-cfg))
+                    inc-upd-le-12 (<= i-upd (.-obs_inc_upd js-cfg))
+                    inc-pr3-le-6 (<= i-pr3 (.-obs_inc_pr3 js-cfg))
                     joint-pass (and c1 c2 c3 c4 c5)]
 
-                (swap! combo-atom
-                       (fn [curr]
-                         (assoc curr
-                                :joint-pass-count
-                                (if joint-pass
-                                  (inc (:joint-pass-count curr))
-                                  (:joint-pass-count curr))
-                                :total-passed-ia
-                                (if passed-ia
-                                  (inc (:total-passed-ia curr))
-                                  (:total-passed-ia curr))
-                                :total-ev-ia-le-60
-                                (if ev-ia-le-60
-                                  (inc (:total-ev-ia-le-60 curr))
-                                  (:total-ev-ia-le-60 curr))
-                                :total-inc-upd-le-12
-                                (if inc-upd-le-12
-                                  (inc (:total-inc-upd-le-12 curr))
-                                  (:total-inc-upd-le-12 curr))
-                                :total-inc-pr3-le-6
-                                (if inc-pr3-le-6
-                                  (inc (:total-inc-pr3-le-6 curr))
-                                  (:total-inc-pr3-le-6 curr))
-                                :sum-ev-ia (+ (:sum-ev-ia curr) e-ia)
-                                :sum-inc-upd (+ (:sum-inc-upd curr) i-upd)
-                                :sum-inc-pr3 (+ (:sum-inc-pr3 curr) i-pr3)
-                                :sum-gps-ev-ia (+ (:sum-gps-ev-ia curr) g-ia))))))
+                (when joint-pass
+                  (set! (.-joint_pass_count stats)
+                        (inc (.-joint_pass_count stats))))
+                (when passed-ia
+                  (set! (.-total_passed_ia stats)
+                        (inc (.-total_passed_ia stats))))
+                (when ev-ia-le-60
+                  (set! (.-total_ev_ia_le_60 stats)
+                        (inc (.-total_ev_ia_le_60 stats))))
+                (when inc-upd-le-12
+                  (set! (.-total_inc_upd_le_12 stats)
+                        (inc (.-total_inc_upd_le_12 stats))))
+                (when inc-pr3-le-6
+                  (set! (.-total_inc_pr3_le_6 stats)
+                        (inc (.-total_inc_pr3_le_6 stats))))
+                (set! (.-sum_ev_ia stats)
+                      (+ (.-sum_ev_ia stats) e-ia))
+                (set! (.-sum_inc_upd stats)
+                      (+ (.-sum_inc_upd stats) i-upd))
+                (set! (.-sum_inc_pr3 stats)
+                      (+ (.-sum_inc_pr3 stats) i-pr3))
+                (set! (.-sum_gps_ev_ia stats)
+                      (+ (.-sum_gps_ev_ia stats) g-ia))))
             (recur (+ offset this-chunk)))))
 
       (mapv (fn [c]
               (let [combo (nth combos c)
-                    stats @(aget stats-by-combo c)
-                    exp-ev-ia (/ (:sum-ev-ia stats) M)
-                    exp-gps-ev-ia (/ (:sum-gps-ev-ia stats) M)
+                    ^js stats (aget stats-by-combo c)
+                    exp-ev-ia (/ (.-sum_ev_ia stats) M)
+                    exp-gps-ev-ia (/ (.-sum_gps_ev_ia stats) M)
                     exp-bat-ev-ia (- exp-ev-ia exp-gps-ev-ia)
                     exp-hr-ia (if (pos? exp-bat-ev-ia)
                                 (/ exp-gps-ev-ia exp-bat-ev-ia)
                                 js/Number.POSITIVE_INFINITY)
-                    exp-inc-upd (/ (:sum-inc-upd stats) M)
-                    exp-inc-pr3 (/ (:sum-inc-pr3 stats) M)
+                    exp-inc-upd (/ (.-sum_inc_upd stats) M)
+                    exp-inc-pr3 (/ (.-sum_inc_pr3 stats) M)
                     residual (js/Math.max
-                              (js/Math.abs (- exp-ev-ia (:obs-ev-ia config)))
-                              (js/Math.abs (- exp-inc-upd (:obs-inc-upd config)))
-                              (js/Math.abs (- exp-inc-pr3 (:obs-inc-pr3 config))))]
+                              (js/Math.abs
+                               (- exp-ev-ia (.-obs_ev_ia js-cfg)))
+                              (js/Math.abs
+                               (- exp-inc-upd (.-obs_inc_upd js-cfg)))
+                              (js/Math.abs
+                               (- exp-inc-pr3 (.-obs_inc_pr3 js-cfg))))]
                 {:mos (:mos combo)
                  :k (:k combo)
-                 :p_pass_ia (/ (:total-passed-ia stats) M)
-                 :p_ev_ia_le_60 (/ (:total-ev-ia-le-60 stats) M)
-                 :p_inc_upd_le_12 (/ (:total-inc-upd-le-12 stats) M)
-                 :p_inc_pr3_le_6 (/ (:total-inc-pr3-le-6 stats) M)
-                 :p_joint (/ (:joint-pass-count stats) M)
+                 :p_pass_ia (/ (.-total_passed_ia stats) M)
+                 :p_ev_ia_le_60 (/ (.-total_ev_ia_le_60 stats) M)
+                 :p_inc_upd_le_12 (/ (.-total_inc_upd_le_12 stats) M)
+                 :p_inc_pr3_le_6 (/ (.-total_inc_pr3_le_6 stats) M)
+                 :p_joint (/ (.-joint_pass_count stats) M)
                  :expected_ev_ia exp-ev-ia
                  :expected_hr_ia exp-hr-ia
                  :expected_inc_upd exp-inc-upd
