@@ -44,7 +44,8 @@
             events-arr (np/nd-to-array (.take ^js events order))
             groups-arr (np/nd-to-array (.take ^js groups order))
             [n-exp-arr n-control-arr is-exp-arr] (compute-risk-sets groups-arr)
-            event-indices (keep-indexed (fn [i e] (when e i)) events-arr)]
+            event-indices (keep-indexed (fn [i e] (when (== e 1) i))
+                                        events-arr)]
         (if (empty? event-indices) [0.0 1.0]
             (let [grouped-indices (partition-by #(aget times-arr %) event-indices)
                   initial-stats {:logrank-u 0.0 :logrank-variance 0.0 :log-hazard-ratio-numerator 0.0 :log-hazard-ratio-denominator 0.0}
@@ -62,5 +63,8 @@
         (let [order (np/argsort time-observed)
               times-arr (np/nd-to-array (.take ^js time-observed order))
               events-arr (np/nd-to-array (.take ^js event-flag order))
-              relevant-events (filter (fn [[t ev i]] (and ev (<= t target-time))) (map vector times-arr events-arr (range n-subjects)))]
+              relevant-events (filter (fn [[t ev i]]
+                                        (and (== ev 1) (<= t target-time)))
+                                      (map vector times-arr events-arr
+                                           (range n-subjects)))]
           (reduce (fn [multiplier [_ _ i]] (* multiplier (- 1.0 (/ 1.0 (- n-subjects i))))) 1.0 relevant-events)))))

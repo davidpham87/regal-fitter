@@ -57,4 +57,11 @@
    :js-options {:js-provider    :external
                 :external-index "target/test_index.js"}
    :compiler-options {:pretty-print true}
-   :devtools {:autotest true}}}}
+   :devtools {:autotest true}}
+
+  :compare
+  {:target :node-script
+   :main app.regal-fit.compare-runs/main
+   :output-to "out/compare.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}}}

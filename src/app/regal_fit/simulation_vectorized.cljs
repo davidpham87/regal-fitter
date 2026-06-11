@@ -1,9 +1,64 @@
 (ns app.regal-fit.simulation-vectorized
   "Vectorized core simulation execution using numpy-ts."
-  (:require [app.regal-fit.stats :as stats]
-            [cljs.numpy :as np]
+  (:require [cljs.numpy :as np]
             [cljs.numpy-random :as np-random]
             ["numpy-ts" :as np-ts]))
+
+(defn- km-survival-at-time-vectorized
+  "Vectorized Kaplan-Meier survival estimator at time point T."
+  [time-observed event-flag target-time]
+  (let [n-subjects (.-shape time-observed)]
+    (if (zero? (aget n-subjects 0))
+      1.0
+      (let [order (np-ts/argsort time-observed)
+            s-times (.take ^js time-observed order)
+            s-events (.take ^js event-flag order)
+            indices (np-ts/arange (aget n-subjects 0))
+            total-n (np-ts/full (clj->js [(aget n-subjects 0)])
+                                (aget n-subjects 0))
+            n-i (np-ts/subtract total-n indices)
+            ones (np-ts/full (clj->js [(aget n-subjects 0)]) 1.0)
+            multiplier (np-ts/divide
+                        (np-ts/subtract n-i ones) n-i)
+            mask (np-ts/logical_and
+                  (np-ts/less_equal s-times target-time)
+                  (np-ts/equal s-events 1.0))
+            valid-multipliers (.bindex multiplier mask)]
+        (np-ts/prod valid-multipliers)))))
+
+(defn- logrank-z-vectorized
+  "Vectorized log-rank test."
+  [times events groups]
+  (let [n-events (np-ts/sum events)]
+    (if (< n-events 3)
+      [0.0 1.0]
+      (let [order (np-ts/argsort times)
+            s-events (.take ^js events order)
+            s-groups (.take ^js groups order)
+            ones (np-ts/full (.-shape s-groups) 1.0)
+            s-control (np-ts/subtract ones s-groups)
+            n-exp-at-risk (np-ts/flip
+                           (np-ts/cumsum (np-ts/flip s-groups)))
+            n-control-at-risk (np-ts/flip
+                               (np-ts/cumsum (np-ts/flip s-control)))
+            n-total-at-risk (np-ts/add n-exp-at-risk n-control-at-risk)
+            expected-exp (np-ts/divide n-exp-at-risk n-total-at-risk)
+            u-term (np-ts/subtract s-groups expected-exp)
+            var-term (np-ts/divide
+                      (np-ts/multiply n-exp-at-risk n-control-at-risk)
+                      (np-ts/multiply n-total-at-risk n-total-at-risk))
+            event-mask (np-ts/equal s-events 1)
+            valid-mask (np-ts/logical_and
+                        event-mask
+                        (np-ts/greater_equal n-total-at-risk 2))
+            u-valid (.bindex u-term valid-mask)
+            var-valid (.bindex var-term valid-mask)
+            u-sum (np-ts/sum u-valid)
+            var-sum (np-ts/sum var-valid)]
+        (if (<= var-sum 0)
+          [0.0 1.0]
+          [(/ (- u-sum) (js/Math.sqrt var-sum))
+           (js/Math.exp (/ u-sum var-sum))])))))
 
 (defn draw-weibull-samples-vectorized
   "Draws random survival times from a standard Weibull distribution using numpy-ts."
@@ -23,9 +78,9 @@
   [{:keys [cure-frac unc-scale unc-shape]} n-samples random-gen]
   (let [random-cure-flags (np-random/random random-gen n-samples)
         uncured-times (draw-weibull-samples-vectorized n-samples random-gen unc-scale unc-shape)]
-    (np-ts/where (np-ts/less random-cure-flags cure-frac)
-                 np/inf
-                 uncured-times)))
+    (np-ts/array (np-ts/where (np-ts/less random-cure-flags cure-frac)
+                              np/inf
+                              uncured-times))))
 
 (defn draw-leaky-samples-vectorized
   "Draws random survival times based on a leaky cure model using vectorized where."
@@ -37,9 +92,9 @@
         cured-times (if (> leak-rate-monthly 0)
                       (np-ts/divide (np-ts/multiply (np-ts/log random-leak-vals) -1.0) leak-rate-monthly)
                       np/inf)]
-    (np-ts/where (np-ts/less random-cure-flags cure-frac)
-                 cured-times
-                 uncured-times)))
+    (np-ts/array (np-ts/where (np-ts/less random-cure-flags cure-frac)
+                              cured-times
+                              uncured-times))))
 
 (defn draw-gps-times-vectorized
   "Draws random survival times for the GPS arm based on the specified model family."
@@ -56,7 +111,7 @@
   (let [raw-enroll (js/Array.)]
     (doseq [[lo hi n] bands]
       (when (> n 0)
-        (doseq [r (np-ts/nd-to-array (np-random/uniform random-gen lo hi n))]
+        (doseq [r (np/nd-to-array (np-random/uniform random-gen lo hi n))]
           (.push raw-enroll r))))
     (.sort raw-enroll (fn [a b] (- a b)))
     (let [enroll (np-ts/array (cljs.core/to-array raw-enroll))
@@ -64,8 +119,8 @@
           assignment-order (np-ts/argsort random-vals)
           arms (np-ts/zeros (clj->js [n-total]))]
       ;; Assign GPS arm indices to 1
-      (let [gps-indices (np-ts/slice assignment-order 0 n-per-arm)
-            gps-indices-arr (np-ts/nd-to-array gps-indices)
+      (let [gps-indices (np/slice assignment-order 0 n-per-arm)
+            gps-indices-arr (np/nd-to-array gps-indices)
             arms-data (.-data arms)]
         (dotimes [i n-per-arm]
           (aset arms-data (aget gps-indices-arr i) 1.0)))
@@ -75,9 +130,9 @@
             gps-draws (draw-gps-times-vectorized record num-gps random-gen)
             survival (np-ts/zeros (clj->js [n-total]))
             survival-data (.-data survival)
-            bat-data (np-ts/nd-to-array bat-draws)
-            gps-data (np-ts/nd-to-array gps-draws)
-            arms-arr (np-ts/nd-to-array arms)]
+            bat-data (np/nd-to-array bat-draws)
+            gps-data (np/nd-to-array gps-draws)
+            arms-arr (np/nd-to-array arms)]
         (loop [i 0 b 0 g 0]
           (when (< i n-total)
             (if (== (aget arms-arr i) 0)
@@ -89,45 +144,40 @@
 
 (defn- count-events-at-times-vectorized
   "Vectorized counting of events at IA, UPD, and PR3 timepoints."
-  [config enroll-times survival-times arms-array]
-  (let [enroll (np-ts/array enroll-times)
-        survival (np-ts/array survival-times)
-        arms (np-ts/array arms-array)
-        
-        ;; Interim Analysis (IA)
-        fu-ia (np-ts/maximum (np-ts/subtract (:t-ia config) enroll) 0.0)
+  [config enroll survival arms]
+  (let [fu-ia (np-ts/maximum
+               (np-ts/subtract
+                (np/full-float64 (.-shape enroll) (:t-ia config))
+                enroll)
+               0.0)
         dead-ia (np-ts/less_equal survival fu-ia)
         n-ia (np-ts/sum dead-ia)
-        
-        ;; Update (UPD)
-        fu-up (np-ts/maximum (np-ts/subtract (:t-upd config) enroll) 0.0)
+        fu-up (np-ts/maximum
+               (np-ts/subtract
+                (np/full-float64 (.-shape enroll) (:t-upd config))
+                enroll)
+               0.0)
         dead-up (np-ts/less_equal survival fu-up)
         n-up (np-ts/sum dead-up)
-        
-        ;; Press Release 3 (PR3)
-        fu-pr3 (np-ts/maximum (np-ts/subtract (:t-pr3 config) enroll) 0.0)
+        fu-pr3 (np-ts/maximum
+                (np-ts/subtract
+                 (np/full-float64 (.-shape enroll) (:t-pr3 config))
+                 enroll)
+                0.0)
         dead-pr3 (np-ts/less_equal survival fu-pr3)
         n-pr3 (if (:use-pr3-anchor config) (np-ts/sum dead-pr3) 0.0)
-        
-        ;; Per-arm counts: BAT = 0, GPS = 1
         is-bat (np-ts/equal arms 0)
         is-gps (np-ts/equal arms 1)
-        
         dead-ia-bat (np-ts/logical_and dead-ia is-bat)
         dead-ia-gps (np-ts/logical_and dead-ia is-gps)
-        
         dead-up-bat (np-ts/logical_and dead-up is-bat)
         dead-up-gps (np-ts/logical_and dead-up is-gps)
-        
         dead-pr3-bat (np-ts/logical_and dead-pr3 is-bat)
         dead-pr3-gps (np-ts/logical_and dead-pr3 is-gps)
-        
         n-ia-bat (np-ts/sum dead-ia-bat)
         n-ia-gps (np-ts/sum dead-ia-gps)
-        
         n-up-bat (np-ts/sum dead-up-bat)
         n-up-gps (np-ts/sum dead-up-gps)
-        
         n-pr3-bat (if (:use-pr3-anchor config) (np-ts/sum dead-pr3-bat) 0.0)
         n-pr3-gps (if (:use-pr3-anchor config) (np-ts/sum dead-pr3-gps) 0.0)]
     {:n-interim-analysis n-ia
@@ -141,40 +191,41 @@
      :n-press-release-3-gps n-pr3-gps}))
 
 (defn- compute-interval-medians-vectorized
-  "Vectorized computation of milestone interval medians using boolean masking."
-  [config enroll-times survival-times arms-array]
-  (let [enroll (np-ts/array enroll-times)
-        survival (np-ts/array survival-times)
-        arms (np-ts/array arms-array)
-        is-bat (np-ts/equal arms 0)
+  "Vectorized computation of interval medians using boolean masking."
+  [config enroll survival arms]
+  (let [is-bat (np-ts/equal arms 0)
         is-gps (np-ts/equal arms 1)
-
-        fu-ia (np-ts/maximum (np-ts/subtract (:t-ia config) enroll) 0.0)
+        fu-ia (np-ts/maximum
+               (np-ts/subtract
+                (np/full-float64 (.-shape enroll) (:t-ia config))
+                enroll)
+               0.0)
         dead-ia (np-ts/less_equal survival fu-ia)
-
-        fu-up (np-ts/maximum (np-ts/subtract (:t-upd config) enroll) 0.0)
+        fu-up (np-ts/maximum
+               (np-ts/subtract
+                (np/full-float64 (.-shape enroll) (:t-upd config))
+                enroll)
+               0.0)
         dead-up (np-ts/less_equal survival fu-up)
-
-        fu-pr3 (np-ts/maximum (np-ts/subtract (:t-pr3 config) enroll) 0.0)
+        fu-pr3 (np-ts/maximum
+                (np-ts/subtract
+                 (np/full-float64 (.-shape enroll) (:t-pr3 config))
+                 enroll)
+                0.0)
         dead-pr3 (np-ts/less_equal survival fu-pr3)
-
-        ;; Intervals
         ia-bat-mask (np-ts/logical_and dead-ia is-bat)
         ia-gps-mask (np-ts/logical_and dead-ia is-gps)
         ia-pool-mask dead-ia
-
         up-mask (np-ts/logical_and dead-up (np-ts/logical_not dead-ia))
         up-bat-mask (np-ts/logical_and up-mask is-bat)
         up-gps-mask (np-ts/logical_and up-mask is-gps)
         up-pool-mask up-mask
-
         pr3-mask (np-ts/logical_and dead-pr3 (np-ts/logical_not dead-up))
         pr3-bat-mask (np-ts/logical_and pr3-mask is-bat)
         pr3-gps-mask (np-ts/logical_and pr3-mask is-gps)
         pr3-pool-mask pr3-mask
-
         get-median (fn [mask]
-                     (let [filtered (.get survival mask)]
+                     (let [filtered (.bindex ^js survival mask)]
                        (if (> (np-ts/size filtered) 0)
                          (np-ts/median filtered)
                          js/NaN)))]
@@ -203,18 +254,27 @@
 
 (defn- interim-analysis-data-vectorized
   "Extracts data for interim analysis using vectorized minimum/maximum."
-  [config enroll-times survival-times arms-array]
-  (let [enroll (np-ts/array enroll-times)
-        survival (np-ts/array survival-times)
-        arms (np-ts/array arms-array)
-        
-        fu-ia (np-ts/maximum (np-ts/subtract (:t-ia config) enroll) 0.0)
+  [config enroll survival arms]
+  (let [fu-ia (np-ts/maximum
+               (np-ts/subtract
+                (np/full-float64 (.-shape enroll) (:t-ia config))
+                enroll)
+               0.0)
         time-ia (np-ts/minimum survival fu-ia)
-        event-ia (np-ts/where (np-ts/less_equal survival fu-ia) 1 0)
-        
-        fu-up (np-ts/maximum (np-ts/subtract (:t-upd config) enroll) 0.0)
-        alive-bat (np-ts/sum (np-ts/logical_and (np-ts/greater survival fu-up) (np-ts/equal arms 0)))
-        alive-gps (np-ts/sum (np-ts/logical_and (np-ts/greater survival fu-up) (np-ts/equal arms 1)))]
+        event-ia (np-ts/array
+                  (np-ts/where
+                   (np-ts/less_equal survival fu-ia) 1 0))
+        fu-up (np-ts/maximum
+               (np-ts/subtract
+                (np/full-float64 (.-shape enroll) (:t-upd config))
+                enroll)
+               0.0)
+        alive-bat (np-ts/sum (np-ts/logical_and
+                              (np-ts/greater survival fu-up)
+                              (np-ts/equal arms 0)))
+        alive-gps (np-ts/sum (np-ts/logical_and
+                              (np-ts/greater survival fu-up)
+                              (np-ts/equal arms 1)))]
     {:time-ia time-ia
      :event-ia event-ia
      :alive-bat alive-bat
@@ -222,10 +282,12 @@
 
 (defn- analyze-interim-vectorized
   "Performs log-rank analysis for the interim analysis (IA) with vectorized structures."
-  [config enroll-times survival-times arms-array]
-  (let [{:keys [time-ia event-ia alive-bat alive-gps]} (interim-analysis-data-vectorized config enroll-times survival-times arms-array)
-        [z-ia hr-ia] (stats/logrank-z time-ia event-ia (np-ts/array arms-array))]
-    {:z-ia z-ia :hr-ia hr-ia :time-ia time-ia :ev-ia event-ia :alive-bat alive-bat :alive-gps alive-gps}))
+  [config enroll survival arms]
+  (let [{:keys [time-ia event-ia alive-bat alive-gps]}
+        (interim-analysis-data-vectorized config enroll survival arms)
+        [z-ia hr-ia] (logrank-z-vectorized time-ia event-ia arms)]
+    {:z-ia z-ia :hr-ia hr-ia :time-ia time-ia :ev-ia event-ia
+     :alive-bat alive-bat :alive-gps alive-gps}))
 
 (defn- pass-interim-gates?
   "Checks interim results against futility and efficacy gates."
@@ -233,59 +295,60 @@
   (and (< hr-ia (:futility-hr-max config))
        (> hr-ia (:efficacy-hr-min config))
        (if (> (:pool-mos-min-at-ia config) 0)
-         (> (stats/km-survival-at-time time-ia ev-ia (:pool-mos-min-at-ia config)) 0.5)
+         (> (km-survival-at-time-vectorized
+             time-ia ev-ia (:pool-mos-min-at-ia config))
+            0.5)
          true)
        (if (> (:median-fu-target config) 0)
          (let [median-fu (np-ts/median time-ia)]
-           (<= (js/Math.abs (- median-fu (:median-fu-target config))) (:median-fu-tol config)))
+           (<= (js/Math.abs (- median-fu (:median-fu-target config)))
+               (:median-fu-tol config)))
          true)))
 
 (defn- calculate-final-times-vectorized
-  "Calculates survival and event status at T80 using vectorized minimum/maximum."
-  [t80 enroll-times survival-times]
-  (let [enroll (np-ts/array enroll-times)
-        survival (np-ts/array survival-times)
-        f (np-ts/maximum (np-ts/subtract t80 enroll) 0.0)
+  "Calculates survival and event status at T80."
+  [t80 enroll survival]
+  (let [f (np-ts/maximum
+           (np-ts/subtract
+            (np/full-float64 (.-shape enroll) t80) enroll)
+           0.0)
         time-fin (np-ts/minimum survival f)
-        ev-fin (np-ts/where (np-ts/less_equal survival f) 1 0)]
+        ev-fin (np-ts/array
+                (np-ts/where
+                 (np-ts/less_equal survival f) 1 0))]
     {:time-fin time-fin :ev-fin ev-fin}))
 
 (defn- analyze-final-vectorized
   "Performs final analysis once target events are reached."
-  [config enroll-times survival-times arms-array]
-  (let [enroll (np-ts/array enroll-times)
-        survival (np-ts/array survival-times)
-        deaths (np-ts/add enroll survival)
+  [config enroll survival arms]
+  (let [deaths (np-ts/add enroll survival)
         finite-mask (np-ts/isfinite deaths)
-        finite-deaths (np-ts/sort (.get deaths finite-mask))
+        finite-deaths (np-ts/sort (.bindex deaths finite-mask))
         n-deaths (np-ts/size finite-deaths)
         target (:n-ev-final config)
         reached (>= n-deaths target)
         t80 (if reached
-              (aget (np-ts/nd-to-array finite-deaths) (dec target))
+              (aget (np/nd-to-array finite-deaths) (dec target))
               js/NaN)
         today (if (and (:enforce-no-80-by-today config) reached)
-                (>= t80 (- (or (:t-now config) 63) (:no-80-slack-months config)))
+                (>= t80 (- (or (:t-now config) 63)
+                           (:no-80-slack-months config)))
                 true)]
     (if-not (and reached today)
       {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN}
-      (let [{:keys [time-fin ev-fin]} (calculate-final-times-vectorized t80 enroll-times survival-times)
-            [z-fin hr-fin] (stats/logrank-z time-fin ev-fin (np-ts/array arms-array))]
+      (let [{:keys [time-fin ev-fin]}
+            (calculate-final-times-vectorized t80 enroll survival)
+            [z-fin hr-fin] (logrank-z-vectorized time-fin ev-fin arms)]
         {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin}))))
 
 (defn- calculate-trial-stats-vectorized
   "Computes all statistics for a successfully screened trial."
-  [config enroll-times survival-times arms-array]
-  (let [counts (count-events-at-times-vectorized
-                config enroll-times survival-times arms-array)]
+  [config enroll survival arms]
+  (let [counts (count-events-at-times-vectorized config enroll survival arms)]
     (when (pass-events-tolerance? config counts)
-      (let [interim-res (analyze-interim-vectorized
-                         config enroll-times survival-times
-                         arms-array)]
+      (let [interim-res (analyze-interim-vectorized config enroll survival arms)]
         (when (pass-interim-gates? config interim-res)
-          (let [final-res (analyze-final-vectorized
-                           config enroll-times survival-times
-                           arms-array)]
+          (let [final-res (analyze-final-vectorized config enroll survival arms)]
             (merge {:n-ev-ia (:n-interim-analysis counts)
                     :n-ev-upd (:n-update counts)
                     :z-ia (:z-ia interim-res)
@@ -307,21 +370,21 @@
                      {:n-ev-pr3 (:n-press-release-3 counts)})
                    ;; Per-arm median survival times per interval
                    (compute-interval-medians-vectorized
-                    config enroll-times survival-times
-                    arms-array))))))))
+                    config enroll survival arms))))))))
 
 (defn- simulate-one-trial-vectorized
   "Simulates a single trial using vectorized operations."
   [record config random-gen n-total n-per-arm bands]
   (let [{:keys [enroll-times arms-array survival-times]}
-        (generate-trial-data-vectorized record config random-gen n-total n-per-arm bands)
+        (generate-trial-data-vectorized
+         record config random-gen n-total n-per-arm bands)
         counts (count-events-at-times-vectorized
                 config enroll-times survival-times arms-array)
         passed-screening (or (:ignore-prefilter? config)
                              (pass-events-tolerance? config counts))
         stats (when passed-screening
-                (calculate-trial-stats-vectorized config enroll-times survival-times
-                                                  arms-array))]
+                (calculate-trial-stats-vectorized
+                 config enroll-times survival-times arms-array))]
     {:passed-screening passed-screening :stats stats}))
 
 (defn- run-sim-chunk-vectorized

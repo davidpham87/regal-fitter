@@ -1,5 +1,5 @@
 (ns app.worker
-  (:require [app.regal-fit.simulate :as simulate]
+  (:require [app.regal-fit.simulation-vectorized :as simulate]
             [app.stress-test.simulate :as stress-test]
             [clojure.walk :as walk]))
 
