@@ -34,6 +34,27 @@
                          surv))))
             surv))))))
 
+(defn- km-survival-pre-sorted-js
+  "Calculates KM survival at target time using pre-sorted indices."
+  [obs-t-arr is-ev-arr sorted-indices target-time]
+  (let [n (alength obs-t-arr)]
+    (if (zero? n)
+      1.0
+      (loop [i 0
+             surv 1.0]
+        (if (< i n)
+          (let [idx (aget sorted-indices i)
+                t (aget obs-t-arr idx)
+                is-ev (== (aget is-ev-arr idx) 1)
+                n-at-risk (- n i)]
+            (if (> t target-time)
+              surv
+              (recur (inc i)
+                     (if is-ev
+                       (* surv (- 1.0 (/ 1.0 n-at-risk)))
+                       surv))))
+          surv)))))
+
 
 (defn- run-stress-chunk-2d
   "Runs a 2D chunk of stress test simulations."
@@ -84,9 +105,10 @@
         n-ia-gps (np-ts/sum dead-ia-gps 1)
 
         time-ia (np-ts/minimum survival fu-ia)
-        event-ia (np-ts/array (np-ts/where dead-ia 1.0 0.0))]
+        event-ia (np-ts/array (np-ts/where dead-ia 1.0 0.0))
+        sorted-indices (np-ts/argsort time-ia 1)]
 
-    [n-ia n-upd n-pr3 n-ia-gps time-ia event-ia arms]))
+    [n-ia n-upd n-pr3 n-ia-gps time-ia event-ia arms sorted-indices]))
 
 (defn simulate-combos-vectorized
   "Simulates multiple combinations in parallel using 2D vectorized operations."
@@ -134,7 +156,8 @@
                 shape-array (np-ts/reshape
                              (np-ts/array chunk-shapes) (clj->js [this-chunk 1]))
 
-                [n-ia n-upd n-pr3 n-ia-gps time-ia event-ia arms]
+                [n-ia n-upd n-pr3 n-ia-gps time-ia event-ia arms
+                 sorted-indices]
                 (run-stress-chunk-2d
                  config this-chunk scale-array shape-array random-gen)
 
@@ -143,7 +166,8 @@
                 n-pr3-arr (np/nd-to-array n-pr3)
                 n-ia-gps-arr (np/nd-to-array n-ia-gps)
                 time-ia-arr (np/nd-to-array time-ia)
-                event-ia-arr (np/nd-to-array event-ia)]
+                event-ia-arr (np/nd-to-array event-ia)
+                sorted-idx-arr (np/nd-to-array sorted-indices)]
 
             (dotimes [i this-chunk]
               (let [r (+ offset i)
@@ -157,11 +181,14 @@
 
                     time-1d (aget time-ia-arr i)
                     event-1d (aget event-ia-arr i)
+                    row-indices (aget sorted-idx-arr i)
 
-                    s-min (km-survival-single-js
-                           time-1d event-1d (:pool-mos-min config))
-                    s-max (km-survival-single-js
-                           time-1d event-1d (:pool-mos-max config))
+                    s-min (km-survival-pre-sorted-js
+                           time-1d event-1d row-indices
+                           (:pool-mos-min config))
+                    s-max (km-survival-pre-sorted-js
+                           time-1d event-1d row-indices
+                           (:pool-mos-max config))
                     p-pool (and (> s-min 0.5) (< s-max 0.5))
 
                     i-upd (- e-upd e-ia)
