@@ -92,4 +92,11 @@
    :main app.regal-fit.benchmark-claims/main
    :output-to "out/benchmark.js"
    :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
+  :verify
+  {:target :node-script
+   :main app.regal-fit.verify/main
+   :output-to "out/verify.js"
+   :js-options {:resolve {"node:fs"          false
                           "node:fs/promises" false}}}}}
