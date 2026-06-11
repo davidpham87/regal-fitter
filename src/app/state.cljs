@@ -50,6 +50,7 @@
    :n-sims-screen 50
    :n-screen-min-pass 1
    :seed 20260508
+   :censoring 0.0
 
    :bat-med-grid [8 22 1]
    :bat-shape-grid [0.8 1.01 0.1]
@@ -121,6 +122,7 @@
    [:n-sims-screen :int]
    [:n-screen-min-pass :int]
    [:seed :int]
+   [:censoring :number]
 
    [:bat-med-grid [:vector :number]]
    [:bat-shape-grid [:vector :number]]

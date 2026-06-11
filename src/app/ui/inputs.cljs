@@ -48,6 +48,7 @@
    :median-fu-tol "Median Follow-up Tolerance"
    :hr-threshold "HR Significance Threshold"
    :seed "Random Seed"
+   :censoring "Censoring Rate"
    :families "Model Families"})
 
 (def key->help
@@ -122,6 +123,7 @@
    :median-fu-tol "Tolerance for median follow-up target in months."
    :hr-threshold "Hazard ratio threshold for significance per SAP (0.636)."
    :seed "Random seed for reproducibility."
+   :censoring "Uniform random censoring rate (0 to 1)."
    :families "Enabled model distribution families."})
 
 (defn- parse-vector [val]

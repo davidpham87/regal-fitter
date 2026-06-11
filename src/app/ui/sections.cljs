@@ -158,5 +158,7 @@
          inputs/parse-double-safe] props]
        [inputs/field-wrapper :seed
         [inputs/num-input props :seed inputs/parse-int] props]
+       [inputs/field-wrapper :censoring
+        [inputs/num-input props :censoring inputs/parse-double-safe] props]
        [inputs/field-wrapper :families
         [inputs/families-input props :families] props]]]]}])
