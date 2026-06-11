@@ -36,9 +36,8 @@
   {:target     :browser
    :output-dir "public/js/worker/"
    :asset-path "/js/worker/"
-   :js-options {:js-provider    :external
-                :external-index "target/worker_index.js"
-                :external-index-format :esm}
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}
    :compiler-options {:optimizations :simple
                       :externs       ["src/externs/webr.js"]}
    :modules
