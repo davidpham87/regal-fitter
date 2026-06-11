@@ -201,6 +201,53 @@
                                  times)]
         (vec (concat individual-data representative-data))))))
 
+(defn- weighted-percentile [values weights p]
+  (if (empty? values)
+    0.0
+    (let [pairs (sort-by first (map vector values weights))
+          cum-weights (reductions + (map second pairs))
+          indexed-pairs (map vector pairs cum-weights)]
+      (or (some (fn [[[val _] cum-w]]
+                  (when (>= cum-w p) val))
+                indexed-pairs)
+          (first (last pairs))))))
+
+(defn- build-km-ci-data [items]
+  (let [valid-items (filter #(and (:acceptance-rate %)
+                                  (not (js/isNaN (:acceptance-rate %))))
+                            items)
+        weights (map :acceptance-rate valid-items)
+        tot-wt (reduce + weights)
+        normalized-w (if (and (seq weights) (pos? tot-wt))
+                       (mapv #(/ % tot-wt) weights)
+                       (mapv (constantly (/ 1.0 (max 1 (count valid-items))))
+                             valid-items))]
+    (if (empty? valid-items)
+      []
+      (let [times (range 0 81)]
+        (vec
+         (mapcat
+          (fn [t]
+            (let [bat-survs (mapv #(combo-survival t % :bat) valid-items)
+                  gps-survs (mapv #(combo-survival t % :gps) valid-items)
+                  bat-med (weighted-percentile bat-survs normalized-w 0.50)
+                  bat-low (weighted-percentile bat-survs normalized-w 0.025)
+                  bat-high (weighted-percentile bat-survs normalized-w 0.975)
+                  gps-med (weighted-percentile gps-survs normalized-w 0.50)
+                  gps-low (weighted-percentile gps-survs normalized-w 0.025)
+                  gps-high (weighted-percentile gps-survs normalized-w 0.975)]
+              [{:time t
+                :median bat-med
+                :low bat-low
+                :high bat-high
+                :group "BAT"}
+               {:time t
+                :median gps-med
+                :low gps-low
+                :high gps-high
+                :group "GPS"}]))
+          times))))))
+
 (defn results-charts [family items]
   (let [data (build-stratified-data items 1.0)
         tot-wt (reduce + (map :weight data))
@@ -222,7 +269,8 @@
                            :cum-p (js/Math.min 100.0 cum-p)}))
                       data))
         hr-data (build-hr-distribution-data items 0.025)
-        km-data (build-km-curves-data items 20)]
+        km-data (build-km-curves-data items 20)
+        km-ci-data (build-km-ci-data items)]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
@@ -403,6 +451,47 @@
                                          :type "quantitative"
                                          :format ".3f"
                                          :title "Survival S(t)"}]}}]
+          :config {:legend {:orient "bottom"}}}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values km-ci-data}
+          :title "KM Curves with 95% Confidence Interval"
+          :layer [{:mark {:type "area" :opacity 0.2}
+                   :encoding {:x {:field "time"
+                                  :type "quantitative"
+                                  :title "Time (months)"}
+                              :y {:field "low"
+                                  :type "quantitative"
+                                  :title "Survival Probability"
+                                  :scale {:domain [0 1.02]}}
+                              :y2 {:field "high"
+                                   :type "quantitative"}
+                              :color {:field "group"
+                                      :type "nominal"
+                                      :scale {:domain ["GPS" "BAT"]
+                                              :range ["#55bb88" "#ee6677"]}
+                                      :legend {:title "Group"}}}}
+                  {:mark {:type "line" :strokeWidth 2}
+                   :encoding {:x {:field "time" :type "quantitative"}
+                              :y {:field "median" :type "quantitative"}
+                              :color {:field "group" :type "nominal"}
+                              :tooltip [{:field "time"
+                                         :type "quantitative"
+                                         :title "Months"}
+                                        {:field "group"
+                                         :type "nominal"
+                                         :title "Arm"}
+                                        {:field "median"
+                                         :type "quantitative"
+                                         :format ".3f"
+                                         :title "Median S(t)"}
+                                        {:field "low"
+                                         :type "quantitative"
+                                         :format ".3f"
+                                         :title "2.5% CI"}
+                                        {:field "high"
+                                         :type "quantitative"
+                                         :format ".3f"
+                                         :title "97.5% CI"}]}}]
           :config {:legend {:orient "bottom"}}}]
         ])]))
 
