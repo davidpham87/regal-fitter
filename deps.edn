@@ -6,19 +6,18 @@
         djblue/portal                       {:mvn/version "0.65.0"}
         com.github.seancorfield/honeysql    {:mvn/version "2.7.1350"}
         camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
-        metosin/reitit                      {:mvn/version "0.10.1"}}
+        metosin/reitit                      {:mvn/version "0.10.1"}
+        reagent/reagent                     {:mvn/version "2.0.1"}
+        re-frame/re-frame                   {:mvn/version "1.4.3"}
+        thheller/shadow-cljs                {:mvn/version "3.4.11"}
+        fork/fork                           {:mvn/version "2.4.3"}
+        nrepl/nrepl                         {:mvn/version "1.4.0"}
+        cider/cider-nrepl                   {:mvn/version "0.59.0"}
+        refactor-nrepl/refactor-nrepl       {:mvn/version "3.13.0"}
+        com.cognitect/transit-cljs          {:mvn/version "0.8.239"}}
 
  :aliases
- {:cljs
-  {:extra-deps {reagent/reagent               {:mvn/version "2.0.1"}
-                re-frame/re-frame             {:mvn/version "1.4.3"}
-                thheller/shadow-cljs          {:mvn/version "3.4.11"}
-                fork/fork                     {:mvn/version "2.4.3"}
-                nrepl/nrepl                   {:mvn/version "1.4.0"}
-                cider/cider-nrepl             {:mvn/version "0.59.0"}
-                refactor-nrepl/refactor-nrepl {:mvn/version "3.13.0"}
-                com.cognitect/transit-cljs    {:mvn/version "0.8.239"}}}
-  :shadow-cljs
+ {:shadow-cljs
   {:extra-deps {thheller/shadow-cljs {:mvn/version "3.4.11"}}
    :main-opts  ["-m" "shadow.cljs.devtools.cli"]}
 

@@ -1,4 +1,4 @@
-{:deps     {:aliases [:cljs :test]}
+{:deps     {:aliases [:test]}
  :paths    ["src" "test"]
  :dev-http {8080 {:root    "public"
                   :headers {"Cross-Origin-Opener-Policy"   "same-origin"
