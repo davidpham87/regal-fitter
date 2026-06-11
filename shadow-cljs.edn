@@ -73,6 +73,13 @@
    :js-options {:resolve {"node:fs"          false
                           "node:fs/promises" false}}}
 
+  :compare-5000
+  {:target :node-script
+   :main app.regal-fit.compare-5000/main
+   :output-to "out/compare_5000.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
   :benchmark
   {:target :node-script
    :main app.regal-fit.benchmark-claims/main
