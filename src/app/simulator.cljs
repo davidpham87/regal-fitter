@@ -52,7 +52,11 @@
             (.push all-combos {:rec rec :idx idx :family fam}))))
       (let [combos-vec (js->clj all-combos :keywordize-keys true)
             num-workers (js/Math.max 1 (count @wp/pool))
-            chunk-size (js/Math.ceil (/ total num-workers))
+            chunk-size (js/Math.max 5
+                                     (js/Math.min 20
+                                                  (js/Math.ceil
+                                                   (/ total
+                                                      (* 4 num-workers)))))
             chunks (partition-all chunk-size combos-vec)]
         (doseq [chunk chunks]
           (cached-submit-job!
