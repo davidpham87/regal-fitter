@@ -39,26 +39,36 @@
              (db/set-cache k (:result res)))
            (callback res)))))))
 
-(defn- submit-simulation-jobs! [config all-accepted families results completed
-                                total start-time]
+(defn- submit-simulation-jobs!
+  [config all-accepted families results completed total start-time]
   (wp/clear-queue!)
   (if (= total 0)
     (do (rf/dispatch [:set-status :done])
         (rf/dispatch [:set-view :results]))
-    (doseq [fam families]
-      (let [fam-kw (keyword fam)]
-        (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
+    (let [all-combos (js/Array.)]
+      (doseq [fam families]
+        (let [fam-kw (keyword fam)]
+          (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
+            (.push all-combos {:rec rec :idx idx :family fam}))))
+      (let [combos-vec (js->clj all-combos :keywordize-keys true)
+            num-workers (js/Math.max 1 (count @wp/pool))
+            chunk-size (js/Math.ceil (/ total num-workers))
+            chunks (partition-all chunk-size combos-vec)]
+        (doseq [chunk chunks]
           (cached-submit-job!
-           {:rec rec
-            :cfg-dict config
-            :n-sims (:n-sims-per-combo config)
-            :seed (+ (:seed config) (* idx 7919))}
+           {:type "RUN_SIMULATION_BATCH"
+            :combos chunk
+            :config config}
            (fn [{:keys [success? result error]}]
-             (swap! completed inc)
+             (swap! completed + (count chunk))
              (rf/dispatch [:set-progress total @completed])
              (when (and success? result)
-               (swap! results update fam-kw (fnil conj []) result))
-             (when (= @completed total)
+               (dotimes [i (count chunk)]
+                 (let [combo (nth chunk i)
+                       res (nth result i)
+                       fam-kw (keyword (:family combo))]
+                   (swap! results update fam-kw (fnil conj []) res))))
+             (when (>= @completed total)
                (log (str "All simulations done in "
                          (/ (- (js/Date.now) start-time) 1000) "s"))
                (rf/dispatch [:set-status :done])

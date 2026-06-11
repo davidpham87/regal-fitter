@@ -23,6 +23,18 @@
                           (= (:type args) "RUN_STRESS_TEST_BATCH")
                           (stress-test-vec/simulate-combos-vectorized args)
 
+                          (= (:type args) "RUN_SIMULATION_BATCH")
+                          (let [combos (:combos args)
+                                config (:config args)]
+                            (mapv (fn [combo]
+                                    (simulate/simulate-one-combo
+                                     {:rec (:rec combo)
+                                      :cfg-dict config
+                                      :n-sims (:n-sims-per-combo config)
+                                      :seed (+ (:seed config)
+                                               (* (:idx combo) 7919))}))
+                                  combos))
+
                           :else
                           (simulate/simulate-one-combo args))
                     clj-res (if res (walk/keywordize-keys res) nil)]
