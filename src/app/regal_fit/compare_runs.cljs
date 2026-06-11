@@ -219,7 +219,8 @@
   (run-grid-point 5 100 126)
   (run-grid-point 5 100 1000)
   (run-grid-point 15 100 126)
-  (run-grid-point 15 100 1000))
+  (run-grid-point 15 100 1000)
+  (run-grid-point 20 2000 126))
 
 (defn -main [& args]
   (compare-stress-test)
