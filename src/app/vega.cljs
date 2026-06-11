@@ -1,5 +1,6 @@
 (ns app.vega
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             ["vega-embed" :default vegaEmbed]))
 
 (defn vega-lite [spec]
@@ -131,26 +132,44 @@
 
         :else 0.0))))
 
-(defn- build-km-curves-data [items top-k]
+(defn- calculate-sum-residuals [combo config]
+  (let [diff-ia (js/Math.abs (- (or (:exp-ev-ia combo) 0)
+                                (or (:n-ev-ia config) 0)))
+        diff-upd (js/Math.abs (- (or (:exp-ev-upd combo) 0)
+                                 (or (:n-ev-upd config) 0)))
+        diff-pr3 (if (:use-pr3-anchor config)
+                   (js/Math.abs (- (or (:exp-ev-pr3 combo) 0)
+                                   (or (:n-ev-pr3 config) 0)))
+                   0.0)]
+    (+ diff-ia diff-upd diff-pr3)))
+
+(defn- build-km-curves-data [items config top-k]
   (let [valid-items (filter #(and (:acceptance-rate %)
                                   (not (js/isNaN (:acceptance-rate %))))
                             items)
-        sorted-items (sort-by :acceptance-rate > valid-items)
-        top-combos (take top-k sorted-items)
-        weights (map :acceptance-rate top-combos)
+        scored-items (mapv (fn [item]
+                             (assoc item :sum-res
+                                    (calculate-sum-residuals item config)))
+                           valid-items)
+        sorted-items (sort-by :sum-res scored-items)
+        best-200 (take 200 sorted-items)
+        top-combos (take top-k best-200)
+        weights (mapv #(let [r (:sum-res %)]
+                         (/ 1.0 (js/Math.max 0.001 r)))
+                       top-combos)
         tot-wt (reduce + weights)
-        normalized-w (if (and (seq weights) (pos? tot-wt))
+        normalized-w (if (pos? tot-wt)
                        (mapv #(/ % tot-wt) weights)
                        (mapv (constantly (/ 1.0 (max 1 (count top-combos))))
                              top-combos))]
     (if (empty? top-combos)
       []
-      (let [bat-med-w (if (and (seq weights) (pos? tot-wt))
+      (let [bat-med-w (if (pos? tot-wt)
                         (/ (reduce + (map * (map :bat-med top-combos)
                                           weights))
                            tot-wt)
                         (or (:bat-med (first top-combos)) 0.0))
-            bat-sh-w (if (and (seq weights) (pos? tot-wt))
+            bat-sh-w (if (pos? tot-wt)
                        (/ (reduce + (map * (map :bat-shape top-combos)
                                          weights))
                           tot-wt)
@@ -175,8 +194,7 @@
                              (range) top-combos normalized-w)
             representative-data (mapcat
                                  (fn [t]
-                                   (let [gps-s (if (and (seq weights)
-                                                        (pos? tot-wt))
+                                   (let [gps-s (if (pos? tot-wt)
                                                  (let [gps-vals (map
                                                                  #(combo-survival
                                                                    t % :gps)
@@ -212,24 +230,32 @@
                 indexed-pairs)
           (first (last pairs))))))
 
-(defn- build-km-ci-data [items]
+(defn- build-km-ci-data [items config]
   (let [valid-items (filter #(and (:acceptance-rate %)
                                   (not (js/isNaN (:acceptance-rate %))))
                             items)
-        weights (map :acceptance-rate valid-items)
+        scored-items (mapv (fn [item]
+                             (assoc item :sum-res
+                                    (calculate-sum-residuals item config)))
+                           valid-items)
+        sorted-items (sort-by :sum-res scored-items)
+        best-200 (take 200 sorted-items)
+        weights (mapv #(let [r (:sum-res %)]
+                         (/ 1.0 (js/Math.max 0.001 r)))
+                       best-200)
         tot-wt (reduce + weights)
-        normalized-w (if (and (seq weights) (pos? tot-wt))
+        normalized-w (if (pos? tot-wt)
                        (mapv #(/ % tot-wt) weights)
-                       (mapv (constantly (/ 1.0 (max 1 (count valid-items))))
-                             valid-items))]
-    (if (empty? valid-items)
+                       (mapv (constantly (/ 1.0 (max 1 (count best-200))))
+                             best-200))]
+    (if (empty? best-200)
       []
       (let [times (range 0 81)]
         (vec
          (mapcat
           (fn [t]
-            (let [bat-survs (mapv #(combo-survival t % :bat) valid-items)
-                  gps-survs (mapv #(combo-survival t % :gps) valid-items)
+            (let [bat-survs (mapv #(combo-survival t % :bat) best-200)
+                  gps-survs (mapv #(combo-survival t % :gps) best-200)
                   bat-med (weighted-percentile bat-survs normalized-w 0.50)
                   bat-low (weighted-percentile bat-survs normalized-w 0.025)
                   bat-high (weighted-percentile bat-survs normalized-w 0.975)
@@ -249,7 +275,8 @@
           times))))))
 
 (defn results-charts [family items]
-  (let [data (build-stratified-data items 1.0)
+  (let [config @(rf/subscribe [:config])
+        data (build-stratified-data items 1.0)
         tot-wt (reduce + (map :weight data))
         vdata (let [running-sum (atom 0.0)]
                 (mapv (fn [d]
@@ -269,22 +296,32 @@
                            :cum-p (js/Math.min 100.0 cum-p)}))
                       data))
         hr-data (build-hr-distribution-data items 0.025)
-        km-data (build-km-curves-data items 20)
-        km-ci-data (build-km-ci-data items)
+        km-data (build-km-curves-data items config 20)
+        km-ci-data (build-km-ci-data items config)
 
-        ;; Calculate overall weighted medians
+        ;; Calculate overall weighted medians from best 200 models
         valid-items (filter #(and (:acceptance-rate %)
                                   (not (js/isNaN (:acceptance-rate %))))
                             items)
-        weights (map :acceptance-rate valid-items)
-        sum-wt (reduce + weights)
-        bat-med-w (if (and (seq weights) (pos? sum-wt))
-                    (/ (reduce + (map * (map :bat-med valid-items) weights))
-                       sum-wt)
+        scored-items (mapv (fn [item]
+                             (assoc item :sum-res
+                                    (calculate-sum-residuals item config)))
+                           valid-items)
+        sorted-items (sort-by :sum-res scored-items)
+        best-200 (take 200 sorted-items)
+        sum-res-weights (mapv #(let [r (:sum-res %)]
+                                 (/ 1.0 (js/Math.max 0.001 r)))
+                              best-200)
+        sum-res-wt (reduce + sum-res-weights)
+        norm-sum-res-w (if (pos? sum-res-wt)
+                         (mapv #(/ % sum-res-wt) sum-res-weights)
+                         (mapv (constantly (/ 1.0 (max 1 (count best-200))))
+                               best-200))
+        bat-med-w (if (seq best-200)
+                    (reduce + (map * (map :bat-med best-200) norm-sum-res-w))
                     0.0)
-        gps-med-w (if (and (seq weights) (pos? sum-wt))
-                    (/ (reduce + (map * (map :gps-med valid-items) weights))
-                       sum-wt)
+        gps-med-w (if (seq best-200)
+                    (reduce + (map * (map :gps-med best-200) norm-sum-res-w))
                     0.0)]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
@@ -434,7 +471,7 @@
                                 :title "GPS mOS (months)"}]}}]
         [vega-lite
          {:width 320 :height 240 :data {:values km-data}
-          :title "Implied KM Curves (Top 20 combos)"
+          :title "Implied KM Curves (Top 20 of Best 200)"
           :layer [{:transform [{:filter "datum.type == 'individual'"}]
                    :mark {:type "line" :opacity 0.15 :strokeWidth 0.8}
                    :encoding {:x {:field "time"
