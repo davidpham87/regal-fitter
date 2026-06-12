@@ -899,6 +899,8 @@ def _simulate_one_combo(args):
     hr_arr = arr("hr_final")
     reached = arr("reached_80")
     hr_finite = hr_arr[~np.isnan(hr_arr)]
+    sorted_hrs = sorted(hr_finite)
+    n_hrs = len(sorted_hrs)
 
     # Unconditional outcome counts:
     # - p_reach80          = P(80th event ever occurs in this combo)
@@ -918,6 +920,14 @@ def _simulate_one_combo(args):
             "p_reach80": float(reached.mean()),
             "p_no_readout": float(1.0 - reached.mean()),
             "median_hr_final": float(np.median(hr_finite)) if len(hr_finite) else float("nan"),
+            "hr_final_low": (
+                float(sorted_hrs[int(0.025 * n_hrs)])
+                if n_hrs > 0 else float("nan")
+            ),
+            "hr_final_high": (
+                float(sorted_hrs[min(n_hrs - 1, int(0.975 * n_hrs))])
+                if n_hrs > 0 else float("nan")
+            ),
             "p_hr_below_threshold": (float(np.mean(hr_finite < 0.636))
                                      if len(hr_finite) else float("nan")),
             "p_success_overall": p_success_overall,

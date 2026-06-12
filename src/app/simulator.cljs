@@ -39,26 +39,40 @@
              (db/set-cache k (:result res)))
            (callback res)))))))
 
-(defn- submit-simulation-jobs! [config all-accepted families results completed
-                                total start-time]
+(defn- submit-simulation-jobs!
+  [config all-accepted families results completed total start-time]
   (wp/clear-queue!)
   (if (= total 0)
     (do (rf/dispatch [:set-status :done])
         (rf/dispatch [:set-view :results]))
-    (doseq [fam families]
-      (let [fam-kw (keyword fam)]
-        (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
+    (let [all-combos (js/Array.)]
+      (doseq [fam families]
+        (let [fam-kw (keyword fam)]
+          (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
+            (.push all-combos {:rec rec :idx idx :family fam}))))
+      (let [combos-vec (js->clj all-combos :keywordize-keys true)
+            num-workers (js/Math.max 1 (count @wp/pool))
+            chunk-size (js/Math.max 5
+                                     (js/Math.min 20
+                                                  (js/Math.ceil
+                                                   (/ total
+                                                      (* 4 num-workers)))))
+            chunks (partition-all chunk-size combos-vec)]
+        (doseq [chunk chunks]
           (cached-submit-job!
-           {:rec rec
-            :cfg-dict config
-            :n-sims (:n-sims-per-combo config)
-            :seed (+ (:seed config) (* idx 7919))}
+           {:type "RUN_SIMULATION_BATCH"
+            :combos chunk
+            :config config}
            (fn [{:keys [success? result error]}]
-             (swap! completed inc)
+             (swap! completed + (count chunk))
              (rf/dispatch [:set-progress total @completed])
              (when (and success? result)
-               (swap! results update fam-kw (fnil conj []) result))
-             (when (= @completed total)
+               (dotimes [i (count chunk)]
+                 (let [combo (nth chunk i)
+                       res (nth result i)
+                       fam-kw (keyword (:family combo))]
+                   (swap! results update fam-kw (fnil conj []) res))))
+             (when (>= @completed total)
                (log (str "All simulations done in "
                          (/ (- (js/Date.now) start-time) 1000) "s"))
                (rf/dispatch [:set-status :done])
@@ -192,13 +206,8 @@
                        (nth k-grid-cfg 2))
         combos (for [mos mos-vals
                      k k-vals]
-                 {:type "RUN_STRESS_TEST"
-                  :mos mos
-                  :k k
-                  :n-sims (:n-sims config)
-                  :seed (+ (:seed config)
-                           (js/Math.floor (* (js/Math.random) 100000)))
-                  :config config})
+                 {:mos mos
+                  :k k})
         total-combos (count combos)]
     (rf/dispatch [:set-stress-test-status :running])
     (rf/dispatch [:set-stress-test-results []])
@@ -207,19 +216,34 @@
     (wp/clear-queue!)
     (if (= total-combos 0)
       (rf/dispatch [:set-stress-test-status :done])
-      (let [completed (atom 0)
+      (let [num-workers (js/Math.max 1 (+ (count @wp/pool)
+                                          (count @wp/busy-workers)))
+            chunk-size (js/Math.ceil (/ total-combos num-workers))
+            chunks (partition-all chunk-size combos)
+            completed (atom 0)
             results (atom [])
-            start-time (js/Date.now)]
-        (doseq [combo combos]
+            start-time (js/Date.now)
+            has-error (atom false)]
+        (doseq [chunk chunks]
           (cached-submit-job!
-           combo
+           {:type "RUN_STRESS_TEST_BATCH"
+            :combos chunk
+            :config config}
            (fn [{:keys [success? result error]}]
-             (swap! completed inc)
-             (rf/dispatch [:set-stress-test-progress total-combos @completed])
-             (when (and success? result)
-               (swap! results conj result))
-             (when (= @completed total-combos)
-               (log (str "Stress test simulations done in "
-                         (/ (- (js/Date.now) start-time) 1000) "s"))
-               (rf/dispatch [:set-stress-test-status :done])
-               (rf/dispatch [:set-stress-test-results @results])))))))))
+             (if success?
+               (when (not @has-error)
+                 (swap! completed + (count chunk))
+                 (swap! results into result)
+                 (rf/dispatch
+                  [:set-stress-test-progress total-combos @completed])
+                 (when (>= @completed total-combos)
+                   (log (str "Stress test done in "
+                             (/ (- (js/Date.now) start-time) 1000) "s"))
+                   (rf/dispatch [:set-stress-test-status :done])
+                   (rf/dispatch
+                    [:set-stress-test-results
+                     (vec (sort-by (juxt :mos :k) @results))])))
+               (do
+                 (reset! has-error true)
+                 (rf/dispatch [:set-stress-test-status :error])
+                 (rf/dispatch [:set-error error]))))))))))

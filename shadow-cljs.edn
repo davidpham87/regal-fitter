@@ -57,4 +57,46 @@
    :js-options {:js-provider    :external
                 :external-index "target/test_index.js"}
    :compiler-options {:pretty-print true}
-   :devtools {:autotest true}}}}
+   :devtools {:autotest true}}
+
+  :compare
+  {:target :node-script
+   :main app.regal-fit.compare-runs/main
+   :output-to "out/compare.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
+  :compare-truth
+  {:target :node-script
+   :main app.compare-node/main
+   :output-to "out/compare_truth.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
+  :compare-5000
+  {:target :node-script
+   :main app.regal-fit.compare-5000/main
+   :output-to "out/compare_5000.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
+  :compare-py-cljs
+  {:target :node-script
+   :main app.regal-fit.compare-py-cljs/main
+   :output-to "out/compare_py_cljs.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
+  :benchmark
+  {:target :node-script
+   :main app.regal-fit.benchmark-claims/main
+   :output-to "out/benchmark.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
+  :verify
+  {:target :node-script
+   :main app.regal-fit.verify/main
+   :output-to "out/verify.js"
+   :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}}}

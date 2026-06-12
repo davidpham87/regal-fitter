@@ -1,5 +1,6 @@
 (ns app.vega
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             ["vega-embed" :default vegaEmbed]))
 
 (defn vega-lite [spec]
@@ -97,8 +98,185 @@
                           bins))]
         vdata))))
 
+(defn- scale-from-median [median shape]
+  (/ median (js/Math.pow (js/Math.log 2.0)
+                         (/ 1.0 (js/Math.max 0.001 shape)))))
+
+(defn- S-weibull [t scale shape]
+  (js/Math.exp (- (js/Math.pow (/ t scale) shape))))
+
+(defn- S-cure [t cure-frac scale shape]
+  (let [unc (S-weibull t scale shape)]
+    (+ cure-frac (* (- 1.0 cure-frac) unc))))
+
+(defn- S-leaky [t cure-frac scale shape leak-yr]
+  (let [unc (S-weibull t scale shape)
+        leak-rate-monthly (/ leak-yr 12.0)
+        cured (js/Math.exp (- (* leak-rate-monthly t)))]
+    (+ (* cure-frac cured) (* (- 1.0 cure-frac) unc))))
+
+(defn- combo-survival [t combo arm]
+  (let [family (:family combo)]
+    (if (= arm :bat)
+      (S-weibull t (:bat-scale combo) (:bat-shape combo))
+      (cond
+        (= family "weibull")
+        (S-weibull t (:gps-scale combo) (:gps-shape combo))
+
+        (= family "cure")
+        (S-cure t (:cure-frac combo) (:unc-scale combo) (:unc-shape combo))
+
+        (= family "leaky")
+        (S-leaky t (:cure-frac combo) (:unc-scale combo) (:unc-shape combo)
+                 (:leak-yr combo))
+
+        :else 0.0))))
+
+(defn- calculate-sum-residuals [combo config]
+  (let [diff-ia (js/Math.abs (- (or (:exp-ev-ia combo) 0)
+                                (or (:n-ev-ia config) 0)))
+        diff-upd (js/Math.abs (- (or (:exp-ev-upd combo) 0)
+                                 (or (:n-ev-upd config) 0)))
+        diff-pr3 (if (:use-pr3-anchor config)
+                   (js/Math.abs (- (or (:exp-ev-pr3 combo) 0)
+                                   (or (:n-ev-pr3 config) 0)))
+                   0.0)]
+    (+ diff-ia diff-upd diff-pr3)))
+
+(defn- build-km-curves-data [items config top-k]
+  (let [valid-items (filter #(and (:acceptance-rate %)
+                                  (not (js/isNaN (:acceptance-rate %))))
+                            items)
+        scored-items (mapv (fn [item]
+                             (assoc item :sum-res
+                                    (calculate-sum-residuals item config)))
+                           valid-items)
+        sorted-items (sort-by :sum-res scored-items)
+        best-200 (take 200 sorted-items)
+        top-combos (take top-k best-200)
+        weights (mapv #(let [r (:sum-res %)]
+                         (/ 1.0 (js/Math.max 0.001 r)))
+                       top-combos)
+        tot-wt (reduce + weights)
+        normalized-w (if (pos? tot-wt)
+                       (mapv #(/ % tot-wt) weights)
+                       (mapv (constantly (/ 1.0 (max 1 (count top-combos))))
+                             top-combos))]
+    (if (empty? top-combos)
+      []
+      (let [bat-med-w (if (pos? tot-wt)
+                        (/ (reduce + (map * (map :bat-med top-combos)
+                                          weights))
+                           tot-wt)
+                        (or (:bat-med (first top-combos)) 0.0))
+            bat-sh-w (if (pos? tot-wt)
+                       (/ (reduce + (map * (map :bat-shape top-combos)
+                                         weights))
+                          tot-wt)
+                       (or (:bat-shape (first top-combos)) 0.0))
+            bat-scale-w (scale-from-median bat-med-w bat-sh-w)
+            times (range 0 81)
+            individual-data (mapcat
+                             (fn [idx combo weight]
+                               (mapcat
+                                (fn [t]
+                                  [{:time t
+                                    :survival (combo-survival t combo :bat)
+                                    :group "BAT"
+                                    :combo-id idx
+                                    :type "individual"}
+                                   {:time t
+                                    :survival (combo-survival t combo :gps)
+                                    :group "GPS"
+                                    :combo-id idx
+                                    :type "individual"}])
+                                times))
+                             (range) top-combos normalized-w)
+            representative-data (mapcat
+                                 (fn [t]
+                                   (let [gps-s (if (pos? tot-wt)
+                                                 (let [gps-vals (map
+                                                                 #(combo-survival
+                                                                   t % :gps)
+                                                                 top-combos)]
+                                                   (/ (reduce +
+                                                              (map * gps-vals
+                                                                   weights))
+                                                      tot-wt))
+                                                 (combo-survival
+                                                  t (first top-combos) :gps))]
+                                     [{:time t
+                                       :survival (S-weibull t bat-scale-w
+                                                            bat-sh-w)
+                                       :group "BAT"
+                                       :combo-id "representative"
+                                       :type "representative"}
+                                      {:time t
+                                       :survival gps-s
+                                       :group "GPS"
+                                       :combo-id "representative"
+                                       :type "representative"}]))
+                                 times)]
+        (vec (concat individual-data representative-data))))))
+
+(defn- weighted-percentile [values weights p]
+  (if (empty? values)
+    0.0
+    (let [pairs (sort-by first (map vector values weights))
+          cum-weights (reductions + (map second pairs))
+          indexed-pairs (map vector pairs cum-weights)]
+      (or (some (fn [[[val _] cum-w]]
+                  (when (>= cum-w p) val))
+                indexed-pairs)
+          (first (last pairs))))))
+
+(defn- build-km-ci-data [items config]
+  (let [valid-items (filter #(and (:acceptance-rate %)
+                                  (not (js/isNaN (:acceptance-rate %))))
+                            items)
+        scored-items (mapv (fn [item]
+                             (assoc item :sum-res
+                                    (calculate-sum-residuals item config)))
+                           valid-items)
+        sorted-items (sort-by :sum-res scored-items)
+        best-200 (take 200 sorted-items)
+        weights (mapv #(let [r (:sum-res %)]
+                         (/ 1.0 (js/Math.max 0.001 r)))
+                       best-200)
+        tot-wt (reduce + weights)
+        normalized-w (if (pos? tot-wt)
+                       (mapv #(/ % tot-wt) weights)
+                       (mapv (constantly (/ 1.0 (max 1 (count best-200))))
+                             best-200))]
+    (if (empty? best-200)
+      []
+      (let [times (range 0 81)]
+        (vec
+         (mapcat
+          (fn [t]
+            (let [bat-survs (mapv #(combo-survival t % :bat) best-200)
+                  gps-survs (mapv #(combo-survival t % :gps) best-200)
+                  bat-med (weighted-percentile bat-survs normalized-w 0.50)
+                  bat-low (weighted-percentile bat-survs normalized-w 0.025)
+                  bat-high (weighted-percentile bat-survs normalized-w 0.975)
+                  gps-med (weighted-percentile gps-survs normalized-w 0.50)
+                  gps-low (weighted-percentile gps-survs normalized-w 0.025)
+                  gps-high (weighted-percentile gps-survs normalized-w 0.975)]
+              [{:time t
+                :median bat-med
+                :low bat-low
+                :high bat-high
+                :group "BAT"}
+               {:time t
+                :median gps-med
+                :low gps-low
+                :high gps-high
+                :group "GPS"}]))
+          times))))))
+
 (defn results-charts [family items]
-  (let [data (build-stratified-data items 1.0)
+  (let [config @(rf/subscribe [:config])
+        data (build-stratified-data items 1.0)
         tot-wt (reduce + (map :weight data))
         vdata (let [running-sum (atom 0.0)]
                 (mapv (fn [d]
@@ -117,7 +295,34 @@
                            :p-bat p-val
                            :cum-p (js/Math.min 100.0 cum-p)}))
                       data))
-        hr-data (build-hr-distribution-data items 0.025)]
+        hr-data (build-hr-distribution-data items 0.025)
+        km-data (build-km-curves-data items config 20)
+        km-ci-data (build-km-ci-data items config)
+
+        ;; Calculate overall weighted medians from best 200 models
+        valid-items (filter #(and (:acceptance-rate %)
+                                  (not (js/isNaN (:acceptance-rate %))))
+                            items)
+        scored-items (mapv (fn [item]
+                             (assoc item :sum-res
+                                    (calculate-sum-residuals item config)))
+                           valid-items)
+        sorted-items (sort-by :sum-res scored-items)
+        best-200 (take 200 sorted-items)
+        sum-res-weights (mapv #(let [r (:sum-res %)]
+                                 (/ 1.0 (js/Math.max 0.001 r)))
+                              best-200)
+        sum-res-wt (reduce + sum-res-weights)
+        norm-sum-res-w (if (pos? sum-res-wt)
+                         (mapv #(/ % sum-res-wt) sum-res-weights)
+                         (mapv (constantly (/ 1.0 (max 1 (count best-200))))
+                               best-200))
+        bat-med-w (if (seq best-200)
+                    (reduce + (map * (map :bat-med best-200) norm-sum-res-w))
+                    0.0)
+        gps-med-w (if (seq best-200)
+                    (reduce + (map * (map :gps-med best-200) norm-sum-res-w))
+                    0.0)]
     [:div.mb-8.results-charts-container
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
@@ -228,19 +433,24 @@
                                            :scale {:domain [0 100]}}
                                        :color {:datum "Cumulative (CDF)"
                                                :type "nominal"
-                                               :scale {:range ["#ff0000" "#22c55e"]}}
-                                       :tooltip [{:field "hr-mid" :type "quantitative"
+                                               :scale {:range ["#ff0000"
+                                                               "#22c55e"]}}
+                                       :tooltip [{:field "hr-mid"
+                                                  :type "quantitative"
                                                   :title "Hazard Ratio"}
-                                                 {:field "cum-p" :type "quantitative"
-                                                  :title "Cumulative Probability (%)"}]}}
+                                                 {:field "cum-p"
+                                                  :type "quantitative"
+                                                  :title "Cumulative Prob (%)"}]}}
                            {:mark {:type "line" :point true}
                             :encoding {:x {:field "hr-mid" :type "quantitative"}
                                        :y {:field "success"
                                            :type "quantitative"}
                                        :color {:datum "P(success)"}
-                                       :tooltip [{:field "hr-mid" :type "quantitative"
+                                       :tooltip [{:field "hr-mid"
+                                                  :type "quantitative"
                                                   :title "Hazard Ratio"}
-                                                 {:field "success" :type "quantitative"
+                                                 {:field "success"
+                                                  :type "quantitative"
                                                   :title "P(success) (%)"}]}}]}]
           :config {:legend {:orient "bottom"}}}]
         [vega-lite
@@ -258,7 +468,99 @@
                      :tooltip [{:field "bat-mid" :type "quantitative"
                                 :title "BAT mOS (months)"}
                                {:field "gps-med" :type "quantitative"
-                                :title "GPS mOS (months)"}]}}]])]))
+                                :title "GPS mOS (months)"}]}}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values km-data}
+          :title "Implied KM Curves (Top 20 of Best 200)"
+          :layer [{:transform [{:filter "datum.type == 'individual'"}]
+                   :mark {:type "line" :opacity 0.15 :strokeWidth 0.8}
+                   :encoding {:x {:field "time"
+                                  :type "quantitative"
+                                  :title "Time (months)"}
+                              :y {:field "survival"
+                                  :type "quantitative"
+                                  :title "Survival Probability"
+                                  :scale {:domain [0 1.02]}}
+                              :color {:field "group"
+                                      :type "nominal"
+                                      :scale {:domain ["GPS" "BAT"]
+                                              :range ["#55bb88" "#ee6677"]}
+                                      :legend {:title "Group"}}
+                              :detail {:field "combo-id"
+                                       :type "nominal"}}}
+                  {:transform [{:filter "datum.type == 'representative'"}]
+                   :mark {:type "line" :strokeWidth 2.5}
+                   :encoding {:x {:field "time" :type "quantitative"}
+                              :y {:field "survival" :type "quantitative"}
+                              :color {:field "group" :type "nominal"}
+                              :tooltip [{:field "time"
+                                         :type "quantitative"
+                                         :title "Months"}
+                                        {:field "group"
+                                         :type "nominal"
+                                         :title "Arm"}
+                                        {:field "survival"
+                                         :type "quantitative"
+                                         :format ".3f"
+                                         :title "Survival S(t)"}]}}]
+          :config {:legend {:orient "bottom"}}}]
+        [vega-lite
+         {:width 320 :height 240 :data {:values km-ci-data}
+          :title {:text "KM Curves with 95% Confidence Interval"
+                  :subtitle (str "Median OS: BAT = "
+                                 (.toFixed bat-med-w 1) "m, GPS = "
+                                 (.toFixed gps-med-w 1) "m")}
+          :layer [{:mark {:type "area" :opacity 0.2}
+                   :encoding {:x {:field "time"
+                                  :type "quantitative"
+                                  :title "Time (months)"}
+                              :y {:field "low"
+                                  :type "quantitative"
+                                  :title "Survival Probability"
+                                  :scale {:domain [0 1.02]}}
+                              :y2 {:field "high"
+                                   :type "quantitative"}
+                              :color {:field "group"
+                                      :type "nominal"
+                                      :scale {:domain ["GPS" "BAT"]
+                                              :range ["#55bb88" "#ee6677"]}
+                                      :legend {:title "Group"}}}}
+                  {:mark {:type "line" :strokeWidth 2}
+                   :encoding {:x {:field "time" :type "quantitative"}
+                              :y {:field "median" :type "quantitative"}
+                              :color {:field "group" :type "nominal"}
+                              :tooltip [{:field "time"
+                                         :type "quantitative"
+                                         :title "Months"}
+                                        {:field "group"
+                                         :type "nominal"
+                                         :title "Arm"}
+                                        {:field "median"
+                                         :type "quantitative"
+                                         :format ".3f"
+                                         :title "Median S(t)"}
+                                        {:field "low"
+                                         :type "quantitative"
+                                         :format ".3f"
+                                         :title "2.5% CI"}
+                                        {:field "high"
+                                         :type "quantitative"
+                                         :format ".3f"
+                                         :title "97.5% CI"}]}}
+                  {:mark {:type "rule" :color "gray" :strokeWidth 1
+                          :strokeDash [2 2]}
+                   :data {:values [{:y 0.5}]}
+                   :encoding {:y {:field "y" :type "quantitative"}}}
+                  {:mark {:type "rule" :color "#ee6677" :strokeWidth 1.2
+                          :strokeDash [3 3]}
+                   :data {:values [{:x bat-med-w}]}
+                   :encoding {:x {:field "x" :type "quantitative"}}}
+                  {:mark {:type "rule" :color "#55bb88" :strokeWidth 1.2
+                          :strokeDash [3 3]}
+                   :data {:values [{:x gps-med-w}]}
+                   :encoding {:x {:field "x" :type "quantitative"}}}]
+          :config {:legend {:orient "bottom"}}}]
+        ])]))
 
 (defn discovery-survival-chart [data]
   [vega-lite
