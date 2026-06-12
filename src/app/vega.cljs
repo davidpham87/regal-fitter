@@ -156,7 +156,7 @@
         top-combos (take top-k best-200)
         weights (mapv #(let [r (:sum-res %)]
                          (/ 1.0 (js/Math.max 0.001 r)))
-                       top-combos)
+                      top-combos)
         tot-wt (reduce + weights)
         normalized-w (if (pos? tot-wt)
                        (mapv #(/ % tot-wt) weights)
@@ -242,7 +242,7 @@
         best-200 (take 200 sorted-items)
         weights (mapv #(let [r (:sum-res %)]
                          (/ 1.0 (js/Math.max 0.001 r)))
-                       best-200)
+                      best-200)
         tot-wt (reduce + weights)
         normalized-w (if (pos? tot-wt)
                        (mapv #(/ % tot-wt) weights)
@@ -273,6 +273,67 @@
                 :high gps-high
                 :group "GPS"}]))
           times))))))
+
+(defn- build-km-ci-data-by-acceptance [items config n]
+  (let [valid-items (filter #(and (:acceptance-rate %)
+                                  (not (js/isNaN (:acceptance-rate %))))
+                            items)
+        scored-items (mapv (fn [item]
+                             (assoc item :sum-res
+                                    (calculate-sum-residuals item config)))
+                           valid-items)
+        sorted-items (sort-by :sum-res scored-items)
+        best-n (take n sorted-items)
+        weights (mapv #(or (:acceptance-rate %) 0.0) best-n)
+        tot-wt (reduce + weights)
+        normalized-w (if (pos? tot-wt)
+                       (mapv #(/ % tot-wt) weights)
+                       (mapv (constantly (/ 1.0 (max 1 (count best-n))))
+                             best-n))
+        bat-med-w (if (pos? tot-wt)
+                    (/ (reduce + (map * (map :bat-med best-n) weights))
+                       tot-wt)
+                    (or (:bat-med (first best-n)) 0.0))
+        gps-med-w (if (pos? tot-wt)
+                    (/ (reduce + (map * (map :gps-med best-n) weights))
+                       tot-wt)
+                    (or (:gps-med (first best-n)) 0.0))]
+    (if (empty? best-n)
+      {:data [] :bat-med 0.0 :gps-med 0.0}
+      (let [times (range 0 81)
+            ci-data (vec
+                     (mapcat
+                      (fn [t]
+                        (let [bat-surv (mapv #(combo-survival t % :bat)
+                                             best-n)
+                              gps-surv (mapv #(combo-survival t % :gps)
+                                             best-n)
+                              bat-med (weighted-percentile bat-surv
+                                                           normalized-w 0.50)
+                              bat-low (weighted-percentile bat-surv
+                                                           normalized-w 0.025)
+                              bat-high (weighted-percentile bat-surv
+                                                            normalized-w 0.975)
+                              gps-med (weighted-percentile gps-surv
+                                                           normalized-w 0.50)
+                              gps-low (weighted-percentile gps-surv
+                                                           normalized-w 0.025)
+                              gps-high (weighted-percentile gps-surv
+                                                            normalized-w 0.975)]
+                          [{:time t
+                            :median bat-med
+                            :low bat-low
+                            :high bat-high
+                            :group "BAT"}
+                           {:time t
+                            :median gps-med
+                            :low gps-low
+                            :high gps-high
+                            :group "GPS"}]))
+                      times))]
+        {:data ci-data
+         :bat-med bat-med-w
+         :gps-med gps-med-w}))))
 
 (defn results-charts [family items]
   (let [config @(rf/subscribe [:config])
@@ -327,240 +388,313 @@
      [:h3.text-lg.font-bold.mb-2 family " - Stratified by BAT mOS"]
      (if (empty? vdata)
        [:div "No accepted combinations in this family to display charts."]
-       [:div.flex.flex-wrap.gap-4
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "Cumulative BAT mOS & P(success)"
-          :layer [{:mark {:type "line" :point true}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"
-                                  :title "BAT mOS (months)"}
-                              :y {:field "cum-p"
-                                  :type "quantitative"
-                                  :title "Percentage (%)"
-                                  :scale {:domain [0 100]}}
-                              :color {:datum "Cumulative BAT mOS (CDF)"
-                                      :type "nominal"
-                                      :scale {:range ["#44aa77" "#4488cc"]}}
-                              :tooltip [{:field "bat-mid" :type "quantitative"
-                                         :title "BAT mOS (months)"}
-                                        {:field "cum-p" :type "quantitative"
-                                         :title "Cumulative Probability (%)"}]}}
-                  {:mark {:type "line" :point true}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"}
-                              :y {:field "success"
-                                  :type "quantitative"}
-                              :color {:datum "P(success)"}
-                              :tooltip [{:field "bat-mid" :type "quantitative"
-                                         :title "BAT mOS (months)"}
-                                        {:field "success" :type "quantitative"
-                                         :title "P(success) %"}]}}
-                  {:mark {:type "text" :align "left" :dx 5 :dy -5
-                          :fontSize 9 :fontWeight "bold"}
-                   :encoding {:x {:field "bat-mid" :type "quantitative"}
-                              :y {:field "cum-p" :type "quantitative"}
-                              :text {:field "succ-lbl" :type "nominal"}
-                              :color {:value "#333"}}}]
-          :config {:legend {:orient "bottom"}}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "Posterior Probability of BAT mOS"
-          :mark "bar"
-          :encoding {:x {:field "bat-mid"
-                         :type "quantitative"
-                         :title "BAT mOS (months)"}
-                     :y {:field "p-bat"
-                         :type "quantitative"
-                         :title "Probability (%)"}
-                     :color {:value "#44aa77"}
-                     :tooltip [{:field "bat-mid" :type "quantitative"
-                                :title "BAT mOS (months)"}
-                               {:field "p-bat" :type "quantitative"
-                                :title "Probability (%)"}]}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "Implied Final HR by BAT mOS"
-          :layer [{:mark {:type "area" :opacity 0.2}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"
-                                  :title "BAT mOS (months)"}
-                              :y {:field "hr-low"
-                                  :type "quantitative"
-                                  :scale {:domain [0 1.2]}}
-                              :y2 {:field "hr-high"
+       [:div
+        [:div.flex.flex-wrap.gap-4
+         [vega-lite
+          {:width 320 :height 240 :data {:values vdata}
+           :title "Cumulative BAT mOS & P(success)"
+           :layer [{:mark {:type "line" :point true}
+                    :encoding {:x {:field "bat-mid"
+                                   :type "quantitative"
+                                   :title "BAT mOS (months)"}
+                               :y {:field "cum-p"
+                                   :type "quantitative"
+                                   :title "Percentage (%)"
+                                   :scale {:domain [0 100]}}
+                               :color {:datum "Cumulative BAT mOS (CDF)"
+                                       :type "nominal"
+                                       :scale {:range ["#44aa77" "#4488cc"]}}
+                               :tooltip [{:field "bat-mid" :type "quantitative"
+                                          :title "BAT mOS (months)"}
+                                         {:field "cum-p" :type "quantitative"
+                                          :title "Cumulative Probability (%)"}]}}
+                   {:mark {:type "line" :point true}
+                    :encoding {:x {:field "bat-mid"
                                    :type "quantitative"}
-                              :color {:value "#aa5599"}}}
-                  {:mark {:type "line" :point true}
-                   :encoding {:x {:field "bat-mid"
-                                  :type "quantitative"}
-                              :y {:field "hr-final"
-                                  :type "quantitative"
-                                  :title "Final HR"}
-                              :color {:value "#aa5599"}
-                              :tooltip [{:field "bat-mid" :type "quantitative"
-                                         :title "BAT mOS (months)"}
-                                        {:field "hr-final" :type "quantitative"
-                                         :title "Final HR"}]}}
-                  {:mark "rule" :data {:values [{:y 0.636}]}
-                   :encoding {:y {:field "y" :type "quantitative"}
-                              :color {:value "red"}
-                              :strokeDash {:value [4 4]}}}]}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values hr-data}
-          :title "Hazard Ratio Distribution"
-          :resolve {:scale {:y "independent"}}
-          :layer [{:mark "bar"
-                   :encoding {:x {:field "hr-lo"
-                                  :type "quantitative"
-                                  :title "Hazard Ratio"
-                                  :bin {:binned true :step 0.025}}
-                              :x2 {:field "hr-hi"}
-                              :y {:field "p-val"
-                                  :type "quantitative"
-                                  :title "Probability (%)"}
-                              :color {:value "#ff9900"}
-                              :tooltip [{:field "hr-mid" :type "quantitative"
-                                         :title "Hazard Ratio"}
-                                        {:field "p-val" :type "quantitative"
-                                         :title "Probability (%)"}]}}
-                  {:layer [{:mark {:type "line" :point true}
-                            :encoding {:x {:field "hr-mid" :type "quantitative"}
-                                       :y {:field "cum-p"
-                                           :type "quantitative"
-                                           :title "Cumulative Probability (%)"
-                                           :axis {:orient "right"}
-                                           :scale {:domain [0 100]}}
-                                       :color {:datum "Cumulative (CDF)"
-                                               :type "nominal"
-                                               :scale {:range ["#ff0000"
-                                                               "#22c55e"]}}
-                                       :tooltip [{:field "hr-mid"
-                                                  :type "quantitative"
-                                                  :title "Hazard Ratio"}
-                                                 {:field "cum-p"
-                                                  :type "quantitative"
-                                                  :title "Cumulative Prob (%)"}]}}
-                           {:mark {:type "line" :point true}
-                            :encoding {:x {:field "hr-mid" :type "quantitative"}
-                                       :y {:field "success"
-                                           :type "quantitative"}
-                                       :color {:datum "P(success)"}
-                                       :tooltip [{:field "hr-mid"
-                                                  :type "quantitative"
-                                                  :title "Hazard Ratio"}
-                                                 {:field "success"
-                                                  :type "quantitative"
-                                                  :title "P(success) (%)"}]}}]}]
-          :config {:legend {:orient "bottom"}}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values vdata}
-          :title "GPS mOS vs BAT mOS"
-          :mark {:type "line" :point true}
-          :encoding {:x {:field "bat-mid"
-                         :type "quantitative"
-                         :title "BAT mOS (months)"}
-                     :y {:field "gps-med"
-                         :type "quantitative"
-                         :title "GPS mOS (months)"
-                         :scale {:zero false}}
-                     :color {:value "#3b82f6"}
-                     :tooltip [{:field "bat-mid" :type "quantitative"
-                                :title "BAT mOS (months)"}
-                               {:field "gps-med" :type "quantitative"
-                                :title "GPS mOS (months)"}]}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values km-data}
-          :title "Implied KM Curves (Top 20 of Best 200)"
-          :layer [{:transform [{:filter "datum.type == 'individual'"}]
-                   :mark {:type "line" :opacity 0.15 :strokeWidth 0.8}
-                   :encoding {:x {:field "time"
-                                  :type "quantitative"
-                                  :title "Time (months)"}
-                              :y {:field "survival"
-                                  :type "quantitative"
-                                  :title "Survival Probability"
-                                  :scale {:domain [0 1.02]}}
-                              :color {:field "group"
-                                      :type "nominal"
-                                      :scale {:domain ["GPS" "BAT"]
-                                              :range ["#55bb88" "#ee6677"]}
-                                      :legend {:title "Group"}}
-                              :detail {:field "combo-id"
-                                       :type "nominal"}}}
-                  {:transform [{:filter "datum.type == 'representative'"}]
-                   :mark {:type "line" :strokeWidth 2.5}
-                   :encoding {:x {:field "time" :type "quantitative"}
-                              :y {:field "survival" :type "quantitative"}
-                              :color {:field "group" :type "nominal"}
-                              :tooltip [{:field "time"
-                                         :type "quantitative"
-                                         :title "Months"}
-                                        {:field "group"
-                                         :type "nominal"
-                                         :title "Arm"}
-                                        {:field "survival"
-                                         :type "quantitative"
-                                         :format ".3f"
-                                         :title "Survival S(t)"}]}}]
-          :config {:legend {:orient "bottom"}}}]
-        [vega-lite
-         {:width 320 :height 240 :data {:values km-ci-data}
-          :title {:text "KM Curves with 95% Confidence Interval"
-                  :subtitle (str "Median OS: BAT = "
-                                 (.toFixed bat-med-w 1) "m, GPS = "
-                                 (.toFixed gps-med-w 1) "m")}
-          :layer [{:mark {:type "area" :opacity 0.2}
-                   :encoding {:x {:field "time"
-                                  :type "quantitative"
-                                  :title "Time (months)"}
-                              :y {:field "low"
-                                  :type "quantitative"
-                                  :title "Survival Probability"
-                                  :scale {:domain [0 1.02]}}
-                              :y2 {:field "high"
+                               :y {:field "success"
                                    :type "quantitative"}
-                              :color {:field "group"
-                                      :type "nominal"
-                                      :scale {:domain ["GPS" "BAT"]
-                                              :range ["#55bb88" "#ee6677"]}
-                                      :legend {:title "Group"}}}}
-                  {:mark {:type "line" :strokeWidth 2}
-                   :encoding {:x {:field "time" :type "quantitative"}
-                              :y {:field "median" :type "quantitative"}
-                              :color {:field "group" :type "nominal"}
-                              :tooltip [{:field "time"
-                                         :type "quantitative"
-                                         :title "Months"}
-                                        {:field "group"
-                                         :type "nominal"
-                                         :title "Arm"}
-                                        {:field "median"
-                                         :type "quantitative"
-                                         :format ".3f"
-                                         :title "Median S(t)"}
-                                        {:field "low"
-                                         :type "quantitative"
-                                         :format ".3f"
-                                         :title "2.5% CI"}
-                                        {:field "high"
-                                         :type "quantitative"
-                                         :format ".3f"
-                                         :title "97.5% CI"}]}}
-                  {:mark {:type "rule" :color "gray" :strokeWidth 1
-                          :strokeDash [2 2]}
-                   :data {:values [{:y 0.5}]}
-                   :encoding {:y {:field "y" :type "quantitative"}}}
-                  {:mark {:type "rule" :color "#ee6677" :strokeWidth 1.2
-                          :strokeDash [3 3]}
-                   :data {:values [{:x bat-med-w}]}
-                   :encoding {:x {:field "x" :type "quantitative"}}}
-                  {:mark {:type "rule" :color "#55bb88" :strokeWidth 1.2
-                          :strokeDash [3 3]}
-                   :data {:values [{:x gps-med-w}]}
-                   :encoding {:x {:field "x" :type "quantitative"}}}]
-          :config {:legend {:orient "bottom"}}}]
-        ])]))
+                               :color {:datum "P(success)"}
+                               :tooltip [{:field "bat-mid" :type "quantitative"
+                                          :title "BAT mOS (months)"}
+                                         {:field "success" :type "quantitative"
+                                          :title "P(success) %"}]}}
+                   {:mark {:type "text" :align "left" :dx 5 :dy -5
+                           :fontSize 9 :fontWeight "bold"}
+                    :encoding {:x {:field "bat-mid" :type "quantitative"}
+                               :y {:field "cum-p" :type "quantitative"}
+                               :text {:field "succ-lbl" :type "nominal"}
+                               :color {:value "#333"}}}]
+           :config {:legend {:orient "bottom"}}}]
+         [vega-lite
+          {:width 320 :height 240 :data {:values vdata}
+           :title "Posterior Probability of BAT mOS"
+           :mark "bar"
+           :encoding {:x {:field "bat-mid"
+                          :type "quantitative"
+                          :title "BAT mOS (months)"}
+                      :y {:field "p-bat"
+                          :type "quantitative"
+                          :title "Probability (%)"}
+                      :color {:value "#44aa77"}
+                      :tooltip [{:field "bat-mid" :type "quantitative"
+                                 :title "BAT mOS (months)"}
+                                {:field "p-bat" :type "quantitative"
+                                 :title "Probability (%)"}]}}]
+         [vega-lite
+          {:width 320 :height 240 :data {:values vdata}
+           :title "Implied Final HR by BAT mOS"
+           :layer [{:mark {:type "area" :opacity 0.2}
+                    :encoding {:x {:field "bat-mid"
+                                   :type "quantitative"
+                                   :title "BAT mOS (months)"}
+                               :y {:field "hr-low"
+                                   :type "quantitative"
+                                   :scale {:domain [0 1.2]}}
+                               :y2 {:field "hr-high"
+                                    :type "quantitative"}
+                               :color {:value "#aa5599"}}}
+                   {:mark {:type "line" :point true}
+                    :encoding {:x {:field "bat-mid"
+                                   :type "quantitative"}
+                               :y {:field "hr-final"
+                                   :type "quantitative"
+                                   :title "Final HR"}
+                               :color {:value "#aa5599"}
+                               :tooltip [{:field "bat-mid" :type "quantitative"
+                                          :title "BAT mOS (months)"}
+                                         {:field "hr-final" :type "quantitative"
+                                          :title "Final HR"}]}}
+                   {:mark "rule" :data {:values [{:y 0.636}]}
+                    :encoding {:y {:field "y" :type "quantitative"}
+                               :color {:value "red"}
+                               :strokeDash {:value [4 4]}}}]}]
+         [vega-lite
+          {:width 320 :height 240 :data {:values hr-data}
+           :title "Hazard Ratio Distribution"
+           :resolve {:scale {:y "independent"}}
+           :layer [{:mark "bar"
+                    :encoding {:x {:field "hr-lo"
+                                   :type "quantitative"
+                                   :title "Hazard Ratio"
+                                   :bin {:binned true :step 0.025}}
+                               :x2 {:field "hr-hi"}
+                               :y {:field "p-val"
+                                   :type "quantitative"
+                                   :title "Probability (%)"}
+                               :color {:value "#ff9900"}
+                               :tooltip [{:field "hr-mid" :type "quantitative"
+                                          :title "Hazard Ratio"}
+                                         {:field "p-val" :type "quantitative"
+                                          :title "Probability (%)"}]}}
+                   {:layer [{:mark {:type "line" :point true}
+                             :encoding {:x {:field "hr-mid" :type "quantitative"}
+                                        :y {:field "cum-p"
+                                            :type "quantitative"
+                                            :title "Cumulative Probability (%)"
+                                            :axis {:orient "right"}
+                                            :scale {:domain [0 100]}}
+                                        :color {:datum "Cumulative (CDF)"
+                                                :type "nominal"
+                                                :scale {:range ["#ff0000"
+                                                                "#22c55e"]}}
+                                        :tooltip [{:field "hr-mid"
+                                                   :type "quantitative"
+                                                   :title "Hazard Ratio"}
+                                                  {:field "cum-p"
+                                                   :type "quantitative"
+                                                   :title "Cumulative Prob (%)"}]}}
+                            {:mark {:type "line" :point true}
+                             :encoding {:x {:field "hr-mid" :type "quantitative"}
+                                        :y {:field "success"
+                                            :type "quantitative"}
+                                        :color {:datum "P(success)"}
+                                        :tooltip [{:field "hr-mid"
+                                                   :type "quantitative"
+                                                   :title "Hazard Ratio"}
+                                                  {:field "success"
+                                                   :type "quantitative"
+                                                   :title "P(success) (%)"}]}}]}]
+           :config {:legend {:orient "bottom"}}}]
+         [vega-lite
+          {:width 320 :height 240 :data {:values vdata}
+           :title "GPS mOS vs BAT mOS"
+           :mark {:type "line" :point true}
+           :encoding {:x {:field "bat-mid"
+                          :type "quantitative"
+                          :title "BAT mOS (months)"}
+                      :y {:field "gps-med"
+                          :type "quantitative"
+                          :title "GPS mOS (months)"
+                          :scale {:zero false}}
+                      :color {:value "#3b82f6"}
+                      :tooltip [{:field "bat-mid" :type "quantitative"
+                                 :title "BAT mOS (months)"}
+                                {:field "gps-med" :type "quantitative"
+                                 :title "GPS mOS (months)"}]}}]
+         [vega-lite
+          {:width 320 :height 240 :data {:values km-data}
+           :title "Implied KM Curves (Top 20 of Best 200)"
+           :layer [{:transform [{:filter "datum.type == 'individual'"}]
+                    :mark {:type "line" :opacity 0.15 :strokeWidth 0.8}
+                    :encoding {:x {:field "time"
+                                   :type "quantitative"
+                                   :title "Time (months)"}
+                               :y {:field "survival"
+                                   :type "quantitative"
+                                   :title "Survival Probability"
+                                   :scale {:domain [0 1.02]}}
+                               :color {:field "group"
+                                       :type "nominal"
+                                       :scale {:domain ["GPS" "BAT"]
+                                               :range ["#55bb88" "#ee6677"]}
+                                       :legend {:title "Group"}}
+                               :detail {:field "combo-id"
+                                        :type "nominal"}}}
+                   {:transform [{:filter "datum.type == 'representative'"}]
+                    :mark {:type "line" :strokeWidth 2.5}
+                    :encoding {:x {:field "time" :type "quantitative"}
+                               :y {:field "survival" :type "quantitative"}
+                               :color {:field "group" :type "nominal"}
+                               :tooltip [{:field "time"
+                                          :type "quantitative"
+                                          :title "Months"}
+                                         {:field "group"
+                                          :type "nominal"
+                                          :title "Arm"}
+                                         {:field "survival"
+                                          :type "quantitative"
+                                          :format ".3f"
+                                          :title "Survival S(t)"}]}}]
+           :config {:legend {:orient "bottom"}}}]
+         [vega-lite
+          {:width 320 :height 240 :data {:values km-ci-data}
+           :title {:text "KM Curves with 95% Confidence Interval"
+                   :subtitle (str "Median OS: BAT = "
+                                  (.toFixed bat-med-w 1) "m, GPS = "
+                                  (.toFixed gps-med-w 1) "m")}
+           :layer [{:mark {:type "area" :opacity 0.2}
+                    :encoding {:x {:field "time"
+                                   :type "quantitative"
+                                   :title "Time (months)"}
+                               :y {:field "low"
+                                   :type "quantitative"
+                                   :title "Survival Probability"
+                                   :scale {:domain [0 1.02]}}
+                               :y2 {:field "high"
+                                    :type "quantitative"}
+                               :color {:field "group"
+                                       :type "nominal"
+                                       :scale {:domain ["GPS" "BAT"]
+                                               :range ["#55bb88" "#ee6677"]}
+                                       :legend {:title "Group"}}}}
+                   {:mark {:type "line" :strokeWidth 2}
+                    :encoding {:x {:field "time" :type "quantitative"}
+                               :y {:field "median" :type "quantitative"}
+                               :color {:field "group" :type "nominal"}
+                               :tooltip [{:field "time"
+                                          :type "quantitative"
+                                          :title "Months"}
+                                         {:field "group"
+                                          :type "nominal"
+                                          :title "Arm"}
+                                         {:field "median"
+                                          :type "quantitative"
+                                          :format ".3f"
+                                          :title "Median S(t)"}
+                                         {:field "low"
+                                          :type "quantitative"
+                                          :format ".3f"
+                                          :title "2.5% CI"}
+                                         {:field "high"
+                                          :type "quantitative"
+                                          :format ".3f"
+                                          :title "97.5% CI"}]}}
+                   {:mark {:type "rule" :color "gray" :strokeWidth 1
+                           :strokeDash [2 2]}
+                    :data {:values [{:y 0.5}]}
+                    :encoding {:y {:field "y" :type "quantitative"}}}
+                   {:mark {:type "rule" :color "#ee6677" :strokeWidth 1.2
+                           :strokeDash [3 3]}
+                    :data {:values [{:x bat-med-w}]}
+                    :encoding {:x {:field "x" :type "quantitative"}}}
+                   {:mark {:type "rule" :color "#55bb88" :strokeWidth 1.2
+                           :strokeDash [3 3]}
+                    :data {:values [{:x gps-med-w}]}
+                    :encoding {:x {:field "x" :type "quantitative"}}}]
+           :config {:legend {:orient "bottom"}}}]]
+
+        [:h4.text-md.font-semibold.mt-6.mb-2
+         "Sensitivity to N (Acceptance-Weighted CI Curves)"]
+        [:div.flex.flex-wrap.gap-4
+         (for [n [5 20 50 100]]
+           (let [{:keys [data bat-med gps-med]}
+                 (build-km-ci-data-by-acceptance items config n)]
+             ^{:key n}
+             [vega-lite
+              {:width 320 :height 240 :data {:values data}
+               :title {:text (str "N = " n
+                                  " Best Models (Acceptance Weighted)")
+                       :subtitle (str "Median OS: BAT = "
+                                      (.toFixed bat-med 1)
+                                      "m, GPS = "
+                                      (.toFixed gps-med 1) "m")}
+               :layer [{:mark {:type "area" :opacity 0.2}
+                        :encoding {:x {:field "time"
+                                       :type "quantitative"
+                                       :title "Time (months)"}
+                                   :y {:field "low"
+                                       :type "quantitative"
+                                       :title "Survival Probability"
+                                       :scale {:domain [0 1.02]}}
+                                   :y2 {:field "high"
+                                        :type "quantitative"}
+                                   :color {:field "group"
+                                           :type "nominal"
+                                           :scale {:domain ["GPS" "BAT"]
+                                                   :range ["#55bb88"
+                                                           "#ee6677"]}
+                                           :legend {:title "Group"}}}}
+                       {:mark {:type "line" :strokeWidth 2}
+                        :encoding {:x {:field "time"
+                                       :type "quantitative"}
+                                   :y {:field "median"
+                                       :type "quantitative"}
+                                   :color {:field "group"
+                                           :type "nominal"}
+                                   :tooltip [{:field "time"
+                                              :type "quantitative"
+                                              :title "Months"}
+                                             {:field "group"
+                                              :type "nominal"
+                                              :title "Arm"}
+                                             {:field "median"
+                                              :type "quantitative"
+                                              :format ".3f"
+                                              :title "Median S(t)"}
+                                             {:field "low"
+                                              :type "quantitative"
+                                              :format ".3f"
+                                              :title "2.5% CI"}
+                                             {:field "high"
+                                              :type "quantitative"
+                                              :format ".3f"
+                                              :title "97.5% CI"}]}}
+                       {:mark {:type "rule" :color "gray"
+                               :strokeWidth 1 :strokeDash [2 2]}
+                        :data {:values [{:y 0.5}]}
+                        :encoding {:y {:field "y"
+                                       :type "quantitative"}}}
+                       {:mark {:type "rule" :color "#ee6677"
+                               :strokeWidth 1.2 :strokeDash [3 3]}
+                        :data {:values [{:x bat-med}]}
+                        :encoding {:x {:field "x"
+                                       :type "quantitative"}}}
+                       {:mark {:type "rule" :color "#55bb88"
+                               :strokeWidth 1.2 :strokeDash [3 3]}
+                        :data {:values [{:x gps-med}]}
+                        :encoding {:x {:field "x"
+                                       :type "quantitative"}}}]
+               :config {:legend {:orient "bottom"}}}]))]])]))
 
 (defn discovery-survival-chart [data]
   [vega-lite
