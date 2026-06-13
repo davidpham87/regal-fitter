@@ -14,7 +14,7 @@
 
 (def ^:private category->keys
   {:trial [:n-total :n-per-arm :enroll-bands :enforce-no-80-by-today
-           :no-80-slack-months]
+           :t-now :no-80-slack-months]
    :timing [:t-ia :tol-ia :t-upd :tol-upd :t-pr3 :tol-pr3 :use-pr3-anchor]
    :bat [:bat-med-grid :bat-shape-grid :bat-strat-bin]
    :gps [:gps-med-grid-lo :gps-med-grid-hi :gps-med-grid-n :gps-shape-grid]
