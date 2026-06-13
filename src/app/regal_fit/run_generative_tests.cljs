@@ -2,11 +2,27 @@
   "Node script to run equivalent ClojureScript functions on generated arguments
   extracted from SQLite database and verify results."
   (:require [app.regal-fit.survival :as survival]
+            [app.regal-fit.simulation-vectorized :as sim-vec]
+            [clojure.string :as str]
             [cljs.numpy :as np]
             ["sqlite3" :as sqlite3]))
 
 (defn approx= [a b epsilon]
   (< (js/Math.abs (- a b)) epsilon))
+
+(defn keys-to-hyphens [m]
+  (if (map? m)
+    (let [f (fn [[k v]]
+              (let [new-k (if (keyword? k)
+                            (keyword (str/replace (name k) "_" "-"))
+                            k)
+                    new-v (cond
+                            (map? v) (keys-to-hyphens v)
+                            (vector? v) (mapv keys-to-hyphens v)
+                            :else v)]
+                [new-k new-v]))]
+      (into {} (map f m)))
+    m))
 
 (defn check-result [func-name args expected got]
   (let [epsilon 1e-5]
@@ -28,6 +44,17 @@
                        "Expected:" (js->clj expected)
                        "Got:" (js->clj got))
               false))))))
+
+(defn check-sim-result [args expected got]
+  (let [epsilon 0.05
+        expected-hr (aget expected "median_hr_final")
+        got-hr (:median-hr-final got)
+        diff (js/Math.abs (- expected-hr got-hr))]
+    (if (< diff epsilon)
+      true
+      (do (println "FAIL: simulation mismatch!"
+                   "Expected HR:" expected-hr "Got:" got-hr "Diff:" diff)
+          false))))
 
 (defn run-case [row]
   (let [func (.-func row)
@@ -69,6 +96,16 @@
                      (np/array t) p-cure scale shape leak-rate)
             got (.-data got-arr)]
         (check-result func args expected got))
+
+      (= func "simulation")
+      (let [rec (keys-to-hyphens (js->clj (aget args 0) :keywordize-keys true))
+            cfg-dict (keys-to-hyphens (js->clj (aget args 1)
+                                               :keywordize-keys true))
+            n-sims (aget args 2)
+            seed (aget args 3)
+            got (sim-vec/simulate-one-combo
+                 {:rec rec :cfg-dict cfg-dict :n-sims n-sims :seed seed})]
+        (check-sim-result args expected got))
 
       :else
       (do (println "Unknown function:" func) false))))
