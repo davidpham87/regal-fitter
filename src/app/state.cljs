@@ -4,6 +4,13 @@
             [reagent.core :as r]
             [reitit.frontend.easy :as rfe]))
 
+(defn- cfg-today-month []
+  (let [base-time (.getTime (js/Date. 2021 1 8)) ;; Feb 8, 2021 (month index 1)
+        today-time (.getTime (js/Date.))
+        diff-ms (- today-time base-time)
+        diff-days (/ diff-ms 86400000.0)]
+    (/ diff-days 30.4375)))
+
 ;; --- Default Config ---
 (def default-config
   {:n-total 126
@@ -46,11 +53,7 @@
    :median-fu-tol 3.0
 
    :enforce-no-80-by-today true
-   :t-now
-   (let [today (js/Date.)
-         y-diff (- (.getFullYear today) 2026)
-         m-diff (- (.getMonth today) 0)]
-     (+ 58 m-diff (* y-diff 12)))
+   :t-now (cfg-today-month)
    :no-80-slack-months 1.0
    :bat-strat-bin 0.5
 
