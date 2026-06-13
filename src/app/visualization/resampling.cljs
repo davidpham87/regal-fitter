@@ -15,11 +15,16 @@
       [])))
 
 (defn build-cdf [items]
-  (let [running (atom 0.0)]
-    (mapv (fn [item]
-            (let [c (swap! running + (:norm-rate item))]
-              (assoc item :cum-prob c)))
-          items)))
+  (loop [remaining (seq items)
+         running 0.0
+         acc (transient [])]
+    (if remaining
+      (let [item (first remaining)
+            next-running (+ running (:norm-rate item))]
+        (recur (next remaining)
+               next-running
+               (conj! acc (assoc item :cum-prob next-running))))
+      (persistent! acc))))
 
 (defn sample-one [cdf r]
   (or (some (fn [item]
