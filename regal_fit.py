@@ -81,6 +81,8 @@ import argparse
 import time
 import sys
 import json
+import sqlite3
+import hashlib
 import os
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field
@@ -103,6 +105,13 @@ def cfg_today_month():
     days = (today - base).days
     return days / 30.4375
 
+
+def get_config_hash(cfg):
+    import dataclasses
+    cfg_dict = dataclasses.asdict(cfg)
+    config_json = json.dumps(cfg_dict, sort_keys=True,
+                             default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))
+    return hashlib.sha256(config_json.encode('utf-8')).hexdigest()
 
 # =============================================================================
 # CONFIGURATION (HARD CONSTRAINTS ONLY)
@@ -1958,6 +1967,27 @@ def main(argv=None):
     out_path = Path(cfg.out_dir) / cfg.out_pdf
     base = out_path.with_suffix("")
 
+    # Initialize SQLite database
+    db_path = "regal_results.db"
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS runs (
+            config_hash TEXT,
+            family TEXT,
+            config_json TEXT,
+            results_json TEXT,
+            PRIMARY KEY (config_hash, family)
+        )
+    ''')
+    conn.commit()
+
+    # Calculate config hash
+    config_hash = get_config_hash(cfg)
+    import dataclasses
+    config_json = json.dumps(dataclasses.asdict(cfg), sort_keys=True,
+                             default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))
+
     # Constraint signature: any change in the IDMC gates or pool-mOS floor
     # should INVALIDATE old checkpoints, otherwise --resume silently loads
     # results computed under different constraints.
@@ -1988,11 +2018,35 @@ def main(argv=None):
             w.writeheader()
             for r in sorted(results, key=lambda x: -x.get("acceptance_rate", 0)):
                 w.writerow(r)
+
+        # Save to SQLite
+        try:
+            results_json = json.dumps(results, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))
+            c.execute('''
+                INSERT OR REPLACE INTO runs (config_hash, family, config_json, results_json)
+                VALUES (?, ?, ?, ?)
+            ''', (config_hash, label, config_json, results_json))
+            conn.commit()
+            print(f"  Checkpoint saved to SQLite (config_hash: {config_hash[:8]}...)")
+        except Exception as e:
+            print(f"  Failed to save checkpoint to SQLite: {e}")
+
         print(f"  Checkpoint saved: {ckpt.name}, {csv_path.name}")
 
     def _try_resume(label):
         """Look for an existing per-family JSON and load if present.
         Only loads checkpoints with a matching constraint signature."""
+        if not args.no_resume:
+            try:
+                c.execute('SELECT results_json FROM runs WHERE config_hash = ? AND family = ?', (config_hash, label))
+                row = c.fetchone()
+                if row:
+                    results = json.loads(row[0])
+                    print(f"  RESUMING from SQLite DB (config_hash: {config_hash[:8]}...): {len(results):,} combos loaded")
+                    return results
+            except Exception as e:
+                print(f"  Failed to load checkpoint from SQLite: {e}")
+
         safe = label.replace("/", "-").replace(" ", "_")
         ckpt = Path(f"{base}_{safe}{ckpt_tag}.json")
         if ckpt.exists() and not args.no_resume:
@@ -2055,6 +2109,8 @@ def main(argv=None):
                   default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))
     print(f"Raw results JSON saved to {json_path}")
     print(f"Per-family CSVs: {base}_*.csv")
+
+    conn.close()
 
 
 if __name__ == "__main__":
