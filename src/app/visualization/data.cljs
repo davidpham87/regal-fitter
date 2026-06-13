@@ -149,12 +149,19 @@
            (+ (* hr-max bin-width) bin-width)
            bin-width)))
 
+(defn- add-cumulative-sum [coll val-key target-key]
+  (loop [items coll
+         acc []
+         running-sum 0.0]
+    (if-let [item (first items)]
+      (let [new-sum (+ running-sum (or (get item val-key) 0.0))]
+        (recur (rest items)
+               (conj acc (assoc item target-key (js/Math.min 100.0 new-sum)))
+               new-sum))
+      acc)))
+
 (defn add-cum-p [bins]
-  (let [running-sum (atom 0.0)]
-    (mapv (fn [b]
-            (let [cum-p (swap! running-sum + (:p-val b))]
-              (assoc b :cum-p (js/Math.min 100.0 cum-p))))
-          bins)))
+  (add-cumulative-sum bins :p-val :cum-p))
 
 (defn build-hr-distribution-data [results bin-width]
   (let [trials (get-all-individual-trials results)
@@ -282,33 +289,34 @@
         (keep #(build-bin-item % bin-width pairs tot-wt) edges)))))
 
 (defn calculate-vdata [data tot-wt]
-  (let [running-sum (atom 0.0)]
-    (mapv (fn [d]
-            (let [p-val (if (pos? tot-wt) (* 100 (/ (:weight d) tot-wt)) 0.0)
-                  cum-p (swap! running-sum + p-val)
-                  succ (* 100 (or (:p-success-overall d) 0))]
-              {:bat-mid (:bat-mid d)
-               :success succ
-               :succ-lbl (str (.toFixed succ 0) "%")
-               :hr-final (or (:median-hr-final d) 0)
-               :hr-low (or (:hr-final-low d) 0)
-               :hr-high (or (:hr-final-high d) 0)
-               :gps-med (or (:gps-med d) 0)
-               :p-bat p-val
-               :cum-p (js/Math.min 100.0 cum-p)}))
-          data)))
+  (loop [items data
+         acc []
+         running-sum 0.0]
+    (if-let [d (first items)]
+      (let [p-val (if (pos? tot-wt) (* 100 (/ (:weight d) tot-wt)) 0.0)
+            new-sum (+ running-sum p-val)
+            succ (* 100 (or (:p-success-overall d) 0))]
+        (recur (rest items)
+               (conj acc {:bat-mid (:bat-mid d)
+                          :success succ
+                          :succ-lbl (str (.toFixed succ 0) "%")
+                          :hr-final (or (:median-hr-final d) 0)
+                          :hr-low (or (:hr-final-low d) 0)
+                          :hr-high (or (:hr-final-high d) 0)
+                          :gps-med (or (:gps-med d) 0)
+                          :p-bat p-val
+                          :cum-p (js/Math.min 100.0 new-sum)})
+               new-sum))
+      acc)))
 
 (defn- add-cum-pct [bins]
-  (let [running (atom 0.0)]
-    (mapv (fn [b]
-            (let [c (swap! running + (:pct b))]
-              (assoc b :cum-pct (js/Math.min 100.0 c))))
-          bins)))
+  (add-cumulative-sum bins :pct :cum-pct))
 
 (defn build-path-bins [best-n]
   (let [path-data (get-successful-paths best-n)]
     [(bin-data (:hrs path-data) (:weights path-data) 0.02)
      (add-cum-pct (bin-data (:t80s path-data) (:weights path-data) 0.5))]))
+
 (defn build-alive-scatter-data [results]
   (let [trials (get-all-individual-trials results)
         valid (filter #(and (:reached-80 %)
