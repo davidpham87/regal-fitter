@@ -146,29 +146,6 @@
                       hr-dist-layer-success]}]
      :config {:legend {:orient "bottom"}}}))
 
-(defn chart-alive-distribution [alive-data]
-  (make-chart alive-data
-    {:resolve {:scale {:y "shared" :x "shared"}}
-     :layer [{:mark {:type "point" :filled true :size 15 :opacity 0.4}
-              :encoding {:x {:field "bat-jitter"
-                             :type "quantitative"
-                             :title "Alive Patients in BAT"
-                             :scale {:zero false}}
-                          :y {:field "gps-jitter"
-                              :type "quantitative"
-                              :title "Alive Patients in GPS"
-                              :scale {:zero false}}
-                          :color {:value "#8854d0"}
-                          :tooltip [{:field "bat-alive" :type "quantitative"
-                                     :title "Alive BAT"}
-                                    {:field "gps-alive" :type "quantitative"
-                                     :title "Alive GPS"}]}}
-             {:mark {:type "line" :color "#55bb88" :strokeWidth 1.5
-                     :strokeDash [4 4]}
-              :data {:values [{:x 0 :y 0} {:x 63 :y 63}]}
-              :encoding {:x {:field "x" :type "quantitative"}
-                         :y {:field "y" :type "quantitative"}}}]}))
-
 (def bat-alive-layer-bar
   {:mark "bar"
    :encoding {:x {:field "alive"

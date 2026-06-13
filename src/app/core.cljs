@@ -56,7 +56,8 @@
     (if (exists? js/WebR)
       (start-webr!)
       (.addEventListener js/window "webr-script-loaded" start-webr!)))
-  (rdom/render [ui/main-view] (js/document.getElementById "app")))
+  (rdom/render ^{:key (str (rand))}
+               [ui/main-view] (js/document.getElementById "app")))
 
 (defn reload-testing []
   [:h1 "hello, shadow-cljs hot reloading is!"])
@@ -68,7 +69,7 @@
     nil: Re-renders the app."
   []
   (js/console.log "reload")
-  (rdom/render [reload-testing]
+  (rdom/render ^{:key (str (rand))} [reload-testing]
    #_[ui/main-view] (js/document.getElementById "app")))
 
 (comment

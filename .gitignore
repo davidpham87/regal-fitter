@@ -1,24 +1,10 @@
-node_modules/
-.shadow-cljs/
-pom.xml
-pom.xml.asc
-*.jar
-*.class
-/lib/
-/classes/
-/target/
-/checkouts/
-.lein-deps-sum
-.lein-repl-history
-.lein-plugins/
-.lein-failures
-.nrepl-port
-.cpcache/
-out/
-chat.md
-.lsp/
-.clj-kondo/  
-public/js
-public/test/js
-jules_session*/
-  
+# SQLite database
+regal_fit_cache.db
+regal_fit_cache.db-shm
+regal_fit_cache.db-wal
+
+# Output reports
+regal_fit_report.json
+regal_fit_report.pdf
+regal_fit_report_*.csv
+regal_fit_report_*.json

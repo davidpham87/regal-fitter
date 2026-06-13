@@ -11,7 +11,6 @@
 (def chart-bat-posterior sim/chart-bat-posterior)
 (def chart-hr-by-bat sim/chart-hr-by-bat)
 (def chart-hr-distribution sim/chart-hr-distribution)
-(def chart-alive-distribution sim/chart-alive-distribution)
 (def chart-bat-alive-distribution sim/chart-bat-alive-distribution)
 (def chart-gps-vs-bat sim/chart-gps-vs-bat)
 (def chart-implied-km sim/chart-implied-km)

@@ -95,9 +95,6 @@
              {:title    "Successful Paths: Read-out Time (t80)"
               :subtitle "t=63 months ≈ June 2026"}
              [charts/chart-t80-paths t80-bins]]
-            ^{:key "alive-dist"}
-            [chart-card {:title "Alive Patients at T80: Joint Distribution"}
-             [charts/chart-alive-distribution alive-data]]
             ^{:key "bat-alive-dist"}
             [chart-card {:title "BAT Alive Patients at T80: Histogram & CDF"}
              [charts/chart-bat-alive-distribution bat-alive-data]]])

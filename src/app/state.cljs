@@ -9,12 +9,12 @@
   {:n-total 126
    :n-per-arm 63
    :enroll-bands
-   [[0 12 17] ;; Year 1
-    [12 24 40]  ;; Year 2
-    [24 36 60] ;; Year 3
-    [36 38 9]]
+   ;; [[0 12 17] ;; Year 1
+   ;;  [12 24 40]  ;; Year 2
+   ;;  [24 36 60] ;; Year 3
+   ;;  [36 38 9]]
 
-   #_[[0.0, 12.0, 15]     ;; Year 1
+   [[0.0, 12.0, 15]     ;; Year 1
     [12.0, 24.0, 50]    ;; Year 2
     [24.0, 36.0, 56]    ;; Year 3
     [36.0, 38.0, 5]]
@@ -31,9 +31,9 @@
    :prefilter-tol-ia 3.5
    :prefilter-tol-upd 3.5
    :prefilter-tol-pr3 3.5
-   :tol-ia 5
+   :tol-ia 1.5
    :tol-upd 1.5
-   :tol-pr3 1
+   :tol-pr3 1.5
 
    :tol-increment-ia-upd 3
    :tol-increment-upd-pr3 3
@@ -56,13 +56,13 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 1000
-   :n-sims-screen 200
+   :n-sims-per-combo 4000
+   :n-sims-screen 1000
    :n-screen-min-pass 1
    :seed 20260508
 
-   :bat-med-grid [8 30 1]
-   :bat-shape-grid [0.6 1.61 0.2]
+   :bat-med-grid [8 22 1]
+   :bat-shape-grid [0.8 1.2 0.05]
 
    :gps-med-grid-lo 20.0
    :gps-med-grid-hi 60.0
@@ -70,16 +70,16 @@
    :gps-shape-grid [0.7 1.01 0.1]
 
    :cure-frac-grid [0.2 0.8 0.1]
-   :cure-unc-med-grid [15 60 5]
-   :cure-unc-shape-grid [0.6 1.0 0.1]
+   :cure-unc-med-grid [10 58 4]
+   :cure-unc-shape-grid [0.6 1.6 0.2]
 
    :leaky-cure-frac-grid [0.2 0.6 0.1]
-   :leaky-unc-med-grid [15 80 2.5]
-   :leaky-unc-shape-grid [0.8 1.61 0.2]
+   :leaky-unc-med-grid [15 60 5]
+   :leaky-unc-shape-grid [0.7 1.2 0.05]
    :leak-grid [0.02 0.07 0.01]
 
    :families ["leaky"]
-   :n-sims-aggregation 1000})
+   :n-sims-aggregation 5000})
 
 (def light-config
   (assoc default-config

@@ -82,8 +82,10 @@ import time
 import sys
 import json
 import os
+import sqlite3
+import hashlib
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 import numpy as np
@@ -102,6 +104,39 @@ def cfg_today_month():
     today = _dt.date.today()
     days = (today - base).days
     return days / 30.4375
+
+
+# =============================================================================
+# PERSISTENCE / LOCAL SQLITE DATABASE
+# =============================================================================
+
+def get_db():
+    """Initialize or connect to local SQLite database in current workspace."""
+    db_path = Path("regal_fit_cache.db")
+    conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS simulation_cache ("
+        "  config_hash TEXT PRIMARY KEY,"
+        "  config_json TEXT NOT NULL,"
+        "  results_json TEXT NOT NULL"
+        ")"
+    )
+    conn.commit()
+    return conn
+
+
+def hash_config(cfg):
+    """Generate deterministic hash of the Config object."""
+    # Convert Config dataclass to dictionary and serialize to sorted JSON
+    d = asdict(cfg)
+    # Remove dynamic runtime attributes not affecting simulation logic
+    d.pop("n_threads", None)
+    d.pop("out_pdf", None)
+    d.pop("out_dir", None)
+    cfg_bytes = json.dumps(d, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(cfg_bytes).hexdigest()
 
 
 # =============================================================================
@@ -947,6 +982,20 @@ def _simulate_one_combo(args):
 # =============================================================================
 
 def run_family(prefilter_func, cfg, label, n_threads):
+    # Check SQLite cache first
+    cfg_hash = hash_config(cfg)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT results_json FROM simulation_cache WHERE config_hash = ?",
+        (cfg_hash,)
+    )
+    row = cursor.fetchone()
+    if row is not None:
+        print(f"\n[{label}] CACHE HIT in SQLite: loaded results for hash {cfg_hash:.8s}")
+        conn.close()
+        return json.loads(row[0])
+
     print(f"\n[{label}] Stage 1: analytical pre-filter")
     t0 = time.time()
     accepted = prefilter_func(cfg)
@@ -954,6 +1003,7 @@ def run_family(prefilter_func, cfg, label, n_threads):
           f"(elapsed {time.time()-t0:.1f}s)")
     if not accepted:
         print(f"  No accepted combos for {label}.  Try wider grid or tolerances.")
+        conn.close()
         return []
 
     print(f"\n[{label}] Stage 2: simulation (n_sims={cfg.n_sims_per_combo} "
@@ -993,6 +1043,19 @@ def run_family(prefilter_func, cfg, label, n_threads):
 
     print(f"  -> {len(results):,} combos with at least one simulated "
           f"acceptance (elapsed {time.time()-t0:.1f}s)")
+
+    # Cache calculated results into SQLite database
+    res_str = json.dumps(
+        results,
+        default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)
+    )
+    cursor.execute(
+        "INSERT OR REPLACE INTO simulation_cache "
+        "(config_hash, config_json, results_json) VALUES (?, ?, ?)",
+        (cfg_hash, json.dumps(asdict(cfg), default=str), res_str)
+    )
+    conn.commit()
+    conn.close()
     return results
 
 
