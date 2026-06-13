@@ -9,7 +9,12 @@
   {:n-total 126
    :n-per-arm 63
    :enroll-bands
-   [[0.0, 12.0, 15]     ;; Year 1
+   [[0 12 17] ;; Year 1
+    [12 24 40]  ;; Year 2
+    [24 36 60] ;; Year 3
+    [36 38 9]]
+
+   #_[[0.0, 12.0, 15]     ;; Year 1
     [12.0, 24.0, 50]    ;; Year 2
     [24.0, 36.0, 56]    ;; Year 3
     [36.0, 38.0, 5]]
@@ -33,7 +38,7 @@
    :tol-increment-ia-upd 3
    :tol-increment-upd-pr3 3
 
-   :futility-hr-max 0.75
+   :futility-hr-max 0.85
    :efficacy-hr-min 0.35
 
    :pool-mos-min-at-ia 12
@@ -46,8 +51,8 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 500
-   :n-sims-screen 50
+   :n-sims-per-combo 1000
+   :n-sims-screen 200
    :n-screen-min-pass 1
    :seed 20260508
 
@@ -64,8 +69,8 @@
    :cure-unc-shape-grid [0.6 1.0 0.1]
 
    :leaky-cure-frac-grid [0.2 0.6 0.1]
-   :leaky-unc-med-grid [15 80 5]
-   :leaky-unc-shape-grid [0.8 1.01 0.05]
+   :leaky-unc-med-grid [15 80 2.5]
+   :leaky-unc-shape-grid [0.8 1.61 0.2]
    :leak-grid [0.02 0.07 0.01]
 
    :families ["leaky"]
