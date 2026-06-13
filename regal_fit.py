@@ -284,7 +284,7 @@ class Config:
 
     # Output
     out_pdf: str = "regal_fit_report.pdf"
-    out_dir: str = "."
+    out_dir: str = "outputs"
 
 
 # =============================================================================
@@ -2019,6 +2019,7 @@ def main(argv=None):
         print(f"    Stratified output: BAT mOS bins of {cfg.bat_strat_bin}m  (ON)")
 
     out_path = Path(cfg.out_dir) / cfg.out_pdf
+    os.makedirs(cfg.out_dir, exist_ok=True)
     base = out_path.with_suffix("")
 
     # Constraint signature: any change in the IDMC gates or pool-mOS floor

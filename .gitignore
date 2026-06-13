@@ -3,7 +3,8 @@ regal_fit_cache.db
 regal_fit_cache.db-shm
 regal_fit_cache.db-wal
 
-# Output reports
+# Output reports and checks
+outputs/
 regal_fit_report.json
 regal_fit_report.pdf
 regal_fit_report_*.csv
