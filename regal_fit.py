@@ -594,55 +594,77 @@ def _cross_filter(cfg, bat_ev, gps_ev, bat_params, gps_params, family,
     n_drop_pr3 = 0
     n_drop_increment = 0
     chunk = 2048
-    for s in range(0, Gb, chunk):
-        e = min(s + chunk, Gb)
-        # (chunk, Gg, K) totals
-        tot = bat_ev[s:e, None, :] + gps_ev[None, :, :]
+    # Parallel helper to process a single chunk
+    def _proc_chunk(start_idx):
+        end_idx = min(start_idx + chunk, Gb)
+        tot = bat_ev[start_idx:end_idx, None, :] + gps_ev[None, :, :]
         d_ia = np.abs(tot[..., 0] - cfg.n_ev_ia)
         d_up = np.abs(tot[..., 1] - cfg.n_ev_upd)
         mask = (d_ia <= cfg.prefilter_tol_ia) & (d_up <= cfg.prefilter_tol_upd)
 
-        # Increment tolerance: m46 -> m58 expected difference vs observed (12)
         inc_ia_up = tot[..., 1] - tot[..., 0]
         d_inc_ia_up = np.abs(inc_ia_up - (cfg.n_ev_upd - cfg.n_ev_ia))
         mask_inc = d_inc_ia_up <= cfg.tol_increment_ia_upd
-        n_drop_increment += int((mask & ~mask_inc).sum())
+        local_drop_inc = int((mask & ~mask_inc).sum())
         mask = mask & mask_inc
 
+        local_drop_pr3 = 0
         if apply_pr3:
             d_pr3 = np.abs(tot[..., 2] - cfg.n_ev_pr3)
             mask_pr3 = d_pr3 <= cfg.prefilter_tol_pr3
-            n_drop_pr3 += int((mask & ~mask_pr3).sum())
+            local_drop_pr3 = int((mask & ~mask_pr3).sum())
             mask = mask & mask_pr3
 
-            # Increment tolerance: m58 -> m63 expected difference vs observed (6)
             inc_up_pr3 = tot[..., 2] - tot[..., 1]
             d_inc_up_pr3 = np.abs(inc_up_pr3 - (cfg.n_ev_pr3 - cfg.n_ev_upd))
             mask_inc2 = d_inc_up_pr3 <= cfg.tol_increment_upd_pr3
-            n_drop_increment += int((mask & ~mask_inc2).sum())
+            local_drop_inc += int((mask & ~mask_inc2).sum())
             mask = mask & mask_inc2
 
+        local_drop_pool = 0
         if apply_pool_mos:
-            # S_pool(T) >= 0.5 iff S_BAT(T) + S_GPS(T) >= 1
-            pool_S = bat_S_T[s:e, None] + gps_S_T[None, :]
+            pool_S = bat_S_T[start_idx:end_idx, None] + gps_S_T[None, :]
             mask_pool = pool_S >= 1.0
-            n_drop_pool += int((mask & ~mask_pool).sum())
+            local_drop_pool = int((mask & ~mask_pool).sum())
             mask = mask & mask_pool
 
+        chunk_accepted = []
         if mask.any():
             bi, gi = np.where(mask)
-            bi_global = bi + s
-            for ib, ig in zip(bi_global, gi):
+            for ib_local, ig in zip(bi, gi):
+                ib_global = ib_local + start_idx
                 rec = {"family": family,
-                       "exp_ev_ia": float(tot[ib - s, ig, 0]),
-                       "exp_ev_upd": float(tot[ib - s, ig, 1])}
+                       "exp_ev_ia": float(tot[ib_local, ig, 0]),
+                       "exp_ev_upd": float(tot[ib_local, ig, 1])}
                 if apply_pr3:
-                    rec["exp_ev_pr3"] = float(tot[ib - s, ig, 2])
+                    rec["exp_ev_pr3"] = float(tot[ib_local, ig, 2])
                 for k, v in bat_params.items():
-                    rec[k] = float(v[ib])
+                    rec[k] = float(v[ib_global])
                 for k, v in gps_params.items():
                     rec[k] = float(v[ig])
-                accepted.append(rec)
+                chunk_accepted.append(rec)
+        return chunk_accepted, local_drop_pool, local_drop_pr3, local_drop_inc
+
+    starts = list(range(0, Gb, chunk))
+    if getattr(cfg, "n_threads", 1) <= 1 or len(starts) <= 1:
+        # Single-threaded fallback
+        for s in starts:
+            c_acc, d_pl, d_pr, d_inc = _proc_chunk(s)
+            accepted.extend(c_acc)
+            n_drop_pool += d_pl
+            n_drop_pr3 += d_pr
+            n_drop_increment += d_inc
+    else:
+        # Multithreaded chunking
+        with ProcessPoolExecutor(max_workers=cfg.n_threads) as ex:
+            futures = [ex.submit(_proc_chunk, s) for s in starts]
+            for fut in as_completed(futures):
+                c_acc, d_pl, d_pr, d_inc = fut.result()
+                accepted.extend(c_acc)
+                n_drop_pool += d_pl
+                n_drop_pr3 += d_pr
+                n_drop_increment += d_inc
+
     if apply_pool_mos and n_drop_pool > 0:
         print(f"  pool-mOS prefilter (S_BAT+S_GPS at T={cfg.pool_mos_min_at_ia:g} >= 1) "
               f"dropped {n_drop_pool:,} combos")
