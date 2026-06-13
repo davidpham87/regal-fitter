@@ -81,9 +81,14 @@
   (let [grid-bat (first (.-shape bat-ev)) grid-gps (first (.-shape gps-ev)) num-anchors (second (.-shape bat-ev))
         apply-pool (and bat-S-T gps-S-T (> (:pool-mos-min-at-ia config) 0))
         apply-pr3 (and (:use-pr3-anchor config) (>= num-anchors 3))
-        chunk-size 2048]
-    (mapcat #(process-chunk % (js/Math.min (+ % chunk-size) grid-bat) grid-bat grid-gps num-anchors apply-pool apply-pr3 config bat-ev gps-ev bat-S-T gps-S-T family bat-params gps-params)
-            (range 0 grid-bat chunk-size))))
+        chunk-size 256]
+    (mapcat
+     #(process-chunk
+       % (js/Math.min (+ % chunk-size) grid-bat)
+       grid-bat grid-gps num-anchors apply-pool
+       apply-pr3 config bat-ev gps-ev bat-S-T
+       gps-S-T family bat-params gps-params)
+     (range 0 grid-bat chunk-size))))
 
 (defn- get-grid-params [config-key config]
   (let [grid (get config config-key)]
