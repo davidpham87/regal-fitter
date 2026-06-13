@@ -1,7 +1,7 @@
 (ns app.db
   (:require [cljs.core.async :refer [go <! chan put! close!]]))
 
-(def db-name "SimulationCache")
+(def db-name "SimulationCacheV2")
 (def store-name "results")
 (def version 1)
 

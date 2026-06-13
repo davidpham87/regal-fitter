@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [app.state :as state]
-            [app.vega :as vega]
+            [app.visualization :as vega]
             [cljs.numpy-random :as np-random]
             [cljs.numpy :as np]
             [app.regal-fit.enrollment :as rfe]

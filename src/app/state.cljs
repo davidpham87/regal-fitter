@@ -51,24 +51,25 @@
    :n-screen-min-pass 1
    :seed 20260508
 
-   :bat-med-grid [8 22 1]
-   :bat-shape-grid [0.8 1.01 0.1]
+   :bat-med-grid [8 30 1]
+   :bat-shape-grid [0.6 1.61 0.2]
 
    :gps-med-grid-lo 20.0
    :gps-med-grid-hi 60.0
    :gps-med-grid-n 2
-   :gps-shape-grid [0.6 1.0 0.1]
+   :gps-shape-grid [0.7 1.01 0.1]
 
    :cure-frac-grid [0.2 0.8 0.1]
    :cure-unc-med-grid [15 60 5]
    :cure-unc-shape-grid [0.6 1.0 0.1]
 
    :leaky-cure-frac-grid [0.2 0.6 0.1]
-   :leaky-unc-med-grid [15 60 5]
-   :leaky-unc-shape-grid [0.7 1.01 0.1]
+   :leaky-unc-med-grid [15 80 5]
+   :leaky-unc-shape-grid [0.8 1.01 0.05]
    :leak-grid [0.02 0.07 0.01]
 
-   :families ["leaky"]})
+   :families ["leaky"]
+   :n-sims-aggregation 1000})
 
 (def light-config
   (assoc default-config
@@ -138,7 +139,8 @@
    [:leaky-unc-shape-grid [:vector :number]]
    [:leak-grid [:vector :number]]
 
-   [:families [:vector :string]]])
+   [:families [:vector :string]]
+   [:n-sims-aggregation :int]])
 
 (def default-stress-test-config
   {:mos-grid [8 31 1]

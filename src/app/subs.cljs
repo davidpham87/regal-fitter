@@ -85,3 +85,24 @@
  :current-route
  (fn [db _]
    (:current-route db)))
+
+;; ── Aggregation subscriptions ─────────────────────────────────────────────
+;;
+;; Usage:
+;;   @(rf/subscribe [:aggregation/loading? cache-key])
+;;   @(rf/subscribe [:aggregation/data     cache-key])
+
+(rf/reg-sub
+ :aggregation/slot
+ (fn [db [_ cache-key]]
+   (get-in db [:aggregation cache-key])))
+
+(rf/reg-sub
+ :aggregation/loading?
+ (fn [db [_ cache-key]]
+   (boolean (get-in db [:aggregation cache-key :loading?]))))
+
+(rf/reg-sub
+ :aggregation/data
+ (fn [db [_ cache-key]]
+   (get-in db [:aggregation cache-key :data])))

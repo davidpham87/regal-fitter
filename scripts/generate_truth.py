@@ -94,7 +94,7 @@ def generate_truth():
         }
     }
 
-    with open("truth.json", "w") as f:
+    with open("datasets/truth.json", "w") as f:
         json.dump(truth, f, indent=2)
 
 if __name__ == "__main__":

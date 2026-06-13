@@ -3,7 +3,7 @@ import numpy as np
 from regal_fit import _simulate_one_combo
 
 def run():
-    with open("verify_configs.json", "r") as f:
+    with open("datasets/verify_configs.json", "r") as f:
         configs = json.load(f)
 
     results = []
@@ -31,7 +31,7 @@ def run():
             "res": cleaned_res
         })
 
-    with open("py_verification_results.json", "w") as f:
+    with open("datasets/py_verification_results.json", "w") as f:
         json.dump(results, f, indent=2)
     print("Python verification simulation complete.")
 

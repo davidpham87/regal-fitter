@@ -3,7 +3,7 @@
             [re-frame.core :as rf]
             [fork.re-frame :as fork]
             [app.state :as state]
-            [app.vega :as vega]
+            [app.visualization :as vega]
             [app.simulator :as sim]
             [reitit.frontend.easy :as rfe]
             [cljs.math :as math]

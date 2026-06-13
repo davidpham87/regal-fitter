@@ -335,11 +335,24 @@
                            (:no-80-slack-months config)))
                 true)]
     (if-not (and reached today)
-      {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN}
+      {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN
+       :bat-alive-final js/NaN :gps-alive-final js/NaN}
       (let [{:keys [time-fin ev-fin]}
             (calculate-final-times-vectorized t80 enroll survival)
-            [z-fin hr-fin] (logrank-z-vectorized time-fin ev-fin arms)]
-        {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin}))))
+            [z-fin hr-fin] (logrank-z-vectorized time-fin ev-fin arms)
+            deaths (np-ts/add enroll survival)
+            t80-arr (np/full-float64 (.-shape enroll) t80)
+            alive-mask (np-ts/logical_and
+                        (np-ts/less_equal enroll t80-arr)
+                        (np-ts/greater deaths t80-arr))
+            bat-alive (np-ts/sum (np-ts/logical_and
+                                  alive-mask
+                                  (np-ts/equal arms 0.0)))
+            gps-alive (np-ts/sum (np-ts/logical_and
+                                  alive-mask
+                                  (np-ts/equal arms 1.0)))]
+        {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin
+         :bat-alive-final bat-alive :gps-alive-final gps-alive}))))
 
 (defn- calculate-trial-stats-vectorized
   "Computes all statistics for a successfully screened trial."
@@ -359,6 +372,8 @@
                     :z-final (:z-final final-res)
                     :bat-alive-upd (:alive-bat interim-res)
                     :gps-alive-upd (:alive-gps interim-res)
+                    :bat-alive-final (:bat-alive-final final-res)
+                    :gps-alive-final (:gps-alive-final final-res)
                     ;; Per-arm cumulative event counts
                     :n-interim-analysis-bat  (:n-interim-analysis-bat counts)
                     :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
@@ -386,6 +401,21 @@
                 (calculate-trial-stats-vectorized
                  config enroll-times survival-times arms-array))]
     {:passed-screening passed-screening :stats stats}))
+
+(defn simulate-one-accepted-trial
+  "Simulates trials until an accepted one is found, up to 100 attempts."
+  [record config random-gen]
+  (let [n-total (:n-total config)
+        n-per-arm (:n-per-arm config)
+        bands (:enroll-bands config)]
+    (loop [attempts 0]
+      (if (>= attempts 100)
+        nil
+        (let [res (simulate-one-trial-vectorized
+                   record config random-gen n-total n-per-arm bands)]
+          (if (:stats res)
+            (:stats res)
+            (recur (inc attempts))))))))
 
 (defn- run-sim-chunk-vectorized
   "Runs a chunk of vectorized simulations."
@@ -480,6 +510,10 @@
             (np-ts/median (to-nd (map :bat-alive-upd all-stats)))
             :median-gps-alive-upd
             (np-ts/median (to-nd (map :gps-alive-upd all-stats)))
+            :median-bat-alive-final
+            (np-ts/median (to-nd (map :bat-alive-final all-stats)))
+            :median-gps-alive-final
+            (np-ts/median (to-nd (map :gps-alive-final all-stats)))
             ;; Mean per-arm deaths per interval (from simulation)
             :mean-n-interim-analysis-bat  (mean-field all-stats :n-interim-analysis-bat)
             :mean-n-interim-analysis-gps  (mean-field all-stats :n-interim-analysis-gps)
@@ -496,7 +530,8 @@
             :mean-med-update-pool  (mean-field all-stats :med-update-pool)
             :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
             :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
-            :mean-med-press-release-3-pool (mean-field all-stats :mean-med-press-release-3-pool)})))
+            :mean-med-press-release-3-pool
+            (mean-field all-stats :mean-med-press-release-3-pool)})))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."

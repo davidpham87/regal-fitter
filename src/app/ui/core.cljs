@@ -26,7 +26,8 @@
                :pool-mos-min-at-ia]
    :other [:n-sims-screen :n-sims-per-combo :n-ev-ia :n-ev-upd :n-ev-pr3
            :n-ev-final :n-screen-min-pass :efficacy-hr-min :futility-hr-max
-           :median-fu-target :median-fu-tol :hr-threshold :seed :families]})
+           :median-fu-target :median-fu-tol :hr-threshold :seed :families
+           :n-sims-aggregation]})
 
 (defn config-form []
   (fn []

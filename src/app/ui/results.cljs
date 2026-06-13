@@ -3,30 +3,45 @@
             [re-frame.core :as rf]
             [app.state :as state]
             [app.ui.inputs :as inputs]
-            [app.vega :as vega]
+            [app.visualization :as vega]
             [app.simulator :as sim]
+            [app.worker-pool :as wp]
             [clojure.string :as str]
             [cljs.pprint :refer [pprint]]
             [app.components.editor :refer [code-editor]]
             [app.components.tabs :refer [tab-bar]]))
 
-(defn- expected-success-probability [items]
+(defn- expected-success-probability [items config]
   (let [valid-items (filter #(and (:p-success-overall %)
                                   (:acceptance-rate %)
                                   (not (js/isNaN (:p-success-overall %)))
                                   (not (js/isNaN (:acceptance-rate %))))
                             items)
-        tot-wt (reduce + (map :acceptance-rate valid-items))]
+        weights (map (fn [item]
+                       (let [diff-ia (js/Math.abs
+                                      (- (or (:exp-ev-ia item) 0)
+                                         (or (:n-ev-ia config) 0)))
+                             diff-upd (js/Math.abs
+                                       (- (or (:exp-ev-upd item) 0)
+                                          (or (:n-ev-upd config) 0)))
+                             diff-pr3 (if (:use-pr3-anchor config)
+                                        (js/Math.abs
+                                         (- (or (:exp-ev-pr3 item) 0)
+                                            (or (:n-ev-pr3 config) 0)))
+                                        0.0)
+                             sum-res (+ diff-ia diff-upd diff-pr3)]
+                         (/ 1.0 (+ sum-res 0.2))))
+                     valid-items)
+        tot-wt (reduce + weights)]
     (if (and (seq valid-items) (pos? tot-wt))
-      (/ (reduce + (map #(* (:p-success-overall %) (:acceptance-rate %))
-                        valid-items))
+      (/ (reduce + (map * (map :p-success-overall valid-items) weights))
          tot-wt)
       0.0)))
 
-(defn- summary-banner [results]
+(defn- summary-banner [results config]
   [:div.grid.grid-cols-1.md:grid-cols-3.gap-4.mb-6
    (for [[fam items] results]
-     (let [p-succ (expected-success-probability items)
+     (let [p-succ (expected-success-probability items config)
            pct-str (str (.toFixed (* 100 p-succ) 1) "%")]
        ^{:key fam}
        [:div.p-5.rounded-2xl.border.shadow-sm.bg-gradient-to-br
@@ -154,12 +169,65 @@
        :theme "vs-dark"
        :height "500px"
        :read-only? true}]]))
+(defn- trigger-resampling-workers!
+  [state-key items config n-sims resampled-data resampling-state]
+  (let [config (assoc config :n-sims-aggregation n-sims)
+        sampled (vega/sample-combos items config)]
+    (if (empty? sampled)
+      (do
+        (swap! resampled-data assoc state-key [])
+        (swap! resampling-state assoc state-key nil))
+      (let [num-workers (js/Math.max 1 (count @wp/pool))
+            total (count sampled)
+            chunk-size (js/Math.max
+                        5
+                        (js/Math.min
+                         50
+                         (js/Math.ceil (/ total (* 2 num-workers)))))
+            chunks (partition-all chunk-size sampled)
+            total-chunks (count chunks)
+            completed-chunks (atom 0)
+            all-results (js/Array.)]
+        (swap! resampling-state assoc state-key
+               {:completed 0 :total total-chunks})
+        (doseq [[idx chunk] (map-indexed vector chunks)]
+          (wp/submit-job!
+           {:type "RUN_RESAMPLING_BATCH"
+            :combos (vec chunk)
+            :config config
+            :seed (+ (or (:seed config) 20260508) (* idx 7919))}
+           (fn [{:keys [success? result error]}]
+             (swap! completed-chunks inc)
+             (when (and success? result)
+               (doseq [res result]
+                 (.push all-results res)))
+             (swap! resampling-state assoc state-key
+                    {:completed @completed-chunks :total total-chunks})
+             (when (>= @completed-chunks total-chunks)
+               (let [raw-res (js->clj all-results :keywordize-keys true)
+                     scored (vega/score-sampled-combos raw-res config)]
+                 (swap! resampled-data assoc state-key scored)
+                 (swap! resampling-state assoc state-key nil))))))))))
 
 (defn results-view []
   (let [results @(rf/subscribe [:results])
         progress @(rf/subscribe [:progress])
-        status @(rf/subscribe [:status])]
-    (r/with-let [active-tab (r/atom :charts)]
+        status @(rf/subscribe [:status])
+        config @(rf/subscribe [:config])]
+    (r/with-let [active-tab (r/atom :charts)
+                 active-family (r/atom nil)
+                 input-n-sims (r/atom (:n-sims-aggregation config 1000))
+                 committed-n-sims (r/atom (:n-sims-aggregation config 1000))
+                 resample-trigger (r/atom 0)
+                 resampled-data (r/atom {})
+                 resampling-state (r/atom {})
+                 results-tracker (r/atom results)]
+      (when-not (= results @results-tracker)
+        (reset! results-tracker results)
+        (reset! resampled-data {})
+        (reset! resampling-state {}))
+      (when (and (nil? @active-family) (seq results))
+        (reset! active-family (key (first results))))
       [:div.p-4.results-view-wrapper
        [:div.flex.justify-between.items-center.mb-4
         [:h2.text-xl.font-bold.results-charts-container "Results"]
@@ -174,13 +242,88 @@
          (= status :running-stage2) [stage2-progress progress]
          (seq results)
          [:div
-          [summary-banner results]
+          [summary-banner results config]
           (case @active-tab
-            :charts [:div
-                     (for [[fam items] results]
-                       ^{:key fam} [vega/results-charts (name fam) items])]
-            :table [:div
-                    (for [[fam items] results]
-                      ^{:key fam} [results-table fam items])]
+            :charts
+            (let [fam @active-family
+                  items (get results fam)]
+              [:div
+               [:div.mb-4.flex.flex-col.gap-2
+                [:div.flex.items-center.gap-2
+                 [:span.text-sm.font-semibold.text-gray-500 "Family:"]
+                 [tab-bar
+                  {:active-tab fam
+                   :tabs (mapv (fn [f] [f (str/capitalize (name f))])
+                               (keys results))
+                   :on-change #(reset! active-family %)}]]
+                [:div.flex.flex-wrap.items-center.gap-4.mt-2
+                 [:div.flex.items-center.gap-2
+                  [:span.text-sm.font-semibold.text-gray-500
+                   "Sims to Aggregate (N):"]
+                  [:input.border.p-1.rounded.text-sm.w-24
+                   {:type "number"
+                    :value @input-n-sims
+                    :on-change (fn [e]
+                                 (let [v (js/parseInt
+                                          (.. e -target -value) 10)]
+                                   (reset! input-n-sims
+                                           (if (js/isNaN v) 1000 v))))}]]
+                 (let [state-key [fam @committed-n-sims]
+                       loading (get @resampling-state state-key)]
+                   [:button.px-3.py-1.text-sm.text-white.bg-blue-600.rounded
+                    {:class (str "hover:bg-blue-700 transition font-semibold "
+                                 (when loading "opacity-50 cursor-not-allowed"))
+                     :disabled (boolean loading)
+                     :on-click (fn []
+                                 (reset! committed-n-sims @input-n-sims)
+                                 (swap! resample-trigger inc))}
+                    "Resample"])]]
+               (when (and fam items)
+                 (let [state-key [fam @committed-n-sims]
+                       loading (get @resampling-state state-key)
+                       res-data (get @resampled-data state-key)]
+                   (when (and (not res-data)
+                              (not loading))
+                     (trigger-resampling-workers!
+                      state-key items config @committed-n-sims
+                      resampled-data resampling-state))
+                   (cond
+                     loading
+                     [:div.p-8.text-center.border.rounded.bg-gray-50.my-4
+                      [:div.text-lg.font-bold.text-blue-600.mb-2
+                       "Resampling Across Web Workers..."]
+                      [:div.text-sm.text-gray-500.mb-2
+                       (str "Processing batch: "
+                            (:completed loading) " of " (:total loading)
+                            " chunks completed")]
+                      [:div.w-full.bg-gray-200.rounded-full.h-2.5.mx-auto
+                       {:class "max-w-md"}
+                       [:div.bg-blue-600.h-2.5.rounded-full
+                        {:style {:width (str (if (pos? (:total loading))
+                                               (* 100 (/ (:completed loading)
+                                                         (:total loading)))
+                                               0)
+                                             "%")}}]]]
+                     res-data
+                     ^{:key state-key}
+                     [vega/render-charts-panel (name fam) res-data 50 config]
+
+                     :else
+                     [:div.p-4.text-gray-500 "Initializing resampling..."])))])
+
+            :table
+            (let [fam @active-family
+                  items (get results fam)]
+              [:div
+               [:div.mb-4.flex.items-center.gap-2
+                [:span.text-sm.font-semibold.text-gray-500 "Family:"]
+                [tab-bar
+                 {:active-tab fam
+                  :tabs (mapv (fn [f] [f (str/capitalize (name f))])
+                              (keys results))
+                  :on-change #(reset! active-family %)}]]
+               (when (and fam items)
+                 ^{:key fam} [results-table fam items])])
+
             :edn [results-edn-view results])]
          :else [:div.text-gray-500 "Run a simulation to see results."])])))

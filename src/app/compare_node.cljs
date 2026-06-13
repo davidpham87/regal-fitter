@@ -7,7 +7,7 @@
             [cljs.nodejs :as node]
             [cljs.numpy :as np]))
 
-(def truth (js/JSON.parse (.readFileSync fs "truth.json" "utf8")))
+(def truth (js/JSON.parse (.readFileSync fs "datasets/truth.json" "utf8")))
 
 (defn approx= [a b epsilon]
   (< (js/Math.abs (- a b)) epsilon))

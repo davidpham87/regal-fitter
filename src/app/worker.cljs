@@ -2,6 +2,8 @@
   (:require [app.regal-fit.simulation-vectorized :as simulate]
             [app.stress-test.simulate :as stress-test]
             [app.stress-test.simulate-vectorized :as stress-test-vec]
+            [app.visualization.data :as vdata]
+            [cljs.numpy-random :as np-random]
             [clojure.walk :as walk]))
 
 (js/console.log "CLJS Worker: Initializing")
@@ -23,6 +25,21 @@
                           (= (:type args) "RUN_STRESS_TEST_BATCH")
                           (stress-test-vec/simulate-combos-vectorized args)
 
+                          (= (:type args) "RUN_RESAMPLING_BATCH")
+                          (let [combos (:combos args)
+                                config (:config args)
+                                seed (:seed args)
+                                rng (np-random/default-rng seed)]
+                            (mapv (fn [combo]
+                                    (let [t (simulate/simulate-one-accepted-trial
+                                             combo config rng)]
+                                      (assoc combo
+                                             :individual-observations
+                                             (if t [t] [])
+                                             :weight 1.0
+                                             :n-accepted 1)))
+                                  combos))
+
                           (= (:type args) "RUN_SIMULATION_BATCH")
                           (let [combos (:combos args)
                                 config (:config args)]
@@ -34,6 +51,30 @@
                                       :seed (+ (:seed config)
                                                (* (:idx combo) 7919))}))
                                   combos))
+
+                          (= (:type args) "RUN_AGGREGATION")
+                          (let [combos (:combos args)
+                                config (:config args)
+                                strat  (vdata/build-stratified-data
+                                         combos 1.0)
+                                tot-wt (reduce + (map :weight strat))
+                                vd     (vdata/calculate-vdata strat tot-wt)
+                                hr-d   (vdata/build-hr-distribution-data
+                                         combos 0.025)
+                                km-ci  (vdata/build-km-ci-data
+                                         combos config)
+                                [hr-p t80] (vdata/build-path-bins combos)
+                                alive-d (vdata/build-alive-scatter-data
+                                         combos)
+                                bat-alive-d (vdata/build-bat-alive-distribution-data
+                                             combos)]
+                            {:vdata   vd
+                             :hr-data hr-d
+                             :km-ci   km-ci
+                             :hr-paths hr-p
+                             :t80-bins t80
+                             :alive-data alive-d
+                             :bat-alive-data bat-alive-d})
 
                           :else
                           (simulate/simulate-one-combo args))

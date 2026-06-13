@@ -221,10 +221,26 @@
                   (>= t80 (- (or (:t-now config) 63) (:no-80-slack-months config)))
                   true)]
       (if-not (and reached today)
-        {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN}
-        (let [{:keys [time-fin ev-fin]} (calculate-final-times t80 n-total enroll-times survival-times)
-              [z-fin hr-fin] (stats/logrank-z (np/array time-fin) (np/array ev-fin) (np/array arms-array))]
-          {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin})))))
+        {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN
+         :bat-alive-final js/NaN :gps-alive-final js/NaN}
+        (let [{:keys [time-fin ev-fin]}
+              (calculate-final-times t80 n-total enroll-times survival-times)
+              [z-fin hr-fin]
+              (stats/logrank-z (np/array time-fin)
+                               (np/array ev-fin)
+                               (np/array arms-array))
+              bat-alive (volatile! 0)
+              gps-alive (volatile! 0)]
+          (dotimes [i n-total]
+            (let [enr (aget enroll-times i)
+                  surv (aget survival-times i)
+                  arm (aget arms-array i)]
+              (when (and (<= enr t80) (> (+ enr surv) t80))
+                (if (zero? arm)
+                  (vswap! bat-alive inc)
+                  (vswap! gps-alive inc)))))
+          {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin
+           :bat-alive-final @bat-alive :gps-alive-final @gps-alive})))))
 
 (defn- calculate-trial-stats
   "Computes all statistics for a successfully screened trial."
@@ -249,6 +265,8 @@
                     :z-final (:z-final final-res)
                     :bat-alive-upd (:alive-bat interim-res)
                     :gps-alive-upd (:alive-gps interim-res)
+                    :bat-alive-final (:bat-alive-final final-res)
+                    :gps-alive-final (:gps-alive-final final-res)
                     ;; Per-arm cumulative event counts
                     :n-interim-analysis-bat  (:n-interim-analysis-bat counts)
                     :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
@@ -426,6 +444,10 @@
           (np/median (to-nd (map :bat-alive-upd all-stats)))
           :median-gps-alive-upd
           (np/median (to-nd (map :gps-alive-upd all-stats)))
+          :median-bat-alive-final
+          (np/median (to-nd (map :bat-alive-final all-stats)))
+          :median-gps-alive-final
+          (np/median (to-nd (map :gps-alive-final all-stats)))
           ;; Mean per-arm deaths per interval (from simulation)
           :mean-n-interim-analysis-bat  (mean-field all-stats :n-interim-analysis-bat)
           :mean-n-interim-analysis-gps  (mean-field all-stats :n-interim-analysis-gps)
@@ -441,8 +463,9 @@
           :mean-med-update-gps   (mean-field all-stats :med-update-gps)
           :mean-med-update-pool  (mean-field all-stats :med-update-pool)
           :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
-          :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
-          :mean-med-press-release-3-pool (mean-field all-stats :mean-med-press-release-3-pool)})))
+          :mean-med-press-release-3-gps  (mean-field all-stats :mean-med-press-release-3-gps)
+          :mean-med-press-release-3-pool
+          (mean-field all-stats :mean-med-press-release-3-pool)})))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."

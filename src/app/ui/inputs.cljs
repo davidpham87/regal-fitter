@@ -48,7 +48,12 @@
    :median-fu-tol "Median Follow-up Tolerance"
    :hr-threshold "HR Significance Threshold"
    :seed "Random Seed"
-   :families "Model Families"})
+   :families "Model Families"
+   :n-sims-aggregation "Sims to Aggregate (N)"
+   :median-bat-alive-upd "Median BAT Alive UPD"
+   :median-gps-alive-upd "Median GPS Alive UPD"
+   :median-bat-alive-final "Median BAT Alive Final (T80)"
+   :median-gps-alive-final "Median GPS Alive Final (T80)"})
 
 (def key->help
   {:n-total "Total trial size (e.g. 126 subjects)."
@@ -122,7 +127,9 @@
    :median-fu-tol "Tolerance for median follow-up target in months."
    :hr-threshold "Hazard ratio threshold for significance per SAP (0.636)."
    :seed "Random seed for reproducibility."
-   :families "Enabled model distribution families."})
+   :families "Enabled model distribution families."
+   :n-sims-aggregation
+   "Number of simulations to sample and aggregate for plotting."})
 
 (defn- parse-vector [val]
   (try

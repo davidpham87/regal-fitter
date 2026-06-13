@@ -24,8 +24,10 @@
      :high (get m :hr_final_high js/NaN)}))
 
 (defn main [& args]
-  (let [configs (reader/read-string (.readFileSync fs "verify_configs.edn" "utf8"))
-        py-raw-str (.readFileSync fs "py_verification_results.json" "utf8")
+  (let [configs (reader/read-string
+                 (.readFileSync fs "datasets/verify_configs.edn" "utf8"))
+        py-raw-str (.readFileSync
+                    fs "datasets/py_verification_results.json" "utf8")
         py-results (js->clj (js/JSON.parse py-raw-str) :keywordize-keys true)
         results-map (atom [])]
     (println "\n=======================================================")
@@ -68,6 +70,7 @@
                       (format-num
                        (js/Math.abs (- (:median py) (:median vec-stats))))))))
     (let [edn-str (pr-str @results-map)]
-      (.writeFileSync fs "verification_results.edn" edn-str "utf8"))
-    (println "\nResults written to verification_results.edn")
+      (.writeFileSync
+       fs "datasets/verification_results.edn" edn-str "utf8"))
+    (println "\nResults written to datasets/verification_results.edn")
     (println "=======================================================")))

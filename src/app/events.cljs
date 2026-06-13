@@ -2,6 +2,7 @@
   (:require
    [app.state :as state]
    [app.state-url :as state-url]
+   [app.worker-pool :as wp]
    [re-frame.core :as rf]
    [reitit.frontend.easy :as rfe]))
 
@@ -20,6 +21,7 @@
     :progress {:total 0 :completed 0}
     :stress-test-progress {:total 0 :completed 0}
     :results {} ;; family -> list of combos
+    :aggregation {} ;; [family n-sims] -> {:loading? bool :data map}
     :stress-test-results []
     :error-message nil
     :view :config-form ;; :config-form, :config-json, :results
@@ -194,7 +196,7 @@
 (rf/reg-event-db
  :set-results
  (fn [db [_ results]]
-   (assoc db :results results)))
+   (assoc db :results results :aggregation {})))
 
 (rf/reg-event-db
  :set-error
@@ -260,3 +262,59 @@
  :set-discovery-param
  (fn [db [_ param value]]
    (assoc-in db [:discovery param] value)))
+
+;; ── Aggregation events ────────────────────────────────────────────────────
+;;
+;; :aggregation in db: {cache-key {:loading? bool :data map-or-nil}}
+;; cache-key is [family n-sims] so each unique (family, N) gets its own slot.
+
+(rf/reg-event-db
+ :aggregation/set-loading
+ (fn [db [_ cache-key loading?]]
+   (assoc-in db [:aggregation cache-key :loading?] loading?)))
+
+(rf/reg-event-db
+ :aggregation/set-data
+ (fn [db [_ cache-key data]]
+   (-> db
+       (assoc-in [:aggregation cache-key :loading?] false)
+       (assoc-in [:aggregation cache-key :data] data))))
+
+;; Clear all cached aggregation results (e.g. when new simulation finishes)
+(rf/reg-event-db
+ :aggregation/clear
+ (fn [db _]
+   (assoc db :aggregation {})))
+
+;; Side-effect: submit a RUN_AGGREGATION job to the worker pool.
+;; Dispatches :aggregation/set-loading true first, then
+;; :aggregation/set-data when the worker responds.
+(rf/reg-fx
+ :aggregation/submit-job!
+ (fn [{:keys [cache-key combos config]}]
+   (rf/dispatch [:aggregation/set-loading cache-key true])
+   (wp/submit-job!
+    {:type   "RUN_AGGREGATION"
+     :combos combos
+     :config config}
+    (fn [{:keys [success? result error]}]
+      (if success?
+        (rf/dispatch
+         [:aggregation/set-data
+          cache-key
+          (js->clj result :keywordize-keys true)])
+        (do
+          (js/console.error "Aggregation worker error:" error)
+          (rf/dispatch [:aggregation/set-loading cache-key false])))))))
+
+;; Request aggregation for a given (family, n-sims) cache-key.
+;; No-ops when data is already cached or a job is already running.
+(rf/reg-event-fx
+ :aggregation/request
+ (fn [{:keys [db]} [_ cache-key combos config]]
+   (let [slot (get-in db [:aggregation cache-key])]
+     (when (and (not (:loading? slot)) (nil? (:data slot)))
+       {:aggregation/submit-job!
+        {:cache-key cache-key
+         :combos    combos
+         :config    config}}))))
