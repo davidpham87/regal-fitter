@@ -9,3 +9,14 @@ regal_fit_report.json
 regal_fit_report.pdf
 regal_fit_report_*.csv
 regal_fit_report_*.json
+
+.clj-kondo/
+.cpcache/
+.lsp/
+.shadow-cljs/
+chat.md
+node_modules/
+out/
+public/js/
+public/test/js/
+target/  
