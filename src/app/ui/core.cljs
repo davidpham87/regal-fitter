@@ -48,7 +48,13 @@
            :class (str "bg-blue-50 hover:bg-blue-100 "
                        "text-blue-700 border-blue-200")
            :on-click #(rf/dispatch [:reset-config state/light-config])}
-          "Light"]]]
+          "Light"]
+         [:button.px-3.py-1.text-xs.font-bold.rounded.border
+          {:type "button"
+           :class (str "bg-green-50 hover:bg-green-100 "
+                       "text-green-700 border-green-200")
+           :on-click #(rf/dispatch [:reset-config state/py-config])}
+          "Python"]]]
 
        [fork/form
         {:initial-values initial-config

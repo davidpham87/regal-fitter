@@ -35,9 +35,9 @@
    :n-ev-final 80
    :use-pr3-anchor true
 
-   :prefilter-tol-ia 2
-   :prefilter-tol-upd 2
-   :prefilter-tol-pr3 2
+   :prefilter-tol-ia 1.5
+   :prefilter-tol-upd 1.5
+   :prefilter-tol-pr3 1.5
    :tol-ia 4
    :tol-upd 4
    :tol-pr3 2
@@ -93,6 +93,60 @@
          :n-sims-per-combo 100
          :n-sims-screen 10
          :families ["weibull"]))
+
+(def py-config
+  {:n-total 126
+   :n-per-arm 63
+   :enroll-bands
+   [[0.0 12.0 15]
+    [12.0 24.0 50]
+    [24.0 36.0 56]
+    [36.0 38.0 5]]
+   :t-ia 46.0
+   :t-upd 58.0
+   :t-pr3 62.97
+   :n-ev-ia 60
+   :n-ev-upd 72
+   :n-ev-pr3 78
+   :n-ev-final 80
+   :use-pr3-anchor true
+   :prefilter-tol-ia 1.5
+   :prefilter-tol-upd 1.5
+   :prefilter-tol-pr3 1.5
+   :tol-ia 4.0
+   :tol-upd 4.0
+   :tol-pr3 2.0
+   :tol-increment-ia-upd 3.0
+   :tol-increment-upd-pr3 2.0
+   :futility-hr-max 0.83
+   :efficacy-hr-min 0.40
+   :pool-mos-min-at-ia 12.0
+   :median-fu-target 13.5
+   :median-fu-tol 2.0
+   :enforce-no-80-by-today true
+   :t-now (cfg-today-month)
+   :no-80-slack-months 1.0
+   :bat-strat-bin 1.0
+   :hr-threshold 0.636
+   :n-sims-per-combo 1000
+   :n-sims-screen 250
+   :n-screen-min-pass 1
+   :seed 20260508
+   :bat-med-grid [4.0 30.0 0.5]
+   :bat-shape-grid [0.5 2.01 0.1]
+   :gps-med-grid-lo 8.0
+   :gps-med-grid-hi 250.0
+   :gps-med-grid-n 36
+   :gps-shape-grid [0.5 2.01 0.1]
+   :cure-frac-grid [0.0 0.951 0.05]
+   :cure-unc-med-grid [4.0 30.0 1.0]
+   :cure-unc-shape-grid [0.5 2.01 0.25]
+   :leaky-cure-frac-grid [0.0 0.91 0.1]
+   :leaky-unc-med-grid [4.0 30.0 2.0]
+   :leaky-unc-shape-grid [0.5 2.01 0.5]
+   :leak-grid [0.0 0.101 0.01]
+   :families ["weibull" "cure" "leaky"]
+   :n-sims-aggregation 5000})
 
 (def config-schema
   [:map
