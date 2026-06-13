@@ -101,6 +101,16 @@
    :js-options {:resolve {"node:fs"          false
                           "node:fs/promises" false}}}
 
+  :convergence-test
+  {:target :node-script
+   :main app.regal-fit.convergence-test/main
+   :output-to "out/convergence_test.js"}
+
+  :run-combo
+  {:target :node-script
+   :main app.regal-fit.run-combo/-main
+   :output-to "out/run_combo.js"}
+
   :generative-tests
   {:target :node-script
    :main app.regal-fit.run-generative-tests/main

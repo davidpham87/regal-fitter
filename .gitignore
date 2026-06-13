@@ -12,11 +12,14 @@ regal_fit_report_*.json
 
 .clj-kondo/
 .cpcache/
+.hypothesis/
 .lsp/
 .shadow-cljs/
 chat.md
+datasets/
 node_modules/
 out/
 public/js/
 public/test/js/
-target/  
+py_5000.json
+target/    

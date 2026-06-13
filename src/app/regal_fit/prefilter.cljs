@@ -81,7 +81,7 @@
   (let [grid-bat (first (.-shape bat-ev)) grid-gps (first (.-shape gps-ev)) num-anchors (second (.-shape bat-ev))
         apply-pool (and bat-S-T gps-S-T (> (:pool-mos-min-at-ia config) 0))
         apply-pr3 (and (:use-pr3-anchor config) (>= num-anchors 3))
-        chunk-size 256]
+        chunk-size 1024]
     (mapcat
      #(process-chunk
        % (js/Math.min (+ % chunk-size) grid-bat)
