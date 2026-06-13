@@ -256,7 +256,7 @@
 
 (defn chart-implied-km [km-data top-n]
   [vega-lite
-   {:width 400 :height 260 :data {:values km-data}
+   {:width 360 :height 240 :data {:values km-data}
     :layer [implied-km-layer-indiv implied-km-layer-rep]
     :config {:legend {:orient "bottom"}}}])
 
@@ -332,7 +332,7 @@
 
 (defn chart-km-ci [km-ci-data bat-med-w gps-med-w bat-mean-w gps-mean-w]
   [vega-lite
-   {:width 400 :height 260 :data {:values km-ci-data}
+   {:width 360 :height 240 :data {:values km-ci-data}
     :layer [km-ci-layer-area
             km-ci-layer-mean-line
             km-ci-layer-median-line

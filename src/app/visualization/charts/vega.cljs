@@ -19,6 +19,6 @@
 
 (defn make-chart [data spec]
   [vega-lite
-   (merge {:width 400 :height 260
+   (merge {:width 360 :height 240
            :data {:values data}}
           spec)])
