@@ -228,67 +228,6 @@
  (fn [new-state]
    (reset! app-state new-state)))
 
-(rf/reg-fx
- :decode-url-state
- (fn [{:keys [page state-str]}]
-   #_(-> (state-url/decode-state state-str)
-         (.then (fn [decoded]
-                  (rf/dispatch [:apply-decoded-state page decoded]))))))
-
-(rf/reg-event-fx
- :apply-decoded-state
- [(rf/inject-cofx :app-state)]
- (fn [{:keys [app-state]} [_ page decoded]]
-   #_(let [new-state (cond
-                       (#{:fitter :fitter-sub} page)
-                       (update app-state :config merge decoded)
-
-                       (= page :placebo-stress)
-                       (update app-state :stress-test-config merge decoded)
-
-                       (#{:discovery :discovery-sub} page)
-                       (update-in app-state [:discovery :params] merge decoded)
-
-                       :else
-                       app-state)]
-       {:app-state new-state})))
-
-(rf/reg-event-fx
- :navigate
- [(rf/inject-cofx :app-state)]
- (fn [{:keys [app-state]} [_ page path-params query-params]]
-   (let [new-state (cond
-                     (#{:fitter-sub :fitter-sub-state} page)
-                     (assoc app-state :active-page :fitter
-                            :view (keyword (:subtab path-params)))
-
-                     (#{:discovery-sub :discovery-sub-state} page)
-                     (-> app-state
-                         (assoc :active-page :discovery)
-                         (assoc-in [:discovery :active-family]
-                                   (:subtab path-params)))
-
-                     (#{:fitter :fitter-state} page)
-                     (assoc app-state :active-page :fitter :view :config-form)
-
-                     (#{:discovery :discovery-state} page)
-                     (-> app-state
-                         (assoc :active-page :discovery)
-                         (assoc-in [:discovery :active-family] "weibull"))
-
-                     (#{:placebo-stress :placebo-stress-state} page)
-                     (assoc app-state :active-page :placebo-stress)
-
-                     :else
-                     (assoc app-state :active-page page))
-         new-state (assoc new-state :current-route
-                          {:page page
-                           :path-params path-params})
-         effects {:app-state new-state}]
-     (if-let [state-str (or (:state path-params) #_(:state query-params))]
-       (assoc effects :decode-url-state {:page page :state-str state-str})
-       effects))))
-
 (defn- sync-to-url! [data]
   #_(let [clean (if (map? data)
                   (dissoc data :enroll-bands :enrollment-mode)
