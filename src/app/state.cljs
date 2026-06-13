@@ -46,6 +46,11 @@
    :median-fu-tol 3.0
 
    :enforce-no-80-by-today true
+   :t-now
+   (let [today (js/Date.)
+         y-diff (- (.getFullYear today) 2026)
+         m-diff (- (.getMonth today) 0)]
+     (+ 58 m-diff (* y-diff 12)))
    :no-80-slack-months 1.0
    :bat-strat-bin 0.5
 
@@ -118,6 +123,7 @@
    [:median-fu-tol :number]
 
    [:enforce-no-80-by-today :boolean]
+   [:t-now :number]
    [:no-80-slack-months :number]
    [:bat-strat-bin :number]
 
