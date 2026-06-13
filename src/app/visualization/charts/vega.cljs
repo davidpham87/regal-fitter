@@ -17,9 +17,8 @@
         (when @ref
           (vegaEmbed @ref (clj->js spec) #js {:actions false})))})))
 
-(defn make-chart [title data spec]
+(defn make-chart [data spec]
   [vega-lite
-   (merge {:width 320 :height 240
-           :data {:values data}
-           :title title}
+   (merge {:width 400 :height 260
+           :data {:values data}}
           spec)])

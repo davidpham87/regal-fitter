@@ -314,7 +314,7 @@
 
 (defn build-path-bins [best-n]
   (let [path-data (get-successful-paths best-n)]
-    [(bin-data (:hrs path-data) (:weights path-data) 0.02)
+    [(add-cum-pct (bin-data (:hrs path-data) (:weights path-data) 0.02))
      (add-cum-pct (bin-data (:t80s path-data) (:weights path-data) 0.5))]))
 
 (defn build-alive-scatter-data [results]

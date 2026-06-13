@@ -37,12 +37,12 @@
               :color {:value "#333"}}})
 
 (defn chart-bat-cdf [vdata]
-  (make-chart "Cumulative BAT mOS & P(success)" vdata
+  (make-chart vdata
     {:layer [cdf-layer-cdf cdf-layer-success cdf-layer-text]
      :config {:legend {:orient "bottom"}}}))
 
 (defn chart-bat-posterior [vdata]
-  (make-chart "Posterior Probability of BAT mOS" vdata
+  (make-chart vdata
     {:mark "bar"
      :encoding {:x {:field "bat-mid"
                     :type "quantitative"
@@ -85,7 +85,7 @@
               :strokeDash {:value [4 4]}}})
 
 (defn chart-hr-by-bat [vdata]
-  (make-chart "Implied Final HR by BAT mOS" vdata
+  (make-chart vdata
     {:layer [hr-bat-layer-area hr-bat-layer-line hr-bat-layer-rule]}))
 
 (def hr-dist-layer-bar
@@ -98,11 +98,7 @@
               :y {:field "p-val"
                   :type "quantitative"
                   :title "Probability (%)"}
-              :color {:value "#ff9900"}
-              :tooltip [{:field "hr-mid" :type "quantitative"
-                          :title "Hazard Ratio"}
-                         {:field "p-val" :type "quantitative"
-                          :title "Probability (%)"}]}})
+              :color {:value "#ff9900"}}})
 
 (def hr-dist-layer-cdf
   {:mark {:type "line" :point true}
@@ -142,7 +138,7 @@
               :color {:datum "P(success)"}}})
 
 (defn chart-hr-distribution [hr-data]
-  (make-chart "Hazard Ratio Distribution" hr-data
+  (make-chart hr-data
     {:resolve {:scale {:y "independent"}}
      :layer [hr-dist-layer-bar
              {:layer [hr-dist-layer-cdf
@@ -151,22 +147,22 @@
      :config {:legend {:orient "bottom"}}}))
 
 (defn chart-alive-distribution [alive-data]
-  (make-chart "Patients Alive at 80th Event" alive-data
+  (make-chart alive-data
     {:resolve {:scale {:y "shared" :x "shared"}}
      :layer [{:mark {:type "point" :filled true :size 15 :opacity 0.4}
               :encoding {:x {:field "bat-jitter"
                              :type "quantitative"
                              :title "Alive Patients in BAT"
                              :scale {:zero false}}
-                         :y {:field "gps-jitter"
-                             :type "quantitative"
-                             :title "Alive Patients in GPS"
-                             :scale {:zero false}}
-                         :color {:value "#8854d0"}
-                         :tooltip [{:field "bat-alive" :type "quantitative"
-                                    :title "Alive BAT"}
-                                   {:field "gps-alive" :type "quantitative"
-                                    :title "Alive GPS"}]}}
+                          :y {:field "gps-jitter"
+                              :type "quantitative"
+                              :title "Alive Patients in GPS"
+                              :scale {:zero false}}
+                          :color {:value "#8854d0"}
+                          :tooltip [{:field "bat-alive" :type "quantitative"
+                                     :title "Alive BAT"}
+                                    {:field "gps-alive" :type "quantitative"
+                                     :title "Alive GPS"}]}}
              {:mark {:type "line" :color "#55bb88" :strokeWidth 1.5
                      :strokeDash [4 4]}
               :data {:values [{:x 0 :y 0} {:x 63 :y 63}]}
@@ -181,12 +177,7 @@
               :y {:field "p-val"
                   :type "quantitative"
                   :title "Probability (%)"}
-              :color {:value "#ee6677"}
-              :tooltip [{:field "alive" :type "quantitative"
-                          :title "BAT Alive Patients"}
-                         {:field "p-val" :type "quantitative"
-                          :title "Probability (%)"
-                          :format ".1f"}]}})
+              :color {:value "#ee6677"}}})
 
 (def bat-alive-layer-cdf
   {:mark {:type "line" :point true}
@@ -206,14 +197,14 @@
                           :format ".1f"}]}})
 
 (defn chart-bat-alive-distribution [bat-alive-data]
-  (make-chart "BAT Alive Patients Distribution" bat-alive-data
+  (make-chart bat-alive-data
     {:resolve {:scale {:y "independent"}}
      :layer [bat-alive-layer-bar
              bat-alive-layer-cdf]
      :config {:legend {:orient "bottom"}}}))
 
 (defn chart-gps-vs-bat [vdata]
-  (make-chart "GPS mOS vs BAT mOS" vdata
+  (make-chart vdata
     {:mark {:type "line" :point true}
      :encoding {:x {:field "bat-mid"
                     :type "quantitative"
@@ -265,8 +256,7 @@
 
 (defn chart-implied-km [km-data top-n]
   [vega-lite
-   {:width 320 :height 240 :data {:values km-data}
-    :title (str "Implied KM (Top " (min top-n 20) " of Best " top-n ")")
+   {:width 400 :height 260 :data {:values km-data}
     :layer [implied-km-layer-indiv implied-km-layer-rep]
     :config {:legend {:orient "bottom"}}}])
 
@@ -342,14 +332,7 @@
 
 (defn chart-km-ci [km-ci-data bat-med-w gps-med-w bat-mean-w gps-mean-w]
   [vega-lite
-   {:width 320 :height 240 :data {:values km-ci-data}
-    :title {:text "KM Curves with 95% Confidence Interval"
-            :subtitle (str "Median OS: BAT = "
-                           (.toFixed bat-med-w 1) "m, GPS = "
-                           (.toFixed gps-med-w 1) "m"
-                           " | Mean OS (RMST 80m): BAT = "
-                           (.toFixed bat-mean-w 1) "m, GPS = "
-                           (.toFixed gps-mean-w 1) "m")}
+   {:width 400 :height 260 :data {:values km-ci-data}
     :layer [km-ci-layer-area
             km-ci-layer-mean-line
             km-ci-layer-median-line
@@ -358,23 +341,40 @@
             (km-ci-layer-rule-gps gps-med-w)]
     :config {:legend {:orient "bottom"}}}])
 
+(def hr-paths-bar-layer
+  {:mark "bar"
+   :encoding {:x {:field "lo"
+                  :type "quantitative"
+                  :title "Final Hazard Ratio"
+                  :bin {:binned true :step 0.02}}
+              :x2 {:field "hi"}
+              :y {:field "pct"
+                  :type "quantitative"
+                  :title "Percentage (%)"}
+              :color {:value "#55bb88"}}})
+
+(def hr-paths-cdf-layer
+  {:mark {:type "line" :point true}
+   :encoding {:x {:field "mid" :type "quantitative"}
+              :y {:field "cum-pct"
+                  :type "quantitative"
+                  :title "Cumulative Probability (%)"
+                  :axis {:orient "right"}
+                  :scale {:domain [0 100]}}
+              :color {:datum "Cumulative (CDF)"
+                      :type "nominal"
+                      :scale {:range ["#ff3366" "#55bb88"]}}
+              :tooltip [{:field "mid" :type "quantitative"
+                          :title "Hazard Ratio"}
+                        {:field "cum-pct" :type "quantitative"
+                         :format ".1f"
+                         :title "Cumulative (%)"}]}})
+
 (defn chart-hr-paths [hr-path-bins]
-  (make-chart "Successful Paths: Final HR" hr-path-bins
-    {:mark "bar"
-     :encoding {:x {:field "lo"
-                    :type "quantitative"
-                    :title "Final Hazard Ratio"
-                    :bin {:binned true :step 0.02}}
-                :x2 {:field "hi"}
-                :y {:field "pct"
-                    :type "quantitative"
-                    :title "Percentage (%)"}
-                :color {:value "#55bb88"}
-                :tooltip [{:field "mid" :type "quantitative"
-                           :title "Hazard Ratio"}
-                          {:field "pct" :type "quantitative"
-                           :format ".1f"
-                           :title "Percentage (%)"}]}}))
+  (make-chart hr-path-bins
+    {:resolve {:scale {:y "independent"}}
+     :layer [hr-paths-bar-layer hr-paths-cdf-layer]
+     :config {:legend {:orient "bottom"}}}))
 
 (def t80-paths-bar-layer
   {:mark "bar"
@@ -386,12 +386,7 @@
               :y {:field "pct"
                   :type "quantitative"
                   :title "Percentage (%)"}
-              :color {:value "#4488cc"}
-              :tooltip [{:field "mid" :type "quantitative"
-                          :title "t80 (months)"}
-                        {:field "pct" :type "quantitative"
-                         :format ".1f"
-                         :title "Percentage (%)"}]}})
+              :color {:value "#4488cc"}}})
 
 (def t80-paths-cdf-layer
   {:mark {:type "line" :point true}
@@ -411,12 +406,10 @@
                          :title "Cumulative (%)"}]}})
 
 (defn chart-t80-paths [t80-path-bins]
-  (make-chart {:text "Successful Paths: Read-out Time (t80)"
-               :subtitle "Note: t=65 months corresponds to July 2026"}
-              t80-path-bins
-              {:resolve {:scale {:y "independent"}}
-               :layer [t80-paths-bar-layer t80-paths-cdf-layer]
-               :config {:legend {:orient "bottom"}}}))
+  (make-chart t80-path-bins
+    {:resolve {:scale {:y "independent"}}
+     :layer [t80-paths-bar-layer t80-paths-cdf-layer]
+     :config {:legend {:orient "bottom"}}}))
 
 (defn render-charts-list
   [vdata hr-data km-data top-n km-ci-res hr-bins t80-bins]

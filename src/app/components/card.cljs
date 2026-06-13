@@ -14,7 +14,6 @@
          :href (rfe/href page)}
      button-label]]])
 
-;; Chart card: uniform sizing wrapper for Vega charts
 (defn chart-card
   [{:keys [title subtitle class]}
    & children]
@@ -23,13 +22,13 @@
     (str "bg-white overflow-hidden transition-shadow "
          "hover:shadow-md "
          (or class ""))
-    :style {:width "360px"
-            :min-width "360px"}}
+    :style {:width "440px"
+            :min-width "440px"}}
    (when title
      [:div.px-4.pt-3.pb-1
       [:p.text-sm.font-semibold.text-gray-700.leading-tight title]
       (when subtitle
         [:p.text-xs.text-gray-400 subtitle])])
    (into
-    [:div.flex.items-center.justify-center.p-3]
+    [:div.flex.items-center.justify-center.p-2]
     children)])
