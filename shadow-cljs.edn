@@ -99,4 +99,11 @@
    :main app.regal-fit.verify/main
    :output-to "out/verify.js"
    :js-options {:resolve {"node:fs"          false
+                          "node:fs/promises" false}}}
+
+  :generative-tests
+  {:target :node-script
+   :main app.regal-fit.run-generative-tests/main
+   :output-to "out/run_generative_tests.js"
+   :js-options {:resolve {"node:fs"          false
                           "node:fs/promises" false}}}}}
