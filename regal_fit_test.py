@@ -127,3 +127,82 @@ def test_leaky_cure_S(t, p_cure, unc_scale, unc_shape, leak_rate_yr):
     save_test_case(
         "leaky_cure_S", [t, p_cure, unc_scale, unc_shape, leak_rate_yr], S
     )
+
+
+def test_stage1_prefilters():
+    cfg = regal_fit.Config()
+    cfg.bat_med_grid = (8.0, 10.0, 2.0)
+    cfg.bat_shape_grid = (0.8, 1.0, 0.2)
+    cfg.gps_med_grid_lo = 10.0
+    cfg.gps_med_grid_hi = 20.0
+    cfg.gps_med_grid_n = 2
+    cfg.gps_shape_grid = (0.8, 1.0, 0.2)
+    cfg.cure_frac_grid = (0.1, 0.2, 0.1)
+    cfg.cure_unc_med_grid = (10.0, 11.0, 1.0)
+    cfg.cure_unc_shape_grid = (0.8, 1.0, 0.2)
+    cfg.leaky_cure_frac_grid = (0.1, 0.2, 0.1)
+    cfg.leaky_unc_med_grid = (10.0, 11.0, 1.0)
+    cfg.leaky_unc_shape_grid = (0.8, 1.0, 0.2)
+    cfg.leak_grid = (0.01, 0.02, 0.01)
+    cfg.pool_mos_min_at_ia = 0.0
+    cfg.prefilter_tol_ia = 9999.0
+    cfg.prefilter_tol_upd = 9999.0
+    cfg.prefilter_tol_pr3 = 9999.0
+    cfg.tol_increment_ia_upd = 9999.0
+    cfg.tol_increment_upd_pr3 = 9999.0
+
+    res_w = regal_fit.abc_prefilter_weibull(cfg)
+    res_c = regal_fit.abc_prefilter_cure(cfg)
+    res_l = regal_fit.abc_prefilter_leaky(cfg)
+
+    assert len(res_w) > 0
+    assert len(res_c) > 0
+    assert len(res_l) > 0
+
+
+def test_stage2_simulation():
+    rec = {
+        "family": "weibull",
+        "bat_scale": 12.0,
+        "bat_shape": 0.9,
+        "gps_scale": 18.0,
+        "gps_shape": 0.95,
+        "gps_med": 15.0,
+    }
+    cfg_dict = {
+        "n_total": 126,
+        "n_per_arm": 63,
+        "enroll_bands": [
+            [0.0, 12.0, 15],
+            [12.0, 24.0, 50],
+            [24.0, 36.0, 56],
+            [36.0, 38.0, 5],
+        ],
+        "t_ia": 46.0,
+        "t_upd": 58.0,
+        "t_pr3": 62.97,
+        "n_ev_ia": 60,
+        "n_ev_upd": 72,
+        "n_ev_pr3": 78,
+        "n_ev_final": 80,
+        "use_pr3_anchor": True,
+        "tol_ia": 9999,
+        "tol_upd": 9999,
+        "tol_pr3": 9999,
+        "tol_increment_ia_upd": 9999,
+        "tol_increment_upd_pr3": 9999,
+        "futility_hr_max": 999.0,
+        "efficacy_hr_min": -999.0,
+        "pool_mos_min_at_ia": 0.0,
+        "median_fu_target": 0.0,
+        "median_fu_tol": 999.0,
+        "enforce_no_80_by_today": False,
+        "no_80_slack_months": 999.0,
+        "n_sims_screen": 50,
+        "n_screen_min_pass": 1,
+    }
+    args = (rec, cfg_dict, 10, 42)
+    res = regal_fit._simulate_one_combo(args)
+    assert res is not None
+    assert "median_hr_final" in res
+
