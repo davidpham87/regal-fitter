@@ -135,15 +135,15 @@
               #js [(:t-ia config) (:t-upd config)])
             "float64"))
 
-(defn apply-prefilter-weibull
-  "Runs pre-filtering for the Weibull distribution family."
-  {:malli/schema [:=> [:cat any?] any?]}
-  [config]
-  (let [[enroll-pts enroll-weights]
-        (enrollment/expected-enrollment-times config)
-        target-pts (get-target-pts config)
-        bat (make-bat-grid config)
-        gps-meds (np/geomspace (:gps-med-grid-lo config)
+;; Multimethods for GPS grid and expected events generation
+
+(defmulti gps-grid-and-ev
+  "Unifies GPS grid creation and expected events calculation by family."
+  (fn [family _ _ _ _ _] family))
+
+(defmethod gps-grid-and-ev "weibull"
+  [_ config enroll-pts enroll-weights target-pts pool-target]
+  (let [gps-meds (np/geomspace (:gps-med-grid-lo config)
                                (:gps-med-grid-hi config)
                                (:gps-med-grid-n config))
         gps-shapes (grid-flat config :gps-shape-grid)
@@ -152,41 +152,23 @@
         gps-shape-flat (np/ravel (aget gps-mesh 1))
         gps-scale-flat (survival/weibull-scale-from-median
                         gps-med-flat gps-shape-flat)
-        bat-ev (enrollment/expected-arm-events
-                survival/weibull-survival-probability
-                [(:scale bat) (:shape bat)]
-                enroll-pts enroll-weights target-pts
-                (:n-per-arm config) (:n-total config))
         gps-ev (enrollment/expected-arm-events
                 survival/weibull-survival-probability
                 [gps-scale-flat gps-shape-flat]
                 enroll-pts enroll-weights target-pts
                 (:n-per-arm config) (:n-total config))
-        pool-target (:pool-mos-min-at-ia config)
-        bat-S-T (when (> pool-target 0)
-                  (survival/weibull-survival-probability
-                   pool-target (:scale bat) (:shape bat)))
         gps-S-T (when (> pool-target 0)
                   (survival/weibull-survival-probability
                    pool-target gps-scale-flat gps-shape-flat))]
-    (cross-filter config bat-ev gps-ev
-                  {:bat-med (:med bat)
-                   :bat-shape (:shape bat)
-                   :bat-scale (:scale bat)}
-                  {:gps-med gps-med-flat
-                   :gps-shape gps-shape-flat
-                   :gps-scale gps-scale-flat}
-                  "weibull" bat-S-T gps-S-T)))
+    {:gps-ev gps-ev
+     :gps-params {:gps-med gps-med-flat
+                  :gps-shape gps-shape-flat
+                  :gps-scale gps-scale-flat}
+     :gps-S-T gps-S-T}))
 
-(defn apply-prefilter-cure
-  "Runs pre-filtering for the standard Cure fraction model family."
-  {:malli/schema [:=> [:cat any?] any?]}
-  [config]
-  (let [[enroll-pts enroll-weights]
-        (enrollment/expected-enrollment-times config)
-        target-pts (get-target-pts config)
-        bat (make-bat-grid config)
-        cf-grid (grid-flat config :cure-frac-grid)
+(defmethod gps-grid-and-ev "cure"
+  [_ config enroll-pts enroll-weights target-pts pool-target]
+  (let [cf-grid (grid-flat config :cure-frac-grid)
         unc-meds (grid-flat config :cure-unc-med-grid)
         unc-shapes (grid-flat config :cure-unc-shape-grid)
         gps-mesh (np/meshgrid [cf-grid unc-meds unc-shapes]
@@ -196,42 +178,24 @@
         unc-shape-flat (np/ravel (aget gps-mesh 2))
         unc-scale-flat (survival/weibull-scale-from-median
                         unc-med-flat unc-shape-flat)
-        bat-ev (enrollment/expected-arm-events
-                survival/weibull-survival-probability
-                [(:scale bat) (:shape bat)]
-                enroll-pts enroll-weights target-pts
-                (:n-per-arm config) (:n-total config))
         gps-ev (enrollment/expected-arm-events
                 survival/cure-survival-probability
                 [cf-flat unc-scale-flat unc-shape-flat]
                 enroll-pts enroll-weights target-pts
                 (:n-per-arm config) (:n-total config))
-        pool-target (:pool-mos-min-at-ia config)
-        bat-S-T (when (> pool-target 0)
-                  (survival/weibull-survival-probability
-                   pool-target (:scale bat) (:shape bat)))
         gps-S-T (when (> pool-target 0)
                   (survival/cure-survival-probability
                    pool-target cf-flat unc-scale-flat unc-shape-flat))]
-    (cross-filter config bat-ev gps-ev
-                  {:bat-med (:med bat)
-                   :bat-shape (:shape bat)
-                   :bat-scale (:scale bat)}
-                  {:cure-frac cf-flat
-                   :unc-med unc-med-flat
-                   :unc-shape unc-shape-flat
-                   :unc-scale unc-scale-flat}
-                  "cure" bat-S-T gps-S-T)))
+    {:gps-ev gps-ev
+     :gps-params {:cure-frac cf-flat
+                  :unc-med unc-med-flat
+                  :unc-shape unc-shape-flat
+                  :unc-scale unc-scale-flat}
+     :gps-S-T gps-S-T}))
 
-(defn apply-prefilter-leaky
-  "Runs pre-filtering for the Leaky Cure fraction model family."
-  {:malli/schema [:=> [:cat any?] any?]}
-  [config]
-  (let [[enroll-pts enroll-weights]
-        (enrollment/expected-enrollment-times config)
-        target-pts (get-target-pts config)
-        bat (make-bat-grid config)
-        cf-grid (grid-flat config :leaky-cure-frac-grid)
+(defmethod gps-grid-and-ev "leaky"
+  [_ config enroll-pts enroll-weights target-pts pool-target]
+  (let [cf-grid (grid-flat config :leaky-cure-frac-grid)
         unc-meds (grid-flat config :leaky-unc-med-grid)
         unc-shapes (grid-flat config :leaky-unc-shape-grid)
         leaks (grid-flat config :leak-grid)
@@ -243,31 +207,53 @@
         leak-flat (np/ravel (aget gps-mesh 3))
         unc-scale-flat (survival/weibull-scale-from-median
                         unc-med-flat unc-shape-flat)
-        bat-ev (enrollment/expected-arm-events
-                survival/weibull-survival-probability
-                [(:scale bat) (:shape bat)]
-                enroll-pts enroll-weights target-pts
-                (:n-per-arm config) (:n-total config))
         gps-ev (enrollment/expected-arm-events
                 survival/leaky-cure-survival-probability
                 [cf-flat unc-scale-flat unc-shape-flat leak-flat]
+                enroll-pts enroll-weights target-pts
+                (:n-per-arm config) (:n-total config))
+        gps-S-T (when (> pool-target 0)
+                  (survival/leaky-cure-survival-probability
+                   pool-target cf-flat unc-scale-flat
+                   unc-shape-flat leak-flat))]
+    {:gps-ev gps-ev
+     :gps-params {:cure-frac cf-flat
+                  :unc-med unc-med-flat
+                  :unc-shape unc-shape-flat
+                  :unc-scale unc-scale-flat
+                  :leak-yr leak-flat}
+     :gps-S-T gps-S-T}))
+
+;; Unified prefilter function
+
+(defn apply-prefilter
+  "Unifies the common structure of prefilter execution."
+  [family config]
+  (let [[enroll-pts enroll-weights]
+        (enrollment/expected-enrollment-times config)
+        target-pts (get-target-pts config)
+        bat (make-bat-grid config)
+        bat-ev (enrollment/expected-arm-events
+                survival/weibull-survival-probability
+                [(:scale bat) (:shape bat)]
                 enroll-pts enroll-weights target-pts
                 (:n-per-arm config) (:n-total config))
         pool-target (:pool-mos-min-at-ia config)
         bat-S-T (when (> pool-target 0)
                   (survival/weibull-survival-probability
                    pool-target (:scale bat) (:shape bat)))
-        gps-S-T (when (> pool-target 0)
-                  (survival/leaky-cure-survival-probability
-                   pool-target cf-flat unc-scale-flat
-                   unc-shape-flat leak-flat))]
+        {:keys [gps-ev gps-params gps-S-T]}
+        (gps-grid-and-ev family config enroll-pts enroll-weights
+                         target-pts pool-target)]
     (cross-filter config bat-ev gps-ev
                   {:bat-med (:med bat)
                    :bat-shape (:shape bat)
                    :bat-scale (:scale bat)}
-                  {:cure-frac cf-flat
-                   :unc-med unc-med-flat
-                   :unc-shape unc-shape-flat
-                   :unc-scale unc-scale-flat
-                   :leak-yr leak-flat}
-                  "leaky" bat-S-T gps-S-T)))
+                  gps-params
+                  family bat-S-T gps-S-T)))
+
+;; Explicit family endpoints for compatibility
+
+(defn apply-prefilter-weibull [config] (apply-prefilter "weibull" config))
+(defn apply-prefilter-cure [config] (apply-prefilter "cure" config))
+(defn apply-prefilter-leaky [config] (apply-prefilter "leaky" config))
