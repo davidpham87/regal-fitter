@@ -676,28 +676,35 @@
                                 (np-ts/logical_and keep-ia keep-up)
                                 (np-ts/logical_and keep-inc pass-pr3)))
 
-            ;; 7. Extract the trials that passed screening
-            passed-indices (np-ts/flatnonzero passed-screening)
+            ;; 7. Extract trials that passed screening
+            ;; Pre-extract raw Float64Array backing each 2D matrix
+            ;; to avoid repeated .take allocations in the loop.
+            passed-indices     (np-ts/flatnonzero passed-screening)
             passed-indices-arr (np/nd-to-array passed-indices)
-            n-pass (alength passed-indices-arr)
+            n-pass             (alength passed-indices-arr)
+            e-raw              (.-data enroll)
+            s-raw              (.-data survival)
+            a-raw              (.-data arms)
 
-            results (loop [i 0
-                           acc []]
-                      (if (< i n-pass)
-                        (let [idx (aget passed-indices-arr i)
-                              enroll-row (.take enroll (clj->js [idx]) 0)
-                              survival-row (.take survival (clj->js [idx]) 0)
-                              arms-row (.take arms (clj->js [idx]) 0)
-                              enroll-1d (np-ts/reshape
-                                         enroll-row (clj->js [n-total]))
-                              survival-1d (np-ts/reshape
-                                           survival-row (clj->js [n-total]))
-                              arms-1d (np-ts/reshape
-                                       arms-row (clj->js [n-total]))
-                              stats (calculate-trial-stats-vectorized
-                                     config enroll-1d survival-1d arms-1d)]
-                          (recur (inc i) (if stats (conj acc stats) acc)))
-                        acc))]
+            results
+            (loop [i 0 acc []]
+              (if (< i n-pass)
+                (let [idx    (aget passed-indices-arr i)
+                      offset (* idx n-total)
+                      end    (+ offset n-total)
+                      ;; .subarray is a zero-copy view; np-ts/array
+                      ;; does a fast typed→typed copy (no object graph)
+                      enroll-1d   (np-ts/array
+                                   (.subarray e-raw offset end))
+                      survival-1d (np-ts/array
+                                   (.subarray s-raw offset end))
+                      arms-1d     (np-ts/array
+                                   (.subarray a-raw offset end))
+                      stats (calculate-trial-stats-vectorized
+                             config enroll-1d survival-1d arms-1d)]
+                  (recur (inc i)
+                         (if stats (conj acc stats) acc)))
+                acc))]
         [results n-pass]))))
 
 (defn- run-sim-in-chunks-2d
