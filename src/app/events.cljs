@@ -2,6 +2,8 @@
   (:require
    [app.state :as state]
    [app.state-url :as state-url]
+   [app.db :as db]
+   [app.regal-fit.prefilter :as prefilter]
    [app.worker-pool :as wp]
    [re-frame.core :as rf]
    [reitit.frontend.easy :as rfe]))
@@ -318,3 +320,23 @@
         {:cache-key cache-key
          :combos    combos
          :config    config}}))))
+
+(rf/reg-event-fx
+ :clear-indexeddb-cache
+ (fn [{:keys [db]} _]
+   (db/clear-cache)
+   (js/console.log "IndexedDB Cache cleared.")
+   {:db (assoc db :prefilter-results {})}))
+
+(rf/reg-event-db
+ :debug/run-prefilter-direct
+ (fn [db [_ family]]
+   (let [config (:config db)
+         res (case family
+               "weibull" (prefilter/apply-prefilter-weibull config)
+               "cure"    (prefilter/apply-prefilter-cure config)
+               "leaky"   (prefilter/apply-prefilter-leaky config)
+               [])]
+     (assoc-in db [:debug/prefilter family]
+               {:count (count res)
+                :samples (take 5 res)}))))

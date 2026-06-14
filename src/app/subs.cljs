@@ -106,3 +106,8 @@
  :aggregation/data
  (fn [db [_ cache-key]]
    (get-in db [:aggregation cache-key :data])))
+
+(rf/reg-sub
+ :debug/prefilter
+ (fn [db [_ family]]
+   (get-in db [:debug/prefilter family])))
