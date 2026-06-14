@@ -162,12 +162,13 @@
                :unc-shape unc-shape))
 
       (= family "leaky")
-      (let [unc-med-arr (np/array #js [(:gps-med params)])
-            unc-shape-arr (np/array #js [(:weibull-k params)])
+      (let [unc-med   (or (:gps-unc-med params) (:gps-med params))
+            unc-shape (or (:gps-unc-shape params) (:weibull-k params))
+            unc-med-arr   (np/array #js [unc-med])
+            unc-shape-arr (np/array #js [unc-shape])
             unc-scale (.item (survival/weibull-scale-from-median
                               unc-med-arr unc-shape-arr)
-                             0)
-            unc-shape (:weibull-k params)]
+                             0)]
         (assoc rec
                :cure-frac (:cure-frac params)
                :unc-scale unc-scale
