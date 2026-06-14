@@ -109,10 +109,11 @@
     (doseq [fam families]
       (log (str "Submitting Stage 1 for " fam))
       (cached-submit-job!
-       {:type "RUN_PREFILTER"
+       {:type    "RUN_PREFILTER"
         :version 3
-        :family fam
-        :config config}
+        :family  fam
+        :top-k   (:prefilter-top-k config)
+        :config  config}
        (fn [{:keys [success? result error]}]
          (if success?
            (do

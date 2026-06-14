@@ -55,7 +55,7 @@
    :enforce-no-80-by-today true
    :t-now (cfg-today-month)
    :no-80-slack-months 1.0
-   :bat-strat-bin 0.5
+   :bat-strat-bin 1
 
    :hr-threshold 0.636
 
@@ -64,7 +64,7 @@
    :n-screen-min-pass 1
    :seed 20260508
 
-   :bat-med-grid [4 30 0.5]
+   :bat-med-grid [4 30 1]
    :bat-shape-grid [0.5 2 0.1]
 
    :gps-med-grid-lo 20.0

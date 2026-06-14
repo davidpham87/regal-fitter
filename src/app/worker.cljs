@@ -22,13 +22,25 @@
                     res (cond
                           (= (:type args) "RUN_PREFILTER")
                           (let [family (:family args)
-                                cfg (:config args)]
-                            (js/console.log "Worker RUN_PREFILTER for:" family)
-                            (let [res (cond
-                                        (= family "weibull") (vec (prefilter/apply-prefilter-weibull cfg))
-                                        (= family "cure")    (vec (prefilter/apply-prefilter-cure cfg))
-                                        (= family "leaky")   (vec (prefilter/apply-prefilter-leaky cfg)))]
-                              (js/console.log "Worker prefilter finished, count:" (count res))
+                                cfg    (:config args)
+                                top-k  (:top-k args)]
+                            (js/console.log
+                             "Worker RUN_PREFILTER for:" family)
+                            (let [raw (cond
+                                        (= family "weibull")
+                                        (vec (prefilter/apply-prefilter-weibull
+                                              cfg))
+                                        (= family "cure")
+                                        (vec (prefilter/apply-prefilter-cure
+                                              cfg))
+                                        (= family "leaky")
+                                        (vec (prefilter/apply-prefilter-leaky
+                                              cfg)))
+                                  res (vec (prefilter/rank-and-trim
+                                            cfg raw top-k))]
+                              (js/console.log
+                               "Prefilter finished, accepted:"
+                               (count raw) "trimmed to:" (count res))
                               res))
 
                           (= (:type args) "RUN_STRESS_TEST")
