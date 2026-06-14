@@ -4,7 +4,7 @@
             [app.regal-fit.survival :as survival]
             [app.regal-fit.enrollment :as enrollment]))
 
-(defn- pass-events-gate?
+(defn pass-events-gate?
   "Checks if event counts at IA and UPD are within tolerance."
   [expected-ia expected-upd config]
   (let [diff-ia (js/Math.abs (- expected-ia (:n-ev-ia config)))
@@ -16,7 +16,7 @@
          (<= diff-upd (:prefilter-tol-upd config))
          (<= diff-increment (:tol-increment-ia-upd config)))))
 
-(defn- pass-pr3-gate?
+(defn pass-pr3-gate?
   "Checks if event counts at PR3 are within tolerance."
   [expected-upd expected-pr3 config apply-pr3]
   (if-not apply-pr3 true
@@ -27,13 +27,13 @@
             (and (<= diff-pr3 (:prefilter-tol-pr3 config))
                  (<= diff-increment (:tol-increment-upd-pr3 config))))))
 
-(defn- pass-pool-gate?
+(defn pass-pool-gate?
   "Checks if pool OS at minimum months is above threshold."
   [bat-idx gps-idx bat-survival-arr gps-survival-arr apply-pool]
   (if-not apply-pool true
           (>= (+ (aget bat-survival-arr bat-idx) (aget gps-survival-arr gps-idx)) 1.0)))
 
-(defn- validate-scenario
+(defn validate-scenario
   "Helper function to validate a specific combination of BAT and GPS curves."
   [bat-idx gps-idx total-events-arr bat-survival-arr gps-survival-arr apply-pool apply-pr3 config]
   (let [expected-ia (aget total-events-arr bat-idx gps-idx 0)
@@ -44,7 +44,7 @@
                (pass-pool-gate? bat-idx gps-idx bat-survival-arr gps-survival-arr apply-pool))
       {:exp-ev-ia expected-ia :exp-ev-upd expected-upd :exp-ev-pr3 expected-pr3})))
 
-(defn- build-result-record
+(defn build-result-record
   "Creates a configuration record for an accepted scenario."
   [bat-idx gps-idx validation-res family bat-params gps-params]
   (let [record (cond-> {:family family
