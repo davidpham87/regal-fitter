@@ -20,7 +20,7 @@
 
 (defn- cached-submit-job! [data callback]
   (go
-    (let [k (db/hash-key data)
+    (let [k (<! (db/hash-key data))
           cached (<! (db/get-cache k))]
       (if cached
         (callback {:success? true :result cached})
