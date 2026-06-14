@@ -88,9 +88,9 @@
   (let [random-cure-flags (np-random/random random-gen n-samples)
         uncured-times (draw-weibull-samples-vectorized n-samples random-gen unc-scale unc-shape)
         leak-rate-monthly (/ leak-yr 12.0)
-        random-leak-vals (np-random/random random-gen n-samples)
         cured-times (if (> leak-rate-monthly 0)
-                      (np-ts/divide (np-ts/multiply (np-ts/log random-leak-vals) -1.0) leak-rate-monthly)
+                      (let [random-leak-vals (np-random/random random-gen n-samples)]
+                        (np-ts/divide (np-ts/multiply (np-ts/log random-leak-vals) -1.0) leak-rate-monthly))
                       np/inf)]
     (np-ts/array (np-ts/where (np-ts/less random-cure-flags cure-frac)
                               cured-times
@@ -255,15 +255,17 @@
 (defn- interim-analysis-data-vectorized
   "Extracts data for interim analysis using vectorized minimum/maximum."
   [config enroll survival arms]
-  (let [fu-ia (np-ts/maximum
+  (let [deaths (np-ts/add enroll survival)
+        fu-ia (np-ts/maximum
                (np-ts/subtract
                 (np/full-float64 (.-shape enroll) (:t-ia config))
                 enroll)
                0.0)
         time-ia (np-ts/minimum survival fu-ia)
+        deaths (np-ts/add enroll survival)
         event-ia (np-ts/array
                   (np-ts/where
-                   (np-ts/less_equal survival fu-ia) 1 0))
+                   (np-ts/less_equal deaths (np/full-float64 (.-shape deaths) (:t-ia config))) 1 0))
         fu-up (np-ts/maximum
                (np-ts/subtract
                 (np/full-float64 (.-shape enroll) (:t-upd config))
@@ -308,14 +310,15 @@
 (defn- calculate-final-times-vectorized
   "Calculates survival and event status at T80."
   [t80 enroll survival]
-  (let [f (np-ts/maximum
+  (let [deaths (np-ts/add enroll survival)
+        f (np-ts/maximum
            (np-ts/subtract
             (np/full-float64 (.-shape enroll) t80) enroll)
            0.0)
         time-fin (np-ts/minimum survival f)
         ev-fin (np-ts/array
                 (np-ts/where
-                 (np-ts/less_equal survival f) 1 0))]
+                 (np-ts/less_equal deaths (np/full-float64 (.-shape deaths) t80)) 1 0))]
     {:time-fin time-fin :ev-fin ev-fin}))
 
 (defn- analyze-final-vectorized
@@ -334,25 +337,27 @@
                 (>= t80 (- (or (:t-now config) 63)
                            (:no-80-slack-months config)))
                 true)]
-    (if-not (and reached today)
-      {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN
-       :bat-alive-final js/NaN :gps-alive-final js/NaN}
-      (let [{:keys [time-fin ev-fin]}
-            (calculate-final-times-vectorized t80 enroll survival)
-            [z-fin hr-fin] (logrank-z-vectorized time-fin ev-fin arms)
-            deaths (np-ts/add enroll survival)
-            t80-arr (np/full-float64 (.-shape enroll) t80)
-            alive-mask (np-ts/logical_and
-                        (np-ts/less_equal enroll t80-arr)
-                        (np-ts/greater deaths t80-arr))
-            bat-alive (np-ts/sum (np-ts/logical_and
-                                  alive-mask
-                                  (np-ts/equal arms 0.0)))
-            gps-alive (np-ts/sum (np-ts/logical_and
-                                  alive-mask
-                                  (np-ts/equal arms 1.0)))]
-        {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin
-         :bat-alive-final bat-alive :gps-alive-final gps-alive}))))
+    (if (and reached (not today))
+      nil
+      (if-not reached
+        {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN
+         :bat-alive-final js/NaN :gps-alive-final js/NaN}
+        (let [{:keys [time-fin ev-fin]}
+              (calculate-final-times-vectorized t80 enroll survival)
+              [z-fin hr-fin] (logrank-z-vectorized time-fin ev-fin arms)
+              deaths (np-ts/add enroll survival)
+              t80-arr (np/full-float64 (.-shape enroll) t80)
+              alive-mask (np-ts/logical_and
+                          (np-ts/less_equal enroll t80-arr)
+                          (np-ts/greater deaths t80-arr))
+              bat-alive (np-ts/sum (np-ts/logical_and
+                                    alive-mask
+                                    (np-ts/equal arms 0.0)))
+              gps-alive (np-ts/sum (np-ts/logical_and
+                                    alive-mask
+                                    (np-ts/equal arms 1.0)))]
+          {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin
+           :bat-alive-final bat-alive :gps-alive-final gps-alive})))))
 
 (defn- calculate-trial-stats-vectorized
   "Computes all statistics for a successfully screened trial."
@@ -362,30 +367,31 @@
       (let [interim-res (analyze-interim-vectorized config enroll survival arms)]
         (when (pass-interim-gates? config interim-res)
           (let [final-res (analyze-final-vectorized config enroll survival arms)]
-            (merge {:n-ev-ia (:n-interim-analysis counts)
-                    :n-ev-upd (:n-update counts)
-                    :z-ia (:z-ia interim-res)
-                    :hr-ia (:hr-ia interim-res)
-                    :reached-80 (:reached final-res)
-                    :t80 (:t80 final-res)
-                    :hr-final (:hr-final final-res)
-                    :z-final (:z-final final-res)
-                    :bat-alive-upd (:alive-bat interim-res)
-                    :gps-alive-upd (:alive-gps interim-res)
-                    :bat-alive-final (:bat-alive-final final-res)
-                    :gps-alive-final (:gps-alive-final final-res)
-                    ;; Per-arm cumulative event counts
-                    :n-interim-analysis-bat  (:n-interim-analysis-bat counts)
-                    :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
-                    :n-update-bat  (:n-update-bat counts)
-                    :n-update-gps  (:n-update-gps counts)
-                    :n-press-release-3-bat (:n-press-release-3-bat counts)
-                    :n-press-release-3-gps (:n-press-release-3-gps counts)}
-                   (when (:use-pr3-anchor config)
-                     {:n-ev-pr3 (:n-press-release-3 counts)})
-                   ;; Per-arm median survival times per interval
-                   (compute-interval-medians-vectorized
-                    config enroll survival arms))))))))
+            (when final-res
+              (merge {:n-ev-ia (:n-interim-analysis counts)
+                      :n-ev-upd (:n-update counts)
+                      :z-ia (:z-ia interim-res)
+                      :hr-ia (:hr-ia interim-res)
+                      :reached-80 (:reached final-res)
+                      :t80 (:t80 final-res)
+                      :hr-final (:hr-final final-res)
+                      :z-final (:z-final final-res)
+                      :bat-alive-upd (:alive-bat interim-res)
+                      :gps-alive-upd (:alive-gps interim-res)
+                      :bat-alive-final (:bat-alive-final final-res)
+                      :gps-alive-final (:gps-alive-final final-res)
+                      ;; Per-arm cumulative event counts
+                      :n-interim-analysis-bat  (:n-interim-analysis-bat counts)
+                      :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
+                      :n-update-bat  (:n-update-bat counts)
+                      :n-update-gps  (:n-update-gps counts)
+                      :n-press-release-3-bat (:n-press-release-3-bat counts)
+                      :n-press-release-3-gps (:n-press-release-3-gps counts)}
+                     (when (:use-pr3-anchor config)
+                       {:n-ev-pr3 (:n-press-release-3 counts)})
+                     ;; Per-arm median survival times per interval
+                     (compute-interval-medians-vectorized
+                      config enroll survival arms)))))))))
 
 (defn- simulate-one-trial-vectorized
   "Simulates a single trial using vectorized operations."

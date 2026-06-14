@@ -891,7 +891,7 @@ def _run_sim_chunk(rec, cfg, n_sims, rng):
                 continue
             fu_fin = np.maximum(t80 - e_i, 0.0)
             time_fin = np.minimum(s_i, fu_fin)
-            ev_fin = (s_i <= fu_fin).astype(np.int8)
+            ev_fin = (death_cal <= t80).astype(np.int8)
             z_fin, hr_fin = _logrank_z(time_fin, ev_fin, a_i)
         else:
             t80 = float("nan"); reached_80 = False

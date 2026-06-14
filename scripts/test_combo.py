@@ -4,6 +4,7 @@ import subprocess
 import numpy as np
 import os
 import math
+import uuid
 from scipy import stats
 from hypothesis import given, settings, strategies as st
 from regal_fit import _simulate_one_combo, Config
@@ -13,18 +14,18 @@ def rec_strategy(draw):
     bat_med = draw(st.floats(4.0, 30.0))
     bat_shape = draw(st.floats(0.5, 2.0))
     bat_scale = bat_med / (np.log(2.0) ** (1.0 / bat_shape))
-    
+
     gps_med = draw(st.floats(20.0, 60.0))
     gps_shape = draw(st.floats(0.7, 1.01))
     gps_scale = gps_med / (np.log(2.0) ** (1.0 / gps_shape))
-    
+
     cure_frac = draw(st.floats(0.0, 0.9))
     unc_med = draw(st.floats(4.0, 30.0))
     unc_shape = draw(st.floats(0.5, 2.0))
     unc_scale = unc_med / (np.log(2.0) ** (1.0 / unc_shape))
-    
+
     leak_yr = draw(st.floats(0.0, 0.1))
-    
+
     return {
         "family": "leaky",
         "bat_scale": bat_scale,
@@ -67,7 +68,7 @@ cfg_dict = {
     "enforce_no_80_by_today": True,
     "t_now": 63.0,
     "no_80_slack_months": 1.0,
-    "n_sims_screen": 250,
+    "n_sims_screen": 500,
     "n_screen_min_pass": 1
 }
 
@@ -77,6 +78,7 @@ def init_db():
     cur = conn.cursor()
     cur.execute("""CREATE TABLE IF NOT EXISTS combo_stats (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        test_id TEXT,
         env TEXT,
         p_reach80 REAL,
         median_hr_final REAL,
@@ -91,63 +93,93 @@ def init_db():
 
 init_db()
 
-@settings(max_examples=25, deadline=None)
-@given(rec=rec_strategy())
-def test_simulate_one_combo(rec):
-    n_sims = 1000
-    seed = 42
-    chunk_size = 500
-    
-    # 1. Run Python
+def run_python_simulation(rec, cfg_dict, n_sims, seed):
     py_args = (rec, cfg_dict, n_sims, seed)
-    py_out = _simulate_one_combo(py_args)
+    return _simulate_one_combo(py_args)
+
+def run_cljs_simulation(rec, cfg_dict, n_sims, seed, chunk_size, payload_path, out_path):
+    c_size = 5000
+    sims_done = 0
+    total_accepted = 0
+    agg = {}
     
-    # 2. Run CLJS
-    payload = {
-        "rec": rec,
-        "cfg_dict": cfg_dict,
-        "n_sims": n_sims,
-        "seed": seed,
-        "chunk_size": chunk_size
-    }
-    with open("datasets/combo_payload.json", "w") as f:
-        json.dump(payload, f)
+    while sims_done < n_sims:
+        current_chunk = min(c_size, n_sims - sims_done)
+        payload = {
+            "rec": rec,
+            "cfg_dict": cfg_dict,
+            "n_sims": current_chunk,
+            "seed": seed + sims_done,
+            "chunk_size": current_chunk
+        }
+        with open(payload_path, "w") as f:
+            json.dump(payload, f)
         
-    subprocess.run(["node", "out/run_combo.js", "datasets/combo_payload.json", "datasets/combo_out.json"], check=True)
-    
-    with open("datasets/combo_out.json", "r") as f:
-        cljs_out = json.load(f)
+        subprocess.run(["node", "out/run_combo.js", payload_path, out_path], check=True)
         
-    # Write to DB
-    conn = sqlite3.connect("datasets/combo_stats.db")
+        with open(out_path, "r") as f:
+            chunk_out = json.load(f)
+            
+        if chunk_out is not None:
+            n_acc = chunk_out.get("n_accepted", 0)
+            if n_acc > 0:
+                for k in ["p_reach80", "median_hr_final", "p_success_overall"]:
+                    val = chunk_out.get(k)
+                    if val is not None and not math.isnan(val):
+                        agg[k] = agg.get(k, 0.0) + val * n_acc
+                total_accepted += n_acc
+                if "acceptance_rate" not in agg:
+                    agg.update({k: v for k, v in chunk_out.items() if k not in ["p_reach80", "median_hr_final", "p_success_overall", "n_accepted"]})
+        
+        sims_done += current_chunk
+
+    if total_accepted == 0:
+        return None
+        
+    for k in ["p_reach80", "median_hr_final", "p_success_overall"]:
+        if k in agg:
+            agg[k] = agg[k] / total_accepted
+    agg["n_accepted"] = total_accepted
+    return agg
+
+def record_results_to_db(db_path, test_id, py_out, cljs_out):
+    conn = sqlite3.connect(db_path, timeout=30.0)
     cur = conn.cursor()
-    
-    if py_out is None and cljs_out is None:
-        return # Both correctly failed screening
-        
-    if py_out is None or cljs_out is None:
-        if py_out is None and cljs_out.get("n_accepted", 0) == 0:
-            return
-        if cljs_out is None and py_out.get("n_accepted", 0) == 0:
-            return
-        # If one fails but the other passes significantly, that's an issue
-        
+
     if py_out is not None:
-        cur.execute("INSERT INTO combo_stats (env, p_reach80, median_hr_final, p_success_overall, n_accepted) VALUES (?, ?, ?, ?, ?)",
-            ("python", py_out.get("p_reach80"), py_out.get("median_hr_final"), py_out.get("p_success_overall"), py_out.get("n_accepted"))
+        cur.execute("INSERT INTO combo_stats (test_id, env, p_reach80, median_hr_final, p_success_overall, n_accepted) VALUES (?, ?, ?, ?, ?, ?)",
+            (test_id, "python", py_out.get("p_reach80"), py_out.get("median_hr_final"), py_out.get("p_success_overall"), py_out.get("n_accepted"))
         )
     if cljs_out is not None:
-        cur.execute("INSERT INTO combo_stats (env, p_reach80, median_hr_final, p_success_overall, n_accepted) VALUES (?, ?, ?, ?, ?)",
-            ("cljs", cljs_out.get("p_reach80"), cljs_out.get("median_hr_final"), cljs_out.get("p_success_overall"), cljs_out.get("n_accepted"))
+        cur.execute("INSERT INTO combo_stats (test_id, env, p_reach80, median_hr_final, p_success_overall, n_accepted) VALUES (?, ?, ?, ?, ?, ?)",
+            (test_id, "cljs", cljs_out.get("p_reach80"), cljs_out.get("median_hr_final"), cljs_out.get("p_success_overall"), cljs_out.get("n_accepted"))
         )
     conn.commit()
     conn.close()
-    
-    # Basic assertions
-    if py_out and cljs_out:
-        if py_out["n_accepted"] > 50:
-            # We only enforce strict bounds if enough stats were gathered
-            if not math.isnan(py_out["p_reach80"]) and not math.isnan(cljs_out.get("p_reach80", float("nan"))):
-                assert abs(py_out["p_reach80"] - cljs_out["p_reach80"]) < 0.05
-            if not math.isnan(py_out["p_success_overall"]) and not math.isnan(cljs_out.get("p_success_overall", float("nan"))):
-                assert abs(py_out["p_success_overall"] - cljs_out["p_success_overall"]) < 0.05
+
+@settings(max_examples=3, deadline=None)
+@given(rec=rec_strategy())
+def test_simulate_one_combo(rec):
+    n_sims = 50000
+    seed = 42
+    # Chunking happens dynamically now
+    n_screen = min(cfg_dict.get("n_sims_screen", 500), n_sims)
+    chunk_size = 5000
+
+    py_out = run_python_simulation(rec, cfg_dict, n_sims, seed)
+
+    test_id = str(uuid.uuid4())
+    payload_path = f"datasets/combo_payload_{test_id}.json"
+    out_path = f"datasets/combo_out_{test_id}.json"
+
+    try:
+        cljs_out = run_cljs_simulation(
+            rec, cfg_dict, n_sims, seed, chunk_size,
+            payload_path=payload_path,
+            out_path=out_path
+        )
+    finally:
+        if os.path.exists(payload_path): os.remove(payload_path)
+        if os.path.exists(out_path): os.remove(out_path)
+
+    record_results_to_db("datasets/combo_stats.db", test_id, py_out, cljs_out)

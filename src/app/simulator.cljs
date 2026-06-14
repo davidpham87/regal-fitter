@@ -16,15 +16,7 @@
 (defn init! []
   (log "Simulator init. Pyodide removed. Ready."))
 
-(defn- run-stage1! [family cfg]
-  (try
-    (cond
-      (= family "weibull") (prefilter/apply-prefilter-weibull cfg)
-      (= family "cure")    (prefilter/apply-prefilter-cure cfg)
-      (= family "leaky")   (prefilter/apply-prefilter-leaky cfg))
-    (catch js/Error e
-      (js/console.error "Stage 1 Error:" e)
-      (throw e))))
+
 
 (defn- cached-submit-job! [data callback]
   (go
@@ -79,30 +71,56 @@
                (rf/dispatch [:set-results @results])
                (rf/dispatch [:set-view :results])))))))))
 
+(rf/reg-event-db
+ :clear-prefilter-results
+ (fn [db _]
+   (assoc db :prefilter-results {})))
+
+(rf/reg-event-fx
+ :prefilter-done
+ (fn [{:keys [db]} [_ fam result]]
+   (let [new-results (assoc (:prefilter-results db) (keyword fam) result)
+         new-db (assoc db :prefilter-results new-results)
+         families (:families (:config db))]
+     (if (= (count new-results) (count families))
+       {:db new-db
+        :dispatch [:start-stage2]}
+       {:db new-db}))))
+
+(rf/reg-event-fx
+ :start-stage2
+ (fn [{:keys [db]} _]
+   (let [all-accepted (:prefilter-results db)
+         families (:families (:config db))
+         total-combos (reduce + (map count (vals all-accepted)))]
+     (submit-simulation-jobs! (:config db) all-accepted families
+                              (atom {}) (atom 0) total-combos (js/Date.now))
+     {:db db
+      :dispatch-n [[:set-status :running-stage2]
+                   [:set-progress total-combos 0]]})))
+
 (defn start-simulation! []
   (let [config (:config @rf-db/app-db)
         families (:families config)]
     (rf/dispatch [:set-status :running-stage1])
     (rf/dispatch [:set-results {}])
     (rf/dispatch [:set-error nil])
-    (go
-      (<! (timeout 50))
-      (try
-        (let [all-accepted (reduce (fn [acc fam]
-                                     (log (str "Running Stage 1 for " fam))
-                                     (let [accepted (run-stage1! fam config)]
-                                       (log (str fam " accepted: "
-                                                 (count accepted)))
-                                       (assoc acc (keyword fam) accepted)))
-                                   {} families)
-              total-combos (reduce + (map count (vals all-accepted)))]
-          (rf/dispatch [:set-status :running-stage2])
-          (rf/dispatch [:set-progress total-combos 0])
-          (submit-simulation-jobs! config all-accepted families (atom {})
-                                   (atom 0) total-combos (js/Date.now)))
-        (catch js/Error e
-          (rf/dispatch [:set-status :error])
-          (rf/dispatch [:set-error (.-message e)]))))))
+    (rf/dispatch [:clear-prefilter-results])
+    (doseq [fam families]
+      (log (str "Submitting Stage 1 for " fam))
+      (cached-submit-job!
+       {:type "RUN_PREFILTER"
+        :version 3
+        :family fam
+        :config config}
+       (fn [{:keys [success? result error]}]
+         (if success?
+           (do
+             (log (str fam " accepted: " (count result)))
+             (rf/dispatch [:prefilter-done fam result]))
+           (do
+             (js/console.error "Prefilter error for" fam error)
+             (rf/dispatch [:prefilter-done fam []]))))))))
 
 (defn abort-simulation! []
   (wp/abort-pool!)

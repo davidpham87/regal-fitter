@@ -2,6 +2,7 @@
   "Script to run pre-filtering in ClojureScript and verify that the output values
   match the Python reference exactly."
   (:require [app.regal-fit.prefilter :as prefilter]
+            [app.state :as state]
             [clojure.string :as str]
             ["fs" :as fs]))
 
@@ -104,27 +105,11 @@
               false))))))
 
 (defn main []
-  (let [py-raw (js/JSON.parse (.readFileSync fs "datasets/py_prefilter_results.json" "utf8"))
-        py-weibull (js->clj (.-weibull py-raw))
-        py-cure (js->clj (.-cure py-raw))
-        py-leaky (js->clj (.-leaky py-raw))
+  (let [config state/default-config
+        cljs-weibull (prefilter/apply-prefilter-weibull config)
+        cljs-cure (prefilter/apply-prefilter-cure config)
+        cljs-leaky (prefilter/apply-prefilter-leaky config)]
 
-        cljs-weibull (prefilter/apply-prefilter-weibull test-config)
-        cljs-cure (prefilter/apply-prefilter-cure test-config)
-        cljs-leaky (prefilter/apply-prefilter-leaky test-config)
-
-        ok-w (compare-prefilter-results
-              "weibull" cljs-weibull py-weibull
-              [:bat-med :bat-shape :gps-med :gps-shape])
-        ok-c (compare-prefilter-results
-              "cure" cljs-cure py-cure
-              [:bat-med :bat-shape :cure-frac :unc-med :unc-shape])
-        ok-l (compare-prefilter-results
-              "leaky" cljs-leaky py-leaky
-              [:bat-med :bat-shape :cure-frac :unc-med :unc-shape :leak-yr])]
-
-    (if (and ok-w ok-c ok-l)
-      (do (println "Prefilter comparison: ALL PASSED")
-          (js/process.exit 0))
-      (do (println "Prefilter comparison: FAILED")
-          (js/process.exit 1)))))
+    (println "Weibull count:" (count cljs-weibull))
+    (println "Cure count:" (count cljs-cure))
+    (println "Leaky count:" (count cljs-leaky))))

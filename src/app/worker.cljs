@@ -1,5 +1,6 @@
 (ns app.worker
   (:require [app.regal-fit.simulation-vectorized :as simulate]
+            [app.regal-fit.prefilter :as prefilter]
             [app.stress-test.simulate :as stress-test]
             [app.stress-test.simulate-vectorized :as stress-test-vec]
             [app.visualization.data :as vdata]
@@ -19,6 +20,17 @@
             (try
               (let [args (js->clj payload :keywordize-keys true)
                     res (cond
+                          (= (:type args) "RUN_PREFILTER")
+                          (let [family (:family args)
+                                cfg (:config args)]
+                            (js/console.log "Worker RUN_PREFILTER for:" family)
+                            (let [res (cond
+                                        (= family "weibull") (vec (prefilter/apply-prefilter-weibull cfg))
+                                        (= family "cure")    (vec (prefilter/apply-prefilter-cure cfg))
+                                        (= family "leaky")   (vec (prefilter/apply-prefilter-leaky cfg)))]
+                              (js/console.log "Worker prefilter finished, count:" (count res))
+                              res))
+
                           (= (:type args) "RUN_STRESS_TEST")
                           (stress-test/simulate-one-combo args)
 
