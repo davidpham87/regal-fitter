@@ -44,8 +44,8 @@
             (.push all-combos {:rec rec :idx idx :family fam}))))
       (let [combos-vec (js->clj all-combos :keywordize-keys true)
             num-workers (js/Math.max 1 (count @wp/pool))
-            chunk-size (js/Math.max 20
-                                     (js/Math.min 100
+            chunk-size (js/Math.max 40
+                                     (js/Math.min 200
                                                   (js/Math.ceil
                                                    (/ total
                                                       (* 2 num-workers)))))
