@@ -255,5 +255,35 @@
 ;; Explicit family endpoints for compatibility
 
 (defn apply-prefilter-weibull [config] (apply-prefilter "weibull" config))
-(defn apply-prefilter-cure [config] (apply-prefilter "cure" config))
-(defn apply-prefilter-leaky [config] (apply-prefilter "leaky" config))
+(defn apply-prefilter-cure    [config] (apply-prefilter "cure"    config))
+(defn apply-prefilter-leaky   [config] (apply-prefilter "leaky"   config))
+
+;; ---------------------------------------------------------------------------
+;; Analytical top-K ranking
+;; ---------------------------------------------------------------------------
+
+(defn- combo-residual
+  "Sum of absolute deviations from event targets.
+  :exp-ev-ia / :exp-ev-upd are embedded in every accepted record
+  by build-result-record, so this is O(1) per combo."
+  [config rec]
+  (let [r-ia  (js/Math.abs
+                (- (:exp-ev-ia  rec) (:n-ev-ia  config)))
+        r-upd (js/Math.abs
+                (- (:exp-ev-upd rec) (:n-ev-upd config)))
+        r-pr3 (if (and (:use-pr3-anchor config) (:exp-ev-pr3 rec))
+                (js/Math.abs
+                 (- (:exp-ev-pr3 rec) (:n-ev-pr3 config)))
+                0.0)]
+    (+ r-ia r-upd r-pr3)))
+
+(defn rank-and-trim
+  "Sorts accepted combos by analytical residual (best first) and
+  returns at most top-k.  When top-k is nil or >= (count combos),
+  the full sorted list is returned — still useful as a quality
+  ordering for the worker batch dispatch."
+  [config combos top-k]
+  (let [scored (sort-by #(combo-residual config %) combos)]
+    (if (and top-k (< top-k (count scored)))
+      (take top-k scored)
+      scored)))
