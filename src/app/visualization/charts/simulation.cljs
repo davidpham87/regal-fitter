@@ -312,10 +312,11 @@
    {:width 360 :height 240 :data {:values km-ci-data}
     :layer [km-ci-layer-area
             km-ci-layer-mean-line
-            km-ci-layer-median-line
             (km-ci-layer-rule-y)
             (km-ci-layer-rule-bat bat-med-w)
-            (km-ci-layer-rule-gps gps-med-w)]
+            (km-ci-layer-rule-gps gps-med-w)
+            ;; median-line last → topmost layer for tooltip hit-testing
+            km-ci-layer-median-line]
     :config {:legend {:orient "bottom"}}}])
 
 (def hr-paths-bar-layer
