@@ -382,6 +382,38 @@
               (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
       :else 0.0)))
 
+(defn- bat-survival-probability-scalar [t record]
+  (if (= (:family record) "leaky")
+    (let [cf (:bat-cure-frac record)
+          scale (:bat-unc-scale record)
+          shape (:bat-unc-shape record)
+          leak-rate-monthly (/ (:bat-leak-yr record) 12.0)]
+      (+ (* cf (js/Math.exp (- (* leak-rate-monthly t))))
+         (* (- 1.0 cf)
+            (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
+    (let [scale (:bat-scale record)
+          shape (:bat-shape record)]
+      (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
+
+(defn- calculate-bat-median [record]
+  (if-not (= (:family record) "leaky")
+    (:bat-med record)
+    (let [f (fn [t] (bat-survival-probability-scalar t record))]
+      (if (<= (f 0.0) 0.5)
+        0.0
+        (if (> (f 1000.0) 0.5)
+          js/NaN
+          (loop [low 0.0
+                 high 1000.0
+                 iter 0]
+            (if (or (> iter 30) (< (- high low) 0.01))
+              (/ (+ low high) 2.0)
+              (let [mid (/ (+ low high) 2.0)
+                    val (f mid)]
+                (if (> val 0.5)
+                  (recur mid high (inc iter))
+                  (recur low mid (inc iter)))))))))))
+
 (defn- calculate-gps-median [record]
   (if (= (:family record) "weibull")
     (:gps-med record)
@@ -409,9 +441,11 @@
   "Helper to build the aggregate statistics map."
   [all-stats num-attempts num-pass-events record to-nd
    finite-t80 hr-final-arr num-success num-accepted hr-low hr-high]
-  (let [gps-med (or (:gps-med record) (calculate-gps-median record))]
+  (let [gps-med (or (:gps-med record) (calculate-gps-median record))
+        bat-med (or (:bat-med record) (calculate-bat-median record))]
     (merge record
            {:gps-med gps-med
+            :bat-med bat-med
             :n-attempts num-attempts
           :n-pass-events num-pass-events
           :n-pass-futility num-accepted
