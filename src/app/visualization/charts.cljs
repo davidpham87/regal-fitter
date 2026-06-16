@@ -2,7 +2,8 @@
   (:require [app.visualization.charts.vega :as vega]
             [app.visualization.charts.simulation :as sim]
             [app.visualization.charts.discovery :as disc]
-            [app.visualization.charts.power :as pow]))
+            [app.visualization.charts.power :as pow]
+            [app.visualization.charts.results :as res]))
 
 (def vega-lite vega/vega-lite)
 
@@ -31,3 +32,8 @@
 (def power-heatmap pow/power-heatmap)
 (def power-line-chart pow/power-line-chart)
 (def enrollment-chart pow/enrollment-chart)
+
+;; Results charts
+(def chart-posterior-histogram res/chart-posterior-histogram)
+(def chart-posterior-cdf res/chart-posterior-cdf)
+(def chart-pairwise-scatter res/chart-pairwise-scatter)

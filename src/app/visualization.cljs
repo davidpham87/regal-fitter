@@ -21,6 +21,11 @@
 (def power-heatmap charts/power-heatmap)
 (def power-line-chart charts/power-line-chart)
 
+;; Re-export components for results
+(def chart-posterior-histogram charts/chart-posterior-histogram)
+(def chart-posterior-cdf charts/chart-posterior-cdf)
+(def chart-pairwise-scatter charts/chart-pairwise-scatter)
+
 ;; Re-export resampling functions
 (def sample-combos resampling/sample-combos)
 (def score-sampled-combos resampling/score-sampled-combos)

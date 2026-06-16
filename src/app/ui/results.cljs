@@ -157,6 +157,67 @@
                           (.toFixed val 4)
                           (str val)))])]))]]]])))))
 
+(defn- find-varying-params [items]
+  (let [all-keys (keys (first items))
+        skip-keys #{:family :acceptance-rate :p-success-overall :median-t80-months
+                    :median-hr-ia :median-z-ia :hr-final-low :hr-final-high
+                    :p-hr-below-threshold :median-bat-alive-upd :median-gps-alive-upd
+                    :median-bat-alive-final :median-gps-alive-final :exp-hr-ia :exp-hr-upd
+                    :exp-ev-ia :exp-ev-upd :exp-ev-pr3 :exp-ev-final :hr-ia :hr-upd}
+        candidate-keys (remove #(or (skip-keys %)
+                                    (str/starts-with? (name %) "mean-")
+                                    (str/starts-with? (name %) "exp-"))
+                               all-keys)]
+    (filter (fn [k]
+              (> (count (set (map k items))) 1))
+            candidate-keys)))
+
+(defn- posterior-distributions [items]
+  (r/with-let [params (find-varying-params items)
+               active-p1 (r/atom (first params))
+               active-p2 (r/atom (second params))]
+    [:div.mt-6
+     (if (empty? params)
+       [:div.p-4.text-gray-500.italic "No varied parameters found in this grid."]
+       [:div
+        [:div.grid.grid-cols-1.lg:grid-cols-2.gap-6.mb-8
+         [:div.border.p-4.rounded.bg-white
+          [:div.mb-4.flex.items-center.gap-2
+           [:label.text-sm.font-bold.text-gray-700 "Parameter 1:"]
+           [:select.border.rounded.p-1.text-sm
+            {:value (name (or @active-p1 ""))
+             :on-change #(reset! active-p1 (keyword (.. % -target -value)))}
+            (for [p params]
+              ^{:key p}
+              [:option {:value (name p)} (get inputs/key->label p (name p))])]]
+          (when @active-p1
+            [:div
+             [vega/chart-posterior-histogram items @active-p1 (get inputs/key->label @active-p1)]
+             [vega/chart-posterior-cdf items @active-p1 (get inputs/key->label @active-p1)]])]
+
+         [:div.border.p-4.rounded.bg-white
+          [:div.mb-4.flex.items-center.gap-2
+           [:label.text-sm.font-bold.text-gray-700 "Parameter 2:"]
+           [:select.border.rounded.p-1.text-sm
+            {:value (name (or @active-p2 ""))
+             :on-change #(reset! active-p2 (keyword (.. % -target -value)))}
+            (for [p params]
+              ^{:key p}
+              [:option {:value (name p)} (get inputs/key->label p (name p))])]]
+          (when @active-p2
+            [:div
+             [vega/chart-posterior-histogram items @active-p2 (get inputs/key->label @active-p2)]
+             [vega/chart-posterior-cdf items @active-p2 (get inputs/key->label @active-p2)]])]]
+
+        (when (and @active-p1 @active-p2 (not= @active-p1 @active-p2))
+          [:div.border.p-4.rounded.bg-white
+           [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
+           [vega/chart-pairwise-scatter
+            items
+            @active-p1 @active-p2
+            (get inputs/key->label @active-p1 (name @active-p1))
+            (get inputs/key->label @active-p2 (name @active-p2))]])])]))
+
 (defn- results-edn-view [results]
   (let [translated (into {} (for [[fam items] results]
                               [fam (translate-keys items)]))
@@ -234,7 +295,8 @@
         (when (seq results)
           [tab-bar
            {:active-tab @active-tab
-            :tabs [[:charts "Charts"]
+            :tabs [[:config "Config Distributions"]
+                   [:charts "Result Charts"]
                    [:table "Table"]
                    [:edn "EDN View"]]
             :on-change #(reset! active-tab %)}])]
@@ -244,6 +306,18 @@
          [:div
           [summary-banner results config]
           (case @active-tab
+            :config
+            (let [fam @active-family
+                  items (get results fam)]
+              [:div
+               [:div.flex.items-center.gap-2.mb-4
+                [:span.text-sm.font-semibold.text-gray-500 "Family:"]
+                [tab-bar
+                 {:active-tab fam
+                  :tabs (mapv (fn [f] [f (str/capitalize (name f))])
+                              (keys results))
+                  :on-change #(reset! active-family %)}]]
+               [posterior-distributions items]])
             :charts
             (let [fam @active-family
                   items (get results fam)]

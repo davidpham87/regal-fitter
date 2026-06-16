@@ -50,6 +50,12 @@
                        (assoc c
                               :sum-res (survival/calculate-sum-residuals
                                         c config)
-                              :weight 1.0))
+                              ;; sqrt(acceptance-rate): combos already
+                              ;; resampled proportional to acceptance-rate;
+                              ;; sqrt compresses the scale so high-rate
+                              ;; combos don't fully dominate within-bin
+                              ;; weighted averages.
+                              :weight (js/Math.sqrt
+                                       (or (:acceptance-rate c) 0.0))))
                      raw)]
     (sort-by :sum-res scored)))
