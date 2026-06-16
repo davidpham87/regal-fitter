@@ -10,7 +10,8 @@
             [re-frame.core :as rf]
             [fork.re-frame :as fork]
             [reitit.frontend.easy :as rfe]
-            [app.components.editor :refer [code-editor]]))
+            [app.components.editor :refer [code-editor]]
+            [app.components.tabs :refer [tab-bar]]))
 
 (def ^:private category->keys
   {:trial [:n-total :n-per-arm :enroll-bands :enforce-no-80-by-today
@@ -23,7 +24,7 @@
            :leak-grid]
    :prefilter [:prefilter-tol-ia :prefilter-tol-upd :prefilter-tol-pr3
                :tol-increment-ia-upd :tol-increment-upd-pr3
-               :pool-mos-min-at-ia]
+               :pool-mos-min-at-ia :bat-surv-36m-max]
    :other [:n-sims-screen :n-sims-per-combo :n-ev-ia :n-ev-upd :n-ev-pr3
            :n-ev-final :n-screen-min-pass :efficacy-hr-min :futility-hr-max
            :median-fu-target :median-fu-tol :hr-threshold :seed :families
@@ -157,31 +158,15 @@
           version @(rf/subscribe [:config-version])
           error-msg @(rf/subscribe [:error-message])]
       [:div
-       [:div.flex.gap-4.mb-4
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :config-form)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "config-form"})}
-         "Form View"]
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :config-json)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "config-json"})}
-         "JSON View"]
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :results)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "results"})}
-         "Results"]
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :enrollment)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "enrollment"})}
-         "Enrollment"]]
+       [tab-bar
+        {:active-tab view
+         :tabs [[:config-form "Form View"]
+                [:config-json "JSON View"]
+                [:results "Results"]
+                [:enrollment "Enrollment"]]
+         :on-change #(rfe/push-state :fitter-sub {:subtab (name %)})
+         :container-class "bg-transparent mb-4 p-0"
+         :button-class "bg-gray-800 text-white shadow-sm font-semibold"}]
        (when (#{:running-stage1 :running-stage2} status)
          [:div.bg-yellow-100.p-4.mb-4.rounded
           {:class "flex justify-between items-center"}

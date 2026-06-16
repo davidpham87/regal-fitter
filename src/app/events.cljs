@@ -100,7 +100,7 @@
                        {:page page
                         :path-params path-params})
          effects {:db new-db}]
-     (if-let [state-str (or (:state path-params) #_(:state query-params))]
+     (if-let [state-str (or (:state path-params) (:state query-params))]
        (assoc effects :decode-url-state {:page page :state-str state-str})
        effects))))
 
@@ -113,23 +113,27 @@
                  (let [page (:page route)
                        path-params (:path-params route)
                        subtab (:subtab path-params)
-                       [dest-route dest-path-params]
+                       [dest-route dest-path-params dest-query-params]
                        (cond
                          (#{:fitter :fitter-sub :fitter-sub-state} page)
-                         [:fitter-sub-state
-                          {:subtab (or subtab "config-form") :state b64}]
+                         [:fitter-sub
+                          {:subtab (or subtab "config-form")}
+                          {:state b64}]
 
                          (#{:placebo-stress :placebo-stress-state} page)
-                         [:placebo-stress-state {:state b64}]
+                         [:placebo-stress nil {:state b64}]
 
                          (#{:discovery :discovery-sub :discovery-sub-state} page)
-                         [:discovery-sub-state
-                          {:subtab (or subtab "weibull") :state b64}]
+                         [:discovery-sub
+                          {:subtab (or subtab "weibull")}
+                          {:state b64}]
 
                          :else
-                         [page path-params])]
+                         [page path-params nil])]
                    (when dest-route
-                     (rfe/replace-state dest-route dest-path-params))))))))
+                     (if dest-query-params
+                       (rfe/replace-state dest-route dest-path-params dest-query-params)
+                       (rfe/replace-state dest-route dest-path-params)))))))))
 
 (rf/reg-fx
  :sync-to-url!

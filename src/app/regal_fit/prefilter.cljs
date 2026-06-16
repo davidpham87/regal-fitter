@@ -35,10 +35,17 @@
           (>= (+ (aget bat-survival-arr bat-idx)
                  (aget gps-survival-arr gps-idx)) 1.0)))
 
+(defn pass-bat-surv-gate?
+  "Checks if BAT survival at 36 months is below the maximum threshold."
+  [bat-idx bat-S-36m max-threshold]
+  (if-not max-threshold
+    true
+    (<= (aget bat-S-36m bat-idx) max-threshold)))
+
 (defn validate-scenario
   "Helper function to validate a specific combination of BAT and GPS curves."
   [bat-idx gps-idx total-events-arr bat-survival-arr gps-survival-arr
-   apply-pool apply-pr3 config]
+   bat-S-36m apply-pool apply-pr3 config]
   (let [expected-ia (aget total-events-arr bat-idx gps-idx 0)
         expected-upd (aget total-events-arr bat-idx gps-idx 1)
         expected-pr3 (when apply-pr3
@@ -46,7 +53,8 @@
     (when (and (pass-events-gate? expected-ia expected-upd config)
                (pass-pr3-gate? expected-upd expected-pr3 config apply-pr3)
                (pass-pool-gate? bat-idx gps-idx bat-survival-arr
-                                gps-survival-arr apply-pool))
+                                gps-survival-arr apply-pool)
+               (pass-bat-surv-gate? bat-idx bat-S-36m (:bat-surv-36m-max config)))
       {:exp-ev-ia expected-ia
        :exp-ev-upd expected-upd
        :exp-ev-pr3 expected-pr3})))
@@ -67,7 +75,7 @@
 (defn- process-chunk
   "Processes a chunk of BAT survival curves against all GPS curves."
   [start-idx end-idx grid-bat grid-gps num-anchors apply-pool apply-pr3
-   config bat-ev gps-ev bat-S-T gps-S-T family bat-params gps-params]
+   config bat-ev gps-ev bat-S-T gps-S-T bat-S-36m family bat-params gps-params]
   (let [bat-ev-slice (np/slice bat-ev start-idx end-idx)
         bat-ev-3d (np/reshape bat-ev-slice
                               #js [(- end-idx start-idx) 1 num-anchors])
@@ -78,20 +86,23 @@
         bat-survival (when apply-pool
                        (np/nd-to-array
                         (np/slice bat-S-T start-idx end-idx)))
-        gps-survival (when apply-pool (np/nd-to-array gps-S-T))]
+        gps-survival (when apply-pool (np/nd-to-array gps-S-T))
+        bat-S-36m-slice (when bat-S-36m
+                          (np/nd-to-array
+                           (np/slice bat-S-36m start-idx end-idx)))]
     (keep (fn [pair]
             (let [local-bat (first pair) global-gps (second pair)]
               (when-let [res (validate-scenario
                               local-bat global-gps total-events
-                              bat-survival gps-survival apply-pool
-                              apply-pr3 config)]
+                              bat-survival gps-survival bat-S-36m-slice
+                              apply-pool apply-pr3 config)]
                 (build-result-record (+ start-idx local-bat) global-gps
                                      res family bat-params gps-params))))
           (for [b (range (- end-idx start-idx)) g (range grid-gps)] [b g]))))
 
 (defn cross-filter
   "Filters all combinations of BAT and GPS survival curves."
-  [config bat-ev gps-ev bat-params gps-params family bat-S-T gps-S-T]
+  [config bat-ev gps-ev bat-params gps-params family bat-S-T gps-S-T bat-S-36m]
   (let [grid-bat (first (.-shape bat-ev))
         grid-gps (first (.-shape gps-ev))
         num-anchors (second (.-shape bat-ev))
@@ -103,7 +114,7 @@
        % (js/Math.min (+ % chunk-size) grid-bat)
        grid-bat grid-gps num-anchors apply-pool
        apply-pr3 config bat-ev gps-ev bat-S-T
-       gps-S-T family bat-params gps-params)
+       gps-S-T bat-S-36m family bat-params gps-params)
      (range 0 grid-bat chunk-size))))
 
 (defn- get-grid-params [config-key config]
@@ -242,6 +253,9 @@
         bat-S-T (when (> pool-target 0)
                   (survival/weibull-survival-probability
                    pool-target (:scale bat) (:shape bat)))
+        bat-S-36m (when (:bat-surv-36m-max config)
+                    (survival/weibull-survival-probability
+                     36.0 (:scale bat) (:shape bat)))
         {:keys [gps-ev gps-params gps-S-T]}
         (gps-grid-and-ev family config enroll-pts enroll-weights
                          target-pts pool-target)]
@@ -250,7 +264,7 @@
                    :bat-shape (:shape bat)
                    :bat-scale (:scale bat)}
                   gps-params
-                  family bat-S-T gps-S-T)))
+                  family bat-S-T gps-S-T bat-S-36m)))
 
 ;; Explicit family endpoints for compatibility
 

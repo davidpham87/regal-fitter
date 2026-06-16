@@ -13,7 +13,7 @@
 
 ;; --- Default Config ---
 (def default-config
-  {:prefilter-top-k 2000
+  {:prefilter-top-k 3000
 
    :n-total 126
    :n-per-arm 63
@@ -58,6 +58,7 @@
    :t-now (cfg-today-month)
    :no-80-slack-months 1.0
    :bat-strat-bin 1
+   :bat-surv-36m-max 0.15
 
    :hr-threshold 0.636
 
@@ -67,12 +68,12 @@
    :seed 20260508
 
    :bat-med-grid [4 30 1]
-   :bat-shape-grid [0.5 2 0.1]
+   :bat-shape-grid [0.7 1 0.1]
 
    :gps-med-grid-lo 20.0
    :gps-med-grid-hi 60.0
    :gps-med-grid-n 2
-   :gps-shape-grid [0.5 2 0.1]
+   :gps-shape-grid [0.7 1 0.1]
 
    :cure-frac-grid [0.2 0.8 0.1]
    :cure-unc-med-grid [10 58 4]
@@ -80,8 +81,8 @@
 
    :leaky-cure-frac-grid [0.0 0.9 0.1]
    :leaky-unc-med-grid [4 30 2]
-   :leaky-unc-shape-grid [0.5 2 0.1]
-   :leak-grid [0.00 0.1 0.01]
+   :leaky-unc-shape-grid [0.7 1 0.1]
+   :leak-grid [0.03 0.1 0.01]
 
    :families ["leaky"]
    :n-sims-aggregation 5000})
@@ -177,6 +178,8 @@
    [:n-ev-final :int]
    [:use-pr3-anchor :boolean]
 
+   [:bat-surv-36m-max :number]
+
    [:prefilter-tol-ia :number]
    [:prefilter-tol-upd :number]
    [:prefilter-tol-pr3 :number]
@@ -271,7 +274,9 @@
            :power-config default-power-config
            :enrollment-mode {:mode :manual
                              :median-month 30
-                             :k 0.1}
+                             :k 0.1
+                             :n-samples 100
+                             :window-param 2}
            :status :idle ;; :idle, :running-stage1, :running-stage2, :done, :error
            :stress-test-status :idle
            :progress {:total 0 :completed 0}

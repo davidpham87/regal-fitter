@@ -18,6 +18,7 @@
    :bat-med-grid "BAT Median Grid"
    :bat-shape-grid "BAT Shape Grid"
    :bat-strat-bin "BAT Stratification Bin (months)"
+   :bat-surv-36m-max "BAT 36m Survival Max"
    :gps-med-grid-lo "GPS Median Grid Low"
    :gps-med-grid-hi "GPS Median Grid High"
    :gps-med-grid-n "GPS Median Grid N"
@@ -78,6 +79,9 @@
    :bat-strat-bin
    (str "Width of BAT mOS bins for stratified output. "
         "Set to 0 to disable stratified pages.")
+   :bat-surv-36m-max
+   (str "Maximum survivorship expected threshold at 36 months for the BAT curve. "
+        "Set to 0 or leave empty to disable.")
    :gps-med-grid-lo "Weibull GPS median grid lower bound (log-spaced)."
    :gps-med-grid-hi "Weibull GPS median grid upper bound (log-spaced)."
    :gps-med-grid-n "Weibull GPS median grid number of points."

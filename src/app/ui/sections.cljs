@@ -116,6 +116,9 @@
          inputs/parse-double-safe] props]
        [inputs/field-wrapper :pool-mos-min-at-ia
         [inputs/num-input props :pool-mos-min-at-ia
+         inputs/parse-double-safe] props]
+       [inputs/field-wrapper :bat-surv-36m-max
+        [inputs/num-input props :bat-surv-36m-max
          inputs/parse-double-safe] props]]]]}])
 
 (defn execution-section [props]
