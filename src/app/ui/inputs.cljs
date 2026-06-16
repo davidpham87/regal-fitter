@@ -58,7 +58,12 @@
    :median-bat-alive-upd "Median BAT Alive UPD"
    :median-gps-alive-upd "Median GPS Alive UPD"
    :median-bat-alive-final "Median BAT Alive Final (T80)"
-   :median-gps-alive-final "Median GPS Alive Final (T80)"})
+   :median-gps-alive-final "Median GPS Alive Final (T80)"
+   :bat-cure-frac "BAT Cure Fraction"
+   :bat-unc-med "BAT Uncured Median (months)"
+   :bat-unc-shape "BAT Uncured Shape"
+   :bat-unc-scale "BAT Uncured Scale"
+   :bat-leak-yr "BAT Leak Rate (yearly)"})
 
 (def key->help
   {:n-total "Total trial size (e.g. 126 subjects)."

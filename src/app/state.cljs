@@ -67,8 +67,8 @@
    :n-screen-min-pass 1
    :seed 20260508
 
-   :bat-med-grid [4 30 1]
-   :bat-shape-grid [0.6 1.2 0.1]
+   :bat-med-grid [4 25 1]
+   :bat-shape-grid [0.7 1.0 0.1]
 
    :gps-med-grid-lo 20.0
    :gps-med-grid-hi 60.0

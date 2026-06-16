@@ -80,7 +80,9 @@
 (defn- results-table [family items]
   (let [sort-col (r/atom nil)
         sort-asc? (r/atom true)
-        filter-text (r/atom "")]
+        filter-text (r/atom "")
+        page-size 20
+        curr-page (r/atom 0)]
     (fn [family items]
       (when (seq items)
         (let [keys-to-show (->> (mapcat keys items)
@@ -107,7 +109,13 @@
                                             val)))
                                       (if @sort-asc? compare #(compare %2 %1))
                                       filtered-items)
-                             filtered-items)]
+                             filtered-items)
+              total-items (count sorted-items)
+              max-page (js/Math.max 0 (js/Math.ceil (/ total-items page-size)))
+              _ (when (>= @curr-page max-page) (reset! curr-page 0))
+              paginated-items (->> sorted-items
+                                   (drop (* @curr-page page-size))
+                                   (take page-size))]
           [:div.mb-8
            [:div.flex.flex-col.sm:flex-row.gap-2.mb-3
             {:class "sm:justify-between sm:items-center"}
@@ -118,7 +126,8 @@
               {:type "text"
                :placeholder "Filter rows..."
                :value @filter-text
-               :on-change #(reset! filter-text (.. % -target -value))}]]]
+               :on-change #(do (reset! filter-text (.. % -target -value))
+                               (reset! curr-page 0))}]]]
            [:div.overflow-x-auto.border.rounded-lg.shadow-sm
             [:table.min-w-full.divide-y.divide-gray-200.text-sm
              [:thead.bg-gray-50
@@ -133,7 +142,8 @@
                                    (swap! sort-asc? not)
                                    (do
                                      (reset! sort-col k)
-                                     (reset! sort-asc? true))))}
+                                     (reset! sort-asc? true)))
+                                 (reset! curr-page 0))}
                     [:span.flex.items-center.gap-1
                      (get inputs/key->label k (name k))
                      (cond
@@ -141,12 +151,12 @@
                        @sort-asc? "▲"
                        :else "▼")]]))]]
              [:tbody.divide-y.divide-gray-200.bg-white
-              (if (empty? sorted-items)
+              (if (empty? paginated-items)
                 [:tr
                  [:td.px-4.py-8.text-center.text-gray-500
                   {:col-span (count keys-to-show)}
                   "No matching combinations found."]]
-                (for [[idx item] (map-indexed vector sorted-items)]
+                (for [[idx item] (map-indexed vector paginated-items)]
                   ^{:key idx}
                   [:tr {:class (if (even? idx) "bg-white" "bg-gray-50")}
                    (for [k keys-to-show]
@@ -155,7 +165,49 @@
                       (let [val (get item k)]
                         (if (float? val)
                           (.toFixed val 4)
-                          (str val)))])]))]]]])))))
+                          (str val)))])]))]]]
+           (when (> max-page 1)
+             [:div.mt-4.flex.justify-between.items-center.text-sm
+              [:span.text-gray-600
+               (str "Showing " (inc (* @curr-page page-size))
+                    " to " (js/Math.min total-items (* (inc @curr-page) page-size))
+                    " of " total-items " entries")]
+              [:div.flex.gap-2
+               [:button.px-3.py-1.border.rounded.bg-white
+                {:disabled (<= @curr-page 0)
+                 :class (when (<= @curr-page 0) "opacity-50 cursor-not-allowed")
+                 :on-click #(swap! curr-page dec)}
+                "Previous"]
+               [:span.px-3.py-1 (str (inc @curr-page) " / " max-page)]
+               [:button.px-3.py-1.border.rounded.bg-white
+                {:disabled (>= (inc @curr-page) max-page)
+                 :class (when (>= (inc @curr-page) max-page) "opacity-50 cursor-not-allowed")
+                 :on-click #(swap! curr-page inc)}
+                "Next"]]])])))))
+
+(defn- results-edn-view [results]
+  (r/with-let [limit (r/atom 10)]
+    (let [limited-results (into {} (for [[fam items] results]
+                                     [fam (->> items
+                                               (take @limit)
+                                               translate-keys)]))
+          edn-str (with-out-str (pprint limited-results))]
+      [:div.p-4
+       [:div.mb-4.flex.items-center.gap-3
+        [:label.text-sm.font-bold.text-gray-700 "Max records to print:"]
+        [:select.border.rounded.p-1.text-sm
+         {:value @limit
+          :on-change #(reset! limit (js/parseInt (.. % -target -value) 10))}
+         (for [n [5 10 25 50 100]]
+           ^{:key n}
+           [:option {:value n} n])]]
+       [:h3.text-lg.font-bold.mb-2 "EDN View"]
+       [code-editor
+        {:value edn-str
+         :language "clojure"
+         :theme "vs-dark"
+         :height "500px"
+         :read-only? true}]])))
 
 (defn- find-varying-params [items]
   (let [all-keys (keys (first items))
@@ -223,18 +275,6 @@
             (get inputs/key->label @active-p1 (name @active-p1))
             (get inputs/key->label @active-p2 (name @active-p2))]])])]))
 
-(defn- results-edn-view [results]
-  (let [translated (into {} (for [[fam items] results]
-                              [fam (translate-keys items)]))
-        edn-str (with-out-str (pprint translated))]
-    [:div.p-4
-     [:h3.text-lg.font-bold.mb-2 "EDN View"]
-     [code-editor
-      {:value edn-str
-       :language "clojure"
-       :theme "vs-dark"
-       :height "500px"
-       :read-only? true}]]))
 (defn- trigger-resampling-workers!
   [state-key items config n-sims resampled-data resampling-state]
   (let [config (assoc config :n-sims-aggregation n-sims)
