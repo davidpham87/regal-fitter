@@ -181,20 +181,35 @@
      :config {:legend {:orient "bottom"}}}))
 
 (defn chart-gps-vs-bat [vdata]
-  (make-chart vdata
-    {:mark {:type "line" :point true}
-     :encoding {:x {:field "bat-mid"
-                    :type "quantitative"
-                    :title "BAT mOS (months)"}
-                :y {:field "gps-med"
-                    :type "quantitative"
-                    :title "GPS mOS (months)"
-                    :scale {:zero false}}
-                :color {:value "#3b82f6"}
-                :tooltip [{:field "bat-mid" :type "quantitative"
-                           :title "BAT mOS (months)"}
-                          {:field "gps-med" :type "quantitative"
-                           :title "GPS mOS (months)"}]}}))
+  [app.visualization.charts.vega/vega-lite
+   {:width 360 :height 240
+    :title "GPS mOS vs BAT mOS (95% CI)"
+    :data {:values vdata}
+    :layer [{:mark {:type "area" :opacity 0.2}
+             :encoding {:x {:field "bat-mid"
+                            :type "quantitative"
+                            :title "BAT mOS (months)"}
+                        :y {:field "gps-low"
+                            :type "quantitative"}
+                        :y2 {:field "gps-high"
+                             :type "quantitative"}
+                        :color {:value "#3b82f6"}}}
+            {:mark {:type "line" :point true}
+             :encoding {:x {:field "bat-mid"
+                            :type "quantitative"}
+                        :y {:field "gps-med"
+                            :type "quantitative"
+                            :title "GPS mOS (months)"
+                            :scale {:zero false}}
+                        :color {:value "#3b82f6"}
+                        :tooltip [{:field "bat-mid" :type "quantitative"
+                                   :title "BAT mOS (months)"}
+                                  {:field "gps-med" :type "quantitative"
+                                   :title "GPS mOS (months)"}
+                                  {:field "gps-low" :type "quantitative"
+                                   :title "95% CI Low"}
+                                  {:field "gps-high" :type "quantitative"
+                                   :title "95% CI High"}]}}]}])
 
 (def implied-km-layer-indiv
   {:transform [{:filter "datum.type == 'individual'"}]

@@ -13,20 +13,20 @@
 
 ;; --- Default Config ---
 (def default-config
-  {:prefilter-top-k 3000
+  {:prefilter-top-k 5000
 
    :n-total 126
    :n-per-arm 63
    :enroll-bands
-   ;; [[0 12 17] ;; Year 1
-   ;;  [12 24 40]  ;; Year 2
-   ;;  [24 36 60] ;; Year 3
-   ;;  [36 38 9]]
+   [[0 12 17] ;; Year 1
+    [12 24 40]  ;; Year 2
+    [24 36 60] ;; Year 3
+    [36 38 9]]
 
-   [[0.0, 12.0, 15]     ;; Year 1
-    [12.0, 24.0, 50]    ;; Year 2
-    [24.0, 36.0, 56]    ;; Year 3
-    [36.0, 38.0, 5]]
+   ;; [[0.0, 12.0, 15]     ;; Year 1
+   ;;  [12.0, 24.0, 50]    ;; Year 2
+   ;;  [24.0, 36.0, 56]    ;; Year 3
+   ;;  [36.0, 38.0, 5]]
 
    :t-ia 46.0
    :t-upd 58.0
@@ -37,9 +37,9 @@
    :n-ev-final 80
    :use-pr3-anchor true
 
-   :prefilter-tol-ia 1.5
-   :prefilter-tol-upd 1.5
-   :prefilter-tol-pr3 1.5
+   :prefilter-tol-ia 2.5
+   :prefilter-tol-upd 2.5
+   :prefilter-tol-pr3 2.5
    :tol-ia 4
    :tol-upd 4
    :tol-pr3 2
@@ -58,22 +58,22 @@
    :t-now (cfg-today-month)
    :no-80-slack-months 1.0
    :bat-strat-bin 1
-   :bat-surv-36m-max 0.15
+   :bat-surv-36m-max 0.25
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 500
-   :n-sims-screen 100
+   :n-sims-per-combo 1500
+   :n-sims-screen 250
    :n-screen-min-pass 1
    :seed 20260508
 
    :bat-med-grid [4 30 1]
-   :bat-shape-grid [0.7 1 0.1]
+   :bat-shape-grid [0.6 1 0.1]
 
    :gps-med-grid-lo 20.0
    :gps-med-grid-hi 60.0
    :gps-med-grid-n 2
-   :gps-shape-grid [0.7 1 0.1]
+   :gps-shape-grid [0.6 1 0.1]
 
    :cure-frac-grid [0.2 0.8 0.1]
    :cure-unc-med-grid [10 58 4]

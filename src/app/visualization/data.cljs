@@ -81,7 +81,9 @@
   (let [[sub sub-w] (extract-bin-subsets lo bin-width results weights)
         sub-w-sum (reduce + sub-w)]
     (when (pos? sub-w-sum)
-      (let [trials (get-trials-from-sub sub sub-w)]
+      (let [trials (get-trials-from-sub sub sub-w)
+            norm-sub-w (mapv #(/ % sub-w-sum) sub-w)
+            gps-med-vals (mapv :gps-med sub)]
         {:bat-mid (+ lo (/ bin-width 2))
          :weight sub-w-sum
          :p-success-overall (or (calculate-weighted-mean
@@ -91,7 +93,9 @@
          :median-hr-final (trials-percentile trials :hr-final 0.50)
          :hr-final-low (trials-percentile trials :hr-final 0.025)
          :hr-final-high (trials-percentile trials :hr-final 0.975)
-         :gps-med (calculate-weighted-mean :gps-med sub sub-w)}))))
+         :gps-med (calculate-weighted-mean :gps-med sub sub-w)
+         :gps-low (survival/weighted-percentile gps-med-vals norm-sub-w 0.025)
+         :gps-high (survival/weighted-percentile gps-med-vals norm-sub-w 0.975)}))))
 
 (defn build-stratified-data [results bin-width]
   (let [bat-meds (map :bat-med results)
@@ -304,6 +308,8 @@
                           :hr-low (or (:hr-final-low d) 0)
                           :hr-high (or (:hr-final-high d) 0)
                           :gps-med (or (:gps-med d) 0)
+                          :gps-low (or (:gps-low d) 0)
+                          :gps-high (or (:gps-high d) 0)
                           :p-bat p-val
                           :cum-p (js/Math.min 100.0 new-sum)})
                new-sum))
