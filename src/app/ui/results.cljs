@@ -174,8 +174,13 @@
 
 (defn- posterior-distributions [items]
   (r/with-let [params (find-varying-params items)
-               active-p1 (r/atom (first params))
-               active-p2 (r/atom (second params))]
+               find-first-varying (fn [candidates fallback]
+                                    (or (some #(when ((set params) %) %) candidates)
+                                        fallback))
+               p1-default (find-first-varying [:bat-med :leaky-cure-frac :cure-frac] (first params))
+               p2-default (find-first-varying [:bat-shape :leak :leaky-unc-med :cure-unc-med] (second params))
+               active-p1 (r/atom p1-default)
+               active-p2 (r/atom p2-default)]
     [:div.mt-6
      (if (empty? params)
        [:div.p-4.text-gray-500.italic "No varied parameters found in this grid."]
@@ -295,8 +300,8 @@
         (when (seq results)
           [tab-bar
            {:active-tab @active-tab
-            :tabs [[:config "Config Distributions"]
-                   [:charts "Result Charts"]
+            :tabs [[:charts "Result Charts"]
+                   [:config "Config Distributions"]
                    [:table "Table"]
                    [:edn "EDN View"]]
             :on-change #(reset! active-tab %)}])]
