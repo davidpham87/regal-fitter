@@ -13,7 +13,7 @@
 
 ;; --- Default Config ---
 (def default-config
-  {:prefilter-top-k 5000
+  {:prefilter-top-k 15000
 
    :n-total 126
    :n-per-arm 63
@@ -37,12 +37,12 @@
    :n-ev-final 80
    :use-pr3-anchor true
 
-   :prefilter-tol-ia 2.5
-   :prefilter-tol-upd 2.5
-   :prefilter-tol-pr3 2.5
-   :tol-ia 4
-   :tol-upd 4
-   :tol-pr3 2
+   :prefilter-tol-ia 5
+   :prefilter-tol-upd 5
+   :prefilter-tol-pr3 5
+   :tol-ia 10
+   :tol-upd 10
+   :tol-pr3 10
 
    :tol-increment-ia-upd 3
    :tol-increment-upd-pr3 2
@@ -58,17 +58,17 @@
    :t-now (cfg-today-month)
    :no-80-slack-months 1.0
    :bat-strat-bin 1
-   :bat-surv-36m-max 0.25
+   :bat-surv-36m-max 0.30
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 1500
+   :n-sims-per-combo 500
    :n-sims-screen 250
    :n-screen-min-pass 1
    :seed 20260508
 
    :bat-med-grid [4 30 1]
-   :bat-shape-grid [0.6 1 0.1]
+   :bat-shape-grid [0.6 1.2 0.1]
 
    :gps-med-grid-lo 20.0
    :gps-med-grid-hi 60.0
@@ -80,8 +80,8 @@
    :cure-unc-shape-grid [0.6 1.6 0.2]
 
    :leaky-cure-frac-grid [0.0 0.9 0.1]
-   :leaky-unc-med-grid [4 30 2]
-   :leaky-unc-shape-grid [0.7 1 0.1]
+   :leaky-unc-med-grid [10 60 5]
+   :leaky-unc-shape-grid [0.6 1.2 0.1]
    :leak-grid [0.03 0.1 0.01]
 
    :families ["leaky"]

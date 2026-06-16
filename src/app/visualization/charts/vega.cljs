@@ -6,7 +6,8 @@
   (let [ref (r/atom nil)]
     (r/create-class
      {:reagent-render
-      (fn []
+      (fn [spec]
+        ^{:key (hash spec)}
         [:div {:ref #(reset! ref %)}])
       :component-did-mount
       (fn [this]
