@@ -13,7 +13,7 @@
 
 ;; --- Default Config ---
 (def default-config
-  {:prefilter-top-k 15000
+  {:prefilter-top-k 30000
 
    :n-total 126
    :n-per-arm 63
@@ -63,7 +63,7 @@
    :hr-threshold 0.636
 
    :n-sims-per-combo 500
-   :n-sims-screen 250
+   :n-sims-screen 100
    :n-screen-min-pass 1
    :seed 20260508
 
@@ -84,10 +84,10 @@
    :leaky-unc-shape-grid [0.6 1.2 0.1]
    :leak-grid [0.03 0.1 0.01]
 
-   :bat-leaky-cure-frac-grid [0.0 0.3 0.05]
-   :bat-leaky-unc-med-grid [10 60 5]
-   :bat-leaky-unc-shape-grid [0.6 1.2 0.1]
-   :bat-leak-grid [0.03 0.1 0.01]
+   :bat-leaky-cure-frac-grid [0.1 0.3 0.1]
+   :bat-leaky-unc-med-grid [10 50 10]
+   :bat-leaky-unc-shape-grid [0.7 1.0 0.15]
+   :bat-leak-grid [0.03 0.09 0.02]
 
    :families ["leaky"]
    :n-sims-aggregation 5000})

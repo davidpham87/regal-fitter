@@ -2,11 +2,17 @@
   (:require [app.visualization.survival :as survival]))
 
 (defn calculate-bat-edges [bat-meds bin-width]
-  (let [bat-min (js/Math.floor (/ (apply min bat-meds) bin-width))
-        bat-max (js/Math.ceil (/ (apply max bat-meds) bin-width))]
-    (range (* bat-min bin-width)
-           (+ (* bat-max bin-width) bin-width)
-           bin-width)))
+  (if (empty? bat-meds)
+    []
+    (let [v-min (apply min bat-meds)
+          v-max (apply max bat-meds)
+          ;; If min and max are equal (e.g. single model value), expand range so we get a bin
+          v-min (if (= v-min v-max) (- v-min bin-width) v-min)
+          bat-min (js/Math.floor (/ v-min bin-width))
+          bat-max (js/Math.ceil (/ v-max bin-width))]
+      (range (* bat-min bin-width)
+             (+ (* bat-max bin-width) bin-width)
+             bin-width))))
 
 (defn calculate-weighted-mean [k sub sub-w]
   (let [vs (map k sub)
