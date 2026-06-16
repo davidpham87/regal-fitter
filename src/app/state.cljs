@@ -13,7 +13,7 @@
 
 ;; --- Default Config ---
 (def default-config
-  {:prefilter-top-k 30000
+  {:prefilter-top-k 2000
 
    :n-total 126
    :n-per-arm 63

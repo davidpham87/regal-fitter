@@ -286,10 +286,10 @@
       (let [num-workers (js/Math.max 1 (count @wp/pool))
             total (count sampled)
             chunk-size (js/Math.max
-                        5
+                        25
                         (js/Math.min
-                         50
-                         (js/Math.ceil (/ total (* 2 num-workers)))))
+                         500
+                         (js/Math.ceil (/ total num-workers))))
             chunks (partition-all chunk-size sampled)
             total-chunks (count chunks)
             completed-chunks (atom 0)
