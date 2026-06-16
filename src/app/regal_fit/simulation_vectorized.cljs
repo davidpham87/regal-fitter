@@ -65,13 +65,11 @@
   [n-samples random-gen scale shape]
   (let [random-values (np-random/random random-gen n-samples)
         neg-log-vals (np-ts/multiply (np-ts/log random-values) -1.0)
-        powered-vals (np-ts/power neg-log-vals (/ 1.0 shape))]
+        inv-shape (if (number? shape)
+                    (/ 1.0 shape)
+                    (np-ts/divide (np-ts/full (.-shape shape) 1.0) shape))
+        powered-vals (np-ts/power neg-log-vals inv-shape)]
     (np-ts/multiply powered-vals scale)))
-
-(defn draw-bat-times-vectorized
-  "Draws random survival times for the BAT arm."
-  [{:keys [bat-scale bat-shape]} n-samples random-gen]
-  (draw-weibull-samples-vectorized n-samples random-gen bat-scale bat-shape))
 
 (defn draw-cure-samples-vectorized
   "Draws random survival times based on a cure model using vectorized where."
@@ -95,6 +93,18 @@
     (np-ts/array (np-ts/where (np-ts/less random-cure-flags cure-frac)
                               cured-times
                               uncured-times))))
+
+(defn draw-bat-times-vectorized
+  "Draws random survival times for the BAT arm."
+  [record n-samples random-gen]
+  (if (= (:family record) "leaky")
+    (draw-leaky-samples-vectorized
+     {:cure-frac (:bat-cure-frac record)
+      :unc-scale (:bat-unc-scale record)
+      :unc-shape (:bat-unc-shape record)
+      :leak-yr (:bat-leak-yr record)}
+     n-samples random-gen)
+    (draw-weibull-samples-vectorized n-samples random-gen (:bat-scale record) (:bat-shape record))))
 
 (defn draw-gps-times-vectorized
   "Draws random survival times for the GPS arm based on the specified model family."
