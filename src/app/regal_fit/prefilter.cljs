@@ -243,26 +243,76 @@
   (let [[enroll-pts enroll-weights]
         (enrollment/expected-enrollment-times config)
         target-pts (get-target-pts config)
-        bat (make-bat-grid config)
-        bat-ev (enrollment/expected-arm-events
-                survival/weibull-survival-probability
-                [(:scale bat) (:shape bat)]
-                enroll-pts enroll-weights target-pts
-                (:n-per-arm config) (:n-total config))
+        is-leaky? (= family "leaky")
+
+        ;; Generate BAT grid and events. If the family is leaky, BAT is also leaky
+        ;; using :bat-leaky-cure-frac-grid, :bat-leaky-unc-med-grid,
+        ;; :bat-leaky-unc-shape-grid, and :bat-leak-grid.
+        bat-params
+        (if is-leaky?
+          (let [cf (grid-flat config :bat-leaky-cure-frac-grid)
+                meds (grid-flat config :bat-leaky-unc-med-grid)
+                shapes (grid-flat config :bat-leaky-unc-shape-grid)
+                leaks (grid-flat config :bat-leak-grid)
+                mesh (np/meshgrid [cf meds shapes leaks] #js {:indexing "ij"})
+                cf-flat (np/ravel (aget mesh 0))
+                unc-med-flat (np/ravel (aget mesh 1))
+                unc-shape-flat (np/ravel (aget mesh 2))
+                leak-flat (np/ravel (aget mesh 3))
+                unc-scale-flat (survival/weibull-scale-from-median
+                                unc-med-flat unc-shape-flat)]
+            {:cf cf-flat :med unc-med-flat :shape unc-shape-flat :scale unc-scale-flat :leak leak-flat})
+          (let [meds (grid-flat config :bat-med-grid)
+                shapes (grid-flat config :bat-shape-grid)
+                mesh (np/meshgrid [meds shapes] #js {:indexing "ij"})
+                med-flat (np/ravel (aget mesh 0))
+                shape-flat (np/ravel (aget mesh 1))
+                scale-flat (survival/weibull-scale-from-median med-flat shape-flat)]
+            {:med med-flat :shape shape-flat :scale scale-flat}))
+
+        bat-ev
+        (if is-leaky?
+          (enrollment/expected-arm-events
+           survival/leaky-cure-survival-probability
+           [(:cf bat-params) (:scale bat-params) (:shape bat-params) (:leak bat-params)]
+           enroll-pts enroll-weights target-pts
+           (:n-per-arm config) (:n-total config))
+          (enrollment/expected-arm-events
+           survival/weibull-survival-probability
+           [(:scale bat-params) (:shape bat-params)]
+           enroll-pts enroll-weights target-pts
+           (:n-per-arm config) (:n-total config)))
+
         pool-target (:pool-mos-min-at-ia config)
-        bat-S-T (when (> pool-target 0)
-                  (survival/weibull-survival-probability
-                   pool-target (:scale bat) (:shape bat)))
-        bat-S-36m (when (:bat-surv-36m-max config)
-                    (survival/weibull-survival-probability
-                     36.0 (:scale bat) (:shape bat)))
+        bat-S-T
+        (when (> pool-target 0)
+          (if is-leaky?
+            (survival/leaky-cure-survival-probability
+             pool-target (:cf bat-params) (:scale bat-params) (:shape bat-params) (:leak bat-params))
+            (survival/weibull-survival-probability
+             pool-target (:scale bat-params) (:shape bat-params))))
+
+        bat-S-36m
+        (when (:bat-surv-36m-max config)
+          (if is-leaky?
+            (survival/leaky-cure-survival-probability
+             36.0 (:cf bat-params) (:scale bat-params) (:shape bat-params) (:leak bat-params))
+            (survival/weibull-survival-probability
+             36.0 (:scale bat-params) (:shape bat-params))))
+
         {:keys [gps-ev gps-params gps-S-T]}
         (gps-grid-and-ev family config enroll-pts enroll-weights
                          target-pts pool-target)]
     (cross-filter config bat-ev gps-ev
-                  {:bat-med (:med bat)
-                   :bat-shape (:shape bat)
-                   :bat-scale (:scale bat)}
+                  (if is-leaky?
+                    {:bat-cure-frac (:cf bat-params)
+                     :bat-unc-med (:med bat-params)
+                     :bat-unc-shape (:shape bat-params)
+                     :bat-unc-scale (:scale bat-params)
+                     :bat-leak-yr (:leak bat-params)}
+                    {:bat-med (:med bat-params)
+                     :bat-shape (:shape bat-params)
+                     :bat-scale (:scale bat-params)})
                   gps-params
                   family bat-S-T gps-S-T bat-S-36m)))
 

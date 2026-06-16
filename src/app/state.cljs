@@ -84,6 +84,11 @@
    :leaky-unc-shape-grid [0.6 1.2 0.1]
    :leak-grid [0.03 0.1 0.01]
 
+   :bat-leaky-cure-frac-grid [0.0 0.3 0.05]
+   :bat-leaky-unc-med-grid [10 60 5]
+   :bat-leaky-unc-shape-grid [0.6 1.2 0.1]
+   :bat-leak-grid [0.03 0.1 0.01]
+
    :families ["leaky"]
    :n-sims-aggregation 5000})
 
@@ -160,6 +165,11 @@
    :leaky-unc-shape-grid [0.5 2.01 0.5]
    :leak-grid [0.0 0.101 0.01]
 
+   :bat-leaky-cure-frac-grid [0.0 0.3 0.05]
+   :bat-leaky-unc-med-grid [10 60 5]
+   :bat-leaky-unc-shape-grid [0.6 1.2 0.1]
+   :bat-leak-grid [0.03 0.1 0.01]
+
    :families ["weibull" "cure" "leaky"]
 
    :n-sims-aggregation 5000})
@@ -224,6 +234,11 @@
    [:leaky-unc-med-grid [:vector :number]]
    [:leaky-unc-shape-grid [:vector :number]]
    [:leak-grid [:vector :number]]
+
+   [:bat-leaky-cure-frac-grid [:vector :number]]
+   [:bat-leaky-unc-med-grid [:vector :number]]
+   [:bat-leaky-unc-shape-grid [:vector :number]]
+   [:bat-leak-grid [:vector :number]]
 
    [:families [:vector :string]]
    [:n-sims-aggregation :int]])

@@ -30,6 +30,10 @@
    :leaky-unc-med-grid "Leaky GPS Uncured Median Grid"
    :leaky-unc-shape-grid "Leaky Uncured Shape Grid"
    :leak-grid "Leak Grid"
+   :bat-leaky-cure-frac-grid "BAT Leaky Cure Fraction Grid"
+   :bat-leaky-unc-med-grid "BAT Leaky Uncured Median Grid"
+   :bat-leaky-unc-shape-grid "BAT Leaky Uncured Shape Grid"
+   :bat-leak-grid "BAT Leak Grid"
    :prefilter-tol-ia "Prefilter IA Tolerance"
    :prefilter-tol-upd "Prefilter UPD Tolerance"
    :prefilter-tol-pr3 "Prefilter PR3 Tolerance"
@@ -93,6 +97,10 @@
    :leaky-unc-med-grid "Leaky uncured median grid (start, stop, step)."
    :leaky-unc-shape-grid "Leaky uncured shape grid (start, stop, step)."
    :leak-grid "Leaky leak-rate grid (start, stop, step)."
+   :bat-leaky-cure-frac-grid "BAT Leaky cure-fraction grid (start, stop, step)."
+   :bat-leaky-unc-med-grid "BAT Leaky uncured median grid (start, stop, step)."
+   :bat-leaky-unc-shape-grid "BAT Leaky uncured shape grid (start, stop, step)."
+   :bat-leak-grid "BAT Leaky leak-rate grid (start, stop, step)."
    :prefilter-tol-ia
    (str "Analytical pre-filter tolerance on IA event count. "
         "Rejects combos whose expected events deviate beyond tolerance.")

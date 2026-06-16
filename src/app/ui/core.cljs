@@ -17,7 +17,9 @@
   {:trial [:n-total :n-per-arm :enroll-bands :enforce-no-80-by-today
            :t-now :no-80-slack-months]
    :timing [:t-ia :tol-ia :t-upd :tol-upd :t-pr3 :tol-pr3 :use-pr3-anchor]
-   :bat [:bat-med-grid :bat-shape-grid :bat-strat-bin]
+   :bat [:bat-med-grid :bat-shape-grid :bat-strat-bin
+         :bat-leaky-cure-frac-grid :bat-leaky-unc-med-grid
+         :bat-leaky-unc-shape-grid :bat-leak-grid]
    :gps [:gps-med-grid-lo :gps-med-grid-hi :gps-med-grid-n :gps-shape-grid]
    :cure [:cure-frac-grid :cure-unc-med-grid :cure-unc-shape-grid]
    :leaky [:leaky-cure-frac-grid :leaky-unc-med-grid :leaky-unc-shape-grid
