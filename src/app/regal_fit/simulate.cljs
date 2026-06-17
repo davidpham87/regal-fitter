@@ -383,7 +383,7 @@
       :else 0.0)))
 
 (defn- bat-survival-probability-scalar [t record]
-  (if (= (:family record) "leaky")
+  (if (let [fam (:family record)] (or (= fam "leaky") (= fam :leaky)))
     (let [cf (:bat-cure-frac record)
           scale (:bat-unc-scale record)
           shape (:bat-unc-shape record)
@@ -396,7 +396,7 @@
       (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
 
 (defn- calculate-bat-median [record]
-  (if-not (= (:family record) "leaky")
+  (if-not (let [fam (:family record)] (or (= fam "leaky") (= fam :leaky)))
     (:bat-med record)
     (let [f (fn [t] (bat-survival-probability-scalar t record))]
       (if (<= (f 0.0) 0.5)
