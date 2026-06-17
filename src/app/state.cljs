@@ -63,8 +63,8 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 1000
-   :n-sims-screen 200
+   :n-sims-per-combo 500
+   :n-sims-screen 50
    :n-screen-min-pass 1
    :seed 20260508
 
