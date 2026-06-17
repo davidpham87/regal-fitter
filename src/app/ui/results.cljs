@@ -9,6 +9,7 @@
             [clojure.string :as str]
             [cljs.pprint :refer [pprint]]
             [app.components.editor :refer [code-editor]]
+            [app.components.card :refer [chart-card]]
             [app.components.tabs :refer [tab-bar]]))
 
 (defn- expected-success-probability [items config]
@@ -209,13 +210,48 @@
          :height "500px"
          :read-only? true}]])))
 
+(defn- get-param-label [k]
+  (cond
+    (= k :median-hr-final) "Final Hazard Ratio (HR)"
+    (= k :bat-med) "BAT Median (mOS)"
+    (= k :gps-med) "GPS Median (mOS)"
+    :else (get inputs/key->label k (name k))))
+
+(defn- get-predefined-pairs [family]
+  (case family
+    "weibull"
+    [[:bat-med :bat-shape]
+     [:gps-med :gps-shape]
+     [:bat-med :gps-med]
+     [:gps-med :median-hr-final]]
+
+    "cure"
+    [[:bat-med :bat-shape]
+     [:cure-frac :unc-med]
+     [:bat-med :unc-med]
+     [:cure-frac :median-hr-final]]
+
+    "leaky"
+    [[:bat-med :gps-med]
+     [:bat-cure-frac :bat-leak-yr]
+     [:cure-frac :leak-yr]
+     [:cure-frac :median-hr-final]]
+
+    ;; fallback
+    []))
+
 (defn- find-varying-params [items]
   (let [all-keys (keys (first items))
-        skip-keys #{:family :acceptance-rate :p-success-overall :median-t80-months
-                    :median-hr-ia :median-z-ia :hr-final-low :hr-final-high
-                    :p-hr-below-threshold :median-bat-alive-upd :median-gps-alive-upd
-                    :median-bat-alive-final :median-gps-alive-final :exp-hr-ia :exp-hr-upd
-                    :exp-ev-ia :exp-ev-upd :exp-ev-pr3 :exp-ev-final :hr-ia :hr-upd}
+        skip-keys #{:family :acceptance-rate :p-success-overall
+                    :median-t80-months :median-hr-ia :median-z-ia
+                    :hr-final-low :hr-final-high :p-hr-below-threshold
+                    :median-bat-alive-upd :median-gps-alive-upd
+                    :median-bat-alive-final :median-gps-alive-final
+                    :exp-hr-ia :exp-hr-upd :exp-ev-ia :exp-ev-upd
+                    :exp-ev-pr3 :exp-ev-final :hr-ia :hr-upd
+                    :n-accepted :p-no-readout :n-pass-futility
+                    :n-pass-events :p-reach80 :n-attempts
+                    :median-hr-final :gps-med :bat-med}
         candidate-keys (remove #(or (skip-keys %)
                                     (str/starts-with? (name %) "mean-")
                                     (str/starts-with? (name %) "exp-"))
@@ -225,55 +261,82 @@
             candidate-keys)))
 
 (defn- posterior-distributions [items]
-  (r/with-let [params (find-varying-params items)
-               find-first-varying (fn [candidates fallback]
-                                    (or (some #(when ((set params) %) %) candidates)
-                                        fallback))
-               p1-default (find-first-varying [:bat-med :leaky-cure-frac :cure-frac] (first params))
-               p2-default (find-first-varying [:bat-shape :leak :leaky-unc-med :cure-unc-med] (second params))
-               active-p1 (r/atom p1-default)
-               active-p2 (r/atom p2-default)]
-    [:div.mt-6
-     (if (empty? params)
-       [:div.p-4.text-gray-500.italic "No varied parameters found in this grid."]
-       [:div
-        [:div.grid.grid-cols-1.lg:grid-cols-2.gap-6.mb-8
-         [:div.border.p-4.rounded.bg-white
-          [:div.mb-4.flex.items-center.gap-2
-           [:label.text-sm.font-bold.text-gray-700 "Parameter 1:"]
-           [:select.border.rounded.p-1.text-sm
-            {:value (name (or @active-p1 ""))
-             :on-change #(reset! active-p1 (keyword (.. % -target -value)))}
-            (for [p params]
-              ^{:key p}
-              [:option {:value (name p)} (get inputs/key->label p (name p))])]]
-          (when @active-p1
-            [:div
-             [vega/chart-posterior-histogram items @active-p1 (get inputs/key->label @active-p1)]
-             [vega/chart-posterior-cdf items @active-p1 (get inputs/key->label @active-p1)]])]
+  (let [family (some-> (:family (first items)) name)]
+    (r/with-let [params (find-varying-params items)
+                 find-first-varying (fn [candidates fallback]
+                                      (or (some #(when ((set params) %) %)
+                                                candidates)
+                                          fallback))
+                 p1-default (find-first-varying
+                             [:bat-med :bat-cure-frac :cure-frac]
+                             (first params))
+                 p2-default (find-first-varying
+                             [:bat-shape :bat-leak-yr :leak-yr
+                              :bat-unc-med :unc-med]
+                             (second params))
+                 active-p1 (r/atom p1-default)
+                 active-p2 (r/atom p2-default)]
+      [:div.mt-6
+       (if (empty? params)
+         [:div.p-4.text-gray-500.italic
+          "No varied parameters found in this grid."]
+         [:div
+          [:div.grid.grid-cols-1.lg:grid-cols-2.gap-6.mb-8
+           [:div.border.p-4.rounded.bg-white
+            [:div.mb-4.flex.items-center.gap-2
+             [:label.text-sm.font-bold.text-gray-700 "Parameter 1:"]
+             [:select.border.rounded.p-1.text-sm
+              {:value (name (or @active-p1 ""))
+               :on-change #(reset! active-p1
+                                   (keyword (.. % -target -value)))}
+              (for [p params]
+                ^{:key p}
+                [:option {:value (name p)} (get-param-label p)])]]
+            (when @active-p1
+              [:div
+               [vega/chart-posterior-histogram
+                items @active-p1 (get-param-label @active-p1)]
+               [vega/chart-posterior-cdf
+                items @active-p1 (get-param-label @active-p1)]])]
 
-         [:div.border.p-4.rounded.bg-white
-          [:div.mb-4.flex.items-center.gap-2
-           [:label.text-sm.font-bold.text-gray-700 "Parameter 2:"]
-           [:select.border.rounded.p-1.text-sm
-            {:value (name (or @active-p2 ""))
-             :on-change #(reset! active-p2 (keyword (.. % -target -value)))}
-            (for [p params]
-              ^{:key p}
-              [:option {:value (name p)} (get inputs/key->label p (name p))])]]
-          (when @active-p2
-            [:div
-             [vega/chart-posterior-histogram items @active-p2 (get inputs/key->label @active-p2)]
-             [vega/chart-posterior-cdf items @active-p2 (get inputs/key->label @active-p2)]])]]
+           [:div.border.p-4.rounded.bg-white
+            [:div.mb-4.flex.items-center.gap-2
+             [:label.text-sm.font-bold.text-gray-700 "Parameter 2:"]
+             [:select.border.rounded.p-1.text-sm
+              {:value (name (or @active-p2 ""))
+               :on-change #(reset! active-p2
+                                   (keyword (.. % -target -value)))}
+              (for [p params]
+                ^{:key p}
+                [:option {:value (name p)} (get-param-label p)])]]
+            (when @active-p2
+              [:div
+               [vega/chart-posterior-histogram
+                items @active-p2 (get-param-label @active-p2)]
+               [vega/chart-posterior-cdf
+                items @active-p2 (get-param-label @active-p2)]])]]
 
-        (when (and @active-p1 @active-p2 (not= @active-p1 @active-p2))
-          [:div.border.p-4.rounded.bg-white
-           [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
-           [vega/chart-pairwise-scatter
-            items
-            @active-p1 @active-p2
-            (get inputs/key->label @active-p1 (name @active-p1))
-            (get inputs/key->label @active-p2 (name @active-p2))]])])]))
+          (when (and @active-p1 @active-p2 (not= @active-p1 @active-p2))
+            [:div.border.p-4.rounded.bg-white.mb-8
+             [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
+             [vega/chart-pairwise-scatter
+              items
+              @active-p1 @active-p2
+              (get-param-label @active-p1)
+              (get-param-label @active-p2)]])
+
+          [:div.mt-8.pt-6.border-t
+           [:h3.text-xl.font-bold.mb-4 "Key Parameter Relationships"]
+           [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+            (for [[p1 p2] (get-predefined-pairs family)]
+              ^{:key (str (name p1) "-" (name p2))}
+              [chart-card
+               {:title (str (get-param-label p1) " vs " (get-param-label p2))}
+               [vega/chart-pairwise-scatter
+                items
+                p1 p2
+                (get-param-label p1)
+                (get-param-label p2)]])]]])])))
 
 (defn- trigger-resampling-workers!
   [state-key items config n-sims resampled-data resampling-state]

@@ -13,7 +13,7 @@
 
 ;; --- Default Config ---
 (def default-config
-  {:prefilter-top-k 2000
+  {:prefilter-top-k 20000
 
    :n-total 126
    :n-per-arm 63
@@ -37,9 +37,9 @@
    :n-ev-final 80
    :use-pr3-anchor true
 
-   :prefilter-tol-ia 1.5
-   :prefilter-tol-upd 1.5
-   :prefilter-tol-pr3 1.5
+   :prefilter-tol-ia 5
+   :prefilter-tol-upd 5
+   :prefilter-tol-pr3 5
    :tol-ia 4
    :tol-upd 3
    :tol-pr3 1
@@ -49,6 +49,7 @@
 
    :futility-hr-max 0.83
    :efficacy-hr-min 0.35
+   :bat-surv-36m-max 0.20
 
    :pool-mos-min-at-ia 12
    :median-fu-target 13.5
@@ -58,7 +59,7 @@
    :t-now (cfg-today-month)
    :no-80-slack-months 1.0
    :bat-strat-bin 1
-   :bat-surv-36m-max 0.30
+
 
    :hr-threshold 0.636
 
