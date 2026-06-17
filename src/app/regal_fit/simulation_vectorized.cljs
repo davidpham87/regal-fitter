@@ -5,56 +5,59 @@
             ["numpy-ts" :as np-ts]))
 
 (defn- km-survival-at-time-vectorized
-  "Vectorized Kaplan-Meier survival estimator at time point T."
+  "High-performance single-pass Kaplan-Meier estimator using raw arrays."
   [time-observed event-flag target-time]
-  (let [n-subjects (.-shape time-observed)]
-    (if (zero? (aget n-subjects 0))
+  (let [t-data (.-data time-observed)
+        e-data (.-data event-flag)
+        len (alength t-data)]
+    (if (zero? len)
       1.0
-      (let [order (np-ts/argsort time-observed)
-            s-times (.take ^js time-observed order)
-            s-events (.take ^js event-flag order)
-            indices (np-ts/arange (aget n-subjects 0))
-            total-n (np-ts/full (clj->js [(aget n-subjects 0)])
-                                (aget n-subjects 0))
-            n-i (np-ts/subtract total-n indices)
-            ones (np-ts/full (clj->js [(aget n-subjects 0)]) 1.0)
-            multiplier (np-ts/divide
-                        (np-ts/subtract n-i ones) n-i)
-            mask (np-ts/logical_and
-                  (np-ts/less_equal s-times target-time)
-                  (np-ts/equal s-events 1.0))
-            valid-multipliers (.bindex multiplier mask)]
-        (np-ts/prod valid-multipliers)))))
+      (let [indices (js/Int32Array. len)]
+        (dotimes [i len] (aset indices i i))
+        (.sort indices (fn [a b] (- (aget t-data a) (aget t-data b))))
+        (loop [i 0
+               survival 1.0]
+          (if (< i len)
+            (let [idx (aget indices i)
+                  t (aget t-data idx)
+                  ev (aget e-data idx)
+                  n-at-risk (- len i)]
+              (if (<= t target-time)
+                (if (and (> ev 0.5) (pos? n-at-risk))
+                  (let [new-surv (* survival (/ (dec n-at-risk) n-at-risk))]
+                    (recur (inc i) new-surv))
+                  (recur (inc i) survival))
+                survival))
+            survival))))))
 
 (defn- logrank-z-vectorized
-  "Vectorized log-rank test."
+  "High-performance single-pass log-rank test using raw arrays."
   [times events groups]
-  (let [n-events (np-ts/sum events)]
-    (if (< n-events 3)
-      [0.0 1.0]
-      (let [order (np-ts/argsort times)
-            s-events (.take ^js events order)
-            s-groups (.take ^js groups order)
-            ones (np-ts/full (.-shape s-groups) 1.0)
-            s-control (np-ts/subtract ones s-groups)
-            n-exp-at-risk (np-ts/flip
-                           (np-ts/cumsum (np-ts/flip s-groups)))
-            n-control-at-risk (np-ts/flip
-                               (np-ts/cumsum (np-ts/flip s-control)))
-            n-total-at-risk (np-ts/add n-exp-at-risk n-control-at-risk)
-            expected-exp (np-ts/divide n-exp-at-risk n-total-at-risk)
-            u-term (np-ts/subtract s-groups expected-exp)
-            var-term (np-ts/divide
-                      (np-ts/multiply n-exp-at-risk n-control-at-risk)
-                      (np-ts/multiply n-total-at-risk n-total-at-risk))
-            event-mask (np-ts/equal s-events 1)
-            valid-mask (np-ts/logical_and
-                        event-mask
-                        (np-ts/greater_equal n-total-at-risk 2))
-            u-valid (.bindex u-term valid-mask)
-            var-valid (.bindex var-term valid-mask)
-            u-sum (np-ts/sum u-valid)
-            var-sum (np-ts/sum var-valid)]
+  (let [t-data (.-data times)
+        e-data (.-data events)
+        g-data (.-data groups)
+        len (alength t-data)
+        indices (js/Int32Array. len)]
+    (dotimes [i len] (aset indices i i))
+    (.sort indices (fn [a b] (- (aget t-data a) (aget t-data b))))
+    (loop [i (dec len)
+           n-exp 0.0
+           n-ctrl 0.0
+           u-sum 0.0
+           var-sum 0.0]
+      (if (>= i 0)
+        (let [idx (aget indices i)
+              grp (aget g-data idx)
+              ev  (aget e-data idx)
+              n-exp-new (if (> grp 0.5) (inc n-exp) n-exp)
+              n-ctrl-new (if-not (> grp 0.5) (inc n-ctrl) n-ctrl)
+              n-tot (+ n-exp-new n-ctrl-new)]
+          (if (and (> ev 0.5) (>= n-tot 2))
+            (let [expected (/ n-exp-new n-tot)
+                  u (- grp expected)
+                  v (/ (* n-exp-new n-ctrl-new) (* n-tot n-tot))]
+              (recur (dec i) n-exp-new n-ctrl-new (+ u-sum u) (+ var-sum v)))
+            (recur (dec i) n-exp-new n-ctrl-new u-sum var-sum)))
         (if (<= var-sum 0)
           [0.0 1.0]
           [(/ (- u-sum) (js/Math.sqrt var-sum))
