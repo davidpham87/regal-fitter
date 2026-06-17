@@ -16,19 +16,6 @@
         (aset out i (* scale (js/Math.pow (- (js/Math.log u)) inv-shape)))))
     out))
 
-(defn draw-bat-times
-  "Draws random survival times for the BAT arm."
-  [config n-samples random-gen]
-  (if (= (:family config) "leaky")
-    (draw-leaky-samples
-     {:cure-frac (:bat-cure-frac config)
-      :unc-scale (:bat-unc-scale config)
-      :unc-shape (:bat-unc-shape config)
-      :leak-yr (:bat-leak-yr config)}
-     n-samples random-gen)
-    (draw-weibull-samples n-samples random-gen
-                          (:bat-scale config) (:bat-shape config))))
-
 (defn- draw-cure-samples
   "Draws random survival times based on a cure model."
   [{:keys [cure-frac unc-scale unc-shape]} n-samples random-gen]
@@ -64,6 +51,19 @@
                         js/Infinity)
                       u))))
     out))
+
+(defn draw-bat-times
+  "Draws random survival times for the BAT arm."
+  [config n-samples random-gen]
+  (if (= (:family config) "leaky")
+    (draw-leaky-samples
+     {:cure-frac (:bat-cure-frac config)
+      :unc-scale (:bat-unc-scale config)
+      :unc-shape (:bat-unc-shape config)
+      :leak-yr (:bat-leak-yr config)}
+     n-samples random-gen)
+    (draw-weibull-samples n-samples random-gen
+                          (:bat-scale config) (:bat-shape config))))
 
 (defn draw-gps-times
   "Draws random survival times for the GPS arm based on the specified model family."
