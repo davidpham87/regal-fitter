@@ -19,9 +19,15 @@
     (+ (* cure-frac cured) (* (- 1.0 cure-frac) unc))))
 
 (defn combo-survival [t combo arm]
-  (let [family (:family combo)]
+  (let [family (some-> (:family combo) name)]
     (if (= arm :bat)
-      (S-weibull t (:bat-scale combo) (:bat-shape combo))
+      (if (= family "leaky")
+        (S-leaky t
+                 (:bat-cure-frac combo)
+                 (:bat-unc-scale combo)
+                 (:bat-unc-shape combo)
+                 (:bat-leak-yr combo))
+        (S-weibull t (:bat-scale combo) (:bat-shape combo)))
       (cond
         (= family "weibull")
         (S-weibull t (:gps-scale combo) (:gps-shape combo))
@@ -76,10 +82,16 @@
         term2 (np/multiply (np/subtract ones cf) weib)]
     (np/add (np/multiply cf cured) term2)))
 
-(defn bat-survival-vec [t best-n n]
-  (let [sc (np/array (clj->js (map :bat-scale best-n)))
-        sh (np/array (clj->js (map :bat-shape best-n)))]
-    (np/nd-to-array (S-weibull-vec t sc sh n))))
+(defn bat-survival-vec [t best-n family n]
+  (if (= family "leaky")
+    (let [cf (np/array (clj->js (map :bat-cure-frac best-n)))
+          sc (np/array (clj->js (map :bat-unc-scale best-n)))
+          sh (np/array (clj->js (map :bat-unc-shape best-n)))
+          lk (np/array (clj->js (map :bat-leak-yr best-n)))]
+      (np/nd-to-array (S-leaky-vec t cf sc sh lk n)))
+    (let [sc (np/array (clj->js (map :bat-scale best-n)))
+          sh (np/array (clj->js (map :bat-shape best-n)))]
+      (np/nd-to-array (S-weibull-vec t sc sh n)))))
 
 (defn gps-survival-vec [t best-n family n]
   (cond
@@ -103,7 +115,7 @@
 (defn combo-survival-vec [t best-n arm family]
   (let [n (count best-n)]
     (if (= arm :bat)
-      (bat-survival-vec t best-n n)
+      (bat-survival-vec t best-n family n)
       (gps-survival-vec t best-n family n))))
 
 (defn build-rep-gps-survival-vec [t best-n weights tot-wt family]
@@ -112,14 +124,24 @@
       (/ (reduce + (map * surv weights)) tot-wt))
     (combo-survival t (first best-n) :gps)))
 
+(defn build-rep-bat-survival-vec [t best-n weights tot-wt family]
+  (if (pos? tot-wt)
+    (let [surv (combo-survival-vec t best-n :bat family)]
+      (/ (reduce + (map * surv weights)) tot-wt))
+    (combo-survival t (first best-n) :bat)))
+
 (defn build-rep-km-data [times best-n weights tot-wt scale shape]
-  (let [family (:family (first best-n))]
+  (let [family (some-> (:family (first best-n)) name)]
     (mapcat
      (fn [t]
        (let [gps-s (build-rep-gps-survival-vec
-                    t best-n weights tot-wt family)]
+                    t best-n weights tot-wt family)
+             bat-s (if (= family "leaky")
+                     (build-rep-bat-survival-vec
+                      t best-n weights tot-wt family)
+                     (S-weibull t scale shape))]
          [{:time t
-           :survival (S-weibull t scale shape)
+           :survival bat-s
            :group "BAT"
            :combo-id "representative"
            :type "representative"}
