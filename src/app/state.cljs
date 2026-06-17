@@ -37,12 +37,12 @@
    :n-ev-final 80
    :use-pr3-anchor true
 
-   :prefilter-tol-ia 5
-   :prefilter-tol-upd 5
-   :prefilter-tol-pr3 5
-   :tol-ia 10
-   :tol-upd 10
-   :tol-pr3 10
+   :prefilter-tol-ia 1.5
+   :prefilter-tol-upd 1.5
+   :prefilter-tol-pr3 1.5
+   :tol-ia 4
+   :tol-upd 3
+   :tol-pr3 1
 
    :tol-increment-ia-upd 3
    :tol-increment-upd-pr3 2
@@ -62,8 +62,8 @@
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 500
-   :n-sims-screen 100
+   :n-sims-per-combo 1000
+   :n-sims-screen 200
    :n-screen-min-pass 1
    :seed 20260508
 

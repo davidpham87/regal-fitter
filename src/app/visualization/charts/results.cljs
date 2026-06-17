@@ -10,7 +10,7 @@
          :height 200
          :mark {:type "bar" :tooltip true}
          :encoding
-         {:x {:field param-name
+         {:x {:field (name param-name)
               :type "quantitative"
               :bin {:maxbins 30}
               :title label}
@@ -27,14 +27,14 @@
          :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
                       :as "wt"}
                      {:window [{:op "sum" :field "wt" :as "cum_wt"}]
-                      :sort [{:field param-name :order "ascending"}]}
+                      :sort [{:field (name param-name) :order "ascending"}]}
                      {:joinaggregate [{:op "sum" :field "wt" :as "total_wt"}]}
                      {:calculate "datum.cum_wt / datum.total_wt" :as "cdf"}]
          :width "container"
          :height 200
          :mark {:type "line" :interpolate "step-after" :tooltip true :strokeWidth 3}
          :encoding
-         {:x {:field param-name
+         {:x {:field (name param-name)
               :type "quantitative"
               :title label}
           :y {:field "cdf"
