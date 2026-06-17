@@ -97,7 +97,7 @@
 (defn draw-bat-times-vectorized
   "Draws random survival times for the BAT arm."
   [record n-samples random-gen]
-  (if (= (:family record) "leaky")
+  (if (= (some-> (:family record) name) "leaky")
     (draw-leaky-samples-vectorized
      {:cure-frac (:bat-cure-frac record)
       :unc-scale (:bat-unc-scale record)
@@ -109,7 +109,7 @@
 (defn draw-gps-times-vectorized
   "Draws random survival times for the GPS arm based on the specified model family."
   [record n-samples random-gen]
-  (case (:family record)
+  (case (some-> (:family record) name)
     "weibull" (draw-weibull-samples-vectorized n-samples random-gen (:gps-scale record) (:gps-shape record))
     "cure"    (draw-cure-samples-vectorized record n-samples random-gen)
     "leaky"   (draw-leaky-samples-vectorized record n-samples random-gen)
@@ -440,7 +440,7 @@
     [(keep :stats results) (reduce + (map #(if (:passed-screening %) 1 0) results))]))
 
 (defn- gps-survival-probability-scalar [t record]
-  (let [family (:family record)]
+  (let [family (some-> (:family record) name)]
     (cond
       (= family "weibull")
       (let [scale (:gps-scale record)
@@ -497,7 +497,7 @@
                   (recur low mid (inc iter)))))))))))
 
 (defn- calculate-gps-median [record]
-  (if (= (:family record) "weibull")
+  (if (= (some-> (:family record) name) "weibull")
     (:gps-med record)
     (let [f (fn [t] (gps-survival-probability-scalar t record))]
       (if (<= (f 0.0) 0.5)

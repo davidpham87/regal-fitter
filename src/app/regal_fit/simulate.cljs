@@ -358,7 +358,7 @@
         [(clojure.core/sequence stats-arr) passed]))))
 
 (defn- gps-survival-probability-scalar [t record]
-  (let [family (:family record)]
+  (let [family (some-> (:family record) name)]
     (cond
       (= family "weibull")
       (let [scale (:gps-scale record)
@@ -415,7 +415,7 @@
                   (recur low mid (inc iter)))))))))))
 
 (defn- calculate-gps-median [record]
-  (if (= (:family record) "weibull")
+  (if (= (some-> (:family record) name) "weibull")
     (:gps-med record)
     (let [f (fn [t] (gps-survival-probability-scalar t record))]
       (if (<= (f 0.0) 0.5)
