@@ -49,7 +49,7 @@
 
    :futility-hr-max 0.83
    :efficacy-hr-min 0.35
-   :bat-surv-36m-max 0.20
+   :bat-surv-36m-max 0.35
 
    :pool-mos-min-at-ia 12
    :median-fu-target 13.5

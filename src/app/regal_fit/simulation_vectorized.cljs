@@ -61,38 +61,80 @@
            (js/Math.exp (/ u-sum var-sum))])))))
 
 (defn draw-weibull-samples-vectorized
-  "Draws random survival times from a standard Weibull distribution using numpy-ts."
+  "Draws random survival times from a standard Weibull distribution."
   [n-samples random-gen scale shape]
-  (let [random-values (np-random/random random-gen n-samples)
-        neg-log-vals (np-ts/multiply (np-ts/log random-values) -1.0)
-        inv-shape (if (number? shape)
-                    (/ 1.0 shape)
-                    (np-ts/divide (np-ts/full (.-shape shape) 1.0) shape))
-        powered-vals (np-ts/power neg-log-vals inv-shape)]
-    (np-ts/multiply powered-vals scale)))
+  (let [sc (double scale)
+        sh (double shape)
+        inv-sh (/ 1.0 sh)
+        total-len (if (number? n-samples)
+                    n-samples
+                    (reduce * (js->clj n-samples)))
+        random-values (np/nd-to-array
+                       (np-random/random random-gen total-len))
+        out-data (js/Float64Array. total-len)]
+    (dotimes [i total-len]
+      (let [u (aget random-values i)]
+        (aset out-data i (* sc (js/Math.pow (- (js/Math.log u)) inv-sh)))))
+    (if (number? n-samples)
+      (np-ts/array out-data)
+      (np-ts/reshape (np-ts/array out-data) n-samples))))
 
 (defn draw-cure-samples-vectorized
-  "Draws random survival times based on a cure model using vectorized where."
+  "Draws random survival times based on a cure model."
   [{:keys [cure-frac unc-scale unc-shape]} n-samples random-gen]
-  (let [random-cure-flags (np-random/random random-gen n-samples)
-        uncured-times (draw-weibull-samples-vectorized n-samples random-gen unc-scale unc-shape)]
-    (np-ts/array (np-ts/where (np-ts/less random-cure-flags cure-frac)
-                              np/inf
-                              uncured-times))))
+  (let [cf (double cure-frac)
+        sc (double unc-scale)
+        sh (double unc-shape)
+        inv-sh (/ 1.0 sh)
+        total-len (if (number? n-samples)
+                    n-samples
+                    (reduce * (js->clj n-samples)))
+        random-cure-flags (np/nd-to-array
+                           (np-random/random random-gen total-len))
+        random-weib-vals (np/nd-to-array
+                          (np-random/random random-gen total-len))
+        out-data (js/Float64Array. total-len)]
+    (dotimes [i total-len]
+      (let [r-cure (aget random-cure-flags i)
+            r-weib (aget random-weib-vals i)
+            u (* sc (js/Math.pow (- (js/Math.log r-weib)) inv-sh))]
+        (aset out-data i (if (< r-cure cf) js/Infinity u))))
+    (if (number? n-samples)
+      (np-ts/array out-data)
+      (np-ts/reshape (np-ts/array out-data) n-samples))))
 
 (defn draw-leaky-samples-vectorized
-  "Draws random survival times based on a leaky cure model using vectorized where."
+  "Draws random survival times based on a leaky cure model."
   [{:keys [cure-frac unc-scale unc-shape leak-yr]} n-samples random-gen]
-  (let [random-cure-flags (np-random/random random-gen n-samples)
-        uncured-times (draw-weibull-samples-vectorized n-samples random-gen unc-scale unc-shape)
-        leak-rate-monthly (/ leak-yr 12.0)
-        cured-times (if (> leak-rate-monthly 0)
-                      (let [random-leak-vals (np-random/random random-gen n-samples)]
-                        (np-ts/divide (np-ts/multiply (np-ts/log random-leak-vals) -1.0) leak-rate-monthly))
-                      np/inf)]
-    (np-ts/array (np-ts/where (np-ts/less random-cure-flags cure-frac)
-                              cured-times
-                              uncured-times))))
+  (let [cf (double cure-frac)
+        scale (double unc-scale)
+        shape (double unc-shape)
+        leak-rate-monthly (/ (double leak-yr) 12.0)
+        inv-shape (/ 1.0 shape)
+        total-len (if (number? n-samples)
+                    n-samples
+                    (reduce * (js->clj n-samples)))
+        random-cure-flags (np/nd-to-array
+                           (np-random/random random-gen total-len))
+        random-leak-vals (np/nd-to-array
+                          (np-random/random random-gen total-len))
+        random-weib-vals (np/nd-to-array
+                          (np-random/random random-gen total-len))
+        out-data (js/Float64Array. total-len)]
+    (dotimes [i total-len]
+      (let [r-cure (aget random-cure-flags i)
+            r-weib (aget random-weib-vals i)
+            r-leak (aget random-leak-vals i)
+            u (* scale (js/Math.pow (- (js/Math.log r-weib)) inv-shape))]
+        (aset out-data i
+              (if (< r-cure cf)
+                (if (> leak-rate-monthly 0)
+                  (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+                  js/Infinity)
+                u))))
+    (if (number? n-samples)
+      (np-ts/array out-data)
+      (np-ts/reshape (np-ts/array out-data) n-samples))))
 
 (defn draw-bat-times-vectorized
   "Draws random survival times for the BAT arm."
