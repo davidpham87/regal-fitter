@@ -215,6 +215,12 @@
     (= k :median-hr-final) "Final Hazard Ratio (HR)"
     (= k :bat-med) "BAT Median (mOS)"
     (= k :gps-med) "GPS Median (mOS)"
+    (= k :bat-unc-med) "BAT Uncured Median (mOS)"
+    (= k :unc-med) "GPS Uncured Median (mOS)"
+    (= k :bat-cure-frac) "BAT Cure Fraction"
+    (= k :cure-frac) "GPS Cure Fraction"
+    (= k :bat-leak-yr) "BAT Leak Rate (yearly)"
+    (= k :leak-yr) "GPS Leak Rate (yearly)"
     :else (get inputs/key->label k (name k))))
 
 (defn- get-predefined-pairs [family]
@@ -232,7 +238,7 @@
      [:cure-frac :median-hr-final]]
 
     "leaky"
-    [[:bat-med :gps-med]
+    [[:bat-unc-med :unc-med]
      [:bat-cure-frac :bat-leak-yr]
      [:cure-frac :leak-yr]
      [:cure-frac :median-hr-final]]
