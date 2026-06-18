@@ -342,23 +342,25 @@
     (+ r-ia r-upd r-pr3)))
 
 (defn preaggregate
-  "Groups combos by [:bat-leaky-unc-med :bat-leaky-unc-shape :leaky-unc-med
-  :leaky-unc-shape-grid] and for each group, keeps the combo with the
+  "Groups combos by [:bat-med-grid :bat-shape :bat-leaky-cure-frac :gps-med
+  :leaky-unc-med :leaky-cure-frac] and for each group, keeps the combo with the
   smallest theoretical deviation (combo-residual)."
   [config combos]
   (let [grouped (group-by (fn [m]
-                            [(or (:bat-leaky-unc-med m)
+                            [(or (:bat-med-grid m)
                                  (:bat-unc-med m)
                                  (:bat-med m))
-                             (or (:bat-leaky-unc-shape m)
-                                 (:bat-unc-shape m)
-                                 (:bat-shape m))
+                             (or (:bat-shape m)
+                                 (:bat-unc-shape m))
+                             (or (:bat-leaky-cure-frac m)
+                                 (:bat-cure-frac m))
+                             (or (:gps-med m)
+                                 (:unc-med m))
                              (or (:leaky-unc-med m)
                                  (:unc-med m)
                                  (:gps-med m))
-                             (or (:leaky-unc-shape-grid m)
-                                 (:unc-shape m)
-                                 (:gps-shape m))])
+                             (or (:leaky-cure-frac m)
+                                 (:cure-frac m))])
                           combos)]
     (mapv (fn [[_ group]]
             (apply min-key #(combo-residual config %) group))
