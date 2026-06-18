@@ -341,13 +341,29 @@
                 0.0)]
     (+ r-ia r-upd r-pr3)))
 
+(defn preaggregate
+  "Groups combos by [:bat-med :gps-med :leaky-cure-frac :bat-leaky-cure]
+  and for each group, keeps the combo with the smallest theoretical deviation
+  (combo-residual)."
+  [config combos]
+  (let [grouped (group-by (fn [m]
+                            [(or (:bat-med m) (:bat-unc-med m))
+                             (or (:gps-med m) (:unc-med m))
+                             (or (:leaky-cure-frac m) (:cure-frac m))
+                             (or (:bat-leaky-cure m) (:bat-cure-frac m))])
+                          combos)]
+    (mapv (fn [[_ group]]
+            (apply min-key #(combo-residual config %) group))
+          grouped)))
+
 (defn rank-and-trim
   "Sorts accepted combos by analytical residual (best first) and
   returns at most top-k.  When top-k is nil or >= (count combos),
   the full sorted list is returned — still useful as a quality
   ordering for the worker batch dispatch."
   [config combos top-k]
-  (let [scored (sort-by #(combo-residual config %) combos)]
+  (let [aggregated (preaggregate config combos)
+        scored (sort-by #(combo-residual config %) aggregated)]
     (if (and top-k (< top-k (count scored)))
       (take top-k scored)
       scored)))

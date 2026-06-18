@@ -56,6 +56,10 @@
    :leaky-unc-med-grid [10.0 15.0 5.0]
    :leaky-unc-shape-grid [0.8 1.2 0.2]
    :leak-grid [0.01 0.03 0.01]
+   :bat-leaky-cure-frac-grid [0.1 0.3 0.1]
+   :bat-leaky-unc-med-grid [10.0 15.0 5.0]
+   :bat-leaky-unc-shape-grid [0.8 1.2 0.2]
+   :bat-leak-grid [0.01 0.03 0.01]
    :families ["weibull" "cure" "leaky"]
    :n-sims-aggregation 5000})
 
