@@ -1,9 +1,14 @@
 (ns app.visualization.charts.results
   (:require [app.visualization.charts.vega :refer [vega-lite]]))
 
+(defn- clean-data [data]
+  (if (seq data)
+    (filterv some? data)
+    []))
+
 (defn chart-posterior-histogram [data param-name label]
   (let [spec
-        {:data {:values data}
+        {:data {:values (clean-data data)}
          :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
                       :as "wt"}]
          :width "container"
@@ -23,7 +28,7 @@
 
 (defn chart-posterior-cdf [data param-name label]
   (let [spec
-        {:data {:values data}
+        {:data {:values (clean-data data)}
          :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
                       :as "wt"}
                      {:window [{:op "sum" :field "wt" :as "cum_wt"}]
@@ -46,7 +51,7 @@
 
 (defn chart-pairwise-scatter [data param-x param-y label-x label-y]
   (let [spec
-        {:data {:values data}
+        {:data {:values (clean-data data)}
          :width "container"
          :height 350
          :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
