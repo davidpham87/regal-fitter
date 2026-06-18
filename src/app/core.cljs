@@ -69,8 +69,8 @@
     nil: Re-renders the app."
   []
   (js/console.log "reload")
-  (rdom/render ^{:key (str (rand))} [reload-testing]
-   #_[ui/main-view] (js/document.getElementById "app")))
+  (rdom/render ^{:key (str (rand))} [ui/main-view]
+               (js/document.getElementById "app")))
 
 (comment
   "hello"
