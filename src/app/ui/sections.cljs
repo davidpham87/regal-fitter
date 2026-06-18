@@ -126,8 +126,7 @@
         [inputs/num-input props :pool-mos-min-at-ia
          inputs/parse-double-safe] props]
        [inputs/field-wrapper :bat-surv-36m-max
-        [inputs/num-input props :bat-surv-36m-max
-         inputs/parse-double-safe] props]]]]}])
+        [inputs/grid-input props :bat-surv-36m-max] props]]]]}])
 
 (defn execution-section [props]
   [collapsible-section

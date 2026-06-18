@@ -37,19 +37,19 @@
    :n-ev-final 80
    :use-pr3-anchor true
 
-   :prefilter-tol-ia 5
-   :prefilter-tol-upd 5
-   :prefilter-tol-pr3 5
+   :prefilter-tol-ia 10
+   :prefilter-tol-upd 10
+   :prefilter-tol-pr3 10
    :tol-ia 4
-   :tol-upd 3
-   :tol-pr3 1
+   :tol-upd 4
+   :tol-pr3 4
 
-   :tol-increment-ia-upd 3
-   :tol-increment-upd-pr3 2
+   :tol-increment-ia-upd 5
+   :tol-increment-upd-pr3 5
 
    :futility-hr-max 0.83
    :efficacy-hr-min 0.35
-   :bat-surv-36m-max 0.30
+   :bat-surv-36m-max [0.1 0.4 0.05]
 
    :pool-mos-min-at-ia 12
    :median-fu-target 13.5
@@ -58,17 +58,16 @@
    :enforce-no-80-by-today true
    :t-now (cfg-today-month)
    :no-80-slack-months 1.0
-   :bat-strat-bin 1
-
+   :bat-strat-bin 0.5
 
    :hr-threshold 0.636
 
-   :n-sims-per-combo 512
-   :n-sims-screen 64
+   :n-sims-per-combo 1024
+   :n-sims-screen 128
    :n-screen-min-pass 1
    :seed 20260508
 
-   :bat-med-grid [4 25 1]
+   :bat-med-grid [4 25 0.5]
    :bat-shape-grid [0.7 1.0 0.1]
 
    :gps-med-grid-lo 20.0
@@ -189,7 +188,7 @@
    [:n-ev-final :int]
    [:use-pr3-anchor :boolean]
 
-   [:bat-surv-36m-max :number]
+   [:bat-surv-36m-max [:vector :number]]
 
    [:prefilter-tol-ia :number]
    [:prefilter-tol-upd :number]

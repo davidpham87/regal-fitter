@@ -37,10 +37,13 @@
 
 (defn pass-bat-surv-gate?
   "Checks if BAT survival at 36 months is below the maximum threshold."
-  [bat-idx bat-S-36m max-threshold]
-  (if-not max-threshold
+  [bat-idx bat-S-36m threshold-val]
+  (if-not threshold-val
     true
-    (<= (aget bat-S-36m bat-idx) max-threshold)))
+    (let [max-threshold (if (sequential? threshold-val)
+                          (second threshold-val)
+                          threshold-val)]
+      (<= (aget bat-S-36m bat-idx) max-threshold))))
 
 (defn validate-scenario
   "Helper function to validate a specific combination of BAT and GPS curves."
