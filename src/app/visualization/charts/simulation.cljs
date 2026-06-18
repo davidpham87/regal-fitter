@@ -279,33 +279,27 @@
   {:mark {:type "line" :strokeWidth 2}
    :encoding {:x {:field "time" :type "quantitative"}
               :y {:field "median" :type "quantitative"}
-              :color {:field "group" :type "nominal"}
-              :tooltip [{:field "time"
-                         :type "quantitative"
-                         :title "Months"}
-                        {:field "group"
-                         :type "nominal"
-                         :title "Arm"}
-                        {:field "median"
-                         :type "quantitative"
-                         :format ".3f"
-                         :title "Median S(t)"}
-                        {:field "mean"
-                         :type "quantitative"
-                         :format ".3f"
-                         :title "Mean S(t)"}
-                        {:field "sd"
+              :color {:field "group" :type "nominal"}}})
+
+(def km-ci-layer-hover
+  {:params [{:name "hover"
+             :select {:type "point"
+                      :on "mouseover"
+                      :nearest true
+                      :clear "mouseout"
+                      :fields ["time"]}}]
+   :transform [{:pivot "group" :value "median" :groupby ["time"]}]
+   :mark {:type "rule" :color "#bbb" :strokeWidth 1 :opacity 0.25}
+   :encoding {:x {:field "time" :type "quantitative"}
+              :tooltip [{:field "time" :type "quantitative" :title "Months"}
+                        {:field "GPS"
                          :type "quantitative"
                          :format ".3f"
-                         :title "SD S(t)"}
-                        {:field "low"
+                         :title "GPS Median S(t)"}
+                        {:field "BAT"
                          :type "quantitative"
                          :format ".3f"
-                         :title "2.5% CI"}
-                        {:field "high"
-                         :type "quantitative"
-                         :format ".3f"
-                         :title "97.5% CI"}]}})
+                         :title "BAT Median S(t)"}]}})
 
 (defn km-ci-layer-rule-y []
   {:mark {:type "rule" :color "gray" :strokeWidth 1 :strokeDash [2 2]}
@@ -330,8 +324,8 @@
             (km-ci-layer-rule-y)
             (km-ci-layer-rule-bat bat-med-w)
             (km-ci-layer-rule-gps gps-med-w)
-            ;; median-line last → topmost layer for tooltip hit-testing
-            km-ci-layer-median-line]
+            km-ci-layer-median-line
+            km-ci-layer-hover]
     :config {:legend {:orient "bottom"}}}])
 
 (def hr-paths-bar-layer
