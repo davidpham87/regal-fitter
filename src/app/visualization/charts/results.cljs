@@ -11,7 +11,7 @@
         {:data {:values (clean-data data)}
          :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
                       :as "wt"}]
-         :width "container"
+         :width 360
          :height 200
          :mark {:type "bar" :tooltip true}
          :encoding
@@ -35,7 +35,7 @@
                       :sort [{:field (name param-name) :order "ascending"}]}
                      {:joinaggregate [{:op "sum" :field "wt" :as "total_wt"}]}
                      {:calculate "datum.cum_wt / datum.total_wt" :as "cdf"}]
-         :width "container"
+         :width 360
          :height 200
          :mark {:type "line" :interpolate "step-after" :tooltip true :strokeWidth 3}
          :encoding
@@ -52,7 +52,7 @@
 (defn chart-pairwise-scatter [data param-x param-y label-x label-y]
   (let [spec
         {:data {:values (clean-data data)}
-         :width "container"
+         :width 450
          :height 350
          :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
                       :as "wt"}

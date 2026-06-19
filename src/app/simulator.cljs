@@ -58,7 +58,8 @@
                  (let [combo (nth chunk i)
                        res (nth result i)
                        fam-kw (keyword (:family combo))]
-                   (swap! results update fam-kw (fnil conj []) res))))
+                   (when res
+                     (swap! results update fam-kw (fnil conj []) res)))))
              (when (>= @completed total)
                (log (str "All simulations done in "
                          (/ (- (js/Date.now) start-time) 1000) "s"))

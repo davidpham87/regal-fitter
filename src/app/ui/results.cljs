@@ -257,7 +257,7 @@
                     :exp-ev-pr3 :exp-ev-final :hr-ia :hr-upd
                     :n-accepted :p-no-readout :n-pass-futility
                     :n-pass-events :p-reach80 :n-attempts
-                    :median-hr-final :gps-med :bat-med}
+                    :median-hr-final}
         candidate-keys (remove #(or (skip-keys %)
                                     (str/starts-with? (name %) "mean-")
                                     (str/starts-with? (name %) "exp-"))
@@ -267,21 +267,25 @@
             candidate-keys)))
 
 (defn- posterior-distributions [items]
-  (let [family (some-> (:family (first items)) name)]
-    (r/with-let [params (find-varying-params items)
-                 find-first-varying (fn [candidates fallback]
-                                      (or (some #(when ((set params) %) %)
-                                                candidates)
-                                          fallback))
-                 p1-default (find-first-varying
-                             [:bat-med :bat-cure-frac :cure-frac]
-                             (first params))
-                 p2-default (find-first-varying
-                             [:bat-shape :bat-leak-yr :leak-yr
-                              :bat-unc-med :unc-med]
-                             (second params))
-                 active-p1 (r/atom p1-default)
+  (let [family (some-> (:family (first items)) name)
+        params (find-varying-params items)
+        find-first-varying (fn [candidates fallback]
+                             (or (some #(when ((set params) %) %)
+                                       candidates)
+                                 fallback))
+        p1-default (find-first-varying
+                    [:bat-med :bat-cure-frac :cure-frac]
+                    (first params))
+        p2-default (find-first-varying
+                    [:bat-shape :bat-leak-yr :leak-yr
+                     :bat-unc-med :unc-med]
+                    (second params))]
+    (r/with-let [active-p1 (r/atom p1-default)
                  active-p2 (r/atom p2-default)]
+      (when (or (nil? @active-p1) (not ((set params) @active-p1)))
+        (reset! active-p1 p1-default))
+      (when (or (nil? @active-p2) (not ((set params) @active-p2)))
+        (reset! active-p2 p2-default))
       [:div.mt-6
        (if (empty? params)
          [:div.p-4.text-gray-500.italic

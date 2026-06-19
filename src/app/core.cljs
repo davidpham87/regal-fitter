@@ -47,8 +47,8 @@
   (re-frame/dispatch [:initialize-db])
   ;; Open portal in the browser context
   ;; (p/open)
-  ;; Initialize WebR on application boot
-  (let [start-webr!
+  ;; Initialize WebR on application boot (disabled on boot to avoid slow startup in testing)
+  #_(let [start-webr!
         (fn []
           (webr/init-webr!
            (fn [webr] (js/console.log "WebR ready on boot!"))
