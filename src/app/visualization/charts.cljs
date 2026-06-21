@@ -36,4 +36,5 @@
 ;; Results charts
 (def chart-posterior-histogram res/chart-posterior-histogram)
 (def chart-posterior-cdf res/chart-posterior-cdf)
+(def chart-posterior-dual-axis res/chart-posterior-dual-axis)
 (def chart-pairwise-scatter res/chart-pairwise-scatter)

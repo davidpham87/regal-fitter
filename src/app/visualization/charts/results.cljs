@@ -41,7 +41,7 @@
            :sort [{:field (name param-name) :order "ascending"}]}
           {:joinaggregate [{:op "sum" :field "wt" :as "total_wt"}]}
           {:calculate "datum.cum_wt / datum.total_wt" :as "cdf"}]
-         :width 600
+         :width 440
          :height 200
          :padding {:left 65 :right 20 :top 20 :bottom 40}
          :autosize {:type "fit" :contains "padding"}
@@ -61,8 +61,8 @@
 (defn chart-pairwise-scatter [data param-x param-y label-x label-y]
   (let [spec
         {:data {:values (clean-data data)}
-         :width 900
-         :height 350
+         :width 440
+         :height 330
          :padding {:left 65 :right 20 :top 20 :bottom 45}
          :autosize {:type "fit" :contains "padding"}
          :transform
@@ -97,8 +97,52 @@
                  :type "quantitative"
                  :title "Weight"
                  :scale {:range [10 200]}}
-          :color {:field "median-hr-ia"
+          :color {:field "median-hr-final"
                   :type "quantitative"
                   :title "Median HR"
                   :scale {:scheme "viridis"}}}}]
+    [vega-lite spec]))
+
+(defn chart-posterior-dual-axis [data param-name label]
+  (let [spec
+        {:data {:values (clean-data data)}
+         :width 600
+         :height 220
+         :padding {:left 65 :right 65 :top 20 :bottom 40}
+         :autosize {:type "fit" :contains "padding"}
+         :encoding
+         {:x {:field (name param-name)
+              :type "quantitative"
+              :title label}}
+         :layer
+         [{:transform
+           [{:calculate (str "datum['acceptance-rate'] > 0 ? "
+                             "sqrt(datum['acceptance-rate']) : 0")
+             :as "wt"}]
+           :mark {:type "bar" :tooltip true :color "#4F46E5"}
+           :encoding
+           {:x {:field (name param-name)
+                :type "quantitative"
+                :bin {:maxbins 30}}
+            :y {:aggregate "sum"
+                :field "wt"
+                :type "quantitative"
+                :title "Weighted Freq"}}}
+          {:transform
+           [{:calculate (str "datum['acceptance-rate'] > 0 ? "
+                             "sqrt(datum['acceptance-rate']) : 0")
+             :as "wt"}
+            {:window [{:op "sum" :field "wt" :as "cum_wt"}]
+             :sort [{:field (name param-name) :order "ascending"}]}
+            {:joinaggregate [{:op "sum" :field "wt" :as "total_wt"}]}
+            {:calculate "datum.cum_wt / datum.total_wt" :as "cdf"}]
+           :mark {:type "line" :interpolate "step-after" :tooltip true
+                  :strokeWidth 3 :color "#10B981"}
+           :encoding
+           {:y {:field "cdf"
+                :type "quantitative"
+                :title "Cumulative Prob."
+                :scale {:domain [0 1]}
+                :axis {:orient "right"}}}}]
+         :resolve {:scale {:y "independent"}}}]
     [vega-lite spec]))

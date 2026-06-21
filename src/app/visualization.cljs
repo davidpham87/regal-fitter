@@ -24,6 +24,7 @@
 ;; Re-export components for results
 (def chart-posterior-histogram charts/chart-posterior-histogram)
 (def chart-posterior-cdf charts/chart-posterior-cdf)
+(def chart-posterior-dual-axis charts/chart-posterior-dual-axis)
 (def chart-pairwise-scatter charts/chart-pairwise-scatter)
 
 ;; Re-export resampling functions

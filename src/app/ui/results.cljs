@@ -572,9 +572,7 @@
               [:div.mt-8.pt-6.border-t
                [:div.border.p-6.rounded.bg-white
                 [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
-                [:div.flex.flex-col.gap-8.py-4
-                 [vega/chart-posterior-histogram
-                  chart-data :onset-cr2-bat-mos "Onset CR2 BAT mOS"]
-                 [vega/chart-posterior-cdf
+                [:div.py-4
+                 [vega/chart-posterior-dual-axis
                   chart-data :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]]))]
          :else [:div.text-gray-500 "Run a simulation to see results."])])))
