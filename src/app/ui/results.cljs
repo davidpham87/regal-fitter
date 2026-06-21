@@ -220,6 +220,10 @@
             (assoc item :onset-cr2-bat-mos lambda)))
         items))
 
+(defn- get-items [results family]
+  (when-let [items (get results family)]
+    (add-onset-cr2-bat-mos items)))
+
 (defn- get-param-label [k]
   (cond
     (= k :onset-cr2-bat-mos) "Onset CR2 BAT mOS"
@@ -466,7 +470,7 @@
           (case @active-tab
             :config
             (let [fam @active-family
-                  items (get results fam)]
+                  items (get-items results fam)]
               [:div
                [:div.flex.items-center.gap-2.mb-4
                 [:span.text-sm.font-semibold.text-gray-500 "Family:"]
@@ -478,7 +482,7 @@
                [posterior-distributions items]])
             :charts
             (let [fam @active-family
-                  items (get results fam)]
+                  items (get-items results fam)]
               [:div
                [:div.mb-4.flex.flex-col.gap-2
                 [:div.flex.items-center.gap-2
@@ -545,7 +549,7 @@
 
             :table
             (let [fam @active-family
-                  items (get results fam)]
+                  items (get-items results fam)]
               [:div
                [:div.mb-4.flex.items-center.gap-2
                 [:span.text-sm.font-semibold.text-gray-500 "Family:"]
@@ -559,16 +563,17 @@
 
             :edn [results-edn-view results])
           (let [fam @active-family
-                items (get results fam)]
-            (when (and fam (seq items))
+                items (get-items results fam)
+                state-key [fam @committed-n-sims]
+                res-data (get @resampled-data state-key)
+                chart-data (or res-data items)]
+            (when (and fam (seq chart-data))
               [:div.mt-8.pt-6.border-t
                [:div.border.p-6.rounded.bg-white
                 [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
                 [:div.flex.flex-col.gap-8.py-4
                  [vega/chart-posterior-histogram
-                  (add-onset-cr2-bat-mos items) :onset-cr2-bat-mos
-                  "Onset CR2 BAT mOS"]
+                  chart-data :onset-cr2-bat-mos "Onset CR2 BAT mOS"]
                  [vega/chart-posterior-cdf
-                  (add-onset-cr2-bat-mos items) :onset-cr2-bat-mos
-                  "Onset CR2 BAT mOS"]]]]))]
+                  chart-data :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]]))]
          :else [:div.text-gray-500 "Run a simulation to see results."])])))
