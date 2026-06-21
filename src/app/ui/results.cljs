@@ -557,5 +557,18 @@
                (when (and fam items)
                  ^{:key fam} [results-table fam items])])
 
-            :edn [results-edn-view results])]
+            :edn [results-edn-view results])
+          (let [fam @active-family
+                items (get results fam)]
+            (when (and fam (seq items))
+              [:div.mt-8.pt-6.border-t
+               [:div.border.p-6.rounded.bg-white
+                [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
+                [:div.flex.flex-col.gap-8.py-4
+                 [vega/chart-posterior-histogram
+                  (add-onset-cr2-bat-mos items) :onset-cr2-bat-mos
+                  "Onset CR2 BAT mOS"]
+                 [vega/chart-posterior-cdf
+                  (add-onset-cr2-bat-mos items) :onset-cr2-bat-mos
+                  "Onset CR2 BAT mOS"]]]]))]
          :else [:div.text-gray-500 "Run a simulation to see results."])])))
