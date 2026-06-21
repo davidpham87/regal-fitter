@@ -291,8 +291,8 @@
          [:div.p-4.text-gray-500.italic
           "No varied parameters found in this grid."]
          [:div
-          [:div.grid.grid-cols-1.lg:grid-cols-2.gap-6.mb-8
-           [:div.border.p-4.rounded.bg-white
+          [:div.grid.grid-cols-1.gap-8.mb-8
+           [:div.border.p-6.rounded.bg-white
             [:div.mb-4.flex.items-center.gap-2
              [:label.text-sm.font-bold.text-gray-700 "Parameter 1:"]
              [:select.border.rounded.p-1.text-sm
@@ -303,13 +303,13 @@
                 ^{:key p}
                 [:option {:value (name p)} (get-param-label p)])]]
             (when @active-p1
-              [:div
+              [:div.flex.flex-col.gap-8.py-4
                [vega/chart-posterior-histogram
                 items @active-p1 (get-param-label @active-p1)]
                [vega/chart-posterior-cdf
                 items @active-p1 (get-param-label @active-p1)]])]
 
-           [:div.border.p-4.rounded.bg-white
+           [:div.border.p-6.rounded.bg-white
             [:div.mb-4.flex.items-center.gap-2
              [:label.text-sm.font-bold.text-gray-700 "Parameter 2:"]
              [:select.border.rounded.p-1.text-sm
@@ -320,7 +320,7 @@
                 ^{:key p}
                 [:option {:value (name p)} (get-param-label p)])]]
             (when @active-p2
-              [:div
+              [:div.flex.flex-col.gap-8.py-4
                [vega/chart-posterior-histogram
                 items @active-p2 (get-param-label @active-p2)]
                [vega/chart-posterior-cdf

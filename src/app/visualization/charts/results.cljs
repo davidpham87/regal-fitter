@@ -9,10 +9,14 @@
 (defn chart-posterior-histogram [data param-name label]
   (let [spec
         {:data {:values (clean-data data)}
-         :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
-                      :as "wt"}]
-         :width 360
+         :transform
+         [{:calculate (str "datum['acceptance-rate'] > 0 ? "
+                           "sqrt(datum['acceptance-rate']) : 0")
+           :as "wt"}]
+         :width 600
          :height 200
+         :padding {:left 65 :right 20 :top 20 :bottom 40}
+         :autosize {:type "fit" :contains "padding"}
          :mark {:type "bar" :tooltip true}
          :encoding
          {:x {:field (name param-name)
@@ -29,15 +33,20 @@
 (defn chart-posterior-cdf [data param-name label]
   (let [spec
         {:data {:values (clean-data data)}
-         :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
-                      :as "wt"}
-                     {:window [{:op "sum" :field "wt" :as "cum_wt"}]
-                      :sort [{:field (name param-name) :order "ascending"}]}
-                     {:joinaggregate [{:op "sum" :field "wt" :as "total_wt"}]}
-                     {:calculate "datum.cum_wt / datum.total_wt" :as "cdf"}]
-         :width 360
+         :transform
+         [{:calculate (str "datum['acceptance-rate'] > 0 ? "
+                           "sqrt(datum['acceptance-rate']) : 0")
+           :as "wt"}
+          {:window [{:op "sum" :field "wt" :as "cum_wt"}]
+           :sort [{:field (name param-name) :order "ascending"}]}
+          {:joinaggregate [{:op "sum" :field "wt" :as "total_wt"}]}
+          {:calculate "datum.cum_wt / datum.total_wt" :as "cdf"}]
+         :width 600
          :height 200
-         :mark {:type "line" :interpolate "step-after" :tooltip true :strokeWidth 3}
+         :padding {:left 65 :right 20 :top 20 :bottom 40}
+         :autosize {:type "fit" :contains "padding"}
+         :mark {:type "line" :interpolate "step-after" :tooltip true
+                :strokeWidth 3}
          :encoding
          {:x {:field (name param-name)
               :type "quantitative"
@@ -52,18 +61,28 @@
 (defn chart-pairwise-scatter [data param-x param-y label-x label-y]
   (let [spec
         {:data {:values (clean-data data)}
-         :width 450
+         :width 900
          :height 350
-         :transform [{:calculate "datum['acceptance-rate'] > 0 ? sqrt(datum['acceptance-rate']) : 0"
-                      :as "wt"}
-                     {:filter "datum['wt'] > 0"}
-                     {:joinaggregate [{:op "max" :field (name param-x) :as "max_x"}
-                                      {:op "min" :field (name param-x) :as "min_x"}
-                                      {:op "max" :field (name param-y) :as "max_y"}
-                                      {:op "min" :field (name param-y) :as "min_y"}]}
-                     ;; Add 5% jitter relative to the range
-                     {:calculate (str "datum['" (name param-x) "'] + (random() - 0.5) * (datum.max_x - datum.min_x) * 0.05") :as "jx"}
-                     {:calculate (str "datum['" (name param-y) "'] + (random() - 0.5) * (datum.max_y - datum.min_y) * 0.05") :as "jy"}]
+         :padding {:left 65 :right 20 :top 20 :bottom 45}
+         :autosize {:type "fit" :contains "padding"}
+         :transform
+         [{:calculate (str "datum['acceptance-rate'] > 0 ? "
+                           "sqrt(datum['acceptance-rate']) : 0")
+           :as "wt"}
+          {:filter "datum['wt'] > 0"}
+          {:joinaggregate [{:op "max" :field (name param-x) :as "max_x"}
+                           {:op "min" :field (name param-x) :as "min_x"}
+                           {:op "max" :field (name param-y) :as "max_y"}
+                           {:op "min" :field (name param-y) :as "min_y"}]}
+          ;; Add 5% jitter relative to the range
+          {:calculate (str "datum['" (name param-x) "'] + "
+                           "(random() - 0.5) * "
+                           "(datum.max_x - datum.min_x) * 0.05")
+           :as "jx"}
+          {:calculate (str "datum['" (name param-y) "'] + "
+                           "(random() - 0.5) * "
+                           "(datum.max_y - datum.min_y) * 0.05")
+           :as "jy"}]
          :mark {:type "circle" :tooltip true}
          :encoding
          {:x {:field "jx"
