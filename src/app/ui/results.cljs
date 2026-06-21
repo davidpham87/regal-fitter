@@ -10,7 +10,8 @@
             [cljs.pprint :refer [pprint]]
             [app.components.editor :refer [code-editor]]
             [app.components.card :refer [chart-card]]
-            [app.components.tabs :refer [tab-bar]]))
+            [app.components.tabs :refer [tab-bar]]
+            [app.discovery.core :as discovery]))
 
 (defn- expected-success-probability [items config]
   (let [valid-items (filter #(and (:p-success-overall %)
@@ -210,8 +211,18 @@
          :height "500px"
          :read-only? true}]])))
 
+(defn- add-onset-cr2-bat-mos [items]
+  (mapv (fn [item]
+          (let [irm (:bat-med item)
+                k (or (:bat-shape item) 1.0)
+                d 3
+                lambda (discovery/population-cr2-lambda irm d k)]
+            (assoc item :onset-cr2-bat-mos lambda)))
+        items))
+
 (defn- get-param-label [k]
   (cond
+    (= k :onset-cr2-bat-mos) "Onset CR2 BAT mOS"
     (= k :median-hr-final) "Final Hazard Ratio (HR)"
     (= k :bat-med) "BAT Median (mOS)"
     (= k :gps-med) "GPS Median (mOS)"
@@ -301,8 +312,9 @@
            :on-click #(reset! active-atom (name p))}
           (get-param-label p)])]]]))
 
-(defn- posterior-distributions [items]
-  (let [family (some-> (:family (first items)) name)
+(defn- posterior-distributions [items-raw]
+  (let [items (add-onset-cr2-bat-mos items-raw)
+        family (some-> (:family (first items)) name)
         params (find-varying-params items)
         find-first-varying (fn [candidates fallback]
                              (or (some #(when ((set params) %) %)
@@ -354,6 +366,14 @@
                 p1-kw p2-kw
                 (get-param-label p1-kw)
                 (get-param-label p2-kw)]])
+
+            [:div.border.p-6.rounded.bg-white.mb-8
+             [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
+             [:div.flex.flex-col.gap-8.py-4
+              [vega/chart-posterior-histogram
+               items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]
+              [vega/chart-posterior-cdf
+               items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]
 
             [:div.mt-8.pt-6.border-t
              [:h3.text-xl.font-bold.mb-4 "Key Parameter Relationships"]
