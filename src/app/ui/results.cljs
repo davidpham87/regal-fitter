@@ -266,6 +266,41 @@
               (> (count (set (map k items))) 1))
             candidate-keys)))
 
+(defn- parameter-helper [items active-atom label]
+  (let [params (find-varying-params items)
+        all-keys (keys (first items))
+        other-keys (sort (remove (set params) all-keys))]
+    [:div.mt-4
+     [:div.flex.items-center.gap-2.mb-3
+      [:label.text-sm.font-bold.text-gray-700 (str label ":")]
+      [:input.border.rounded.p-1.text-sm.w-64
+       {:type "text"
+        :value @active-atom
+        :on-change #(reset! active-atom (.. % -target -value))}]]
+     [:div.mt-2
+      [:span.text-xs.font-semibold.text-gray-500.block.mb-1
+       "Varying Parameters:"]
+      [:div.flex.flex-wrap.gap-1.5.mb-3
+       (for [p params]
+         ^{:key p}
+         [:button
+          {:class (str "text-xs px-2 py-0.5 rounded bg-indigo-50 "
+                       "text-indigo-700 hover:bg-indigo-100 "
+                       "transition-colors")
+           :on-click #(reset! active-atom (name p))}
+          (get-param-label p)])]
+      [:span.text-xs.font-semibold.text-gray-500.block.mb-1
+       "Other Simulation Outputs:"]
+      [:div.flex.flex-wrap.gap-1.5
+       (for [p other-keys]
+         ^{:key p}
+         [:button
+          {:class (str "text-xs px-2 py-0.5 rounded bg-gray-100 "
+                       "text-gray-700 hover:bg-gray-200 "
+                       "transition-colors")
+           :on-click #(reset! active-atom (name p))}
+          (get-param-label p)])]]]))
+
 (defn- posterior-distributions [items]
   (let [family (some-> (:family (first items)) name)
         params (find-varying-params items)
@@ -280,73 +315,58 @@
                     [:bat-shape :bat-leak-yr :leak-yr
                      :bat-unc-med :unc-med]
                     (second params))]
-    (r/with-let [active-p1 (r/atom p1-default)
-                 active-p2 (r/atom p2-default)]
-      (when (or (nil? @active-p1) (not ((set params) @active-p1)))
-        (reset! active-p1 p1-default))
-      (when (or (nil? @active-p2) (not ((set params) @active-p2)))
-        (reset! active-p2 p2-default))
+    (r/with-let [active-p1 (r/atom (name (or p1-default "")))
+                 active-p2 (r/atom (name (or p2-default "")))]
       [:div.mt-6
        (if (empty? params)
          [:div.p-4.text-gray-500.italic
           "No varied parameters found in this grid."]
-         [:div
-          [:div.grid.grid-cols-1.gap-8.mb-8
-           [:div.border.p-6.rounded.bg-white
-            [:div.mb-4.flex.items-center.gap-2
-             [:label.text-sm.font-bold.text-gray-700 "Parameter 1:"]
-             [:select.border.rounded.p-1.text-sm
-              {:value (name (or @active-p1 ""))
-               :on-change #(reset! active-p1
-                                   (keyword (.. % -target -value)))}
-              (for [p params]
-                ^{:key p}
-                [:option {:value (name p)} (get-param-label p)])]]
-            (when @active-p1
-              [:div.flex.flex-col.gap-8.py-4
-               [vega/chart-posterior-histogram
-                items @active-p1 (get-param-label @active-p1)]
-               [vega/chart-posterior-cdf
-                items @active-p1 (get-param-label @active-p1)]])]
+         (let [p1-kw (keyword @active-p1)
+               p2-kw (keyword @active-p2)
+               valid-keys (set (keys (first items)))
+               p1-valid? (contains? valid-keys p1-kw)
+               p2-valid? (contains? valid-keys p2-kw)]
+           [:div
+            [:div.grid.grid-cols-1.gap-8.mb-8
+             [:div.border.p-6.rounded.bg-white
+              [parameter-helper items active-p1 "Parameter 1"]
+              (when p1-valid?
+                [:div.flex.flex-col.gap-8.py-6
+                 [vega/chart-posterior-histogram
+                  items p1-kw (get-param-label p1-kw)]
+                 [vega/chart-posterior-cdf
+                  items p1-kw (get-param-label p1-kw)]])]
 
-           [:div.border.p-6.rounded.bg-white
-            [:div.mb-4.flex.items-center.gap-2
-             [:label.text-sm.font-bold.text-gray-700 "Parameter 2:"]
-             [:select.border.rounded.p-1.text-sm
-              {:value (name (or @active-p2 ""))
-               :on-change #(reset! active-p2
-                                   (keyword (.. % -target -value)))}
-              (for [p params]
-                ^{:key p}
-                [:option {:value (name p)} (get-param-label p)])]]
-            (when @active-p2
-              [:div.flex.flex-col.gap-8.py-4
-               [vega/chart-posterior-histogram
-                items @active-p2 (get-param-label @active-p2)]
-               [vega/chart-posterior-cdf
-                items @active-p2 (get-param-label @active-p2)]])]]
+             [:div.border.p-6.rounded.bg-white
+              [parameter-helper items active-p2 "Parameter 2"]
+              (when p2-valid?
+                [:div.flex.flex-col.gap-8.py-6
+                 [vega/chart-posterior-histogram
+                  items p2-kw (get-param-label p2-kw)]
+                 [vega/chart-posterior-cdf
+                  items p2-kw (get-param-label p2-kw)]])]]
 
-          (when (and @active-p1 @active-p2 (not= @active-p1 @active-p2))
-            [:div.border.p-4.rounded.bg-white.mb-8
-             [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
-             [vega/chart-pairwise-scatter
-              items
-              @active-p1 @active-p2
-              (get-param-label @active-p1)
-              (get-param-label @active-p2)]])
-
-          [:div.mt-8.pt-6.border-t
-           [:h3.text-xl.font-bold.mb-4 "Key Parameter Relationships"]
-           [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
-            (for [[p1 p2] (get-predefined-pairs family)]
-              ^{:key (str (name p1) "-" (name p2))}
-              [chart-card
-               {:title (str (get-param-label p1) " vs " (get-param-label p2))}
+            (when (and p1-valid? p2-valid? (not= p1-kw p2-kw))
+              [:div.border.p-4.rounded.bg-white.mb-8
+               [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
                [vega/chart-pairwise-scatter
                 items
-                p1 p2
-                (get-param-label p1)
-                (get-param-label p2)]])]]])])))
+                p1-kw p2-kw
+                (get-param-label p1-kw)
+                (get-param-label p2-kw)]])
+
+            [:div.mt-8.pt-6.border-t
+             [:h3.text-xl.font-bold.mb-4 "Key Parameter Relationships"]
+             [:div.grid.grid-cols-1.md:grid-cols-2.gap-6
+              (for [[p1 p2] (get-predefined-pairs family)]
+                ^{:key (str (name p1) "-" (name p2))}
+                [chart-card
+                 {:title (str (get-param-label p1) " vs " (get-param-label p2))}
+                 [vega/chart-pairwise-scatter
+                  items
+                  p1 p2
+                  (get-param-label p1)
+                  (get-param-label p2)]])]]]))])))
 
 (defn- trigger-resampling-workers!
   [state-key items config n-sims resampled-data resampling-state]
@@ -393,7 +413,7 @@
         progress @(rf/subscribe [:progress])
         status @(rf/subscribe [:status])
         config @(rf/subscribe [:config])]
-    (r/with-let [active-tab (r/atom :charts)
+   (r/with-let [active-tab (r/atom :charts)
                  active-family (r/atom nil)
                  input-n-sims (r/atom (:n-sims-aggregation config 1000))
                  committed-n-sims (r/atom (:n-sims-aggregation config 1000))
