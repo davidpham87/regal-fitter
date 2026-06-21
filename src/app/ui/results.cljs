@@ -216,8 +216,9 @@
           (let [irm (:bat-med item)
                 k (or (:bat-shape item) 1.0)
                 d 3
-                lambda (discovery/population-cr2-lambda irm d k)]
-            (assoc item :onset-cr2-bat-mos lambda)))
+                lambda (discovery/population-cr2-lambda irm d k)
+                onset-mos (discovery/true-mos lambda k)]
+            (assoc item :onset-cr2-bat-mos onset-mos)))
         items))
 
 (defn- get-items [results family]
