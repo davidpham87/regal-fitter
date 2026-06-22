@@ -170,15 +170,43 @@
           (.push raw-enroll r))))
     (.sort raw-enroll (fn [a b] (- a b)))
     (let [enroll (np-ts/array (cljs.core/to-array raw-enroll))
-          random-vals (np-random/random random-gen n-total)
-          assignment-order (np-ts/argsort random-vals)
-          arms (np-ts/zeros (clj->js [n-total]))]
-      ;; Assign GPS arm indices to 1
-      (let [gps-indices (np/slice assignment-order 0 n-per-arm)
-            gps-indices-arr (np/nd-to-array gps-indices)
-            arms-data (.-data arms)]
-        (dotimes [i n-per-arm]
-          (aset arms-data (aget gps-indices-arr i) 1.0)))
+          arms (np-ts/zeros (clj->js [n-total]))
+          arms-data (.-data arms)]
+      (loop [idx 0
+             g-left n-per-arm
+             b-left (- n-total n-per-arm)]
+        (if (< idx n-total)
+          (let [max-avail (js/Math.min g-left b-left)
+                opts (cond
+                       (>= max-avail 3) [1 2 3]
+                       (>= max-avail 2) [1 2]
+                       (>= max-avail 1) [1]
+                       :else [])]
+            (if (seq opts)
+              (let [r-val (np-random/random random-gen 1)
+                    r-num (aget (np/nd-to-array r-val) 0)
+                    n-opts (count opts)
+                    half-size (nth opts (js/Math.floor (* r-num n-opts)))
+                    block-size (* 2 half-size)
+                    block (js/Array. block-size)]
+                (dotimes [i half-size]
+                  (aset block i 1.0)
+                  (aset block (+ i half-size) 0.0))
+                (let [r-vals (np-random/random random-gen block-size)
+                      r-arr (np/nd-to-array r-vals)
+                      indices (cljs.core/to-array (range block-size))]
+                  (.sort indices (fn [a b] (- (aget r-arr a)
+                                             (aget r-arr b))))
+                  (dotimes [i block-size]
+                    (aset arms-data (+ idx i)
+                          (aget block (aget indices i))))
+                  (recur (+ idx block-size)
+                         (- g-left half-size)
+                         (- b-left half-size))))
+              (do
+                (dotimes [i (- n-total idx)]
+                  (aset arms-data (+ idx i) (if (pos? g-left) 1.0 0.0)))
+                nil)))))
       (let [num-gps n-per-arm
             num-bat (- n-total n-per-arm)
             bat-draws (draw-bat-times-vectorized record num-bat random-gen)
