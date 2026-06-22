@@ -87,7 +87,8 @@
                                          combos 0.025)
                                 km-ci  (vdata/build-km-ci-data
                                          combos config)
-                                [hr-p t80] (vdata/build-path-bins combos)
+                                [hr-p t80]
+                                (vdata/build-path-bins combos config)
                                 alive-d (vdata/build-alive-scatter-data
                                          combos)
                                 bat-alive-d (vdata/build-bat-alive-distribution-data

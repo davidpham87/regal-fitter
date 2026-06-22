@@ -1,5 +1,7 @@
 (ns app.visualization.data
-  (:require [app.visualization.survival :as survival]))
+  (:require [app.visualization.survival :as survival]
+            [app.regal-fit.survival :as fit-survival]
+            [cljs.numpy :as np]))
 
 (defn calculate-bat-edges [bat-meds bin-width]
   (if (empty? bat-meds)
@@ -255,12 +257,34 @@
          :bat-mean (survival/calculate-rmst bat-probs)
          :gps-mean (survival/calculate-rmst gps-probs)}))))
 
-(defn get-successful-paths [best-n]
-  (let [items (for [combo best-n
+(defn- calculate-bat-S-36m [combo]
+  (let [family (:family combo)]
+    (if (= (some-> family name) "leaky")
+      (let [cf (or (:bat-cure-frac combo) 0.0)
+            scale (or (:bat-unc-scale combo) 0.0)
+            shape (or (:bat-unc-shape combo) 1.0)
+            leak (or (:bat-leak-yr combo) 0.0)
+            S (fit-survival/leaky-cure-survival-probability
+               36.0 cf scale shape leak)]
+        (aget (np/nd-to-array S) 0))
+      (let [scale (or (:bat-scale combo) 0.0)
+            shape (or (:bat-shape combo) 1.0)
+            S (fit-survival/weibull-survival-probability
+               36.0 scale shape)]
+        (aget (np/nd-to-array S) 0)))))
+
+(defn get-successful-paths [best-n config]
+  (let [threshold (:bat-surv-36m-max config)
+        items (for [combo best-n
                     :let [wt (or (:weight combo) 0.0)
                           n-acc (or (:n-accepted combo) 1)
                           indiv-wt (if (pos? n-acc) (/ wt n-acc) 0.0)
-                          obs (:individual-observations combo)]
+                          obs (:individual-observations combo)
+                          pass-surv? (if-not threshold
+                                       true
+                                       (<= (calculate-bat-S-36m combo)
+                                           threshold))]
+                    :when pass-surv?
                     obs-item obs
                     :when (and (:reached-80 obs-item)
                                (< (:hr-final obs-item) 0.636))]
@@ -324,8 +348,8 @@
 (defn- add-cum-pct [bins]
   (add-cumulative-sum bins :pct :cum-pct))
 
-(defn build-path-bins [best-n]
-  (let [path-data (get-successful-paths best-n)]
+(defn build-path-bins [best-n config]
+  (let [path-data (get-successful-paths best-n config)]
     [(add-cum-pct (bin-data (:hrs path-data) (:weights path-data) 0.02))
      (add-cum-pct (bin-data (:t80s path-data) (:weights path-data) 0.5))]))
 
