@@ -96,40 +96,58 @@
   (reduce merge {} (vals nested)))
 
 (defn config-json []
-  (let [text-val (r/atom "")]
+  (let [local-text (r/atom "")
+        last-committed (atom "")
+        timer-id (atom nil)
+        focused? (r/atom false)
+        commit-changes!
+        (fn [val]
+          (when-let [tid @timer-id]
+            (js/clearTimeout tid)
+            (reset! timer-id nil))
+          (when-not (= val @last-committed)
+            (try
+              (let [nested (js->clj (js/JSON.parse val)
+                                    :keywordize-keys true)]
+                (rf/dispatch [:update-config (nested->config nested)])
+                (reset! last-committed val))
+              (catch js/Error _))))]
     (fn []
       (let [config @(rf/subscribe [:config])
             nested-config (config->nested config)
-            expected-json (js/JSON.stringify (clj->js nested-config) nil 2)]
-        (when-not (= (try (js->clj (js/JSON.parse @text-val)
-                                   :keywordize-keys true)
-                          (catch js/Error _ nil))
-                     nested-config)
-          (reset! text-val expected-json))
+            expected-json (js/JSON.stringify
+                           (clj->js nested-config) nil 2)]
+        (when-not @focused?
+          (when-not (= (try (js->clj (js/JSON.parse @local-text)
+                                     :keywordize-keys true)
+                            (catch js/Error _ nil))
+                       nested-config)
+            (reset! local-text expected-json)
+            (reset! last-committed expected-json)))
         [:div.p-4
          [:h2.text-xl.font-bold.mb-4 "Config (JSON)"]
          [code-editor
           {:height "600px"
            :language "json"
-           :value @text-val
+           :value @local-text
            :on-change (fn [val _]
-                        (reset! text-val val)
-                        (try
-                          (let [nested (js->clj
-                                        (js/JSON.parse val)
-                                        :keywordize-keys true)]
-                            (rf/dispatch [:update-config
-                                          (nested->config nested)]))
-                          (catch js/Error _)))}]
+                        (reset! local-text val)
+                        (reset! focused? true)
+                        (when-let [tid @timer-id]
+                          (js/clearTimeout tid))
+                        (reset! timer-id
+                                (js/setTimeout
+                                 #(do (commit-changes! val)
+                                      (reset! focused? false))
+                                 2000)))
+           :on-blur (fn []
+                      (commit-changes! @local-text)
+                      (reset! focused? false))}]
          [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
           {:type "button"
            :on-click (fn []
-                       (try
-                         (let [nested (js->clj
-                                       (js/JSON.parse @text-val)
-                                       :keywordize-keys true)]
-                           (rf/dispatch [:update-config (nested->config nested)]))
-                         (catch js/Error _))
+                       (commit-changes! @local-text)
+                       (reset! focused? false)
                        (sim/start-simulation!)
                        (rf/dispatch [:set-view :results]))}
           "Run Simulation"]]))))

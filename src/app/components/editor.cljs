@@ -3,7 +3,7 @@
             ["@monaco-editor/react" :default MonacoEditor]))
 
 (defn code-editor
-  [{:keys [value on-change language theme height read-only?]}]
+  [{:keys [value on-change on-blur language theme height read-only?]}]
   (r/with-let [editing? (r/atom false)]
     (if (and @editing? (not read-only?))
       [:div.border.rounded-lg.overflow-hidden
@@ -18,7 +18,8 @@
          :onMount (fn [editor]
                     (js-invoke editor "onDidBlurEditorText"
                                (fn []
-                                 (reset! editing? false))))}]]
+                                 (reset! editing? false)
+                                 (when on-blur (on-blur)))))}]]
       [:textarea.w-full.p-2.font-mono.text-sm.border.rounded-lg
        {:style {:height (or height "400px")
                 :resize "none"}
@@ -27,6 +28,8 @@
         :on-focus (fn []
                     (when-not read-only?
                       (reset! editing? true)))
+        :on-blur (fn []
+                   (when on-blur (on-blur)))
         :on-change (fn [e]
                      (when on-change
                        (on-change (.. e -target -value))))}])))
