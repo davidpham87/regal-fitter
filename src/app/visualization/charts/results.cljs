@@ -125,8 +125,6 @@
         {:data {:values (clean-data data)}
          :width 360
          :height 240
-         :padding {:left 65 :right 65 :top 20 :bottom 40}
-         :autosize {:type "fit" :contains "padding"}
          :encoding
          {:x {:field (name param-name)
               :type "quantitative"
