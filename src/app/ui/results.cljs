@@ -562,17 +562,5 @@
                (when (and fam items)
                  ^{:key fam} [results-table fam items])])
 
-            :edn [results-edn-view results])
-          (let [fam @active-family
-                items (get-items results fam)
-                state-key [fam @committed-n-sims]
-                res-data (get @resampled-data state-key)
-                chart-data (or res-data items)]
-            (when (and fam (seq chart-data))
-              [:div.mt-8.pt-6.border-t
-               [:div.border.p-6.rounded.bg-white
-                [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
-                [:div.py-4
-                 [vega/chart-posterior-dual-axis
-                  chart-data :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]]))]
+            :edn [results-edn-view results])]
          :else [:div.text-gray-500 "Run a simulation to see results."])])))

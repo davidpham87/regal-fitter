@@ -106,8 +106,8 @@
 (defn chart-posterior-dual-axis [data param-name label]
   (let [spec
         {:data {:values (clean-data data)}
-         :width 600
-         :height 220
+         :width 360
+         :height 240
          :padding {:left 65 :right 65 :top 20 :bottom 40}
          :autosize {:type "fit" :contains "padding"}
          :encoding

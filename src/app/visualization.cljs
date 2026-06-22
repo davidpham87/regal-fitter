@@ -76,6 +76,10 @@
             ^{:key "bat-posterior"}
             [chart-card {:title "Posterior Probability of BAT mOS"}
              [charts/chart-bat-posterior vdata]]
+            ^{:key "onset-cr2-bat-mos"}
+            [chart-card {:title "Onset CR2 BAT mOS Posterior"}
+             [charts/chart-posterior-dual-axis
+              best-n :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]
             ^{:key "bat-hr"}
             [chart-card {:title "Implied Final HR by BAT mOS"}
              [charts/chart-hr-by-bat vdata]]
