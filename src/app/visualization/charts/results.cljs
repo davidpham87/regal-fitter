@@ -1,9 +1,26 @@
 (ns app.visualization.charts.results
   (:require [app.visualization.charts.vega :refer [vega-lite]]))
 
+(defn- population-cr2-lambda [irm d k]
+  (let [num (- (js/Math.pow (+ irm d) k) (js/Math.pow d k))
+        den (js/Math.log 2)]
+    (js/Math.pow (/ num den) (/ 1.0 k))))
+
+(defn- true-mos [lambda k]
+  (* lambda (js/Math.pow (js/Math.log 2) (/ 1.0 k))))
+
 (defn- clean-data [data]
   (if (seq data)
-    (filterv some? data)
+    (mapv (fn [item]
+            (if (or (nil? item) (:onset-cr2-bat-mos item))
+              item
+              (let [irm (:bat-med item)
+                    k (or (:bat-shape item) 1.0)
+                    d 3
+                    lambda (population-cr2-lambda irm d k)
+                    onset-mos (true-mos lambda k)]
+                (assoc item :onset-cr2-bat-mos onset-mos))))
+          (filterv some? data))
     []))
 
 (defn chart-posterior-histogram [data param-name label]
