@@ -24,6 +24,10 @@
     {:name :placebo-stress}]
    ["/placebo-stress/:state"
     {:name :placebo-stress-state}]
+   ["/power-analysis"
+    {:name :power-analysis}]
+   ["/power-analysis/:state"
+    {:name :power-analysis-state}]
    ["/discovery"
     {:name :discovery}]
    ["/discovery/:subtab"

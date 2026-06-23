@@ -285,18 +285,29 @@
         (str " The maximum absolute discrepancy between the "
              "simulated expected events and actual observed events.")]]]]}])
 
+(defn- safe-float [x default-val]
+  (let [p (js/parseFloat x)]
+    (if (js/isNaN p) default-val p)))
+
+(defn- safe-int [x default-val]
+  (let [p (js/parseInt x 10)]
+    (if (js/isNaN p) default-val p)))
+
 (defn- power-analysis-form-content
   [{:keys [values handle-change]}]
-  (let [alpha (js/parseFloat (:alpha values))
-        power-val (js/parseFloat (:power values))
-        p-event (js/parseFloat (:p-event values))
+  (let [alpha (safe-float (:alpha values) 0.025)
+        power-val (safe-float (:power values) 0.9)
+        p-event (safe-float (:p-event values) 0.635)
+        n-total (safe-int (:n-total values) 126)
+        bat-ref (safe-float (:bat-mos-ref values) 8.0)
+        gps-ref (safe-float (:gps-mos-ref values) 12.0)
         bat-range (:bat-mos-range values)
         gps-range (:gps-mos-range values)
         grid (power/power-grid bat-range gps-range alpha power-val p-event)
         implied-p (power/implied-event-probability
-                   (:n-total values)
-                   (:bat-mos-ref values)
-                   (:gps-mos-ref values)
+                   n-total
+                   bat-ref
+                   gps-ref
                    alpha
                    power-val)]
     [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-6
@@ -336,10 +347,10 @@
       [:p.text-xs.text-blue-900.leading-relaxed
        [:strong "Implied Baseline Event Probability: "]
        (str (.toFixed (* 100 implied-p) 1) "% ")
-       "(Requires " (.toFixed (* (:n-total values) implied-p) 0)
+       "(Requires " (.toFixed (* n-total implied-p) 0)
        " events under standard Schoenfeld assumptions to achieve "
-       (* 100 power-val) "% power at BAT=" (:bat-mos-ref values)
-       " vs GPS=" (:gps-mos-ref values) " months.)"]]
+       (* 100 power-val) "% power at BAT=" bat-ref
+       " vs GPS=" gps-ref " months.)"]]
 
      ;; Charts
      [:div.flex.flex-col.lg:flex-row.gap-6.mb-6
@@ -371,20 +382,26 @@
             [:td.px-4.py-2 (.toFixed (:events-required scenario) 1)]
             [:td.px-4.py-2 (.toFixed (:n-required scenario) 0)]
             [:td.px-4.py-2
-             (if (<= (:n-required scenario) (:n-total values))
+             (if (<= (:n-required scenario) n-total)
                [:span.text-green-600.font-bold "Yes"]
                [:span.text-red-600.font-bold "No"])]]))]]]]))
 
-(defn- power-analysis-view []
+(defn power-analysis-view []
   (fn []
     (let [config @(rf/subscribe [:power-config])]
-      [fork/form
-       {:path [:form :power-analysis]
-        :initial-values config
-        :keywordize-keys true
-        :on-change (fn [{:keys [values]}]
-                     (rf/dispatch [:update-power-config values]))}
-       power-analysis-form-content])))
+      [:div.p-6.max-w-6xl.mx-auto
+       [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
+        "Power Simulation"]
+       [:p.text-gray-600.mb-6
+        "Explore statistical power and sample size requirements "
+        "for the clinical trial design."]
+       [fork/form
+        {:path [:form :power-analysis]
+         :initial-values config
+         :keywordize-keys true
+         :on-change (fn [{:keys [values]}]
+                      (rf/dispatch [:update-power-config values]))}
+        power-analysis-form-content]])))
 
 (defn placebo-stress-view []
   [:div.p-6.max-w-6xl.mx-auto
@@ -393,7 +410,6 @@
     "Assess the likelihood of observed trial milestones under various "
     "Null Hypothesis (H0) scenarios."]
    [placebo-explanation-view]
-   #_[power-analysis-view]
    [stress-test-form]
    [stress-test-results-view]])
 

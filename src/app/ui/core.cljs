@@ -162,6 +162,7 @@
      (for [[page label] [[:home "Home"]
                          [:fitter "Fitter"]
                          [:placebo-stress "Placebo Stress"]
+                         [:power-analysis "Power Simulation"]
                          [:discovery "Discovery"]]]
        ^{:key page}
        [:a.px-3.py-2.rounded-lg.text-sm.font-medium.transition-colors
@@ -218,5 +219,6 @@
           :home [views/home-view]
           :fitter ^{:key view} [fitter-page]
           :placebo-stress [views/placebo-stress-view]
+          :power-analysis [views/power-analysis-view]
           :discovery [views/discovery-view]
           [views/home-view])]])))

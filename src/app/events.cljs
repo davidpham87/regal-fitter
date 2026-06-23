@@ -63,6 +63,9 @@
      (= page :placebo-stress)
      (update db :stress-test-config merge decoded)
 
+     (= page :power-analysis)
+     (update db :power-config merge decoded)
+
      (#{:discovery :discovery-sub} page)
      (update-in db [:discovery :params] merge decoded)
 
@@ -94,6 +97,9 @@
                   (#{:placebo-stress :placebo-stress-state} page)
                   (assoc db :active-page :placebo-stress)
 
+                  (#{:power-analysis :power-analysis-state} page)
+                  (assoc db :active-page :power-analysis)
+
                   :else
                   (assoc db :active-page page))
          new-db (assoc new-db :current-route
@@ -122,6 +128,9 @@
 
                          (#{:placebo-stress :placebo-stress-state} page)
                          [:placebo-stress nil {:state b64}]
+
+                         (#{:power-analysis :power-analysis-state} page)
+                         [:power-analysis nil {:state b64}]
 
                          (#{:discovery :discovery-sub :discovery-sub-state} page)
                          [:discovery-sub
@@ -177,10 +186,14 @@
      {:db new-db
       :sync-to-url! {:db new-db :route (:current-route new-db) :data (:stress-test-config new-db)}})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :update-power-config
- (fn [db [_ new-config]]
-   (assoc db :power-config new-config)))
+ (fn [{:keys [db]} [_ new-config]]
+   (let [new-db (assoc db :power-config new-config)]
+     {:db new-db
+      :sync-to-url! {:db new-db
+                     :route (:current-route new-db)
+                     :data (:power-config new-db)}})))
 
 (rf/reg-event-fx
  :update-discovery-params
