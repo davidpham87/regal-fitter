@@ -16,8 +16,8 @@ class TestFormInputs(unittest.TestCase):
 
     def test_discovery_view_inputs(self):
         page = self.page
-        page.goto("http://localhost:8080")
-        page.get_by_role("button", name="Discovery", exact=True).click()
+        page.goto("http://localhost:8280")
+        page.get_by_role("link", name="Discovery", exact=True).click()
         page.wait_for_timeout(1000)
 
         # Test BAT Median input
@@ -34,14 +34,16 @@ class TestFormInputs(unittest.TestCase):
         self.assertTrue(placebo_checkbox.is_checked())
 
         # When placebo mode is on, GPS Median should equal BAT Median
-        # GPS Median is the 3rd number input in Weibull mode
-        gps_median_input = page.locator("input[type='number']").nth(2)
+        # GPS Median is the 3rd number input in Leaky mode (default)
+        # Note: the numbers are: 0: BAT Median, 1: Weibull k shape, 2: D (Avg Months from CR2)
+        # 3: GPS Median (BAT-like)
+        gps_median_input = page.locator("input[type='number']").nth(3)
         self.assertEqual(gps_median_input.input_value(), "15.5")
 
     def test_placebo_stress_view_inputs(self):
         page = self.page
-        page.goto("http://localhost:8080")
-        page.get_by_role("button", name="Placebo Stress", exact=True).click()
+        page.goto("http://localhost:8280")
+        page.get_by_role("link", name="Placebo Stress", exact=True).click()
         page.wait_for_timeout(1000)
 
         # Test Sims per Combo input
