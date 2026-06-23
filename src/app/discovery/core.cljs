@@ -66,6 +66,10 @@
    :cure-frac     0.2
    :leak-yr       0.07
    :placebo-mode? false
+   :filter-paths? false
+   :tol-ia        4.0
+   :tol-upd       4.0
+   :tol-pr3       2.0
    :n-sims        1000})
 
 (defn- set-active-family! [family]
@@ -115,6 +119,26 @@
              (set-values {:placebo-mode? false}))))}]
      [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
       {:for "placebo-mode"} "Placebo Mode"]]))
+
+(defn- filter-paths-checkbox [{:keys [values set-values]}]
+  (let [filter-paths? (:filter-paths? values)]
+    [:div.flex.items-center.p-2.bg-gray-50.rounded-lg.border.h-12
+     [:input#filter-paths
+      {:type "checkbox"
+       :checked filter-paths?
+       :on-change
+       (fn [e]
+         (let [checked? (.. e -target -checked)]
+           (set-values {:filter-paths? checked?})))}]
+     [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
+      {:for "filter-paths"} "Filter Paths"]]))
+
+(defn- tolerance-params [props]
+  (when (:filter-paths? (:values props))
+    [:<>
+     [dui/param-input props :tol-ia "IA Event Tol" 0 15 1]
+     [dui/param-input props :tol-upd "UPD Event Tol" 0 15 1]
+     [dui/param-input props :tol-pr3 "PR3 Event Tol" 0 10 1]]))
 
 ;; ---------------------------------------------------------------------------
 ;; Family-specific param inputs
@@ -241,6 +265,7 @@
    [:div.grid.grid-cols-1.gap-4
     {:class "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"}
     [placebo-checkbox props]
+    [filter-paths-checkbox props]
     [dui/param-input
      (assoc props :on-change
             (fn [k v]
@@ -249,7 +274,8 @@
      :bat-med "BAT Median" 4 25 0.5]
     [dui/param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
     [dui/param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
-    [family-params props active-family]]
+    [family-params props active-family]
+    [tolerance-params props]]
 
    [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
     {:class "justify-between"}

@@ -179,7 +179,11 @@
     (rf/dispatch [:set-discovery-sim-result nil])
     (cached-submit-job!
      {:rec rec
-      :cfg-dict (assoc config :ignore-prefilter? true)
+      :cfg-dict (assoc config
+                       :ignore-prefilter? (not (:filter-paths? params))
+                       :tol-ia (or (:tol-ia params) (:tol-ia config))
+                       :tol-upd (or (:tol-upd params) (:tol-upd config))
+                       :tol-pr3 (or (:tol-pr3 params) (:tol-pr3 config)))
       :n-sims (or (:n-sims params) (:n-sims-per-combo config))
       :seed (:seed config)}
      (fn [{:keys [success? result error]}]

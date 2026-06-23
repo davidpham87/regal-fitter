@@ -36,6 +36,10 @@
                          :cure-frac 0.2
                          :leak-yr 0.07
                          :placebo-mode? false
+                         :filter-paths? false
+                         :tol-ia 4.0
+                         :tol-upd 4.0
+                         :tol-pr3 2.0
                          :n-sims 1000}
                 :calc-params {:bat-med 10.0
                               :weibull-k 0.85
@@ -44,6 +48,10 @@
                               :cure-frac 0.2
                               :leak-yr 0.07
                               :placebo-mode? false
+                              :filter-paths? false
+                              :tol-ia 4.0
+                              :tol-upd 4.0
+                              :tol-pr3 2.0
                               :n-sims 1000}}}))
 
 (rf/reg-fx
