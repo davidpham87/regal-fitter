@@ -6,15 +6,20 @@
 (defn- compute-risk-sets
   "Computes number at risk in experimental and control groups at each time point."
   [groups-array]
-  (let [is-experimental-seq (map #(if (== % 1) 1.0 0.0) groups-array)
-        reverse-accumulation (reduce (fn [accumulator is-exp]
-                                       (let [prev (or (last accumulator) {:sum-exp 0.0 :sum-control 0.0})
-                                             curr-exp (+ (:sum-exp prev) (if (== is-exp 1.0) 1.0 0.0))
-                                             curr-control (+ (:sum-control prev) (if (== is-exp 1.0) 0.0 1.0))]
-                                         (conj accumulator {:sum-exp curr-exp :sum-control curr-control})))
-                                     [] (reverse is-experimental-seq))
-        risk-seq (reverse reverse-accumulation)]
-    [(to-array (map :sum-exp risk-seq)) (to-array (map :sum-control risk-seq)) (to-array is-experimental-seq)]))
+  (let [n (.-length groups-array)
+        n-exp-arr (js/Float64Array. n)
+        n-control-arr (js/Float64Array. n)
+        is-exp-arr (js/Float64Array. n)]
+    (loop [i (dec n) sum-exp 0.0 sum-control 0.0]
+      (if (>= i 0)
+        (let [is-exp (if (== (aget groups-array i) 1) 1.0 0.0)]
+          (aset is-exp-arr i is-exp)
+          (let [next-exp (+ sum-exp is-exp)
+                next-control (+ sum-control (if (== is-exp 1.0) 0.0 1.0))]
+            (aset n-exp-arr i next-exp)
+            (aset n-control-arr i next-control)
+            (recur (dec i) next-exp next-control)))
+        [n-exp-arr n-control-arr is-exp-arr]))))
 
 (defn- update-logrank-stats
   "Updates logrank statistics for a set of events at the same time point."
@@ -44,7 +49,8 @@
             events-arr (np/nd-to-array (.take ^js events order))
             groups-arr (np/nd-to-array (.take ^js groups order))
             [n-exp-arr n-control-arr is-exp-arr] (compute-risk-sets groups-arr)
-            event-indices (keep-indexed (fn [i e] (when e i)) events-arr)]
+            event-indices (keep-indexed (fn [i e] (when (== e 1) i))
+                                        events-arr)]
         (if (empty? event-indices) [0.0 1.0]
             (let [grouped-indices (partition-by #(aget times-arr %) event-indices)
                   initial-stats {:logrank-u 0.0 :logrank-variance 0.0 :log-hazard-ratio-numerator 0.0 :log-hazard-ratio-denominator 0.0}
@@ -59,8 +65,15 @@
   [time-observed event-flag target-time]
   (let [n-subjects (.-size ^js time-observed)]
     (if (== n-subjects 0) 1.0
-        (let [order (np/argsort time-observed)
+        (let [order (np/nd-to-array (np/argsort time-observed))
               times-arr (np/nd-to-array (.take ^js time-observed order))
-              events-arr (np/nd-to-array (.take ^js event-flag order))
-              relevant-events (filter (fn [[t ev i]] (and ev (<= t target-time))) (map vector times-arr events-arr (range n-subjects)))]
-          (reduce (fn [multiplier [_ _ i]] (* multiplier (- 1.0 (/ 1.0 (- n-subjects i))))) 1.0 relevant-events)))))
+              events-arr (np/nd-to-array (.take ^js event-flag order))]
+          (loop [i 0 multiplier 1.0]
+            (if (< i n-subjects)
+              (let [t (aget times-arr i)
+                    ev (aget events-arr i)]
+                (if (and (== ev 1) (<= t target-time))
+                  (recur (inc i)
+                         (* multiplier (- 1.0 (/ 1.0 (- n-subjects i)))))
+                  (recur (inc i) multiplier)))
+              multiplier))))))

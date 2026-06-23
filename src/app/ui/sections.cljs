@@ -55,7 +55,15 @@
         [inputs/grid-input props :bat-shape-grid] props]
        [inputs/field-wrapper :bat-strat-bin
         [inputs/num-input props :bat-strat-bin
-         inputs/parse-double-safe] props]]]
+         inputs/parse-double-safe] props]
+       [inputs/field-wrapper :bat-leaky-cure-frac-grid
+        [inputs/grid-input props :bat-leaky-cure-frac-grid] props]
+       [inputs/field-wrapper :bat-leaky-unc-med-grid
+        [inputs/grid-input props :bat-leaky-unc-med-grid] props]
+       [inputs/field-wrapper :bat-leaky-unc-shape-grid
+        [inputs/grid-input props :bat-leaky-unc-shape-grid] props]
+       [inputs/field-wrapper :bat-leak-grid
+        [inputs/grid-input props :bat-leak-grid] props]]]
      [:div.border.p-4.rounded-xl.bg-white.shadow-sm.h-full
       [:h3.font-bold.text-lg.text-gray-800 "GPS Grid Settings"]
       [:div.grid.grid-cols-1.gap-3.mt-2
@@ -116,6 +124,9 @@
          inputs/parse-double-safe] props]
        [inputs/field-wrapper :pool-mos-min-at-ia
         [inputs/num-input props :pool-mos-min-at-ia
+         inputs/parse-double-safe] props]
+       [inputs/field-wrapper :bat-surv-36m-max
+        [inputs/num-input props :bat-surv-36m-max
          inputs/parse-double-safe] props]]]]}])
 
 (defn execution-section [props]
@@ -158,5 +169,7 @@
          inputs/parse-double-safe] props]
        [inputs/field-wrapper :seed
         [inputs/num-input props :seed inputs/parse-int] props]
+       [inputs/field-wrapper :n-sims-aggregation
+        [inputs/num-input props :n-sims-aggregation inputs/parse-int] props]
        [inputs/field-wrapper :families
         [inputs/families-input props :families] props]]]]}])

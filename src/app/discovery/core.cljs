@@ -3,7 +3,7 @@
             [re-frame.core :as rf]
             [fork.re-frame :as fork]
             [app.state :as state]
-            [app.vega :as vega]
+            [app.visualization :as vega]
             [app.simulator :as sim]
             [reitit.frontend.easy :as rfe]
             [cljs.math :as math]
@@ -57,14 +57,16 @@
    500))
 
 (def default-params
-  {:bat-med      8.0
-   :weibull-k    1.0
-   :delay        3.0
-   :gps-med      12.0
-   :cure-frac    0.2
-   :leak-yr      0.07
+  {:bat-med       8.0
+   :weibull-k     1.0
+   :delay         3.0
+   :gps-med       12.0
+   :gps-unc-med   12.0
+   :gps-unc-shape 1.0
+   :cure-frac     0.2
+   :leak-yr       0.07
    :placebo-mode? false
-   :n-sims       1000})
+   :n-sims        1000})
 
 (defn- set-active-family! [family]
   (swap! state/app-state assoc-in [:discovery :active-family] family)
@@ -133,7 +135,12 @@
 
       "leaky"
       [:<>
-       [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]
+       [dui/param-input props :gps-med "GPS Median (BAT-like)" 4 50 1.0
+        placebo?]
+       [dui/param-input props :gps-unc-med "Uncured Pop Median" 4 60 1.0
+        placebo?]
+       [dui/param-input props :gps-unc-shape "Uncured Pop k Shape"
+        0.5 2.5 0.05]
        [dui/param-input props :cure-frac "Cure Fraction"
         0.0 0.95 0.05 placebo?]
        [dui/param-input props :leak-yr "Leak Rate / Year"

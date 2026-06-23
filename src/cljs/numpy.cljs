@@ -63,8 +63,24 @@
 (defn slice [arr start end]
   (cond
     (nil? arr) nil
-    (and (fn? (.-slice arr)) (.-shape arr))
-    (.slice ^js arr (str start ":" end))
+    (and arr (.-data arr) (.-shape arr))
+    (let [shape (vec (.-shape arr))
+          data (.-data arr)
+          dims (count shape)]
+      (cond
+        (= dims 1)
+        (np-ts/array (.subarray data start end))
+
+        (= dims 2)
+        (let [row-size (second shape)
+              offset-start (* start row-size)
+              offset-end (* end row-size)
+              sub-data (.subarray data offset-start offset-end)]
+          (np-ts/reshape
+           (np-ts/array sub-data)
+           (clj->js [(- end start) row-size])))
+
+        :else arr))
     (fn? (.-slice arr)) (.slice ^js arr start end)
     :else arr))
 

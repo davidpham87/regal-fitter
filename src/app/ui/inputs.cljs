@@ -18,6 +18,7 @@
    :bat-med-grid "BAT Median Grid"
    :bat-shape-grid "BAT Shape Grid"
    :bat-strat-bin "BAT Stratification Bin (months)"
+   :bat-surv-36m-max "BAT 36m Survival Max"
    :gps-med-grid-lo "GPS Median Grid Low"
    :gps-med-grid-hi "GPS Median Grid High"
    :gps-med-grid-n "GPS Median Grid N"
@@ -29,6 +30,10 @@
    :leaky-unc-med-grid "Leaky GPS Uncured Median Grid"
    :leaky-unc-shape-grid "Leaky Uncured Shape Grid"
    :leak-grid "Leak Grid"
+   :bat-leaky-cure-frac-grid "BAT Leaky Cure Fraction Grid"
+   :bat-leaky-unc-med-grid "BAT Leaky Uncured Median Grid"
+   :bat-leaky-unc-shape-grid "BAT Leaky Uncured Shape Grid"
+   :bat-leak-grid "BAT Leak Grid"
    :prefilter-tol-ia "Prefilter IA Tolerance"
    :prefilter-tol-upd "Prefilter UPD Tolerance"
    :prefilter-tol-pr3 "Prefilter PR3 Tolerance"
@@ -48,7 +53,17 @@
    :median-fu-tol "Median Follow-up Tolerance"
    :hr-threshold "HR Significance Threshold"
    :seed "Random Seed"
-   :families "Model Families"})
+   :families "Model Families"
+   :n-sims-aggregation "Sims to Aggregate (N)"
+   :median-bat-alive-upd "Median BAT Alive UPD"
+   :median-gps-alive-upd "Median GPS Alive UPD"
+   :median-bat-alive-final "Median BAT Alive Final (T80)"
+   :median-gps-alive-final "Median GPS Alive Final (T80)"
+   :bat-cure-frac "BAT Cure Fraction"
+   :bat-unc-med "BAT Uncured Median (months)"
+   :bat-unc-shape "BAT Uncured Shape"
+   :bat-unc-scale "BAT Uncured Scale"
+   :bat-leak-yr "BAT Leak Rate (yearly)"})
 
 (def key->help
   {:n-total "Total trial size (e.g. 126 subjects)."
@@ -73,6 +88,9 @@
    :bat-strat-bin
    (str "Width of BAT mOS bins for stratified output. "
         "Set to 0 to disable stratified pages.")
+   :bat-surv-36m-max
+   (str "Maximum survivorship expected threshold at 36 months for the BAT curve. "
+        "Set to 0 or leave empty to disable.")
    :gps-med-grid-lo "Weibull GPS median grid lower bound (log-spaced)."
    :gps-med-grid-hi "Weibull GPS median grid upper bound (log-spaced)."
    :gps-med-grid-n "Weibull GPS median grid number of points."
@@ -84,6 +102,10 @@
    :leaky-unc-med-grid "Leaky uncured median grid (start, stop, step)."
    :leaky-unc-shape-grid "Leaky uncured shape grid (start, stop, step)."
    :leak-grid "Leaky leak-rate grid (start, stop, step)."
+   :bat-leaky-cure-frac-grid "BAT Leaky cure-fraction grid (start, stop, step)."
+   :bat-leaky-unc-med-grid "BAT Leaky uncured median grid (start, stop, step)."
+   :bat-leaky-unc-shape-grid "BAT Leaky uncured shape grid (start, stop, step)."
+   :bat-leak-grid "BAT Leaky leak-rate grid (start, stop, step)."
    :prefilter-tol-ia
    (str "Analytical pre-filter tolerance on IA event count. "
         "Rejects combos whose expected events deviate beyond tolerance.")
@@ -122,7 +144,9 @@
    :median-fu-tol "Tolerance for median follow-up target in months."
    :hr-threshold "Hazard ratio threshold for significance per SAP (0.636)."
    :seed "Random seed for reproducibility."
-   :families "Enabled model distribution families."})
+   :families "Enabled model distribution families."
+   :n-sims-aggregation
+   "Number of simulations to sample and aggregate for plotting."})
 
 (defn- parse-vector [val]
   (try

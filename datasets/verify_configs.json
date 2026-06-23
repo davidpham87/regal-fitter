@@ -1,0 +1,135 @@
+[
+  {
+    "name": "Scenario 1: Weibull model",
+    "rec": {
+      "family": "weibull",
+      "bat_scale": 12.0,
+      "bat_shape": 0.9,
+      "gps_scale": 18.0,
+      "gps_shape": 0.95,
+      "gps_med": 15.0
+    },
+    "cfg": {
+      "n_total": 126,
+      "n_per_arm": 63,
+      "enroll_bands": [
+        [0.0, 12.0, 15],
+        [12.0, 24.0, 50],
+        [24.0, 36.0, 56],
+        [36.0, 38.0, 5]
+      ],
+      "t_ia": 46.0,
+      "t_upd": 58.0,
+      "t_pr3": 62.97,
+      "n_ev_ia": 60,
+      "n_ev_upd": 72,
+      "n_ev_pr3": 78,
+      "n_ev_final": 80,
+      "use_pr3_anchor": true,
+      "tol_ia": 9999,
+      "tol_upd": 9999,
+      "tol_pr3": 9999,
+      "tol_increment_ia_upd": 9999,
+      "tol_increment_upd_pr3": 9999,
+      "futility_hr_max": 999.0,
+      "efficacy_hr_min": -999.0,
+      "pool_mos_min_at_ia": 0.0,
+      "median_fu_target": 0.0,
+      "median_fu_tol": 999.0,
+      "enforce_no_80_by_today": false,
+      "no_80_slack_months": 999.0,
+      "n_sims_screen": 50,
+      "n_screen_min_pass": 1,
+      "ignore_prefilter?": true
+    }
+  },
+  {
+    "name": "Scenario 2: Cure model",
+    "rec": {
+      "family": "cure",
+      "bat_scale": 10.0,
+      "bat_shape": 0.85,
+      "cure_frac": 0.15,
+      "unc_scale": 16.0,
+      "unc_shape": 0.90,
+      "gps_med": 14.0
+    },
+    "cfg": {
+      "n_total": 150,
+      "n_per_arm": 75,
+      "enroll_bands": [
+        [0.0, 12.0, 30],
+        [12.0, 24.0, 70],
+        [24.0, 36.0, 50]
+      ],
+      "t_ia": 45.0,
+      "t_upd": 55.0,
+      "t_pr3": 65.0,
+      "n_ev_ia": 60,
+      "n_ev_upd": 80,
+      "n_ev_pr3": 90,
+      "n_ev_final": 100,
+      "use_pr3_anchor": true,
+      "tol_ia": 9999,
+      "tol_upd": 9999,
+      "tol_pr3": 9999,
+      "tol_increment_ia_upd": 9999,
+      "tol_increment_upd_pr3": 9999,
+      "futility_hr_max": 999.0,
+      "efficacy_hr_min": -999.0,
+      "pool_mos_min_at_ia": 0.0,
+      "median_fu_target": 0.0,
+      "median_fu_tol": 999.0,
+      "enforce_no_80_by_today": false,
+      "no_80_slack_months": 999.0,
+      "n_sims_screen": 50,
+      "n_screen_min_pass": 1,
+      "ignore_prefilter?": true
+    }
+  },
+  {
+    "name": "Scenario 3: Leaky model",
+    "rec": {
+      "family": "leaky",
+      "bat_scale": 11.0,
+      "bat_shape": 0.95,
+      "cure_frac": 0.20,
+      "unc_scale": 17.0,
+      "unc_shape": 1.0,
+      "leak_yr": 0.12,
+      "gps_med": 15.0
+    },
+    "cfg": {
+      "n_total": 180,
+      "n_per_arm": 90,
+      "enroll_bands": [
+        [0.0, 12.0, 40],
+        [12.0, 24.0, 80],
+        [24.0, 36.0, 60]
+      ],
+      "t_ia": 48.0,
+      "t_upd": 58.0,
+      "t_pr3": 68.0,
+      "n_ev_ia": 70,
+      "n_ev_upd": 95,
+      "n_ev_pr3": 110,
+      "n_ev_final": 120,
+      "use_pr3_anchor": true,
+      "tol_ia": 9999,
+      "tol_upd": 9999,
+      "tol_pr3": 9999,
+      "tol_increment_ia_upd": 9999,
+      "tol_increment_upd_pr3": 9999,
+      "futility_hr_max": 999.0,
+      "efficacy_hr_min": -999.0,
+      "pool_mos_min_at_ia": 0.0,
+      "median_fu_target": 0.0,
+      "median_fu_tol": 999.0,
+      "enforce_no_80_by_today": false,
+      "no_80_slack_months": 999.0,
+      "n_sims_screen": 50,
+      "n_screen_min_pass": 1,
+      "ignore_prefilter?": true
+    }
+  }
+]

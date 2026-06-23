@@ -1,7 +1,9 @@
 (ns app.db
-  (:require [cljs.core.async :refer [go <! chan put! close!]]))
+  (:require [cljs.core.async :refer [go <! chan put! close!]]
+            [cognitect.transit :as t]
+            [cljs.core.async.interop :refer-macros [<p!]]))
 
-(def db-name "SimulationCache")
+(def db-name "SimulationCacheV2")
 (def store-name "results")
 (def version 1)
 
@@ -64,8 +66,37 @@
           (put! out false))))
     out))
 
+(defn array-buffer->hex [buf]
+  (let [uint-arr (js/Uint8Array. buf)
+        len (.-length uint-arr)
+        arr (js/Array. len)]
+    (dotimes [i len]
+      (let [b (aget uint-arr i)
+            hex (.toString b 16)]
+        (aset arr i (if (= (.-length hex) 1) (str "0" hex) hex))))
+    (.join arr "")))
+
 (defn hash-key [data]
-  (hash (str data)))
+  (let [out (chan)
+        w (t/writer :json)
+        s (t/write w data)]
+    (go
+      (try
+        (let [encoder (js/TextEncoder.)
+              bytes (.encode encoder s)
+              cs (js/CompressionStream. "gzip")
+              writer (.getWriter (.-writable cs))]
+          (.write writer bytes)
+          (.close writer)
+          (let [resp (js/Response. (.-readable cs))
+                blob (<p! (.blob resp))
+                buf (<p! (.arrayBuffer blob))
+                hex (array-buffer->hex buf)]
+            (put! out hex)))
+        (catch js/Error e
+          (js/console.error "Gzip error:" e)
+          (put! out (str (hash s))))))
+    out))
 
 (defn clear-cache []
   (let [out (chan)]

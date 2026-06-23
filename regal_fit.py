@@ -82,8 +82,10 @@ import time
 import sys
 import json
 import os
+import sqlite3
+import hashlib
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 import numpy as np
@@ -102,6 +104,39 @@ def cfg_today_month():
     today = _dt.date.today()
     days = (today - base).days
     return days / 30.4375
+
+
+# =============================================================================
+# PERSISTENCE / LOCAL SQLITE DATABASE
+# =============================================================================
+
+def get_db():
+    """Initialize or connect to local SQLite database in current workspace."""
+    db_path = Path("regal_fit_cache.db")
+    conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS simulation_cache ("
+        "  config_hash TEXT PRIMARY KEY,"
+        "  config_json TEXT NOT NULL,"
+        "  results_json TEXT NOT NULL"
+        ")"
+    )
+    conn.commit()
+    return conn
+
+
+def hash_config(cfg):
+    """Generate deterministic hash of the Config object."""
+    # Convert Config dataclass to dictionary and serialize to sorted JSON
+    d = asdict(cfg)
+    # Remove dynamic runtime attributes not affecting simulation logic
+    d.pop("n_threads", None)
+    d.pop("out_pdf", None)
+    d.pop("out_dir", None)
+    cfg_bytes = json.dumps(d, sort_keys=True).encode("utf-8")
+    return hashlib.sha256(cfg_bytes).hexdigest()
 
 
 # =============================================================================
@@ -249,7 +284,7 @@ class Config:
 
     # Output
     out_pdf: str = "regal_fit_report.pdf"
-    out_dir: str = "."
+    out_dir: str = "outputs"
 
 
 # =============================================================================
@@ -559,55 +594,77 @@ def _cross_filter(cfg, bat_ev, gps_ev, bat_params, gps_params, family,
     n_drop_pr3 = 0
     n_drop_increment = 0
     chunk = 2048
-    for s in range(0, Gb, chunk):
-        e = min(s + chunk, Gb)
-        # (chunk, Gg, K) totals
-        tot = bat_ev[s:e, None, :] + gps_ev[None, :, :]
+    # Parallel helper to process a single chunk
+    def _proc_chunk(start_idx):
+        end_idx = min(start_idx + chunk, Gb)
+        tot = bat_ev[start_idx:end_idx, None, :] + gps_ev[None, :, :]
         d_ia = np.abs(tot[..., 0] - cfg.n_ev_ia)
         d_up = np.abs(tot[..., 1] - cfg.n_ev_upd)
         mask = (d_ia <= cfg.prefilter_tol_ia) & (d_up <= cfg.prefilter_tol_upd)
 
-        # Increment tolerance: m46 -> m58 expected difference vs observed (12)
         inc_ia_up = tot[..., 1] - tot[..., 0]
         d_inc_ia_up = np.abs(inc_ia_up - (cfg.n_ev_upd - cfg.n_ev_ia))
         mask_inc = d_inc_ia_up <= cfg.tol_increment_ia_upd
-        n_drop_increment += int((mask & ~mask_inc).sum())
+        local_drop_inc = int((mask & ~mask_inc).sum())
         mask = mask & mask_inc
 
+        local_drop_pr3 = 0
         if apply_pr3:
             d_pr3 = np.abs(tot[..., 2] - cfg.n_ev_pr3)
             mask_pr3 = d_pr3 <= cfg.prefilter_tol_pr3
-            n_drop_pr3 += int((mask & ~mask_pr3).sum())
+            local_drop_pr3 = int((mask & ~mask_pr3).sum())
             mask = mask & mask_pr3
 
-            # Increment tolerance: m58 -> m63 expected difference vs observed (6)
             inc_up_pr3 = tot[..., 2] - tot[..., 1]
             d_inc_up_pr3 = np.abs(inc_up_pr3 - (cfg.n_ev_pr3 - cfg.n_ev_upd))
             mask_inc2 = d_inc_up_pr3 <= cfg.tol_increment_upd_pr3
-            n_drop_increment += int((mask & ~mask_inc2).sum())
+            local_drop_inc += int((mask & ~mask_inc2).sum())
             mask = mask & mask_inc2
 
+        local_drop_pool = 0
         if apply_pool_mos:
-            # S_pool(T) >= 0.5 iff S_BAT(T) + S_GPS(T) >= 1
-            pool_S = bat_S_T[s:e, None] + gps_S_T[None, :]
+            pool_S = bat_S_T[start_idx:end_idx, None] + gps_S_T[None, :]
             mask_pool = pool_S >= 1.0
-            n_drop_pool += int((mask & ~mask_pool).sum())
+            local_drop_pool = int((mask & ~mask_pool).sum())
             mask = mask & mask_pool
 
+        chunk_accepted = []
         if mask.any():
             bi, gi = np.where(mask)
-            bi_global = bi + s
-            for ib, ig in zip(bi_global, gi):
+            for ib_local, ig in zip(bi, gi):
+                ib_global = ib_local + start_idx
                 rec = {"family": family,
-                       "exp_ev_ia": float(tot[ib - s, ig, 0]),
-                       "exp_ev_upd": float(tot[ib - s, ig, 1])}
+                       "exp_ev_ia": float(tot[ib_local, ig, 0]),
+                       "exp_ev_upd": float(tot[ib_local, ig, 1])}
                 if apply_pr3:
-                    rec["exp_ev_pr3"] = float(tot[ib - s, ig, 2])
+                    rec["exp_ev_pr3"] = float(tot[ib_local, ig, 2])
                 for k, v in bat_params.items():
-                    rec[k] = float(v[ib])
+                    rec[k] = float(v[ib_global])
                 for k, v in gps_params.items():
                     rec[k] = float(v[ig])
-                accepted.append(rec)
+                chunk_accepted.append(rec)
+        return chunk_accepted, local_drop_pool, local_drop_pr3, local_drop_inc
+
+    starts = list(range(0, Gb, chunk))
+    if getattr(cfg, "n_threads", 1) <= 1 or len(starts) <= 1:
+        # Single-threaded fallback
+        for s in starts:
+            c_acc, d_pl, d_pr, d_inc = _proc_chunk(s)
+            accepted.extend(c_acc)
+            n_drop_pool += d_pl
+            n_drop_pr3 += d_pr
+            n_drop_increment += d_inc
+    else:
+        # Multithreaded chunking
+        with ProcessPoolExecutor(max_workers=cfg.n_threads) as ex:
+            futures = [ex.submit(_proc_chunk, s) for s in starts]
+            for fut in as_completed(futures):
+                c_acc, d_pl, d_pr, d_inc = fut.result()
+                accepted.extend(c_acc)
+                n_drop_pool += d_pl
+                n_drop_pr3 += d_pr
+                n_drop_increment += d_inc
+
     if apply_pool_mos and n_drop_pool > 0:
         print(f"  pool-mOS prefilter (S_BAT+S_GPS at T={cfg.pool_mos_min_at_ia:g} >= 1) "
               f"dropped {n_drop_pool:,} combos")
@@ -834,7 +891,7 @@ def _run_sim_chunk(rec, cfg, n_sims, rng):
                 continue
             fu_fin = np.maximum(t80 - e_i, 0.0)
             time_fin = np.minimum(s_i, fu_fin)
-            ev_fin = (s_i <= fu_fin).astype(np.int8)
+            ev_fin = (death_cal <= t80).astype(np.int8)
             z_fin, hr_fin = _logrank_z(time_fin, ev_fin, a_i)
         else:
             t80 = float("nan"); reached_80 = False
@@ -899,6 +956,8 @@ def _simulate_one_combo(args):
     hr_arr = arr("hr_final")
     reached = arr("reached_80")
     hr_finite = hr_arr[~np.isnan(hr_arr)]
+    sorted_hrs = sorted(hr_finite)
+    n_hrs = len(sorted_hrs)
 
     # Unconditional outcome counts:
     # - p_reach80          = P(80th event ever occurs in this combo)
@@ -918,6 +977,14 @@ def _simulate_one_combo(args):
             "p_reach80": float(reached.mean()),
             "p_no_readout": float(1.0 - reached.mean()),
             "median_hr_final": float(np.median(hr_finite)) if len(hr_finite) else float("nan"),
+            "hr_final_low": (
+                float(sorted_hrs[int(0.025 * n_hrs)])
+                if n_hrs > 0 else float("nan")
+            ),
+            "hr_final_high": (
+                float(sorted_hrs[min(n_hrs - 1, int(0.975 * n_hrs))])
+                if n_hrs > 0 else float("nan")
+            ),
             "p_hr_below_threshold": (float(np.mean(hr_finite < 0.636))
                                      if len(hr_finite) else float("nan")),
             "p_success_overall": p_success_overall,
@@ -937,6 +1004,20 @@ def _simulate_one_combo(args):
 # =============================================================================
 
 def run_family(prefilter_func, cfg, label, n_threads):
+    # Check SQLite cache first
+    cfg_hash = hash_config(cfg)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT results_json FROM simulation_cache WHERE config_hash = ?",
+        (cfg_hash,)
+    )
+    row = cursor.fetchone()
+    if row is not None:
+        print(f"\n[{label}] CACHE HIT in SQLite: loaded results for hash {cfg_hash:.8s}")
+        conn.close()
+        return json.loads(row[0])
+
     print(f"\n[{label}] Stage 1: analytical pre-filter")
     t0 = time.time()
     accepted = prefilter_func(cfg)
@@ -944,6 +1025,7 @@ def run_family(prefilter_func, cfg, label, n_threads):
           f"(elapsed {time.time()-t0:.1f}s)")
     if not accepted:
         print(f"  No accepted combos for {label}.  Try wider grid or tolerances.")
+        conn.close()
         return []
 
     print(f"\n[{label}] Stage 2: simulation (n_sims={cfg.n_sims_per_combo} "
@@ -983,6 +1065,19 @@ def run_family(prefilter_func, cfg, label, n_threads):
 
     print(f"  -> {len(results):,} combos with at least one simulated "
           f"acceptance (elapsed {time.time()-t0:.1f}s)")
+
+    # Cache calculated results into SQLite database
+    res_str = json.dumps(
+        results,
+        default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)
+    )
+    cursor.execute(
+        "INSERT OR REPLACE INTO simulation_cache "
+        "(config_hash, config_json, results_json) VALUES (?, ?, ?)",
+        (cfg_hash, json.dumps(asdict(cfg), default=str), res_str)
+    )
+    conn.commit()
+    conn.close()
     return results
 
 
@@ -1946,6 +2041,7 @@ def main(argv=None):
         print(f"    Stratified output: BAT mOS bins of {cfg.bat_strat_bin}m  (ON)")
 
     out_path = Path(cfg.out_dir) / cfg.out_pdf
+    os.makedirs(cfg.out_dir, exist_ok=True)
     base = out_path.with_suffix("")
 
     # Constraint signature: any change in the IDMC gates or pool-mOS floor

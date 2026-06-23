@@ -24,6 +24,10 @@
     {:name :placebo-stress}]
    ["/placebo-stress/:state"
     {:name :placebo-stress-state}]
+   ["/power-analysis"
+    {:name :power-analysis}]
+   ["/power-analysis/:state"
+    {:name :power-analysis-state}]
    ["/discovery"
     {:name :discovery}]
    ["/discovery/:subtab"
@@ -47,8 +51,8 @@
   (re-frame/dispatch [:initialize-db])
   ;; Open portal in the browser context
   ;; (p/open)
-  ;; Initialize WebR on application boot
-  (let [start-webr!
+  ;; Initialize WebR on application boot (disabled on boot to avoid slow startup in testing)
+  #_(let [start-webr!
         (fn []
           (webr/init-webr!
            (fn [webr] (js/console.log "WebR ready on boot!"))
@@ -56,20 +60,21 @@
     (if (exists? js/WebR)
       (start-webr!)
       (.addEventListener js/window "webr-script-loaded" start-webr!)))
-  (rdom/render [ui/main-view] (js/document.getElementById "app")))
+  (rdom/render ^{:key (str (rand))}
+               [ui/main-view] (js/document.getElementById "app")))
 
 (defn reload-testing []
   [:h1 "hello, shadow-cljs hot reloading is!"])
 
-(defn ^export ^:dev/after-load reload!
+(defn ^:export ^:dev/after-load reload!
   "Reload hook for shadow-cljs. Re-mounts the application after code changes.
 
   Returns:
     nil: Re-renders the app."
   []
   (js/console.log "reload")
-  (rdom/render #_[reload-testing]
-   [ui/main-view] (js/document.getElementById "app")))
+  (rdom/render ^{:key (str (rand))} [ui/main-view]
+               (js/document.getElementById "app")))
 
 (comment
   "hello"

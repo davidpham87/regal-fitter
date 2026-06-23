@@ -7,7 +7,7 @@
             [cljs.nodejs :as node]
             [cljs.numpy :as np]))
 
-(def truth (js/JSON.parse (.readFileSync fs "truth.json" "utf8")))
+(def truth (js/JSON.parse (.readFileSync fs "datasets/truth.json" "utf8")))
 
 (defn approx= [a b epsilon]
   (< (js/Math.abs (- a b)) epsilon))
@@ -80,11 +80,21 @@
           (println "  PASS: anchor=" ti "val=" got)
           (println "  FAIL: anchor=" ti "Expected" expected "Got" got))))))
 
+(def manual-cljs-bands
+  [[0.0 1.0 2] [1.0 2.0 2] [2.0 3.0 2] [3.0 4.0 2] [4.0 5.0 3] [5.0 6.0 3]
+   [6.0 7.0 3] [7.0 8.0 3] [8.0 9.0 3] [9.0 10.0 3] [10.0 11.0 4]
+   [11.0 12.0 4] [12.0 13.0 4] [13.0 14.0 4] [14.0 15.0 4] [15.0 16.0 4]
+   [16.0 17.0 4] [17.0 18.0 4] [18.0 19.0 4] [19.0 20.0 4] [20.0 21.0 4]
+   [21.0 22.0 4] [22.0 23.0 4] [23.0 24.0 4] [24.0 25.0 4] [25.0 26.0 4]
+   [26.0 27.0 4] [27.0 28.0 4] [28.0 29.0 3] [29.0 30.0 3] [30.0 31.0 3]
+   [31.0 32.0 3] [32.0 33.0 3] [33.0 34.0 3] [34.0 35.0 2] [35.0 36.0 2]
+   [36.0 37.0 2] [37.0 38.0 4]])
+
 (defn check-enrollment-bands []
   (println "Checking enrollment bands...")
   (let [enroll-truth (.-enrollment truth)
         manual-truth (.-manual enroll-truth)
-        manual-cljs (:enroll-bands state/default-stress-test-config)
+        manual-cljs manual-cljs-bands
 
         s-curve-truth (.-s_curve enroll-truth)
         s-curve-cljs (enrollment/get-s-curve-enrollment-bands 126 38 19 0.3)]

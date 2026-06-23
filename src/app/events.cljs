@@ -2,6 +2,9 @@
   (:require
    [app.state :as state]
    [app.state-url :as state-url]
+   [app.db :as db]
+   [app.regal-fit.prefilter :as prefilter]
+   [app.worker-pool :as wp]
    [re-frame.core :as rf]
    [reitit.frontend.easy :as rfe]))
 
@@ -20,6 +23,7 @@
     :progress {:total 0 :completed 0}
     :stress-test-progress {:total 0 :completed 0}
     :results {} ;; family -> list of combos
+    :aggregation {} ;; [family n-sims] -> {:loading? bool :data map}
     :stress-test-results []
     :error-message nil
     :view :config-form ;; :config-form, :config-json, :results
@@ -59,6 +63,9 @@
      (= page :placebo-stress)
      (update db :stress-test-config merge decoded)
 
+     (= page :power-analysis)
+     (update db :power-config merge decoded)
+
      (#{:discovery :discovery-sub} page)
      (update-in db [:discovery :params] merge decoded)
 
@@ -90,13 +97,16 @@
                   (#{:placebo-stress :placebo-stress-state} page)
                   (assoc db :active-page :placebo-stress)
 
+                  (#{:power-analysis :power-analysis-state} page)
+                  (assoc db :active-page :power-analysis)
+
                   :else
                   (assoc db :active-page page))
          new-db (assoc new-db :current-route
                        {:page page
                         :path-params path-params})
          effects {:db new-db}]
-     (if-let [state-str (or (:state path-params) #_(:state query-params))]
+     (if-let [state-str (or (:state path-params) (:state query-params))]
        (assoc effects :decode-url-state {:page page :state-str state-str})
        effects))))
 
@@ -109,23 +119,30 @@
                  (let [page (:page route)
                        path-params (:path-params route)
                        subtab (:subtab path-params)
-                       [dest-route dest-path-params]
+                       [dest-route dest-path-params dest-query-params]
                        (cond
                          (#{:fitter :fitter-sub :fitter-sub-state} page)
-                         [:fitter-sub-state
-                          {:subtab (or subtab "config-form") :state b64}]
+                         [:fitter-sub
+                          {:subtab (or subtab "config-form")}
+                          {:state b64}]
 
                          (#{:placebo-stress :placebo-stress-state} page)
-                         [:placebo-stress-state {:state b64}]
+                         [:placebo-stress nil {:state b64}]
+
+                         (#{:power-analysis :power-analysis-state} page)
+                         [:power-analysis nil {:state b64}]
 
                          (#{:discovery :discovery-sub :discovery-sub-state} page)
-                         [:discovery-sub-state
-                          {:subtab (or subtab "weibull") :state b64}]
+                         [:discovery-sub
+                          {:subtab (or subtab "weibull")}
+                          {:state b64}]
 
                          :else
-                         [page path-params])]
+                         [page path-params nil])]
                    (when dest-route
-                     (rfe/replace-state dest-route dest-path-params))))))))
+                     (if dest-query-params
+                       (rfe/replace-state dest-route dest-path-params dest-query-params)
+                       (rfe/replace-state dest-route dest-path-params)))))))))
 
 (rf/reg-fx
  :sync-to-url!
@@ -169,10 +186,14 @@
      {:db new-db
       :sync-to-url! {:db new-db :route (:current-route new-db) :data (:stress-test-config new-db)}})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
  :update-power-config
- (fn [db [_ new-config]]
-   (assoc db :power-config new-config)))
+ (fn [{:keys [db]} [_ new-config]]
+   (let [new-db (assoc db :power-config new-config)]
+     {:db new-db
+      :sync-to-url! {:db new-db
+                     :route (:current-route new-db)
+                     :data (:power-config new-db)}})))
 
 (rf/reg-event-fx
  :update-discovery-params
@@ -194,7 +215,7 @@
 (rf/reg-event-db
  :set-results
  (fn [db [_ results]]
-   (assoc db :results results)))
+   (assoc db :results results :aggregation {})))
 
 (rf/reg-event-db
  :set-error
@@ -260,3 +281,79 @@
  :set-discovery-param
  (fn [db [_ param value]]
    (assoc-in db [:discovery param] value)))
+
+;; ── Aggregation events ────────────────────────────────────────────────────
+;;
+;; :aggregation in db: {cache-key {:loading? bool :data map-or-nil}}
+;; cache-key is [family n-sims] so each unique (family, N) gets its own slot.
+
+(rf/reg-event-db
+ :aggregation/set-loading
+ (fn [db [_ cache-key loading?]]
+   (assoc-in db [:aggregation cache-key :loading?] loading?)))
+
+(rf/reg-event-db
+ :aggregation/set-data
+ (fn [db [_ cache-key data]]
+   (-> db
+       (assoc-in [:aggregation cache-key :loading?] false)
+       (assoc-in [:aggregation cache-key :data] data))))
+
+;; Clear all cached aggregation results (e.g. when new simulation finishes)
+(rf/reg-event-db
+ :aggregation/clear
+ (fn [db _]
+   (assoc db :aggregation {})))
+
+;; Side-effect: submit a RUN_AGGREGATION job to the worker pool.
+;; Dispatches :aggregation/set-loading true first, then
+;; :aggregation/set-data when the worker responds.
+(rf/reg-fx
+ :aggregation/submit-job!
+ (fn [{:keys [cache-key combos config]}]
+   (rf/dispatch [:aggregation/set-loading cache-key true])
+   (wp/submit-job!
+    {:type   "RUN_AGGREGATION"
+     :combos combos
+     :config config}
+    (fn [{:keys [success? result error]}]
+      (if success?
+        (rf/dispatch
+         [:aggregation/set-data
+          cache-key
+          (js->clj result :keywordize-keys true)])
+        (do
+          (js/console.error "Aggregation worker error:" error)
+          (rf/dispatch [:aggregation/set-loading cache-key false])))))))
+
+;; Request aggregation for a given (family, n-sims) cache-key.
+;; No-ops when data is already cached or a job is already running.
+(rf/reg-event-fx
+ :aggregation/request
+ (fn [{:keys [db]} [_ cache-key combos config]]
+   (let [slot (get-in db [:aggregation cache-key])]
+     (when (and (not (:loading? slot)) (nil? (:data slot)))
+       {:aggregation/submit-job!
+        {:cache-key cache-key
+         :combos    combos
+         :config    config}}))))
+
+(rf/reg-event-fx
+ :clear-indexeddb-cache
+ (fn [{:keys [db]} _]
+   (db/clear-cache)
+   (js/console.log "IndexedDB Cache cleared.")
+   {:db (assoc db :prefilter-results {})}))
+
+(rf/reg-event-db
+ :debug/run-prefilter-direct
+ (fn [db [_ family]]
+   (let [config (:config db)
+         res (case family
+               "weibull" (prefilter/apply-prefilter-weibull config)
+               "cure"    (prefilter/apply-prefilter-cure config)
+               "leaky"   (prefilter/apply-prefilter-leaky config)
+               [])]
+     (assoc-in db [:debug/prefilter family]
+               {:count (count res)
+                :samples (take 5 res)}))))

@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.4 — Aggregation optimization and advanced visualization results
+
+### Added
+- **Patients Alive at 80th Event distribution.** Added bivariate jittered
+  scatter plot comparing survivors in BAT and GPS arms at final analysis ($T_{80}$)
+  with a diagonal identity line ($Y=X$).
+- **BAT Alive Patients distribution.** Added probability density histogram and
+  cumulative CDF curve specifically tracking BAT survivors at $T_{80}$.
+- **Web Worker aggregation.** Offloaded heavy data processing, stratification,
+  binnings, and KM aggregation to background threads (Web Workers) to prevent
+  UI thread locking.
+- **Card and Tab layout.** Restructured results charts into uniform 360px cards
+  organized under interactive tabs for streamlined browsing.
+
+### Changed
+- **6x faster aggregation.** Optimized percentile sorting in `get-survival-stats`
+  by sorting parameters exactly once per step using zero-overhead JS sorting.
+- **Reinstated Successful Paths.** Re-integrated Successful Paths Hazard Ratio
+  distribution chart into the Paths tab.
+
 ## v0.3 — 78-event anchor + framework hardening
 
 ### Added

@@ -3,7 +3,7 @@
             ["@monaco-editor/react" :default MonacoEditor]))
 
 (defn code-editor
-  [{:keys [value on-change language theme height read-only?]}]
+  [{:keys [value on-change on-blur language theme height read-only?]}]
   [:div.border.rounded-lg.overflow-hidden
    {:style {:height (or height "400px")}}
    [:> MonacoEditor
@@ -12,4 +12,8 @@
      :theme (or theme "light")
      :options {:readOnly (boolean read-only?)}
      :value value
-     :onChange on-change}]])
+     :onChange on-change
+     :onMount (fn [editor]
+                (js-invoke editor "onDidBlurEditorText"
+                           (fn []
+                             (when on-blur (on-blur)))))}]])

@@ -10,23 +10,27 @@
             [re-frame.core :as rf]
             [fork.re-frame :as fork]
             [reitit.frontend.easy :as rfe]
-            [app.components.editor :refer [code-editor]]))
+            [app.components.editor :refer [code-editor]]
+            [app.components.tabs :refer [tab-bar]]))
 
 (def ^:private category->keys
   {:trial [:n-total :n-per-arm :enroll-bands :enforce-no-80-by-today
-           :no-80-slack-months]
+           :t-now :no-80-slack-months]
    :timing [:t-ia :tol-ia :t-upd :tol-upd :t-pr3 :tol-pr3 :use-pr3-anchor]
-   :bat [:bat-med-grid :bat-shape-grid :bat-strat-bin]
+   :bat [:bat-med-grid :bat-shape-grid :bat-strat-bin
+         :bat-leaky-cure-frac-grid :bat-leaky-unc-med-grid
+         :bat-leaky-unc-shape-grid :bat-leak-grid]
    :gps [:gps-med-grid-lo :gps-med-grid-hi :gps-med-grid-n :gps-shape-grid]
    :cure [:cure-frac-grid :cure-unc-med-grid :cure-unc-shape-grid]
    :leaky [:leaky-cure-frac-grid :leaky-unc-med-grid :leaky-unc-shape-grid
            :leak-grid]
    :prefilter [:prefilter-tol-ia :prefilter-tol-upd :prefilter-tol-pr3
                :tol-increment-ia-upd :tol-increment-upd-pr3
-               :pool-mos-min-at-ia]
+               :pool-mos-min-at-ia :bat-surv-36m-max]
    :other [:n-sims-screen :n-sims-per-combo :n-ev-ia :n-ev-upd :n-ev-pr3
            :n-ev-final :n-screen-min-pass :efficacy-hr-min :futility-hr-max
-           :median-fu-target :median-fu-tol :hr-threshold :seed :families]})
+           :median-fu-target :median-fu-tol :hr-threshold :seed :families
+           :n-sims-aggregation]})
 
 (defn config-form []
   (fn []
@@ -47,7 +51,13 @@
            :class (str "bg-blue-50 hover:bg-blue-100 "
                        "text-blue-700 border-blue-200")
            :on-click #(rf/dispatch [:reset-config state/light-config])}
-          "Light"]]]
+          "Light"]
+         [:button.px-3.py-1.text-xs.font-bold.rounded.border
+          {:type "button"
+           :class (str "bg-green-50 hover:bg-green-100 "
+                       "text-green-700 border-green-200")
+           :on-click #(rf/dispatch [:reset-config state/py-config])}
+          "Python"]]]
 
        [fork/form
         {:initial-values initial-config
@@ -86,40 +96,58 @@
   (reduce merge {} (vals nested)))
 
 (defn config-json []
-  (let [text-val (r/atom "")]
+  (let [local-text (r/atom "")
+        last-committed (atom "")
+        timer-id (atom nil)
+        focused? (r/atom false)
+        commit-changes!
+        (fn [val]
+          (when-let [tid @timer-id]
+            (js/clearTimeout tid)
+            (reset! timer-id nil))
+          (when-not (= val @last-committed)
+            (try
+              (let [nested (js->clj (js/JSON.parse val)
+                                    :keywordize-keys true)]
+                (rf/dispatch [:update-config (nested->config nested)])
+                (reset! last-committed val))
+              (catch js/Error _))))]
     (fn []
       (let [config @(rf/subscribe [:config])
             nested-config (config->nested config)
-            expected-json (js/JSON.stringify (clj->js nested-config) nil 2)]
-        (when-not (= (try (js->clj (js/JSON.parse @text-val)
-                                   :keywordize-keys true)
-                          (catch js/Error _ nil))
-                     nested-config)
-          (reset! text-val expected-json))
+            expected-json (js/JSON.stringify
+                           (clj->js nested-config) nil 2)]
+        (when-not @focused?
+          (when-not (= (try (js->clj (js/JSON.parse @local-text)
+                                     :keywordize-keys true)
+                            (catch js/Error _ nil))
+                       nested-config)
+            (reset! local-text expected-json)
+            (reset! last-committed expected-json)))
         [:div.p-4
          [:h2.text-xl.font-bold.mb-4 "Config (JSON)"]
          [code-editor
           {:height "600px"
            :language "json"
-           :value @text-val
+           :value @local-text
            :on-change (fn [val _]
-                        (reset! text-val val)
-                        (try
-                          (let [nested (js->clj
-                                        (js/JSON.parse val)
-                                        :keywordize-keys true)]
-                            (rf/dispatch [:update-config
-                                          (nested->config nested)]))
-                          (catch js/Error _)))}]
+                        (reset! local-text val)
+                        (reset! focused? true)
+                        (when-let [tid @timer-id]
+                          (js/clearTimeout tid))
+                        (reset! timer-id
+                                (js/setTimeout
+                                 #(do (commit-changes! val)
+                                      (reset! focused? false))
+                                 2000)))
+           :on-blur (fn []
+                      (commit-changes! @local-text)
+                      (reset! focused? false))}]
          [:button.bg-blue-500.text-white.px-4.py-2.mt-4.rounded
           {:type "button"
            :on-click (fn []
-                       (try
-                         (let [nested (js->clj
-                                       (js/JSON.parse @text-val)
-                                       :keywordize-keys true)]
-                           (rf/dispatch [:update-config (nested->config nested)]))
-                         (catch js/Error _))
+                       (commit-changes! @local-text)
+                       (reset! focused? false)
                        (sim/start-simulation!)
                        (rf/dispatch [:set-view :results]))}
           "Run Simulation"]]))))
@@ -134,6 +162,7 @@
      (for [[page label] [[:home "Home"]
                          [:fitter "Fitter"]
                          [:placebo-stress "Placebo Stress"]
+                         [:power-analysis "Power Simulation"]
                          [:discovery "Discovery"]]]
        ^{:key page}
        [:a.px-3.py-2.rounded-lg.text-sm.font-medium.transition-colors
@@ -150,31 +179,15 @@
           version @(rf/subscribe [:config-version])
           error-msg @(rf/subscribe [:error-message])]
       [:div
-       [:div.flex.gap-4.mb-4
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :config-form)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "config-form"})}
-         "Form View"]
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :config-json)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "config-json"})}
-         "JSON View"]
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :results)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "results"})}
-         "Results"]
-        [:a.px-4.py-2.rounded.inline-block.text-center
-         {:class (if (= view :enrollment)
-                   "bg-gray-800 text-white"
-                   "bg-gray-200")
-          :href (rfe/href :fitter-sub {:subtab "enrollment"})}
-         "Enrollment"]]
+       [tab-bar
+        {:active-tab view
+         :tabs [[:config-form "Form View"]
+                [:config-json "JSON View"]
+                [:results "Results"]
+                [:enrollment "Enrollment"]]
+         :on-change #(rfe/push-state :fitter-sub {:subtab (name %)})
+         :container-class "bg-transparent mb-4 p-0"
+         :button-class "bg-gray-800 text-white shadow-sm font-semibold"}]
        (when (#{:running-stage1 :running-stage2} status)
          [:div.bg-yellow-100.p-4.mb-4.rounded
           {:class "flex justify-between items-center"}
@@ -206,5 +219,6 @@
           :home [views/home-view]
           :fitter ^{:key view} [fitter-page]
           :placebo-stress [views/placebo-stress-view]
+          :power-analysis [views/power-analysis-view]
           :discovery [views/discovery-view]
           [views/home-view])]])))

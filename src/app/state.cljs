@@ -4,71 +4,95 @@
             [reagent.core :as r]
             [reitit.frontend.easy :as rfe]))
 
+(defn- cfg-today-month []
+  (let [base-time (.getTime (js/Date. 2021 1 8)) ;; Feb 8, 2021 (month index 1)
+        today-time (.getTime (js/Date.))
+        diff-ms (- today-time base-time)
+        diff-days (/ diff-ms 86400000.0)]
+    (/ diff-days 30.4375)))
+
 ;; --- Default Config ---
 (def default-config
-  {:n-total 126
-   :n-per-arm 63
-   :enroll-bands
-   [[0.0, 12.0, 15]     ;; Year 1
-    [12.0, 24.0, 50]    ;; Year 2
-    [24.0, 36.0, 56]    ;; Year 3
-    [36.0, 38.0, 5]]
+  (let [censor-factor 1.00]
+    {:prefilter-top-k 20000
 
-   :t-ia 46.0
-   :t-upd 58.0
-   :t-pr3 62.97
-   :n-ev-ia 60
-   :n-ev-upd 72
-   :n-ev-pr3 78
-   :n-ev-final 80
-   :use-pr3-anchor true
+     :n-total 126
+     :n-per-arm 63
+     :enroll-bands
+     [[0 12 17] ;; Year 1
+      [12 24 40]  ;; Year 2
+      [24 36 60] ;; Year 3
+      [36 38 9]]
 
-   :prefilter-tol-ia 3.5
-   :prefilter-tol-upd 3.5
-   :prefilter-tol-pr3 3.5
-   :tol-ia 5
-   :tol-upd 1.5
-   :tol-pr3 1
+     #_[[0.0, 12.0, 15]     ;; Year 1
+      [12.0, 24.0, 50]    ;; Year 2
+      [24.0, 36.0, 56]    ;; Year 3
+      [36.0, 38.0, 5]]
 
-   :tol-increment-ia-upd 3
-   :tol-increment-upd-pr3 3
+     :t-ia 46.0
+     :t-upd 58.0
+     :t-pr3 62.97
+     :n-ev-ia (* 60 censor-factor)
+     :n-ev-upd (* 72 censor-factor)
+     :n-ev-pr3 (* 78 censor-factor)
+     :n-ev-final (* 80 censor-factor)
+     :use-pr3-anchor true
 
-   :futility-hr-max 0.75
-   :efficacy-hr-min 0.35
+     :prefilter-tol-ia 1.5
+     :prefilter-tol-upd 1.5
+     :prefilter-tol-pr3 1.5
 
-   :pool-mos-min-at-ia 12
-   :median-fu-target 13.5
-   :median-fu-tol 3.0
+     :tol-ia 4
+     :tol-upd 4
+     :tol-pr3 2
 
-   :enforce-no-80-by-today true
-   :no-80-slack-months 1.0
-   :bat-strat-bin 0.5
+     :tol-increment-ia-upd 3
+     :tol-increment-upd-pr3 3
 
-   :hr-threshold 0.636
+     :futility-hr-max 0.84
+     :efficacy-hr-min 0.40
+     :bat-surv-36m-max 0.3
 
-   :n-sims-per-combo 500
-   :n-sims-screen 50
-   :n-screen-min-pass 1
-   :seed 20260508
+     :pool-mos-min-at-ia 12
+     :median-fu-target 13.5
+     :median-fu-tol 5.0
 
-   :bat-med-grid [8 22 1]
-   :bat-shape-grid [0.8 1.01 0.1]
+     :enforce-no-80-by-today true
+     :t-now (cfg-today-month)
+     :no-80-slack-months 1.0
+     :bat-strat-bin 0.5
 
-   :gps-med-grid-lo 20.0
-   :gps-med-grid-hi 60.0
-   :gps-med-grid-n 2
-   :gps-shape-grid [0.6 1.0 0.1]
+     :hr-threshold 0.636
 
-   :cure-frac-grid [0.2 0.8 0.1]
-   :cure-unc-med-grid [15 60 5]
-   :cure-unc-shape-grid [0.6 1.0 0.1]
+     :n-sims-per-combo 1024
+     :n-sims-screen 256
+     :n-screen-min-pass 1
+     :seed 20260508
 
-   :leaky-cure-frac-grid [0.2 0.6 0.1]
-   :leaky-unc-med-grid [15 60 5]
-   :leaky-unc-shape-grid [0.7 1.01 0.1]
-   :leak-grid [0.02 0.07 0.01]
+     :bat-med-grid [4 20 0.5]
+     :bat-shape-grid [0.7 1.0 0.1]
 
-   :families ["leaky"]})
+     :gps-med-grid-lo 20.0
+     :gps-med-grid-hi 60.0
+     :gps-med-grid-n 2
+     :gps-shape-grid [0.6 1 0.1]
+
+     :cure-frac-grid [0.2 0.8 0.1]
+     :cure-unc-med-grid [10 58 4]
+     :cure-unc-shape-grid [0.6 1.6 0.2]
+
+     :leaky-cure-frac-grid [0.0 0.9 0.1]
+     :leaky-unc-med-grid [10 60 5]
+     :leaky-unc-shape-grid [0.6 1.2 0.1]
+     :leak-grid [0.03 0.1 0.01]
+
+     :bat-leaky-cure-frac-grid [0.0 0.3 0.1]
+     :bat-leaky-unc-med-grid [5 30 0.5]
+     :bat-leaky-unc-shape-grid [0.7 1.0 0.1]
+     :bat-leak-grid [0.03 0.09 0.02]
+
+     :families ["leaky"]
+     :n-sims-aggregation 10000}))
 
 (def light-config
   (assoc default-config
@@ -79,6 +103,78 @@
          :n-sims-per-combo 100
          :n-sims-screen 10
          :families ["weibull"]))
+
+(def py-config
+  {:n-total 126
+   :n-per-arm 63
+   :enroll-bands
+   [[0.0 12.0 15]
+    [12.0 24.0 50]
+    [24.0 36.0 56]
+    [36.0 38.0 5]]
+
+   :t-ia 46.0
+   :t-upd 58.0
+   :t-pr3 62.97
+   :n-ev-ia 60
+   :n-ev-upd 72
+   :n-ev-pr3 78
+   :n-ev-final 80
+   :use-pr3-anchor true
+
+   :prefilter-tol-ia 1.5
+   :prefilter-tol-upd 1.5
+   :prefilter-tol-pr3 1.5
+
+   :tol-ia 4.0
+   :tol-upd 4.0
+   :tol-pr3 2.0
+   :tol-increment-ia-upd 3.0
+   :tol-increment-upd-pr3 2.0
+
+   :futility-hr-max 0.83
+   :efficacy-hr-min 0.40
+
+   :pool-mos-min-at-ia 12.0
+   :median-fu-target 13.5
+   :median-fu-tol 2.0
+   :enforce-no-80-by-today true
+   :t-now (cfg-today-month)
+
+   :no-80-slack-months 1.0
+
+   :bat-strat-bin 1.0
+   :hr-threshold 0.636
+   :n-sims-per-combo 1000
+   :n-sims-screen 250
+   :n-screen-min-pass 1
+   :seed 20260508
+
+   :bat-med-grid [4.0 30.0 0.5]
+   :bat-shape-grid [0.5 2.01 0.1]
+
+   :gps-med-grid-lo 8.0
+   :gps-med-grid-hi 250.0
+   :gps-med-grid-n 36
+   :gps-shape-grid [0.5 2.01 0.1]
+
+   :cure-frac-grid [0.0 0.951 0.05]
+   :cure-unc-med-grid [4.0 30.0 1.0]
+   :cure-unc-shape-grid [0.5 2.01 0.25]
+
+   :leaky-cure-frac-grid [0.0 0.91 0.1]
+   :leaky-unc-med-grid [4.0 30.0 2.0]
+   :leaky-unc-shape-grid [0.5 2.01 0.5]
+   :leak-grid [0.0 0.101 0.01]
+
+   :bat-leaky-cure-frac-grid [0.0 0.3 0.05]
+   :bat-leaky-unc-med-grid [10 60 5]
+   :bat-leaky-unc-shape-grid [0.6 1.2 0.1]
+   :bat-leak-grid [0.03 0.1 0.01]
+
+   :families ["weibull" "cure" "leaky"]
+
+   :n-sims-aggregation 5000})
 
 (def config-schema
   [:map
@@ -93,6 +189,8 @@
    [:n-ev-pr3 :int]
    [:n-ev-final :int]
    [:use-pr3-anchor :boolean]
+
+   [:bat-surv-36m-max :number]
 
    [:prefilter-tol-ia :number]
    [:prefilter-tol-upd :number]
@@ -112,6 +210,7 @@
    [:median-fu-tol :number]
 
    [:enforce-no-80-by-today :boolean]
+   [:t-now :number]
    [:no-80-slack-months :number]
    [:bat-strat-bin :number]
 
@@ -138,7 +237,13 @@
    [:leaky-unc-shape-grid [:vector :number]]
    [:leak-grid [:vector :number]]
 
-   [:families [:vector :string]]])
+   [:bat-leaky-cure-frac-grid [:vector :number]]
+   [:bat-leaky-unc-med-grid [:vector :number]]
+   [:bat-leaky-unc-shape-grid [:vector :number]]
+   [:bat-leak-grid [:vector :number]]
+
+   [:families [:vector :string]]
+   [:n-sims-aggregation :int]])
 
 (def default-stress-test-config
   {:mos-grid [8 31 1]
@@ -186,7 +291,9 @@
            :power-config default-power-config
            :enrollment-mode {:mode :manual
                              :median-month 30
-                             :k 0.1}
+                             :k 0.1
+                             :n-samples 100
+                             :window-param 2}
            :status :idle ;; :idle, :running-stage1, :running-stage2, :done, :error
            :stress-test-status :idle
            :progress {:total 0 :completed 0}
@@ -225,67 +332,6 @@
  :app-state
  (fn [new-state]
    (reset! app-state new-state)))
-
-(rf/reg-fx
- :decode-url-state
- (fn [{:keys [page state-str]}]
-   #_(-> (state-url/decode-state state-str)
-         (.then (fn [decoded]
-                  (rf/dispatch [:apply-decoded-state page decoded]))))))
-
-(rf/reg-event-fx
- :apply-decoded-state
- [(rf/inject-cofx :app-state)]
- (fn [{:keys [app-state]} [_ page decoded]]
-   #_(let [new-state (cond
-                       (#{:fitter :fitter-sub} page)
-                       (update app-state :config merge decoded)
-
-                       (= page :placebo-stress)
-                       (update app-state :stress-test-config merge decoded)
-
-                       (#{:discovery :discovery-sub} page)
-                       (update-in app-state [:discovery :params] merge decoded)
-
-                       :else
-                       app-state)]
-       {:app-state new-state})))
-
-(rf/reg-event-fx
- :navigate
- [(rf/inject-cofx :app-state)]
- (fn [{:keys [app-state]} [_ page path-params query-params]]
-   (let [new-state (cond
-                     (#{:fitter-sub :fitter-sub-state} page)
-                     (assoc app-state :active-page :fitter
-                            :view (keyword (:subtab path-params)))
-
-                     (#{:discovery-sub :discovery-sub-state} page)
-                     (-> app-state
-                         (assoc :active-page :discovery)
-                         (assoc-in [:discovery :active-family]
-                                   (:subtab path-params)))
-
-                     (#{:fitter :fitter-state} page)
-                     (assoc app-state :active-page :fitter :view :config-form)
-
-                     (#{:discovery :discovery-state} page)
-                     (-> app-state
-                         (assoc :active-page :discovery)
-                         (assoc-in [:discovery :active-family] "weibull"))
-
-                     (#{:placebo-stress :placebo-stress-state} page)
-                     (assoc app-state :active-page :placebo-stress)
-
-                     :else
-                     (assoc app-state :active-page page))
-         new-state (assoc new-state :current-route
-                          {:page page
-                           :path-params path-params})
-         effects {:app-state new-state}]
-     (if-let [state-str (or (:state path-params) #_(:state query-params))]
-       (assoc effects :decode-url-state {:page page :state-str state-str})
-       effects))))
 
 (defn- sync-to-url! [data]
   #_(let [clean (if (map? data)

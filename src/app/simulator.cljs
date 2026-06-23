@@ -16,19 +16,11 @@
 (defn init! []
   (log "Simulator init. Pyodide removed. Ready."))
 
-(defn- run-stage1! [family cfg]
-  (try
-    (cond
-      (= family "weibull") (prefilter/apply-prefilter-weibull cfg)
-      (= family "cure")    (prefilter/apply-prefilter-cure cfg)
-      (= family "leaky")   (prefilter/apply-prefilter-leaky cfg))
-    (catch js/Error e
-      (js/console.error "Stage 1 Error:" e)
-      (throw e))))
+
 
 (defn- cached-submit-job! [data callback]
   (go
-    (let [k (db/hash-key data)
+    (let [k (<! (db/hash-key data))
           cached (<! (db/get-cache k))]
       (if cached
         (callback {:success? true :result cached})
@@ -39,31 +31,69 @@
              (db/set-cache k (:result res)))
            (callback res)))))))
 
-(defn- submit-simulation-jobs! [config all-accepted families results completed
-                                total start-time]
+(defn- submit-simulation-jobs!
+  [config all-accepted families results completed total start-time]
   (wp/clear-queue!)
   (if (= total 0)
     (do (rf/dispatch [:set-status :done])
         (rf/dispatch [:set-view :results]))
-    (doseq [fam families]
-      (let [fam-kw (keyword fam)]
-        (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
+    (let [all-combos (js/Array.)]
+      (doseq [fam families]
+        (let [fam-kw (keyword fam)]
+          (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
+            (.push all-combos {:rec rec :idx idx :family fam}))))
+      (let [combos-vec (js->clj all-combos :keywordize-keys true)
+            chunk-size 32
+            chunks (partition-all chunk-size combos-vec)]
+        (doseq [chunk chunks]
           (cached-submit-job!
-           {:rec rec
-            :cfg-dict config
-            :n-sims (:n-sims-per-combo config)
-            :seed (+ (:seed config) (* idx 7919))}
+           {:type "RUN_SIMULATION_BATCH"
+            :combos chunk
+            :config config}
            (fn [{:keys [success? result error]}]
-             (swap! completed inc)
+             (swap! completed + (count chunk))
              (rf/dispatch [:set-progress total @completed])
              (when (and success? result)
-               (swap! results update fam-kw (fnil conj []) result))
-             (when (= @completed total)
+               (dotimes [i (count chunk)]
+                 (let [combo (nth chunk i)
+                       res (nth result i)
+                       fam-kw (keyword (:family combo))]
+                   (when res
+                     (swap! results update fam-kw (fnil conj []) res)))))
+             (when (>= @completed total)
                (log (str "All simulations done in "
                          (/ (- (js/Date.now) start-time) 1000) "s"))
                (rf/dispatch [:set-status :done])
                (rf/dispatch [:set-results @results])
                (rf/dispatch [:set-view :results])))))))))
+
+(rf/reg-event-db
+ :clear-prefilter-results
+ (fn [db _]
+   (assoc db :prefilter-results {})))
+
+(rf/reg-event-fx
+ :prefilter-done
+ (fn [{:keys [db]} [_ fam result]]
+   (let [new-results (assoc (:prefilter-results db) (keyword fam) result)
+         new-db (assoc db :prefilter-results new-results)
+         families (:families (:config db))]
+     (if (= (count new-results) (count families))
+       {:db new-db
+        :dispatch [:start-stage2]}
+       {:db new-db}))))
+
+(rf/reg-event-fx
+ :start-stage2
+ (fn [{:keys [db]} _]
+   (let [all-accepted (:prefilter-results db)
+         families (:families (:config db))
+         total-combos (reduce + (map count (vals all-accepted)))]
+     (submit-simulation-jobs! (:config db) all-accepted families
+                              (atom {}) (atom 0) total-combos (js/Date.now))
+     {:db db
+      :dispatch-n [[:set-status :running-stage2]
+                   [:set-progress total-combos 0]]})))
 
 (defn start-simulation! []
   (let [config (:config @rf-db/app-db)
@@ -71,24 +101,23 @@
     (rf/dispatch [:set-status :running-stage1])
     (rf/dispatch [:set-results {}])
     (rf/dispatch [:set-error nil])
-    (go
-      (<! (timeout 50))
-      (try
-        (let [all-accepted (reduce (fn [acc fam]
-                                     (log (str "Running Stage 1 for " fam))
-                                     (let [accepted (run-stage1! fam config)]
-                                       (log (str fam " accepted: "
-                                                 (count accepted)))
-                                       (assoc acc (keyword fam) accepted)))
-                                   {} families)
-              total-combos (reduce + (map count (vals all-accepted)))]
-          (rf/dispatch [:set-status :running-stage2])
-          (rf/dispatch [:set-progress total-combos 0])
-          (submit-simulation-jobs! config all-accepted families (atom {})
-                                   (atom 0) total-combos (js/Date.now)))
-        (catch js/Error e
-          (rf/dispatch [:set-status :error])
-          (rf/dispatch [:set-error (.-message e)]))))))
+    (rf/dispatch [:clear-prefilter-results])
+    (doseq [fam families]
+      (log (str "Submitting Stage 1 for " fam))
+      (cached-submit-job!
+       {:type    "RUN_PREFILTER"
+        :version 3
+        :family  fam
+        :top-k   (:prefilter-top-k config)
+        :config  config}
+       (fn [{:keys [success? result error]}]
+         (if success?
+           (do
+             (log (str fam " accepted: " (count result)))
+             (rf/dispatch [:prefilter-done fam result]))
+           (do
+             (js/console.error "Prefilter error for" fam error)
+             (rf/dispatch [:prefilter-done fam []]))))))))
 
 (defn abort-simulation! []
   (wp/abort-pool!)
@@ -130,12 +159,13 @@
                :unc-shape unc-shape))
 
       (= family "leaky")
-      (let [unc-med-arr (np/array #js [(:gps-med params)])
-            unc-shape-arr (np/array #js [(:weibull-k params)])
+      (let [unc-med   (or (:gps-unc-med params) (:gps-med params))
+            unc-shape (or (:gps-unc-shape params) (:weibull-k params))
+            unc-med-arr   (np/array #js [unc-med])
+            unc-shape-arr (np/array #js [unc-shape])
             unc-scale (.item (survival/weibull-scale-from-median
                               unc-med-arr unc-shape-arr)
-                             0)
-            unc-shape (:weibull-k params)]
+                             0)]
         (assoc rec
                :cure-frac (:cure-frac params)
                :unc-scale unc-scale
@@ -192,13 +222,8 @@
                        (nth k-grid-cfg 2))
         combos (for [mos mos-vals
                      k k-vals]
-                 {:type "RUN_STRESS_TEST"
-                  :mos mos
-                  :k k
-                  :n-sims (:n-sims config)
-                  :seed (+ (:seed config)
-                           (js/Math.floor (* (js/Math.random) 100000)))
-                  :config config})
+                 {:mos mos
+                  :k k})
         total-combos (count combos)]
     (rf/dispatch [:set-stress-test-status :running])
     (rf/dispatch [:set-stress-test-results []])
@@ -207,19 +232,34 @@
     (wp/clear-queue!)
     (if (= total-combos 0)
       (rf/dispatch [:set-stress-test-status :done])
-      (let [completed (atom 0)
+      (let [num-workers (js/Math.max 1 (+ (count @wp/pool)
+                                          (count @wp/busy-workers)))
+            chunk-size (js/Math.ceil (/ total-combos num-workers))
+            chunks (partition-all chunk-size combos)
+            completed (atom 0)
             results (atom [])
-            start-time (js/Date.now)]
-        (doseq [combo combos]
+            start-time (js/Date.now)
+            has-error (atom false)]
+        (doseq [chunk chunks]
           (cached-submit-job!
-           combo
+           {:type "RUN_STRESS_TEST_BATCH"
+            :combos chunk
+            :config config}
            (fn [{:keys [success? result error]}]
-             (swap! completed inc)
-             (rf/dispatch [:set-stress-test-progress total-combos @completed])
-             (when (and success? result)
-               (swap! results conj result))
-             (when (= @completed total-combos)
-               (log (str "Stress test simulations done in "
-                         (/ (- (js/Date.now) start-time) 1000) "s"))
-               (rf/dispatch [:set-stress-test-status :done])
-               (rf/dispatch [:set-stress-test-results @results])))))))))
+             (if success?
+               (when (not @has-error)
+                 (swap! completed + (count chunk))
+                 (swap! results into result)
+                 (rf/dispatch
+                  [:set-stress-test-progress total-combos @completed])
+                 (when (>= @completed total-combos)
+                   (log (str "Stress test done in "
+                             (/ (- (js/Date.now) start-time) 1000) "s"))
+                   (rf/dispatch [:set-stress-test-status :done])
+                   (rf/dispatch
+                    [:set-stress-test-results
+                     (vec (sort-by (juxt :mos :k) @results))])))
+               (do
+                 (reset! has-error true)
+                 (rf/dispatch [:set-stress-test-status :error])
+                 (rf/dispatch [:set-error error]))))))))))

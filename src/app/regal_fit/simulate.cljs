@@ -12,42 +12,63 @@
   ([config enroll-times survival-times n-total]
    (count-events-at-times config enroll-times survival-times nil n-total))
   ([config enroll-times survival-times arms-array n-total]
-   (loop [i 0
-          n-interim-analysis 0
-          n-update 0
-          n-press-release-3 0
-          n-interim-analysis-bat 0
-          n-interim-analysis-gps 0
-          n-update-bat 0
-          n-update-gps 0
-          n-press-release-3-bat 0
-          n-press-release-3-gps 0]
-     (if (< i n-total)
-       (let [enroll   (aget enroll-times i)
-             survival (aget survival-times i)
-             arm      (when arms-array (aget arms-array i))
-             dead-ia  (<= survival
-                          (js/Math.max (- (:t-ia config) enroll) 0.0))
-             dead-up  (<= survival
-                          (js/Math.max (- (:t-upd config) enroll) 0.0))
-             dead-pr3 (and (:use-pr3-anchor config)
-                           (<= survival
-                               (js/Math.max (- (:t-pr3 config) enroll)
-                                            0.0)))]
-         (recur (inc i)
-                (if dead-ia (inc n-interim-analysis) n-interim-analysis)
-                (if dead-up (inc n-update) n-update)
-                (if dead-pr3 (inc n-press-release-3) n-press-release-3)
-                (if (and dead-ia arm (== arm 0)) (inc n-interim-analysis-bat) n-interim-analysis-bat)
-                (if (and dead-ia arm (not (== arm 0))) (inc n-interim-analysis-gps) n-interim-analysis-gps)
-                (if (and dead-up arm (== arm 0)) (inc n-update-bat) n-update-bat)
-                (if (and dead-up arm (not (== arm 0))) (inc n-update-gps) n-update-gps)
-                (if (and dead-pr3 arm (== arm 0)) (inc n-press-release-3-bat) n-press-release-3-bat)
-                (if (and dead-pr3 arm (not (== arm 0))) (inc n-press-release-3-gps) n-press-release-3-gps)))
-       {:n-interim-analysis n-interim-analysis :n-update n-update :n-press-release-3 n-press-release-3
-        :n-interim-analysis-bat n-interim-analysis-bat   :n-interim-analysis-gps n-interim-analysis-gps
-        :n-update-bat n-update-bat   :n-update-gps n-update-gps
-        :n-press-release-3-bat n-press-release-3-bat :n-press-release-3-gps n-press-release-3-gps}))))
+   (let [t-ia (:t-ia config)
+         t-upd (:t-upd config)
+         t-pr3 (:t-pr3 config)
+         use-pr3-anchor (:use-pr3-anchor config)]
+     (loop [i 0
+            n-interim-analysis 0
+            n-update 0
+            n-press-release-3 0
+            n-interim-analysis-bat 0
+            n-interim-analysis-gps 0
+            n-update-bat 0
+            n-update-gps 0
+            n-press-release-3-bat 0
+            n-press-release-3-gps 0]
+       (if (< i n-total)
+         (let [enroll   (aget enroll-times i)
+               survival (aget survival-times i)
+               arm      (when arms-array (aget arms-array i))
+               dead-ia  (<= survival
+                            (js/Math.max (- t-ia enroll) 0.0))
+               dead-up  (<= survival
+                            (js/Math.max (- t-upd enroll) 0.0))
+               dead-pr3 (and use-pr3-anchor
+                             (<= survival
+                                 (js/Math.max (- t-pr3 enroll)
+                                              0.0)))]
+           (recur (inc i)
+                  (if dead-ia (inc n-interim-analysis) n-interim-analysis)
+                  (if dead-up (inc n-update) n-update)
+                  (if dead-pr3 (inc n-press-release-3) n-press-release-3)
+                  (if (and dead-ia arm (== arm 0))
+                    (inc n-interim-analysis-bat)
+                    n-interim-analysis-bat)
+                  (if (and dead-ia arm (not (== arm 0)))
+                    (inc n-interim-analysis-gps)
+                    n-interim-analysis-gps)
+                  (if (and dead-up arm (== arm 0))
+                    (inc n-update-bat)
+                    n-update-bat)
+                  (if (and dead-up arm (not (== arm 0)))
+                    (inc n-update-gps)
+                    n-update-gps)
+                  (if (and dead-pr3 arm (== arm 0))
+                    (inc n-press-release-3-bat)
+                    n-press-release-3-bat)
+                  (if (and dead-pr3 arm (not (== arm 0)))
+                    (inc n-press-release-3-gps)
+                    n-press-release-3-gps)))
+         {:n-interim-analysis n-interim-analysis
+          :n-update n-update
+          :n-press-release-3 n-press-release-3
+          :n-interim-analysis-bat n-interim-analysis-bat
+          :n-interim-analysis-gps n-interim-analysis-gps
+          :n-update-bat n-update-bat
+          :n-update-gps n-update-gps
+          :n-press-release-3-bat n-press-release-3-bat
+          :n-press-release-3-gps n-press-release-3-gps})))))
 
 (defn- js-median
   "Returns the median of a plain JS array (sorts in place)."
@@ -65,44 +86,51 @@
   "For each milestone interval, collects survival times of patients
    dying in that interval per arm and returns their medians."
   [config enroll-times survival-times arms-array n-total]
-  (let [interim-analysis-bat  (js/Array.) interim-analysis-gps  (js/Array.)
-        update-bat  (js/Array.) update-gps  (js/Array.)
-        press-release-3-bat (js/Array.) press-release-3-gps (js/Array.)]
+  (let [t-ia (:t-ia config)
+        t-upd (:t-upd config)
+        t-pr3 (:t-pr3 config)
+        use-pr3-anchor (:use-pr3-anchor config)
+        interim-analysis-bat  (js/Array.)
+        interim-analysis-gps  (js/Array.)
+        update-bat  (js/Array.)
+        update-gps  (js/Array.)
+        press-release-3-bat (js/Array.)
+        press-release-3-gps (js/Array.)]
     (dotimes [i n-total]
       (let [enroll   (aget enroll-times i)
             survival (aget survival-times i)
             arm      (aget arms-array i)
             dead-ia  (<= survival
-                         (js/Math.max (- (:t-ia config) enroll) 0.0))
+                         (js/Math.max (- t-ia enroll) 0.0))
             dead-up  (<= survival
-                         (js/Math.max (- (:t-upd config) enroll) 0.0))
-            dead-pr3 (and (:use-pr3-anchor config)
+                         (js/Math.max (- t-upd enroll) 0.0))
+            dead-pr3 (and use-pr3-anchor
                           (<= survival
-                              (js/Math.max
-                               (- (:t-pr3 config) enroll) 0.0)))]
+                              (js/Math.max (- t-pr3 enroll) 0.0)))]
         (when dead-ia
           (if (== arm 0)
-            (.push interim-analysis-bat survival) (.push interim-analysis-gps survival)))
+            (.push interim-analysis-bat survival)
+            (.push interim-analysis-gps survival)))
         (when (and dead-up (not dead-ia))
           (if (== arm 0)
-            (.push update-bat survival) (.push update-gps survival)))
+            (.push update-bat survival)
+            (.push update-gps survival)))
         (when (and dead-pr3 (not dead-up))
           (if (== arm 0)
-            (.push press-release-3-bat survival) (.push press-release-3-gps survival)))))
-    (let [pool (fn [a b]
-                 (let [c (js/Array.)]
-                   (dotimes [i (.-length a)] (.push c (aget a i)))
-                   (dotimes [i (.-length b)] (.push c (aget b i)))
-                   c))]
+            (.push press-release-3-bat survival)
+            (.push press-release-3-gps survival)))))
+    (let [pool (fn [a b] (.concat a b))]
       {:med-interim-analysis-bat   (js-median interim-analysis-bat)
        :med-interim-analysis-gps   (js-median interim-analysis-gps)
-       :med-interim-analysis-pool  (js-median (pool interim-analysis-bat interim-analysis-gps))
+       :med-interim-analysis-pool
+       (js-median (pool interim-analysis-bat interim-analysis-gps))
        :med-update-bat   (js-median update-bat)
        :med-update-gps   (js-median update-gps)
        :med-update-pool  (js-median (pool update-bat update-gps))
        :med-press-release-3-bat  (js-median press-release-3-bat)
        :med-press-release-3-gps  (js-median press-release-3-gps)
-       :med-press-release-3-pool (js-median (pool press-release-3-bat press-release-3-gps))})))
+       :med-press-release-3-pool
+       (js-median (pool press-release-3-bat press-release-3-gps))})))
 
 (defn- pass-events-tolerance?
   "Checks if event counts are within configured tolerances."
@@ -120,23 +148,30 @@
 (defn- interim-analysis-data
   "Extracts data for interim analysis."
   [config enroll-times survival-times arms-array n-total]
-  (let [time-ia (js/Float64Array. n-total)
-        event-ia (js/Int32Array. n-total)
-        counts (loop [i 0 alive-bat 0 alive-gps 0]
-                 (if (< i n-total)
-                   (let [fu-ia (js/Math.max (- (:t-ia config) (aget enroll-times i)) 0.0)
-                         fu-up (js/Math.max (- (:t-upd config) (aget enroll-times i)) 0.0)
-                         survival (aget survival-times i)
-                         arm (aget arms-array i)]
-                     (aset time-ia i (js/Math.min survival fu-ia))
-                     (aset event-ia i (if (<= survival fu-ia) 1 0))
-                     (if (> survival fu-up)
-                       (recur (inc i)
-                              (if (== arm 0) (inc alive-bat) alive-bat)
-                              (if (not (== arm 0)) (inc alive-gps) alive-gps))
-                       (recur (inc i) alive-bat alive-gps)))
-                   {:alive-bat alive-bat :alive-gps alive-gps}))]
-    {:time-ia time-ia :event-ia event-ia :alive-bat (:alive-bat counts) :alive-gps (:alive-gps counts)}))
+  (let [t-ia (:t-ia config)
+        t-upd (:t-upd config)
+        time-ia (js/Float64Array. n-total)
+        event-ia (js/Int32Array. n-total)]
+    (let [counts (loop [i 0 alive-bat 0 alive-gps 0]
+                   (if (< i n-total)
+                     (let [fu-ia (js/Math.max
+                                  (- t-ia (aget enroll-times i)) 0.0)
+                           fu-up (js/Math.max
+                                  (- t-upd (aget enroll-times i)) 0.0)
+                           survival (aget survival-times i)
+                           arm (aget arms-array i)]
+                       (aset time-ia i (js/Math.min survival fu-ia))
+                       (aset event-ia i (if (<= survival fu-ia) 1 0))
+                       (if (> survival fu-up)
+                         (recur (inc i)
+                                (if (== arm 0) (inc alive-bat) alive-bat)
+                                (if (not (== arm 0)) (inc alive-gps) alive-gps))
+                         (recur (inc i) alive-bat alive-gps)))
+                     {:alive-bat alive-bat :alive-gps alive-gps}))]
+      {:time-ia time-ia
+       :event-ia event-ia
+       :alive-bat (:alive-bat counts)
+       :alive-gps (:alive-gps counts)})))
 
 (defn- analyze-interim
   "Performs log-rank analysis for the interim analysis (IA)."
@@ -186,10 +221,26 @@
                   (>= t80 (- (or (:t-now config) 63) (:no-80-slack-months config)))
                   true)]
       (if-not (and reached today)
-        {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN}
-        (let [{:keys [time-fin ev-fin]} (calculate-final-times t80 n-total enroll-times survival-times)
-              [z-fin hr-fin] (stats/logrank-z (np/array time-fin) (np/array ev-fin) (np/array arms-array))]
-          {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin})))))
+        {:reached false :t80 t80 :hr-final js/NaN :z-final js/NaN
+         :bat-alive-final js/NaN :gps-alive-final js/NaN}
+        (let [{:keys [time-fin ev-fin]}
+              (calculate-final-times t80 n-total enroll-times survival-times)
+              [z-fin hr-fin]
+              (stats/logrank-z (np/array time-fin)
+                               (np/array ev-fin)
+                               (np/array arms-array))
+              bat-alive (volatile! 0)
+              gps-alive (volatile! 0)]
+          (dotimes [i n-total]
+            (let [enr (aget enroll-times i)
+                  surv (aget survival-times i)
+                  arm (aget arms-array i)]
+              (when (and (<= enr t80) (> (+ enr surv) t80))
+                (if (zero? arm)
+                  (vswap! bat-alive inc)
+                  (vswap! gps-alive inc)))))
+          {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin
+           :bat-alive-final @bat-alive :gps-alive-final @gps-alive})))))
 
 (defn- calculate-trial-stats
   "Computes all statistics for a successfully screened trial."
@@ -214,6 +265,8 @@
                     :z-final (:z-final final-res)
                     :bat-alive-upd (:alive-bat interim-res)
                     :gps-alive-upd (:alive-gps interim-res)
+                    :bat-alive-final (:bat-alive-final final-res)
+                    :gps-alive-final (:gps-alive-final final-res)
                     ;; Per-arm cumulative event counts
                     :n-interim-analysis-bat  (:n-interim-analysis-bat counts)
                     :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
@@ -227,12 +280,6 @@
                    (compute-interval-medians
                     config enroll-times survival-times
                     arms-array n-total))))))))
-
-(defn- assign-arms
-  "Assigns arms to subjects based on assignment order."
-  [arms-array assignment-order n-per-arm]
-  (dotimes [i (count assignment-order)]
-    (when (< i n-per-arm) (aset arms-array (aget assignment-order i) 1))))
 
 (defn- populate-survival-times
   "Fills survival times based on arm assignment."
@@ -249,17 +296,33 @@
   (let [enroll (js/Float64Array. n-total)
         arms (js/Int8Array. n-total)
         survival (js/Float64Array. n-total)
-        raw-enroll (js/Array.)]
-    (doseq [[lo hi n] bands]
-      (when (> n 0) (doseq [r (np/nd-to-array (np-random/uniform random-gen lo hi n))] (.push raw-enroll r))))
+        raw-enroll (js/Array.)
+        n-bands (count bands)]
+    (dotimes [idx n-bands]
+      (let [band (nth bands idx)
+            lo (nth band 0)
+            hi (nth band 1)
+            n (nth band 2)]
+        (when (> n 0)
+          (let [draws (np/nd-to-array
+                       (np-random/uniform random-gen lo hi n))
+                len (.-length draws)]
+            (dotimes [j len]
+              (.push raw-enroll (aget draws j)))))))
     (.sort raw-enroll (fn [a b] (- a b)))
-    (let [assignment-order (np/nd-to-array (np/argsort (np-random/random random-gen n-total)))]
-      (dotimes [i n-total] (aset enroll i (aget raw-enroll i)))
-      (assign-arms arms assignment-order n-per-arm))
-    (let [num-gps (reduce + arms)
-          num-bat (- n-total num-gps)
-          bat-draws (np/nd-to-array (rnd/draw-bat-times record num-bat random-gen))
-          gps-draws (np/nd-to-array (rnd/draw-gps-times record num-gps random-gen))]
+    (let [random-vals (np/nd-to-array (np-random/random random-gen n-total))
+          indices (js/Array.from #js {:length n-total} (fn [_ idx] idx))]
+      (.sort indices (fn [a b]
+                       (- (aget random-vals a) (aget random-vals b))))
+      (dotimes [i n-total]
+        (aset enroll i (aget raw-enroll i))
+        (if (< i n-per-arm)
+          (aset arms (aget indices i) 1)
+          (aset arms (aget indices i) 0))))
+    (let [num-gps n-per-arm
+          num-bat (- n-total n-per-arm)
+          bat-draws (rnd/draw-bat-times record num-bat random-gen)
+          gps-draws (rnd/draw-gps-times record num-gps random-gen)]
       (populate-survival-times n-total arms bat-draws gps-draws survival)
       {:enroll-times enroll :arms-array arms :survival-times survival})))
 
@@ -280,11 +343,22 @@
 (defn- run-sim-chunk
   "Runs a chunk of simulations for a single combination."
   [record config n-sims random-gen]
-  (let [results (map (fn [_] (simulate-one-trial record config random-gen (:n-total config) (:n-per-arm config) (:enroll-bands config))) (range n-sims))]
-    [(keep :stats results) (reduce + (map #(if (:passed-screening %) 1 0) results))]))
+  (let [n-total (:n-total config)
+        n-per-arm (:n-per-arm config)
+        bands (:enroll-bands config)
+        stats-arr (js/Array.)]
+    (loop [i 0 passed 0]
+      (if (< i n-sims)
+        (let [res (simulate-one-trial record config random-gen
+                                      n-total n-per-arm bands)]
+          (if (:passed-screening res)
+            (do (.push stats-arr (:stats res))
+                (recur (inc i) (inc passed)))
+            (recur (inc i) passed)))
+        [(clojure.core/sequence stats-arr) passed]))))
 
 (defn- gps-survival-probability-scalar [t record]
-  (let [family (:family record)]
+  (let [family (some-> (:family record) name)]
     (cond
       (= family "weibull")
       (let [scale (:gps-scale record)
@@ -308,8 +382,40 @@
               (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
       :else 0.0)))
 
+(defn- bat-survival-probability-scalar [t record]
+  (if (let [fam (:family record)] (or (= fam "leaky") (= fam :leaky)))
+    (let [cf (:bat-cure-frac record)
+          scale (:bat-unc-scale record)
+          shape (:bat-unc-shape record)
+          leak-rate-monthly (/ (:bat-leak-yr record) 12.0)]
+      (+ (* cf (js/Math.exp (- (* leak-rate-monthly t))))
+         (* (- 1.0 cf)
+            (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
+    (let [scale (:bat-scale record)
+          shape (:bat-shape record)]
+      (js/Math.exp (- (js/Math.pow (/ t scale) shape))))))
+
+(defn- calculate-bat-median [record]
+  (if-not (let [fam (:family record)] (or (= fam "leaky") (= fam :leaky)))
+    (:bat-med record)
+    (let [f (fn [t] (bat-survival-probability-scalar t record))]
+      (if (<= (f 0.0) 0.5)
+        0.0
+        (if (> (f 1000.0) 0.5)
+          js/NaN
+          (loop [low 0.0
+                 high 1000.0
+                 iter 0]
+            (if (or (> iter 30) (< (- high low) 0.01))
+              (/ (+ low high) 2.0)
+              (let [mid (/ (+ low high) 2.0)
+                    val (f mid)]
+                (if (> val 0.5)
+                  (recur mid high (inc iter))
+                  (recur low mid (inc iter)))))))))))
+
 (defn- calculate-gps-median [record]
-  (if (= (:family record) "weibull")
+  (if (= (some-> (:family record) name) "weibull")
     (:gps-med record)
     (let [f (fn [t] (gps-survival-probability-scalar t record))]
       (if (<= (f 0.0) 0.5)
@@ -335,9 +441,11 @@
   "Helper to build the aggregate statistics map."
   [all-stats num-attempts num-pass-events record to-nd
    finite-t80 hr-final-arr num-success num-accepted hr-low hr-high]
-  (let [gps-med (or (:gps-med record) (calculate-gps-median record))]
+  (let [gps-med (or (:gps-med record) (calculate-gps-median record))
+        bat-med (or (:bat-med record) (calculate-bat-median record))]
     (merge record
            {:gps-med gps-med
+            :bat-med bat-med
             :n-attempts num-attempts
           :n-pass-events num-pass-events
           :n-pass-futility num-accepted
@@ -370,6 +478,10 @@
           (np/median (to-nd (map :bat-alive-upd all-stats)))
           :median-gps-alive-upd
           (np/median (to-nd (map :gps-alive-upd all-stats)))
+          :median-bat-alive-final
+          (np/median (to-nd (map :bat-alive-final all-stats)))
+          :median-gps-alive-final
+          (np/median (to-nd (map :gps-alive-final all-stats)))
           ;; Mean per-arm deaths per interval (from simulation)
           :mean-n-interim-analysis-bat  (mean-field all-stats :n-interim-analysis-bat)
           :mean-n-interim-analysis-gps  (mean-field all-stats :n-interim-analysis-gps)
@@ -385,8 +497,9 @@
           :mean-med-update-gps   (mean-field all-stats :med-update-gps)
           :mean-med-update-pool  (mean-field all-stats :med-update-pool)
           :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
-          :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
-          :mean-med-press-release-3-pool (mean-field all-stats :mean-med-press-release-3-pool)})))
+          :mean-med-press-release-3-gps  (mean-field all-stats :mean-med-press-release-3-gps)
+          :mean-med-press-release-3-pool
+          (mean-field all-stats :mean-med-press-release-3-pool)})))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."
