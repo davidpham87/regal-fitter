@@ -43,7 +43,7 @@
           (doseq [[idx rec] (map-indexed vector (get all-accepted fam-kw))]
             (.push all-combos {:rec rec :idx idx :family fam}))))
       (let [combos-vec (js->clj all-combos :keywordize-keys true)
-            chunk-size 128
+            chunk-size 32
             chunks (partition-all chunk-size combos-vec)]
         (doseq [chunk chunks]
           (cached-submit-job!

@@ -30,5 +30,5 @@
       (when subtitle
         [:p.text-xs.text-gray-400 subtitle])])
    (into
-    [:div.flex.items-center.justify-center.p-4]
+    [:div.flex.items-center.justify-center.p-8]
     children)])

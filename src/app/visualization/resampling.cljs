@@ -55,7 +55,8 @@
                               ;; sqrt compresses the scale so high-rate
                               ;; combos don't fully dominate within-bin
                               ;; weighted averages.
-                              :weight (js/Math.sqrt
+                              :weight (:acceptance-rate c 0)
+                              #_(js/Math.sqrt
                                        (or (:acceptance-rate c) 0.0))))
                      raw)]
     (sort-by :sum-res scored)))

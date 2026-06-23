@@ -13,85 +13,86 @@
 
 ;; --- Default Config ---
 (def default-config
-  {:prefilter-top-k 20000
+  (let [censor-factor 1.00]
+    {:prefilter-top-k 20000
 
-   :n-total 126
-   :n-per-arm 63
-   :enroll-bands
-   #_[[0 12 17] ;; Year 1
-    [12 24 40]  ;; Year 2
-    [24 36 60] ;; Year 3
-    [36 38 9]]
+     :n-total 126
+     :n-per-arm 63
+     :enroll-bands
+     [[0 12 17] ;; Year 1
+      [12 24 40]  ;; Year 2
+      [24 36 60] ;; Year 3
+      [36 38 9]]
 
-   [[0.0, 12.0, 15]     ;; Year 1
-    [12.0, 24.0, 50]    ;; Year 2
-    [24.0, 36.0, 56]    ;; Year 3
-    [36.0, 38.0, 5]]
+     #_[[0.0, 12.0, 15]     ;; Year 1
+      [12.0, 24.0, 50]    ;; Year 2
+      [24.0, 36.0, 56]    ;; Year 3
+      [36.0, 38.0, 5]]
 
-   :t-ia 46.0
-   :t-upd 58.0
-   :t-pr3 62.97
-   :n-ev-ia 62
-   :n-ev-upd 75
-   :n-ev-pr3 81
-   :n-ev-final 84
-   :use-pr3-anchor true
+     :t-ia 46.0
+     :t-upd 58.0
+     :t-pr3 62.97
+     :n-ev-ia (* 60 censor-factor)
+     :n-ev-upd (* 72 censor-factor)
+     :n-ev-pr3 (* 78 censor-factor)
+     :n-ev-final (* 80 censor-factor)
+     :use-pr3-anchor true
 
-   :prefilter-tol-ia 1.5
-   :prefilter-tol-upd 1.5
-   :prefilter-tol-pr3 1.5
+     :prefilter-tol-ia 1.5
+     :prefilter-tol-upd 1.5
+     :prefilter-tol-pr3 1.5
 
-   :tol-ia 4
-   :tol-upd 4
-   :tol-pr3 2
+     :tol-ia 4
+     :tol-upd 4
+     :tol-pr3 2
 
-   :tol-increment-ia-upd 3
-   :tol-increment-upd-pr3 3
+     :tol-increment-ia-upd 3
+     :tol-increment-upd-pr3 3
 
-   :futility-hr-max 0.83
-   :efficacy-hr-min 0.40
-   :bat-surv-36m-max 0.25
+     :futility-hr-max 0.84
+     :efficacy-hr-min 0.40
+     :bat-surv-36m-max 0.3
 
-   :pool-mos-min-at-ia 12
-   :median-fu-target 13.5
-   :median-fu-tol 5.0
+     :pool-mos-min-at-ia 12
+     :median-fu-target 13.5
+     :median-fu-tol 5.0
 
-   :enforce-no-80-by-today true
-   :t-now (cfg-today-month)
-   :no-80-slack-months 1.0
-   :bat-strat-bin 0.5
+     :enforce-no-80-by-today true
+     :t-now (cfg-today-month)
+     :no-80-slack-months 1.0
+     :bat-strat-bin 0.5
 
-   :hr-threshold 0.636
+     :hr-threshold 0.636
 
-   :n-sims-per-combo 1024
-   :n-sims-screen 256
-   :n-screen-min-pass 1
-   :seed 20260508
+     :n-sims-per-combo 1024
+     :n-sims-screen 256
+     :n-screen-min-pass 1
+     :seed 20260508
 
-   :bat-med-grid [4 20 0.5]
-   :bat-shape-grid [0.7 1.0 0.1]
+     :bat-med-grid [4 20 0.5]
+     :bat-shape-grid [0.7 1.0 0.1]
 
-   :gps-med-grid-lo 20.0
-   :gps-med-grid-hi 60.0
-   :gps-med-grid-n 2
-   :gps-shape-grid [0.6 1 0.1]
+     :gps-med-grid-lo 20.0
+     :gps-med-grid-hi 60.0
+     :gps-med-grid-n 2
+     :gps-shape-grid [0.6 1 0.1]
 
-   :cure-frac-grid [0.2 0.8 0.1]
-   :cure-unc-med-grid [10 58 4]
-   :cure-unc-shape-grid [0.6 1.6 0.2]
+     :cure-frac-grid [0.2 0.8 0.1]
+     :cure-unc-med-grid [10 58 4]
+     :cure-unc-shape-grid [0.6 1.6 0.2]
 
-   :leaky-cure-frac-grid [0.0 0.9 0.1]
-   :leaky-unc-med-grid [10 60 5]
-   :leaky-unc-shape-grid [0.6 1.2 0.1]
-   :leak-grid [0.03 0.1 0.01]
+     :leaky-cure-frac-grid [0.0 0.9 0.1]
+     :leaky-unc-med-grid [10 60 5]
+     :leaky-unc-shape-grid [0.6 1.2 0.1]
+     :leak-grid [0.03 0.1 0.01]
 
-   :bat-leaky-cure-frac-grid [0.0 0.2 0.1]
-   :bat-leaky-unc-med-grid [5 30 0.5]
-   :bat-leaky-unc-shape-grid [0.7 1.0 0.15]
-   :bat-leak-grid [0.03 0.09 0.02]
+     :bat-leaky-cure-frac-grid [0.0 0.3 0.1]
+     :bat-leaky-unc-med-grid [5 30 0.5]
+     :bat-leaky-unc-shape-grid [0.7 1.0 0.1]
+     :bat-leak-grid [0.03 0.09 0.02]
 
-   :families ["leaky"]
-   :n-sims-aggregation 10000})
+     :families ["leaky"]
+     :n-sims-aggregation 10000}))
 
 (def light-config
   (assoc default-config

@@ -15,6 +15,7 @@
     "vega-lite": "^6.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.0",
     "css-loader": "^7.1.2",
     "shadow-cljs": "^3.4.11",
     "style-loader": "^4.0.0",

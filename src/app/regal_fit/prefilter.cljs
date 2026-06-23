@@ -350,19 +350,21 @@
   smallest theoretical deviation (combo-residual)."
   [config combos]
   (let [grouped (group-by (fn [m]
-                            [(or (:bat-med-grid m)
-                                 (:bat-unc-med m)
+                            [(or (:bat-unc-med m)
+                                 (:bat-med-grid m)
                                  (:bat-med m))
                              (or (:bat-shape m)
                                  (:bat-unc-shape m))
                              (or (:bat-leaky-cure-frac m)
                                  (:bat-cure-frac m))
-                             (or (:gps-med m)
+                             (:bat-leak m)
+                             #_(or (:gps-med m)
                                  (:unc-med m))
-                             (or (:leaky-unc-med m)
-                                 (:unc-med m)
-                                 (:gps-med m))
-                             (or (:leaky-cure-frac m)
+                             #_(or (:gps-scale m)
+                                 (:unc-scale m))
+                             #_(or (:gps-shape m)
+                                 (:unc-shape m))
+                             #_(or (:leaky-cure-frac m)
                                  (:cure-frac m))])
                           combos)]
     (mapv (fn [[_ group]]
@@ -375,6 +377,7 @@
   the full sorted list is returned — still useful as a quality
   ordering for the worker batch dispatch."
   [config combos top-k]
+  (.log js/console (clj->js (first combos)))
   (let [aggregated (preaggregate config combos)
         scored (sort-by #(combo-residual config %) aggregated)]
     (if (and top-k (< top-k (count scored)))

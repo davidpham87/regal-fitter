@@ -125,6 +125,7 @@
         {:data {:values (clean-data data)}
          :width 360
          :height 240
+         :padding {:top 10 :bottom 10}
          :encoding
          {:x {:field (name param-name)
               :type "quantitative"
