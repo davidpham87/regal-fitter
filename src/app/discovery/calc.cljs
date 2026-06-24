@@ -488,30 +488,41 @@
         bat-true-scale-val (population-cr2-lambda (:bat-med params) delay k)
         gps-true-scale-val (population-cr2-lambda (:gps-med params) delay k)
 
-        gps-cf (np/array #js [(or (:cure-frac params) 0.0)])
-        gps-leak (np/array #js [(or (:leak-yr params) 0.0)])
+        gps-cf (np/array #js [(or (:gps-cure-frac params) (:cure-frac params) 0.0)])
+        gps-leak (np/array #js [(or (:gps-leak-yr params) (:leak-yr params) 0.0)])
+
+        bat-cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        bat-leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
 
         ;; survival functions (true scale)
         s-bat-true-fn
         (fn [t]
           (let [ta (np/array #js [t] "float64")]
             (first (np/nd-to-array
-                    (survival/weibull-survival-probability
-                     ta bat-true-scale-val k)))))
+                    (if (= family "leaky")
+                      (survival/leaky-cure-survival-probability
+                       ta bat-cf bat-true-scale-val k bat-leak)
+                      (survival/weibull-survival-probability
+                       ta bat-true-scale-val k))))))
 
         s-gps-true-fn
         (fn [t]
           (let [ta (np/array #js [t] "float64")]
             (first (np/nd-to-array
                     (case family
-                      "weibull" (survival/weibull-survival-probability ta gps-true-scale-val k)
-                      "cure" (survival/cure-survival-probability ta gps-cf gps-true-scale-val k)
-                      "leaky" (survival/leaky-cure-survival-probability ta gps-cf gps-true-scale-val k gps-leak)
-                      (survival/weibull-survival-probability ta gps-true-scale-val k))))))]
+                      "weibull" (survival/weibull-survival-probability
+                                 ta gps-true-scale-val k)
+                      "cure" (survival/cure-survival-probability
+                              ta gps-cf gps-true-scale-val k)
+                      "leaky" (survival/leaky-cure-survival-probability
+                               ta gps-cf gps-true-scale-val k gps-leak)
+                      (survival/weibull-survival-probability
+                       ta gps-true-scale-val k))))))]
     (let [gps-mos (find-true-mos s-gps-true-fn)
-          bat-true-mos (- (* bat-true-scale-val
-                             (js/Math.pow (js/Math.log 2.0) (/ 1.0 k)))
-                          delay)]
+          bat-mos (find-true-mos s-bat-true-fn)
+          bat-true-mos (if (= bat-mos js/Infinity)
+                         js/Infinity
+                         (- bat-mos delay))]
       {:bat-true-mos bat-true-mos
        :gps-true-mos (if (= gps-mos js/Infinity)
                        js/Infinity
@@ -520,8 +531,13 @@
        ;; Realized median month on trial timeline
        :bat-realized-month
        (find-realized-median-month
-        survival/weibull-survival-probability
-        [(np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+        (if (= family "leaky")
+          survival/leaky-cure-survival-probability
+          survival/weibull-survival-probability)
+        (if (= family "leaky")
+          [bat-cf (np/array #js [bat-trial-scale-val])
+           (np/array #js [k]) bat-leak]
+          [(np/array #js [bat-trial-scale-val]) (np/array #js [k])])
         enroll-pts enroll-weights n-per-arm n-total target-ev)
 
        :gps-realized-month
@@ -534,6 +550,7 @@
         (case family
           "weibull" [(np/array #js [gps-trial-scale-val]) (np/array #js [k])]
           "cure" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k])]
-          "leaky" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k]) gps-leak]
+          "leaky" [gps-cf (np/array #js [gps-trial-scale-val])
+                   (np/array #js [k]) gps-leak]
           [(np/array #js [gps-trial-scale-val]) (np/array #js [k])])
         enroll-pts enroll-weights n-per-arm n-total target-ev)})))
