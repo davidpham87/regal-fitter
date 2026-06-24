@@ -279,22 +279,22 @@
                                          (assoc updates gk v))
                                        updates)]
                          (set-values updates))))
-        
+
         ;; Determine which elements are disabled based on active family
         bat-cf-disabled? (not (= active-family "leaky"))
         bat-leak-disabled? (not (= active-family "leaky"))
-        
+
         gps-cf-disabled? (or placebo? (= active-family "weibull"))
         gps-leak-disabled? (or placebo? (not (= active-family "leaky")))]
     [:div.bg-white.p-4.rounded-xl.shadow-sm.border.mb-8
      [:h4.text-xs.font-bold.text-gray-500.uppercase.tracking-wider.mb-3
       "Parameters"]
-     
+
      ;; Row 1: BAT Arm Parameters
      [:div.mb-4
       [:div.font-bold.text-gray-400.uppercase.tracking-wide.mb-1.5
        {:style {:font-size "9px"}}
-       "BAT Arm (Baseline Alternative Treatment)"]
+       "BAT Arm (Best Alternative Treatment)"]
       [:div.grid.grid-cols-1.gap-4
        {:class "sm:grid-cols-2 md:grid-cols-4"}
        [dui/param-input props :bat-med "BAT Median" 4 25 0.5]
@@ -303,12 +303,12 @@
         0.0 0.95 0.05 bat-cf-disabled?]
        [dui/param-input props :bat-leak-yr "BAT Leak"
         0.0 0.1 0.01 bat-leak-disabled?]]]
-     
+
      ;; Row 2: GPS Arm Parameters
      [:div.mb-4.pt-2.border-t
       [:div.font-bold.text-gray-400.uppercase.tracking-wide.mb-1.5
        {:style {:font-size "9px"}}
-       "GPS Arm (Genomic Predictor Signature)"]
+       "GPS Arm"]
       [:div.grid.grid-cols-1.gap-4
        {:class "sm:grid-cols-2 md:grid-cols-4"}
        [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]
@@ -317,7 +317,7 @@
         0.0 0.95 0.05 gps-cf-disabled?]
        [dui/param-input props :gps-leak-yr "GPS Leak"
         0.0 0.1 0.01 gps-leak-disabled?]]]
-     
+
      ;; Row 3: Settings, delay, and tolerances
      [:div.pt-4.border-t.grid.grid-cols-1.gap-4
       {:class "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"}
