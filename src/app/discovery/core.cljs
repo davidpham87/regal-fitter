@@ -258,9 +258,11 @@
            "N/A"
            (str (.toFixed median-t80-months 1) "m"))]]])))
 
-;; ---------------------------------------------------------------------------
-;; Param controls panel
-;; ---------------------------------------------------------------------------
+(def ^:private row-sub-cls
+  "font-bold text-gray-400 uppercase tracking-wide mb-1.5")
+
+(def ^:private grid-4-cls
+  "grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4")
 
 (defn- controls-panel
   [{:keys [values set-values] :as props} active-family
@@ -292,11 +294,9 @@
 
      ;; Row 1: BAT Arm Parameters
      [:div.mb-4
-      [:div.font-bold.text-gray-400.uppercase.tracking-wide.mb-1.5
-       {:style {:font-size "9px"}}
-       "BAT Arm (Best Alternative Treatment)"]
-      [:div.grid.grid-cols-1.gap-4
-       {:class "sm:grid-cols-2 md:grid-cols-4"}
+      [:div {:class row-sub-cls :style {:font-size "9px"}}
+       "BAT Arm (Baseline Alternative Treatment)"]
+      [:div {:class grid-4-cls}
        [dui/param-input props :bat-med "BAT Median" 4 25 0.5]
        [dui/param-input props :bat-shape "BAT Shape" 0.5 2.5 0.05]
        [dui/param-input props :bat-cure-frac "BAT Cure Fraction"
@@ -306,11 +306,9 @@
 
      ;; Row 2: GPS Arm Parameters
      [:div.mb-4.pt-2.border-t
-      [:div.font-bold.text-gray-400.uppercase.tracking-wide.mb-1.5
-       {:style {:font-size "9px"}}
-       "GPS Arm"]
-      [:div.grid.grid-cols-1.gap-4
-       {:class "sm:grid-cols-2 md:grid-cols-4"}
+      [:div {:class row-sub-cls :style {:font-size "9px"}}
+       "GPS Arm (Genomic Predictor Signature)"]
+      [:div {:class grid-4-cls}
        [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]
        [dui/param-input props :gps-shape "GPS Shape" 0.5 2.5 0.05 placebo?]
        [dui/param-input props :gps-cure-frac "GPS Cure Fraction"
