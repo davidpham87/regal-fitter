@@ -154,20 +154,20 @@
       "cure"
       [:<>
        [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]
-       [dui/param-input props :cure-frac "Cure Fraction"
+       [dui/param-input props :cure-frac "GPS Cure Fraction"
         0.0 0.95 0.05 placebo?]]
 
       "leaky"
       [:<>
        [dui/param-input props :gps-med "GPS Median (BAT-like)" 4 50 1.0
         placebo?]
-       [dui/param-input props :gps-unc-med "Uncured Pop Median" 4 60 1.0
+       [dui/param-input props :gps-unc-med "GPS Uncured Median" 4 60 1.0
         placebo?]
-       [dui/param-input props :gps-unc-shape "Uncured Pop k Shape"
+       [dui/param-input props :gps-unc-shape "GPS Uncured Shape"
         0.5 2.5 0.05]
-       [dui/param-input props :cure-frac "Cure Fraction"
+       [dui/param-input props :cure-frac "GPS Cure Fraction"
         0.0 0.95 0.05 placebo?]
-       [dui/param-input props :leak-yr "Leak Rate / Year"
+       [dui/param-input props :leak-yr "GPS Leaky (yearly)"
         0.0 0.1 0.01]]
 
       nil)))
