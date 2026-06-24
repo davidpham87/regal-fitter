@@ -39,12 +39,12 @@
      :use-pr3-anchor true
 
      :prefilter-tol-ia 1.5
-     :prefilter-tol-upd 1.5
-     :prefilter-tol-pr3 1.5
+     :prefilter-tol-upd 2
+     :prefilter-tol-pr3 4
 
      :tol-ia 4
-     :tol-upd 4
-     :tol-pr3 2
+     :tol-upd 2
+     :tol-pr3 4
 
      :tol-increment-ia-upd 3
      :tol-increment-upd-pr3 3

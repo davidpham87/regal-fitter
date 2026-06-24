@@ -401,7 +401,7 @@
       (do
         (swap! resampled-data assoc state-key [])
         (swap! resampling-state assoc state-key nil))
-      (let [num-workers (js/Math.max 1 (count @wp/pool))
+      (let [num-workers (js/Math.min 4 (js/Math.max 1 (count @wp/pool)))
             total (count sampled)
             chunk-size (js/Math.max
                         25

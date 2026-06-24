@@ -10,6 +10,7 @@
 
 (defn create-worker! []
   (let [worker (js/Worker. "js/worker/worker.js")]
+    (set! (.-jobsProcessed worker) 0)
     (set! (.-onmessage worker)
           (fn [event]
             (let [data (.-data ^js event)
@@ -21,29 +22,40 @@
                   success? (.-success ^js data)
                   error (.-error ^js data)]
 
-              (when (= type "SIMULATION_RESULT")
-                (when-let [cb (get @job-callbacks
-                                   job-id)]
-                  (swap! job-callbacks dissoc job-id)
-                  (cb {:success? success?
-                       :result result
-                       :error error}))
+               (when (= type "SIMULATION_RESULT")
+                 (when-let [cb (get @job-callbacks
+                                    job-id)]
+                   (swap! job-callbacks dissoc job-id)
+                   (cb {:success? success?
+                        :result result
+                        :error error}))
 
-                (swap! busy-workers disj worker)
-                (swap! pool conj worker)
-                (app.worker-pool/process-queue!)))))
+                 (swap! busy-workers disj worker)
+                 (set! (.-jobsProcessed ^js worker) (inc (.-jobsProcessed ^js worker)))
+                 (if (or (>= (.-jobsProcessed ^js worker) 50)
+                         (= (.-lastJobType ^js worker) "RUN_AGGREGATION"))
+                   (do
+                     (js/console.log "Recycling worker due to aggregation job or job limit (preventing memory leaks)")
+                     (.terminate ^js worker)
+                     (swap! pool conj (create-worker!)))
+                   (swap! pool conj worker))
+                 (app.worker-pool/process-queue!)))))
     (set! (.-onerror worker)
           (fn [err]
             (js/console.error
              "Worker error:" (.-message err))
             (swap! busy-workers disj worker)
-            (swap! pool conj worker)
+            (try
+              (.terminate worker)
+              (catch :default _))
+            (swap! pool conj (create-worker!))
             (process-queue!)))
     worker))
 
 (defn init-pool! [size]
-  (let [actual-size (if (and size (> size 0)) size
-                        (js/Math.max 1 (- (.-hardwareConcurrency js/navigator) 1)))]
+  (let [actual-size (if (and size (> size 0))
+                      (js/Math.min 16 size)
+                      (js/Math.max 1 (js/Math.min 16 (- (.-hardwareConcurrency js/navigator) 1))))]
     (js/console.log "Initializing worker pool of size:" actual-size)
     (reset! pool (into [] (repeatedly actual-size create-worker!)))))
 
@@ -56,8 +68,9 @@
       (swap! busy-workers conj worker)
 
       (let [job-id (swap! job-counter inc)]
+        (set! (.-lastJobType ^js worker) (get-in job [:data :type]))
         (swap! job-callbacks assoc job-id (:callback job))
-        (.postMessage worker (clj->js {:id job-id
+        (.postMessage ^js worker (clj->js {:id job-id
                                        :type "RUN_SIMULATION"
                                        :data (:data job)}))))))
 
