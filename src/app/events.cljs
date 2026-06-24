@@ -5,6 +5,7 @@
    [app.db :as db]
    [app.regal-fit.prefilter :as prefilter]
    [app.worker-pool :as wp]
+   [app.simulator :as sim]
    [re-frame.core :as rf]
    [reitit.frontend.easy :as rfe]))
 
@@ -365,3 +366,44 @@
      (assoc-in db [:debug/prefilter family]
                {:count (count res)
                 :samples (take 5 res)}))))
+
+(rf/reg-fx
+ :push-state
+ (fn [[route-name path-params query-params]]
+   (rfe/push-state route-name path-params query-params)))
+
+(rf/reg-fx
+ :run-discovery-sim
+ (fn [{:keys [family params]}]
+   (sim/run-discovery-simulation! family params)))
+
+(rf/reg-event-fx
+ :export-to-discovery
+ (fn [{:keys [db]} [_ family item]]
+   (let [family-str (name family)
+         gps-med (or (:gps-med item) (:bat-med item))
+         gps-unc-med (or (:unc-med item) (:bat-med item))
+         gps-unc-shape (or (:unc-shape item) 1.0)
+         params {:bat-med (or (:bat-med item) 10.0)
+                 :weibull-k (or (:bat-shape item) (:gps-shape item) 1.0)
+                 :delay 3.0
+                 :gps-med gps-med
+                 :gps-unc-med gps-unc-med
+                 :gps-unc-shape gps-unc-shape
+                 :cure-frac (or (:cure-frac item) 0.0)
+                 :leak-yr (or (:leak-yr item) 0.07)
+                 :placebo-mode? false
+                 :filter-paths? false
+                 :tol-ia 4.0
+                 :tol-upd 4.0
+                 :tol-pr3 2.0
+                 :n-sims 1000}
+         new-db (-> db
+                    (assoc-in [:discovery :active-family] family-str)
+                    (assoc-in [:discovery :params] params)
+                    (assoc-in [:discovery :calc-params] params)
+                    (assoc-in [:discovery :sim-status] :running)
+                    (assoc-in [:discovery :sim-result] nil))]
+     {:db new-db
+      :push-state [:discovery-sub {:subtab family-str}]
+      :run-discovery-sim {:family family-str :params params}})))
