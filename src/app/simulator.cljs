@@ -180,7 +180,13 @@
     (cached-submit-job!
      {:rec rec
       :cfg-dict (assoc config
-                       :ignore-prefilter? (not (:filter-paths? params))
+                       :ignore-prefilter? (not (:prefilter-check? params))
+                       :prefilter-tol-ia (or (:prefilter-tol-ia params)
+                                             (:prefilter-tol-ia config))
+                       :prefilter-tol-upd (or (:prefilter-tol-upd params)
+                                              (:prefilter-tol-upd config))
+                       :prefilter-tol-pr3 (or (:prefilter-tol-pr3 params)
+                                              (:prefilter-tol-pr3 config))
                        :tol-ia (or (:tol-ia params) (:tol-ia config))
                        :tol-upd (or (:tol-upd params) (:tol-upd config))
                        :tol-pr3 (or (:tol-pr3 params) (:tol-pr3 config)))

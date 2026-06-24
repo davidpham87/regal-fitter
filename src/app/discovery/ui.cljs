@@ -6,7 +6,7 @@
 
 (defn param-range-input
   [val min max step disabled? set-values on-change param-key]
-  [:input.w-full
+  [:input.w-full.h-1.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
    {:type "range" :min min :max max :step step
     :value val :disabled disabled?
     :on-change
@@ -17,7 +17,7 @@
 
 (defn param-number-input
   [val step disabled? set-values on-change param-key]
-  [:input.border.rounded.p-1.text-xs.w-16
+  [:input.border.rounded.p-0.5.text-xs.w-14.text-center
    {:type "number" :value val :step step :disabled disabled?
     :on-change
     (fn [e]
@@ -31,11 +31,12 @@
   ([{:keys [values set-values on-change]} param-key label
     min max step disabled?]
    (let [val (get values param-key)]
-     [:div.mb-2
-      [:label.block.text-xs.font-semibold
-       {:class (if disabled? "text-gray-400" "text-gray-600")}
+     [:div.mb-1.5
+      [:label.block.font-semibold.uppercase.tracking-wider
+       {:class (str "text-[10px] "
+                    (if disabled? "text-gray-400" "text-gray-500"))}
        label]
-      [:div.flex.items-center.gap-2
+      [:div.flex.items-center.gap-1.5
        [param-range-input val min max step disabled?
         set-values on-change param-key]
        [param-number-input val step disabled?

@@ -70,6 +70,10 @@
    :tol-ia        4.0
    :tol-upd       4.0
    :tol-pr3       2.0
+   :prefilter-check? false
+   :prefilter-tol-ia 1.5
+   :prefilter-tol-upd 1.5
+   :prefilter-tol-pr3 1.5
    :n-sims        1000})
 
 (defn- set-active-family! [family]
@@ -120,25 +124,54 @@
      [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
       {:for "placebo-mode"} "Placebo Mode"]]))
 
-(defn- filter-paths-checkbox [{:keys [values set-values]}]
-  (let [filter-paths? (:filter-paths? values)]
-    [:div.flex.items-center.p-2.bg-gray-50.rounded-lg.border.h-12
-     [:input#filter-paths
-      {:type "checkbox"
-       :checked filter-paths?
-       :on-change
-       (fn [e]
-         (let [checked? (.. e -target -checked)]
-           (set-values {:filter-paths? checked?})))}]
-     [:label.text-xs.font-bold.text-gray-700.cursor-pointer.ml-2
-      {:for "filter-paths"} "Filter Paths"]]))
+(defn- settings-checkboxes [{:keys [values set-values]}]
+  [:div.bg-gray-50.p-2.rounded-xl.border.flex.items-center.gap-4.col-span-3.h-12
+   ;; Placebo Mode
+   [:label.flex.items-center.gap-1.5.text-xs.font-bold.text-gray-700
+    {:class "cursor-pointer"}
+    [:input {:type "checkbox"
+             :checked (:placebo-mode? values)
+             :on-change
+             (fn [e]
+               (if (.. e -target -checked)
+                 (set-values {:placebo-mode? true
+                              :cure-frac 0.0
+                              :gps-med (:bat-med values)})
+                 (set-values {:placebo-mode? false})))}]
+    "Placebo Mode"]
+   ;; Filter Paths
+   [:label.flex.items-center.gap-1.5.text-xs.font-bold.text-gray-700
+    {:class "cursor-pointer"}
+    [:input {:type "checkbox"
+             :checked (:filter-paths? values)
+             :on-change #(set-values
+                          {:filter-paths? (.. % -target -checked)})} ]
+    "Filter Paths"]
+   ;; Prefilter Check
+   [:label.flex.items-center.gap-1.5.text-xs.font-bold.text-gray-700
+    {:class "cursor-pointer"}
+    [:input {:type "checkbox"
+             :checked (:prefilter-check? values)
+             :on-change #(set-values
+                          {:prefilter-check? (.. % -target -checked)})} ]
+    "Prefilter Check"]])
 
 (defn- tolerance-params [props]
-  (when (:filter-paths? (:values props))
+  (let [values (:values props)]
     [:<>
-     [dui/param-input props :tol-ia "IA Event Tol" 0 15 1]
-     [dui/param-input props :tol-upd "UPD Event Tol" 0 15 1]
-     [dui/param-input props :tol-pr3 "PR3 Event Tol" 0 10 1]]))
+     (when (:filter-paths? values)
+       [:<>
+        [dui/param-input props :tol-ia "IA Path Tol" 0 15 1]
+        [dui/param-input props :tol-upd "UPD Path Tol" 0 15 1]
+        [dui/param-input props :tol-pr3 "PR3 Path Tol" 0 10 1]])
+     (when (:prefilter-check? values)
+       [:<>
+        [dui/param-input props :prefilter-tol-ia
+         "Prefilter IA Tol" 0.0 5.0 0.1]
+        [dui/param-input props :prefilter-tol-upd
+         "Prefilter UPD Tol" 0.0 5.0 0.1]
+        [dui/param-input props :prefilter-tol-pr3
+         "Prefilter PR3 Tol" 0.0 5.0 0.1]])]))
 
 ;; ---------------------------------------------------------------------------
 ;; Family-specific param inputs
@@ -264,8 +297,7 @@
    [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
    [:div.grid.grid-cols-1.gap-4
     {:class "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"}
-    [placebo-checkbox props]
-    [filter-paths-checkbox props]
+    [settings-checkboxes props]
     [dui/param-input
      (assoc props :on-change
             (fn [k v]

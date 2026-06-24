@@ -38,6 +38,10 @@
                          :leak-yr 0.07
                          :placebo-mode? false
                          :filter-paths? false
+                         :prefilter-check? false
+                         :prefilter-tol-ia 1.5
+                         :prefilter-tol-upd 1.5
+                         :prefilter-tol-pr3 1.5
                          :tol-ia 4.0
                          :tol-upd 4.0
                          :tol-pr3 2.0
@@ -50,6 +54,10 @@
                               :leak-yr 0.07
                               :placebo-mode? false
                               :filter-paths? false
+                              :prefilter-check? false
+                              :prefilter-tol-ia 1.5
+                              :prefilter-tol-upd 1.5
+                              :prefilter-tol-pr3 1.5
                               :tol-ia 4.0
                               :tol-upd 4.0
                               :tol-pr3 2.0
@@ -394,6 +402,10 @@
                  :leak-yr (or (:leak-yr item) 0.07)
                  :placebo-mode? false
                  :filter-paths? false
+                 :prefilter-check? false
+                 :prefilter-tol-ia 1.5
+                 :prefilter-tol-upd 1.5
+                 :prefilter-tol-pr3 1.5
                  :tol-ia 4.0
                  :tol-upd 4.0
                  :tol-pr3 2.0
