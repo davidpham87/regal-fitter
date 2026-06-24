@@ -6,7 +6,7 @@
 
 (defn param-range-input
   [val min max step disabled? set-values on-change param-key]
-  [:input.w-full.h-1.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
+  [:input.w-full.h-0.5.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
    {:type "range" :min min :max max :step step
     :value val :disabled disabled?
     :on-change
@@ -17,8 +17,9 @@
 
 (defn param-number-input
   [val step disabled? set-values on-change param-key]
-  [:input.border.rounded.p-0.5.text-xs.w-14.text-center
+  [:input.border.rounded.p-0.5.w-12.text-center
    {:type "number" :value val :step step :disabled disabled?
+    :class "text-[10px]"
     :on-change
     (fn [e]
       (let [v (js/parseFloat (.. e -target -value))]
@@ -31,12 +32,12 @@
   ([{:keys [values set-values on-change]} param-key label
     min max step disabled?]
    (let [val (get values param-key)]
-     [:div.mb-1.5
+     [:div.mb-1
       [:label.block.font-semibold.uppercase.tracking-wider
-       {:class (str "text-[10px] "
+       {:class (str "text-[8.5px] "
                     (if disabled? "text-gray-400" "text-gray-500"))}
        label]
-      [:div.flex.items-center.gap-1.5
+      [:div.flex.items-center.gap-1
        [param-range-input val min max step disabled?
         set-values on-change param-key]
        [param-number-input val step disabled?
