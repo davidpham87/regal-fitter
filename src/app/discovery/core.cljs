@@ -58,13 +58,15 @@
 
 (def default-params
   {:bat-med       8.0
+   :bat-shape     1.0
+   :bat-cure-frac 0.2
+   :bat-leak-yr   0.07
+   :gps-med       12.0
+   :gps-shape     1.0
+   :gps-cure-frac 0.2
+   :gps-leak-yr   0.07
    :weibull-k     1.0
    :delay         3.0
-   :gps-med       12.0
-   :gps-unc-med   12.0
-   :gps-unc-shape 1.0
-   :cure-frac     0.2
-   :leak-yr       0.07
    :placebo-mode? false
    :filter-paths? false
    :tol-ia        4.0
@@ -135,8 +137,10 @@
              (fn [e]
                (if (.. e -target -checked)
                  (set-values {:placebo-mode? true
-                              :cure-frac 0.0
-                              :gps-med (:bat-med values)})
+                              :gps-med (:bat-med values)
+                              :gps-shape (:bat-shape values)
+                              :gps-cure-frac (:bat-cure-frac values)
+                              :gps-leak-yr (:bat-leak-yr values)})
                  (set-values {:placebo-mode? false})))}]
     "Placebo Mode"]
    ;; Filter Paths
@@ -172,38 +176,6 @@
          "Prefilter UPD Tol" 0.0 5.0 0.1]
         [dui/param-input props :prefilter-tol-pr3
          "Prefilter PR3 Tol" 0.0 5.0 0.1]])]))
-
-;; ---------------------------------------------------------------------------
-;; Family-specific param inputs
-;; ---------------------------------------------------------------------------
-
-(defn- family-params [props active-family]
-  (let [placebo? (:placebo-mode? (:values props))]
-    (case active-family
-      "weibull"
-      [:<>
-       [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]]
-
-      "cure"
-      [:<>
-       [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]
-       [dui/param-input props :cure-frac "GPS Cure Fraction"
-        0.0 0.95 0.05 placebo?]]
-
-      "leaky"
-      [:<>
-       [dui/param-input props :gps-med "GPS Median (BAT-like)" 4 50 1.0
-        placebo?]
-       [dui/param-input props :gps-unc-med "GPS Uncured Median" 4 60 1.0
-        placebo?]
-       [dui/param-input props :gps-unc-shape "GPS Uncured Shape"
-        0.5 2.5 0.05]
-       [dui/param-input props :cure-frac "GPS Cure Fraction"
-        0.0 0.95 0.05 placebo?]
-       [dui/param-input props :leak-yr "GPS Leaky (yearly)"
-        0.0 0.1 0.01]]
-
-      nil)))
 
 ;; ---------------------------------------------------------------------------
 ;; Simulation controls row
@@ -293,35 +265,76 @@
 (defn- controls-panel
   [{:keys [values set-values] :as props} active-family
    calc-params state config bat-true-mos]
-  [:div.bg-white.p-4.rounded-xl.shadow-sm.border.mb-8
-   [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
-   [:div.grid.grid-cols-1.gap-4
-    {:class "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"}
-    [settings-checkboxes props]
-    [dui/param-input
-     (assoc props :on-change
-            (fn [k v]
-              (when (and (:placebo-mode? values) (= k :bat-med))
-                (set-values {:gps-med v}))))
-     :bat-med "BAT Median" 4 25 0.5]
-    [dui/param-input props :weibull-k "Weibull k shape" 0.5 2.0 0.05]
-    [dui/param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
-    [family-params props active-family]
-    [tolerance-params props]]
+  (let [placebo? (:placebo-mode? values)
+        ;; Sync BAT changes to GPS if placebo mode is enabled
+        props (assoc props :on-change
+                     (fn [k v]
+                       (let [updates {k v}
+                             updates (if (and placebo?
+                                              (cstr/starts-with? (name k) "bat-"))
+                                       (let [gk (keyword
+                                                 (cstr/replace (name k)
+                                                               "bat-"
+                                                               "gps-"))]
+                                         (assoc updates gk v))
+                                       updates)]
+                         (set-values updates))))
+        
+        ;; Determine which elements are disabled based on active family
+        bat-cf-disabled? (not (= active-family "leaky"))
+        bat-leak-disabled? (not (= active-family "leaky"))
+        
+        gps-cf-disabled? (or placebo? (= active-family "weibull"))
+        gps-leak-disabled? (or placebo? (not (= active-family "leaky")))]
+    [:div.bg-white.p-4.rounded-xl.shadow-sm.border.mb-8
+     [:h3.font-bold.text-gray-800.mb-4 "Parameters"]
+     
+     ;; Row 1: BAT Arm Parameters
+     [:div.mb-4
+      [:div.text-xs.font-bold.text-gray-400.uppercase.tracking-wide.mb-2
+       "BAT Arm (Baseline Alternative Treatment)"]
+      [:div.grid.grid-cols-1.gap-4
+       {:class "sm:grid-cols-2 md:grid-cols-4"}
+       [dui/param-input props :bat-med "BAT Median" 4 25 0.5]
+       [dui/param-input props :bat-shape "BAT Shape" 0.5 2.5 0.05]
+       [dui/param-input props :bat-cure-frac "BAT Cure Fraction"
+        0.0 0.95 0.05 bat-cf-disabled?]
+       [dui/param-input props :bat-leak-yr "BAT Leak"
+        0.0 0.1 0.01 bat-leak-disabled?]]]
+     
+     ;; Row 2: GPS Arm Parameters
+     [:div.mb-4.pt-2.border-t
+      [:div.text-xs.font-bold.text-gray-400.uppercase.tracking-wide.mb-2
+       "GPS Arm (Genomic Predictor Signature)"]
+      [:div.grid.grid-cols-1.gap-4
+       {:class "sm:grid-cols-2 md:grid-cols-4"}
+       [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]
+       [dui/param-input props :gps-shape "GPS Shape" 0.5 2.5 0.05 placebo?]
+       [dui/param-input props :gps-cure-frac "GPS Cure Fraction"
+        0.0 0.95 0.05 gps-cf-disabled?]
+       [dui/param-input props :gps-leak-yr "GPS Leak"
+        0.0 0.1 0.01 gps-leak-disabled?]]]
+     
+     ;; Row 3: Settings, delay, and tolerances
+     [:div.pt-4.border-t.grid.grid-cols-1.gap-4
+      {:class "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"}
+      [settings-checkboxes props]
+      [dui/param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
+      [tolerance-params props]]
 
-   [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
-    {:class "justify-between"}
-    [:div.flex.items-center.gap-4
-     [sim-count-input values set-values active-family calc-params]
-     [force-run-btn active-family calc-params state]
-     [sim-status-badge state config calc-params]]
+     [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
+      {:class "justify-between"}
+      [:div.flex.items-center.gap-4
+       [sim-count-input values set-values active-family calc-params]
+       [force-run-btn active-family calc-params state]
+       [sim-status-badge state config calc-params]]
 
-    [:div.flex.items-center.gap-6
-     [:div.text-center
-      [:div.text-xs.text-gray-400.font-semibold "BAT True mOS"]
-      [:div.text-lg.font-bold.text-blue-600
-       (str (.toFixed bat-true-mos 2) "m")]]
-     [sim-result-summary state]]]])
+      [:div.flex.items-center.gap-6
+       [:div.text-center
+        [:div.text-xs.text-gray-400.font-semibold "BAT True mOS"]
+        [:div.text-lg.font-bold.text-blue-600
+         (str (.toFixed bat-true-mos 2) "m")]]
+       [sim-result-summary state]]]]))
 
 (defn- analytical-hazard-rates
   "Computes analytical annualized hazard rates using the Weibull model."
