@@ -14,7 +14,7 @@
 ;; --- Default Config ---
 (def default-config
   (let [censor-factor 1.00]
-    {:prefilter-top-k 20000
+    {:prefilter-top-k 500
 
      :n-total 126
      :n-per-arm 63
@@ -40,7 +40,7 @@
 
      :prefilter-tol-ia 1.5
      :prefilter-tol-upd 2
-     :prefilter-tol-pr3 4
+     :prefilter-tol-pr3 3
 
      :tol-ia 4
      :tol-upd 2
@@ -51,7 +51,7 @@
 
      :futility-hr-max 0.84
      :efficacy-hr-min 0.40
-     :bat-surv-36m-max 0.3
+     :bat-surv-36m-max 0.25
 
      :pool-mos-min-at-ia 12
      :median-fu-target 13.5
@@ -92,7 +92,7 @@
      :bat-leak-grid [0.03 0.09 0.02]
 
      :families ["leaky"]
-     :n-sims-aggregation 10000}))
+     :n-sims-aggregation 5000}))
 
 (def light-config
   (assoc default-config

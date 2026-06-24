@@ -367,10 +367,10 @@
                        (or (:leaky-cure-frac m)
                            (:cure-frac m))])
         grouped (concat (group-by bat-grouper combos)
-                        (group-by gps-grouper combos))]
-    (mapv (fn [[_ group]]
-            (apply min-key #(combo-residual config %) group))
-          grouped)))
+                          (group-by gps-grouper combos))]
+    (vec (distinct (mapv (fn [[_ group]]
+                         (apply min-key #(combo-residual config %) group))
+                       grouped)))))
 
 (defn rank-and-trim
   "Sorts accepted combos by analytical residual (best first) and
