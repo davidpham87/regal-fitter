@@ -55,13 +55,23 @@
 (defn draw-bat-times
   "Draws random survival times for the BAT arm."
   [config n-samples random-gen]
-  (if (= (:family config) "leaky")
+  (cond
+    (= (:family config) "leaky")
     (draw-leaky-samples
      {:cure-frac (:bat-cure-frac config)
       :unc-scale (:bat-unc-scale config)
       :unc-shape (:bat-unc-shape config)
       :leak-yr (:bat-leak-yr config)}
      n-samples random-gen)
+
+    (= (:family config) "cure")
+    (draw-cure-samples
+     {:cure-frac (:bat-cure-frac config)
+      :unc-scale (:bat-unc-scale config)
+      :unc-shape (:bat-unc-shape config)}
+     n-samples random-gen)
+
+    :else
     (draw-weibull-samples n-samples random-gen
                           (:bat-scale config) (:bat-shape config))))
 

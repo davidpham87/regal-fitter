@@ -499,9 +499,11 @@
         (fn [t]
           (let [ta (np/array #js [t] "float64")]
             (first (np/nd-to-array
-                    (if (= family "leaky")
-                      (survival/leaky-cure-survival-probability
-                       ta bat-cf bat-true-scale-val k bat-leak)
+                    (case family
+                      "cure" (survival/cure-survival-probability
+                              ta bat-cf bat-true-scale-val k)
+                      "leaky" (survival/leaky-cure-survival-probability
+                               ta bat-cf bat-true-scale-val k bat-leak)
                       (survival/weibull-survival-probability
                        ta bat-true-scale-val k))))))
 
@@ -531,12 +533,16 @@
        ;; Realized median month on trial timeline
        :bat-realized-month
        (find-realized-median-month
-        (if (= family "leaky")
-          survival/leaky-cure-survival-probability
+        (case family
+          "weibull" survival/weibull-survival-probability
+          "cure" survival/cure-survival-probability
+          "leaky" survival/leaky-cure-survival-probability
           survival/weibull-survival-probability)
-        (if (= family "leaky")
-          [bat-cf (np/array #js [bat-trial-scale-val])
-           (np/array #js [k]) bat-leak]
+        (case family
+          "weibull" [(np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+          "cure" [bat-cf (np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+          "leaky" [bat-cf (np/array #js [bat-trial-scale-val])
+                   (np/array #js [k]) bat-leak]
           [(np/array #js [bat-trial-scale-val]) (np/array #js [k])])
         enroll-pts enroll-weights n-per-arm n-total target-ev)
 
