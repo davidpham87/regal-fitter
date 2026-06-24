@@ -6,7 +6,7 @@
 
 (defn param-range-input
   [val min max step disabled? set-values on-change param-key]
-  [:input.w-full.h-0.5.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
+  [:input.w-full.h-1.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
    {:type "range" :min min :max max :step step
     :value val :disabled disabled?
     :on-change
