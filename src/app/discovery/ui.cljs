@@ -19,7 +19,7 @@
   [val step disabled? set-values on-change param-key]
   [:input.border.rounded.p-0.5.w-12.text-center
    {:type "number" :value val :step step :disabled disabled?
-    :class "text-[10px]"
+    :style {:font-size "10px"}
     :on-change
     (fn [e]
       (let [v (js/parseFloat (.. e -target -value))]
@@ -34,8 +34,8 @@
    (let [val (get values param-key)]
      [:div.mb-1
       [:label.block.font-semibold.uppercase.tracking-wider
-       {:class (str "text-[8.5px] "
-                    (if disabled? "text-gray-400" "text-gray-500"))}
+       {:style {:font-size "8.5px"}
+        :class (if disabled? "text-gray-400" "text-gray-500")}
        label]
       [:div.flex.items-center.gap-1
        [param-range-input val min max step disabled?

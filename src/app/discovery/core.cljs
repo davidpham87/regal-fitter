@@ -293,7 +293,7 @@
      ;; Row 1: BAT Arm Parameters
      [:div.mb-4
       [:div.font-bold.text-gray-400.uppercase.tracking-wide.mb-1.5
-       {:class "text-[9px]"}
+       {:style {:font-size "9px"}}
        "BAT Arm (Baseline Alternative Treatment)"]
       [:div.grid.grid-cols-1.gap-4
        {:class "sm:grid-cols-2 md:grid-cols-4"}
@@ -307,7 +307,7 @@
      ;; Row 2: GPS Arm Parameters
      [:div.mb-4.pt-2.border-t
       [:div.font-bold.text-gray-400.uppercase.tracking-wide.mb-1.5
-       {:class "text-[9px]"}
+       {:style {:font-size "9px"}}
        "GPS Arm (Genomic Predictor Signature)"]
       [:div.grid.grid-cols-1.gap-4
        {:class "sm:grid-cols-2 md:grid-cols-4"}
