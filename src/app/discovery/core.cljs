@@ -593,8 +593,8 @@
         bat-lambda (population-cr2-lambda
                     (:bat-med calc-params)
                     (or (:delay calc-params) 3.0)
-                    (:weibull-k calc-params))
-        bat-true-mos (true-mos bat-lambda (:weibull-k calc-params))
+                    (:bat-shape calc-params))
+        bat-true-mos (true-mos bat-lambda (:bat-shape calc-params))
         medians (assoc (dc/calculate-medians active-family calc-params config)
                        :bat-true-mos bat-true-mos)]
 
