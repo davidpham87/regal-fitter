@@ -173,7 +173,11 @@
                :cure-frac (or (:gps-cure-frac params) (:cure-frac params) 0.0)
                :unc-scale gps-scale
                :unc-shape gps-shape
-               :leak-yr (or (:gps-leak-yr params) (:leak-yr params) 0.0))))))
+               :leak-yr (or (:gps-leak-yr params) (:leak-yr params) 0.0)
+               :gps-scale gps-scale
+               :gps-shape gps-shape
+               :gps-unc-med (or (:gps-unc-med params) (:gps-med params))
+               :gps-unc-shape (or (:gps-unc-shape params) (:weibull-k params) 1.0))))))
 
 (defn run-discovery-simulation! [family params]
   (let [config (:config @rf-db/app-db)

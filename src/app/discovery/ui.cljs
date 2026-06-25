@@ -59,25 +59,23 @@
      :else "Poor")])
 
 (defn stat-card [s]
-  [:div.bg-white.p-3.rounded-xl.shadow-sm.border
-   [:h5.text-xs.font-bold.text-gray-500.uppercase (:label s)]
-   [:div.mt-1.flex.items-baseline.gap-1
-    [:span.text-xl.font-bold.text-gray-800
+  [:div.bg-white.p-2.rounded-lg.shadow-sm.border.text-xxs
+   [:h5.font-bold.text-gray-400.uppercase (:label s)]
+   [:div.mt-0.5.flex.items-baseline.gap-0.5
+    [:span.text-sm.font-bold.text-gray-800
      (.toFixed (:expected s) 1)]
-    [:span.text-xs.text-gray-400
+    [:span.text-gray-400
      (str " / " (:target s))]]
-   [:div.mt-1.grid.grid-cols-2.gap-1
+   [:div.mt-0.5.grid.grid-cols-2.gap-0.5
     [:div
-     [:div {:style {:font-size "10px"}
-            :class "text-gray-400 uppercase"}
+     [:div {:class "text-gray-400 uppercase" :style {:font-size "8px"}}
       "SD"]
-     [:div.text-xs.font-semibold
+     [:div.font-semibold
       (.toFixed (:sd s) 2)]]
     [:div
-     [:div {:style {:font-size "10px"}
-            :class "text-gray-400 uppercase"}
+     [:div {:class "text-gray-400 uppercase" :style {:font-size "8px"}}
       "Std Dev"]
-     [:div.text-xs.font-semibold
+     [:div.font-semibold
       {:class (if (> (js/Math.abs (:std-dev s)) 2)
                 "text-red-600" "text-green-600")}
       (.toFixed (:std-dev s) 2)]]]])
@@ -89,18 +87,18 @@
 
 (defn stats-row [title stats]
   (let [res (calculate-residual stats)]
-    [:div.mb-6
-     [:h4.text-sm.font-bold.text-gray-700.mb-3 title]
-     [:div.grid.grid-cols-1.sm:grid-cols-4.gap-3
+    [:div.mb-3
+     [:h4.text-xs.font-bold.text-gray-700.mb-1.5.uppercase.tracking-wide title]
+     [:div.grid.grid-cols-1.sm:grid-cols-4.gap-2
       (for [s stats]
         ^{:key (:label s)}
         [stat-card s])
-      [:div.bg-white.p-3.rounded-xl.shadow-sm.border.flex.flex-col
-       {:class "justify-between"}
+      [:div.bg-white.p-2.rounded-lg.shadow-sm.border.flex.flex-row
+       {:class "justify-between items-center col-span-1"}
        [:div
-        [:h5.text-xs.font-bold.text-gray-500.uppercase
+        [:h5.font-bold.text-gray-400.uppercase {:style {:font-size "9px"}}
          "Quality of Fit"]
-        [:div.text-xl.font-extrabold.text-gray-800.mt-1
+        [:div.text-xs.font-extrabold.text-gray-800
          (.toFixed res 2) " residual"]]
-       [:div.mt-2
+       [:div
         [quality-fit-badge res]]]]]))

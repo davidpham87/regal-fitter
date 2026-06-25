@@ -288,52 +288,51 @@
 
         gps-cf-disabled? (or placebo? (= active-family "weibull"))
         gps-leak-disabled? (or placebo? (not (= active-family "leaky")))]
-    [:div.bg-white.p-4.rounded-xl.shadow-sm.border.mb-8
-     [:h4.text-xs.font-bold.text-gray-500.uppercase.tracking-wider.mb-3
-      "Parameters"]
+    [:div.bg-white.p-3.rounded-xl.shadow-sm.border.mb-4
+     ;; Single Row: BAT and GPS Arm Parameters side-by-side
+     [:div.grid.grid-cols-1.lg:grid-cols-2.gap-4.mb-3
+      ;; BAT Column
+      [:div.bg-gray-50.p-2.rounded-lg.border
+       [:div {:class row-sub-cls :style {:font-size "8.5px" :margin-bottom "4px"}}
+        "BAT Arm (Baseline Alternative Treatment)"]
+       [:div.grid.grid-cols-2.sm:grid-cols-4.gap-2
+        [dui/param-input props :bat-med "Median" 4 25 0.5]
+        [dui/param-input props :bat-shape "Shape" 0.5 2.5 0.05]
+        [dui/param-input props :bat-cure-frac "Cure Frac"
+         0.0 0.95 0.05 bat-cf-disabled?]
+        [dui/param-input props :bat-leak-yr "Leak"
+         0.0 0.1 0.01 bat-leak-disabled?]]]
 
-     ;; Row 1: BAT Arm Parameters
-     [:div.mb-4
-      [:div {:class row-sub-cls :style {:font-size "9px"}}
-       "BAT Arm (Baseline Alternative Treatment)"]
-      [:div {:class grid-4-cls}
-       [dui/param-input props :bat-med "BAT Median" 4 25 0.5]
-       [dui/param-input props :bat-shape "BAT Shape" 0.5 2.5 0.05]
-       [dui/param-input props :bat-cure-frac "BAT Cure Fraction"
-        0.0 0.95 0.05 bat-cf-disabled?]
-       [dui/param-input props :bat-leak-yr "BAT Leak"
-        0.0 0.1 0.01 bat-leak-disabled?]]]
+      ;; GPS Column
+      [:div.bg-gray-50.p-2.rounded-lg.border
+       [:div {:class row-sub-cls :style {:font-size "8.5px" :margin-bottom "4px"}}
+        "GPS Arm (Genomic Predictor Signature)"]
+       [:div.grid.grid-cols-2.sm:grid-cols-4.gap-2
+        [dui/param-input props :gps-med "Median" 4 50 1.0 placebo?]
+        [dui/param-input props :gps-shape "Shape" 0.5 2.5 0.05 placebo?]
+        [dui/param-input props :gps-cure-frac "Cure Frac"
+         0.0 0.95 0.05 gps-cf-disabled?]
+        [dui/param-input props :gps-leak-yr "Leak"
+         0.0 0.1 0.01 gps-leak-disabled?]]]]
 
-     ;; Row 2: GPS Arm Parameters
-     [:div.mb-4.pt-2.border-t
-      [:div {:class row-sub-cls :style {:font-size "9px"}}
-       "GPS Arm (Genomic Predictor Signature)"]
-      [:div {:class grid-4-cls}
-       [dui/param-input props :gps-med "GPS Median" 4 50 1.0 placebo?]
-       [dui/param-input props :gps-shape "GPS Shape" 0.5 2.5 0.05 placebo?]
-       [dui/param-input props :gps-cure-frac "GPS Cure Fraction"
-        0.0 0.95 0.05 gps-cf-disabled?]
-       [dui/param-input props :gps-leak-yr "GPS Leak"
-        0.0 0.1 0.01 gps-leak-disabled?]]]
-
-     ;; Row 3: Settings, delay, and tolerances
-     [:div.pt-4.border-t.grid.grid-cols-1.gap-4
+     ;; Row 2: Settings, delay, and tolerances
+     [:div.pt-3.border-t.grid.grid-cols-1.gap-2
       {:class "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"}
       [settings-checkboxes props]
       [dui/param-input props :delay "D (Avg Months from CR2)" 0.0 20.0 0.5]
       [tolerance-params props]]
 
-     [:div.mt-4.pt-4.border-t.flex.flex-wrap.items-center.gap-6
+     [:div.mt-3.pt-3.border-t.flex.flex-wrap.items-center.gap-4
       {:class "justify-between"}
-      [:div.flex.items-center.gap-4
+      [:div.flex.items-center.gap-3
        [sim-count-input values set-values active-family calc-params]
        [force-run-btn active-family calc-params state]
        [sim-status-badge state config calc-params]]
 
-      [:div.flex.items-center.gap-6
+      [:div.flex.items-center.gap-4
        [:div.text-center
         [:div.text-xs.text-gray-400.font-semibold "BAT True mOS"]
-        [:div.text-lg.font-bold.text-blue-600
+        [:div.text-sm.font-bold.text-blue-600
          (str (.toFixed bat-true-mos 2) "m")]]
        [sim-result-summary state]]]]))
 
