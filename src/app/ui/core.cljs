@@ -158,11 +158,7 @@
       [:header.bg-gray-800.text-white.shadow-md.mb-6
        [:div.container.mx-auto.px-4.py-3
         [:div.flex.justify-between.items-center
-         [:a.flex.items-center.gap-2.cursor-pointer
-          {:href (rfe/href :home)}
-          [:span.text-xl.font-extrabold.tracking-tight "Regal Fitter"]]
-
-         ;; Desktop & Mobile Menu Trigger (transforming topbar as menu button with drawer)
+         ;; Desktop & Mobile Menu Trigger (transforming topbar as menu button with drawer, positioned left)
          [:div.flex.items-center.gap-2
           [:button.p-2.rounded-lg.bg-gray-700.hover:bg-gray-600.transition-colors.flex.items-center.gap-2
            {:on-click #(swap! menu-open? not)
@@ -171,7 +167,11 @@
             (if @menu-open?
               [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2" :d "M6 18L18 6M6 6l12 12"}]
               [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2" :d "M4 6h16M4 12h16M4 18h16"}])]
-           [:span.text-sm.font-semibold.pr-1 "Menu"]]]]
+           [:span.text-sm.font-semibold.pr-1 "Menu"]]]
+
+         [:a.flex.items-center.gap-2.cursor-pointer
+          {:href (rfe/href :home)}
+          [:span.text-xl.font-extrabold.tracking-tight "Regal Fitter"]]]
 
         ;; Off-canvas navigation drawer / panel (shown when menu is open)
         (when @menu-open?
