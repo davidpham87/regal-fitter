@@ -526,35 +526,30 @@
               "Stochastic Trial Outcomes"]
              [:div.grid.grid-cols-2.gap-4
               [gray-panel "p-3"
-               [:div.text-xs.text-gray-400.font-semibold
-                "Overall Trial Success"]
+               [text-gray-label nil "Overall Trial Success"]
                [:div.text-lg.font-bold.text-green-600
                 (str (.toFixed (* 100 (:p-success-overall sim-result)) 1)
                      "%")]]
               [gray-panel "p-3"
-               [:div.text-xs.text-gray-400.font-semibold
-                "Acceptance Rate (Stage 1 Pass)"]
+               [text-gray-label nil "Acceptance Rate (Stage 1 Pass)"]
                [:div.text-lg.font-bold.text-gray-700
                 (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1)
                      "%")]]
               [gray-panel "p-3"
-               [:div.text-xs.text-gray-400.font-semibold
-                "Median Hazard Ratio"]
+               [text-gray-label nil "Median Hazard Ratio"]
                [:div.text-lg.font-bold.text-blue-600
                 (if (js/isNaN (:median-hr-final sim-result))
                   "N/A"
                   (.toFixed (:median-hr-final sim-result) 3))]]
               [gray-panel "p-3"
-               [:div.text-xs.text-gray-400.font-semibold
-                "Median Time to 80 Ev"]
+               [text-gray-label nil "Median Time to 80 Ev"]
                [:div.text-lg.font-bold.text-blue-600
                 (if (js/isNaN (:median-t80-months sim-result))
                   "N/A"
                   (str (.toFixed (:median-t80-months sim-result) 1)
                        "m"))]]
               [gray-panel "p-3"
-               [:div.text-xs.text-gray-400.font-semibold
-                "Accepted / Futility Pass"]
+               [text-gray-label nil "Accepted / Futility Pass"]
                [:div.text-sm.font-semibold.text-gray-700
                 (str (:n-accepted sim-result) " / "
                      (:n-pass-events sim-result))]]]]])]))))
