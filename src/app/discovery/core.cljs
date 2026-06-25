@@ -36,6 +36,11 @@
 (defn- table-th [alignment text]
   [:th.font-semibold.text-gray-600.pb-2 {:class (str "text-" (or alignment "left"))} text])
 
+(defn- table-td
+  ([text] (table-td nil nil text))
+  ([alignment class-name text]
+   [:td.py-2 {:class (str "text-" (or alignment "left") " " (or class-name "text-gray-600"))} text]))
+
 (defn- param-range-input
   [val min max step disabled? set-values on-change param-key]
   [:input.w-full.h-1.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
@@ -495,32 +500,26 @@
                 [table-th "right" "GPS (Active)"]]]
               [:tbody.divide-y.divide-gray-200
                [:tr
-                [:td.py-2.text-gray-600 "Input Observed mOS"]
-                [:td.py-2.text-right.font-medium
-                 (str (:bat-med calc-params) "m")]
-                [:td.py-2.text-right.font-medium
-                 (str (:gps-med calc-params) "m")]]
+                [table-td "Input Observed mOS"]
+                [table-td "right" "font-medium" (str (:bat-med calc-params) "m")]
+                [table-td "right" "font-medium" (str (:gps-med calc-params) "m")]]
                [:tr
-                [:td.py-2.text-gray-600
-                 "True Population mOS (with delay/cure)"]
-                [:td.py-2.text-right.font-medium.text-blue-600
-                 (str (.toFixed (:bat-true-mos medians) 2) "m")]
-                [:td.py-2.text-right.font-medium.text-blue-600
+                [table-td "True Population mOS (with delay/cure)"]
+                [table-td "right" "font-medium text-blue-600" (str (.toFixed (:bat-true-mos medians) 2) "m")]
+                [table-td "right" "font-medium text-blue-600"
                  (if (= (:gps-true-mos medians) js/Infinity)
                    "Infinity"
                    (str (.toFixed (:gps-true-mos medians) 2) "m"))]]
                [:tr
-                [:td.py-2.text-gray-600
-                 "Trial Timeline realized mOS (50% events)"]
-                [:td.py-2.text-right.font-medium.text-green-600
+                [table-td "Trial Timeline realized mOS (50% events)"]
+                [table-td "right" "font-medium text-green-600"
                  (if (= (:bat-realized-month medians) js/Infinity)
                    "N/A"
                    (str (.toFixed (:bat-realized-month medians) 2) "m"))]
-                [:td.py-2.text-right.font-medium.text-green-600
+                [table-td "right" "font-medium text-green-600"
                  (if (= (:gps-realized-month medians) js/Infinity)
                    "N/A"
-                   (str (.toFixed (:gps-realized-month medians)
-                                  2) "m"))]]]]]
+                   (str (.toFixed (:gps-realized-month medians) 2) "m"))]]]]]
             [:div
              [:h4.text-sm.font-bold.text-gray-700.mb-3
               "Stochastic Trial Outcomes"]
