@@ -105,7 +105,7 @@
 
 (defn accrual-markers-layer [markers color shape size y-field]
   {:data {:values markers}
-   :mark {:type "point" :size size :color color :shape shape :filled true}
+   :mark {:type "point" :size size :color color :shape shape :filled false}
    :encoding {:x {:field "time" :type "quantitative"}
               :y {:field y-field :type "quantitative" :scale {:zero false}}
               :tooltip [{:field "label" :type "nominal" :title "Milestone"}
