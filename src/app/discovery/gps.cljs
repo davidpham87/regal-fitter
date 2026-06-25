@@ -11,7 +11,7 @@
   "Returns [scale shape] for Weibull GPS."
   [params]
   (let [med   (np/array #js [(:gps-med params)])
-        shape (np/array #js [(:weibull-k params)])
+        shape (np/array #js [(or (:gps-shape params) (:weibull-k params))])
         scale (survival/weibull-scale-from-median med shape)]
     [scale shape]))
 
@@ -19,21 +19,21 @@
   "Returns [cf scale shape] for cure-model GPS."
   [params]
   (let [[scale shape] (gps-weibull-args params)
-        cf (np/array #js [(:cure-frac params)])]
+        cf (np/array #js [(or (:gps-cure-frac params) (:cure-frac params) 0.0)])]
     [cf scale shape]))
 
 (defn- gps-leaky-args
   "Returns [cf scale shape leak] for leaky-cure GPS.
   Uses dedicated :gps-unc-med and :gps-unc-shape when present,
-  falling back to :gps-med / :weibull-k for backwards compat."
+  falling back to :gps-med / :gps-shape / :weibull-k for backwards compat."
   [params]
   (let [unc-med   (or (:gps-unc-med params) (:gps-med params))
-        unc-shape (or (:gps-unc-shape params) (:weibull-k params))
+        unc-shape (or (:gps-unc-shape params) (:gps-shape params) (:weibull-k params))
         med-arr   (np/array #js [unc-med])
         shp-arr   (np/array #js [unc-shape])
         scale     (survival/weibull-scale-from-median med-arr shp-arr)
-        cf        (np/array #js [(:cure-frac params)])
-        leak      (np/array #js [(:leak-yr params)])]
+        cf        (np/array #js [(or (:gps-cure-frac params) (:cure-frac params) 0.0)])
+        leak      (np/array #js [(or (:gps-leak-yr params) (:leak-yr params) 0.0)])]
     [cf scale shp-arr leak]))
 
 (defn- gps-survival-fn

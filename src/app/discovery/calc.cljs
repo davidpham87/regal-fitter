@@ -12,7 +12,7 @@
   "Returns {:scale … :shape …} for the BAT Weibull arm."
   [params]
   (let [med   (np/array #js [(:bat-med params)])
-        shape (np/array #js [(:weibull-k params)])
+        shape (np/array #js [(or (:bat-shape params) (:weibull-k params))])
         scale (survival/weibull-scale-from-median med shape)]
     {:scale scale :shape shape}))
 
