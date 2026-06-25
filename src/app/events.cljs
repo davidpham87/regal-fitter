@@ -441,5 +441,5 @@
                     (assoc-in [:discovery :sim-status] :running)
                     (assoc-in [:discovery :sim-result] nil))]
      {:db new-db
-      :push-state [:discovery-sub {:subtab family-str}]
+      :push-state [:discovery nil]
       :run-discovery-sim {:family family-str :params params}})))

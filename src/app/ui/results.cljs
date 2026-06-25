@@ -168,7 +168,7 @@
                       :class "text-xs font-bold px-2 py-1 rounded"
                       :on-click #(rf/dispatch
                                   [:export-to-discovery family item])}
-                     "Export"]]
+                     "Visualize"]]
                    (for [k keys-to-show]
                      ^{:key k}
                      [:td.px-4.py-2.text-gray-700
