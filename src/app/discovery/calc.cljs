@@ -88,18 +88,33 @@
 ;; ---------------------------------------------------------------------------
 
 (defn- bat-survival
-  "BAT Weibull survival array over t-pts."
-  [params t-pts]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
-    (survival/weibull-survival-probability t-pts scale shape)))
+  "BAT survival array over t-pts for the given family."
+  [family params t-pts]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])]
+    (case family
+      "cure" (survival/cure-survival-probability t-pts cf scale shape)
+      "leaky" (survival/leaky-cure-survival-probability t-pts cf scale shape leak)
+      (survival/weibull-survival-probability t-pts scale shape))))
 
 (defn- bat-events
   "Expected BAT arm event counts over t-pts."
-  [params enroll-pts enroll-weights t-pts n-per-arm n-total]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params enroll-pts enroll-weights t-pts n-per-arm n-total]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
+        s-fn (case family
+               "cure" survival/cure-survival-probability
+               "leaky" survival/leaky-cure-survival-probability
+               survival/weibull-survival-probability)
+        args (case family
+               "cure" [cf scale shape]
+               "leaky" [cf scale shape leak]
+               [scale shape])]
     (enrollment/expected-arm-events
-     survival/weibull-survival-probability
-     [scale shape]
+     s-fn
+     args
      enroll-pts enroll-weights t-pts
      n-per-arm n-total)))
 
@@ -199,13 +214,22 @@
 
 (defn- bat-point-fn
   "Returns a scalar survival function t->S for BAT arm."
-  [params]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        bat-cf    (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        bat-leak  (np/array #js [(or (:bat-leak-yr params) 0.0)])]
     (fn [t]
       (let [ta (np/array #js [t] "float64")]
         (first (np/nd-to-array
-                (survival/weibull-survival-probability
-                 ta scale shape)))))))
+                (case family
+                  "cure"
+                  (survival/cure-survival-probability
+                   ta bat-cf scale shape)
+                  "leaky"
+                  (survival/leaky-cure-survival-probability
+                   ta bat-cf scale shape bat-leak)
+                  (survival/weibull-survival-probability
+                   ta scale shape))))))))
 
 ;; ---------------------------------------------------------------------------
 ;; Milestone events arrays
@@ -213,11 +237,21 @@
 
 (defn- milestone-events
   "Returns np-array of expected arm events at milestone time-points."
-  [params enroll-pts enroll-weights t-milestones n-per-arm n-total]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params enroll-pts enroll-weights t-milestones n-per-arm n-total]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
+        s-fn (case family
+               "cure" survival/cure-survival-probability
+               "leaky" survival/leaky-cure-survival-probability
+               survival/weibull-survival-probability)
+        args (case family
+               "cure" [cf scale shape]
+               "leaky" [cf scale shape leak]
+               [scale shape])]
     (enrollment/expected-arm-events
-     survival/weibull-survival-probability
-     [scale shape]
+     s-fn
+     args
      enroll-pts enroll-weights t-milestones
      n-per-arm n-total)))
 
@@ -237,8 +271,8 @@
         n-total   (:n-total config)
 
         ;; BAT arm arrays
-        survival-bat  (bat-survival  params t-pts)
-        events-bat (bat-events params enroll-pts enroll-weights
+        survival-bat  (bat-survival family params t-pts)
+        events-bat (bat-events family params enroll-pts enroll-weights
                                t-pts n-per-arm n-total)
 
         ;; GPS arm arrays (falls back to BAT when family unknown)
@@ -276,7 +310,7 @@
                                     (:t-pr3 config)]
                                "float64")
         ms-events-bat (milestone-events
-                       params enroll-pts enroll-weights
+                       family params enroll-pts enroll-weights
                        t-milestones n-per-arm n-total)
         ms-events-gps (gps/gps-events
                        family params enroll-pts enroll-weights
@@ -293,13 +327,13 @@
         t-ms-arr       (np/nd-to-array t-milestones)
 
         ;; Point functions for binary search
-        survival-bat-fn   (bat-point-fn  params)
+        survival-bat-fn   (bat-point-fn family params)
         survival-gps-fn   (gps-point-fn  family params)
         survival-pooled-fn  (fn [t] (* 0.5 (+ (survival-bat-fn t) (survival-gps-fn t))))
 
         ;; t=36 reference values
         t-36       (np/array #js [36] "float64")
-        survival-bat-36   (bat-survival params t-36)
+        survival-bat-36   (bat-survival family params t-36)
         survival-gps-36   (gps/gps-survival family params t-36 survival-bat-36)
         survival-pooled-36  (np/multiply (np/add survival-bat-36 survival-gps-36) 0.5)
 

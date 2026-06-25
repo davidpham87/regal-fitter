@@ -105,9 +105,12 @@
 
 (defn accrual-markers-layer [markers color shape size y-field]
   {:data {:values markers}
-   :mark {:type "point" :size size :color color :shape shape}
+   :mark {:type "point" :size size :color color :shape shape :filled true}
    :encoding {:x {:field "time" :type "quantitative"}
-              :y {:field y-field :type "quantitative"}}})
+              :y {:field y-field :type "quantitative" :scale {:zero false}}
+              :tooltip [{:field "label" :type "nominal" :title "Milestone"}
+                        {:field "time" :type "quantitative" :title "Month"}
+                        {:field y-field :type "quantitative" :title y-field}]}})
 
 (defn extract-accrual-markers [event-stats]
   (mapv (fn [s] {:time (:time s 0.0)
