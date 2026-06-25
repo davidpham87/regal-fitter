@@ -391,8 +391,7 @@
          [:th.px-4.py-2.text-left "GPS mOS"]
          [:th.px-4.py-2.text-left "HR"]
          [:th.px-4.py-2.text-left "Events Required"]
-         [:th.px-4.py-2.text-left "N Required"]
-         [:th.px-4.py-2.text-left "Sufficient (N=126)?"]]]
+         [:th.px-4.py-2.text-left "Sufficient Events (<= 80)?"]]]
        [:tbody.divide-y.divide-gray-200.bg-white
         (doall
          (for [scenario (filter #(contains? #{6.0 8.0 10.0 12.0} (:bat-mos %))
@@ -403,9 +402,8 @@
             [:td.px-4.py-2 (:gps-mos scenario)]
             [:td.px-4.py-2 (.toFixed (:hr scenario) 2)]
             [:td.px-4.py-2 (.toFixed (:events-required scenario) 1)]
-            [:td.px-4.py-2 (.toFixed (:n-required scenario) 0)]
             [:td.px-4.py-2
-             (if (<= (:n-required scenario) n-total)
+             (if (<= (:events-required scenario) 80)
                [:span.text-green-600.font-bold "Yes"]
                [:span.text-red-600.font-bold "No"])]]))]]]]))
 
