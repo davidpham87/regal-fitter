@@ -132,6 +132,7 @@
    [:label.flex.items-center.gap-1.5.text-xs.font-bold.text-gray-700
     {:class "cursor-pointer"}
     [:input {:type "checkbox"
+             :id "placebo-mode"
              :checked (:placebo-mode? values)
              :on-change
              (fn [e]
