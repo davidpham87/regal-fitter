@@ -1,26 +1,21 @@
 (ns app.discovery.core
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
-            [fork.re-frame :as fork]
+  (:require [app.discovery.calc :as dc]
+            [app.discovery.hazard :as dhz]
+            [app.discovery.playground :as play]
+            [app.simulator :as sim]
             [app.state :as state]
             [app.visualization :as vega]
-            [app.simulator :as sim]
-            [reitit.frontend.easy :as rfe]
+            [app.components.card :as card]
             [cljs.math :as math]
             [clojure.string :as cstr]
-            [app.discovery.calc :as dc]
-            [app.discovery.hazard :as dhz]
-            [app.discovery.playground :as play]))
+            [fork.re-frame :as fork]
+            [re-frame.core :as rf]
+            [reagent.core :as r]
+            [reitit.frontend.easy :as rfe]))
 
 ;; ---------------------------------------------------------------------------
 ;; UI Component Primitives (Inlined from discovery.ui)
 ;; ---------------------------------------------------------------------------
-
-(defn- card-panel [class-name & children]
-  (into [:div.bg-white.p-3.rounded-xl.shadow-sm.border {:class class-name}] children))
-
-(defn- gray-panel [class-name & children]
-  (into [:div.bg-gray-50.p-2.rounded-lg.border {:class class-name}] children))
 
 (defn- badge-pill [class-name text]
   [:span.px-2.py-1.rounded-lg.text-xs.font-bold.uppercase {:class class-name} text])
@@ -336,11 +331,11 @@
 
         gps-cf-disabled? (or placebo? (= active-family "weibull"))
         gps-leak-disabled? (or placebo? (not (= active-family "leaky")))]
-    [card-panel "mb-4"
+    [card/card-panel "mb-4"
      ;; Single Row: BAT and GPS Arm Parameters side-by-side
      [:div.grid.grid-cols-1.lg:grid-cols-2.gap-4.mb-3
       ;; BAT Column
-      [gray-panel nil
+      [card/gray-panel nil
        [:div {:class row-sub-cls :style {:font-size "8.5px" :margin-bottom "4px"}}
         "BAT Arm (Baseline Alternative Treatment)"]
        [:div.grid.grid-cols-2.sm:grid-cols-4.gap-2
@@ -352,7 +347,7 @@
          0.0 0.1 0.01 bat-leak-disabled?]]]
 
       ;; GPS Column
-      [gray-panel nil
+      [card/gray-panel nil
        [:div {:class row-sub-cls :style {:font-size "8.5px" :margin-bottom "4px"}}
         "GPS Arm (Genomic Predictor Signature)"]
        [:div.grid.grid-cols-2.sm:grid-cols-4.gap-2
@@ -409,25 +404,25 @@
 
 (defn- chart-grid [curve-data h1-hazard-rates active-metric sim-result title]
   [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-   [card-panel nil
+   [card/card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Survival Curves")]
     [vega/discovery-survival-chart (:survival curve-data)]]
-   [card-panel nil
+   [card/card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Event Accrual")]
     [vega/discovery-accrual-chart (:accrual curve-data)
      (:stats curve-data)]]
-   [card-panel nil
+   [card/card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Patients Alive")]
     [vega/discovery-alive-chart (:alive curve-data)
      (:stats curve-data)]]
-   [card-panel nil
+   [card/card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Estimated Hazard Ratios")]
     [vega/discovery-hr-chart (:hr curve-data)]]
-   [card-panel nil
+   [card/card-panel nil
     [:div.flex.justify-between.items-center.mb-2
      [:h4.text-xs.font-bold.text-gray-700
       (str title ": " (if (= @active-metric :rate)
@@ -480,7 +475,7 @@
   (let [expanded? (r/atom true)]
     (fn [sim-result medians active-family calc-params]
       (when sim-result
-        [card-panel "mb-8 p-6"
+        [card/card-panel "mb-8 p-6"
          [:div.flex.justify-between.items-center.cursor-pointer
           {:on-click #(swap! expanded? not)}
           [:h3.text-lg.font-bold.text-gray-800
@@ -524,30 +519,30 @@
              [:h4.text-sm.font-bold.text-gray-700.mb-3
               "Stochastic Trial Outcomes"]
              [:div.grid.grid-cols-2.gap-4
-              [gray-panel "p-3"
+              [card/gray-panel "p-3"
                [text-gray-label nil "Overall Trial Success"]
                [:div.text-lg.font-bold.text-green-600
                 (str (.toFixed (* 100 (:p-success-overall sim-result)) 1)
                      "%")]]
-              [gray-panel "p-3"
+              [card/gray-panel "p-3"
                [text-gray-label nil "Acceptance Rate (Stage 1 Pass)"]
                [:div.text-lg.font-bold.text-gray-700
                 (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1)
                      "%")]]
-              [gray-panel "p-3"
+              [card/gray-panel "p-3"
                [text-gray-label nil "Median Hazard Ratio"]
                [:div.text-lg.font-bold.text-blue-600
                 (if (js/isNaN (:median-hr-final sim-result))
                   "N/A"
                   (.toFixed (:median-hr-final sim-result) 3))]]
-              [gray-panel "p-3"
+              [card/gray-panel "p-3"
                [text-gray-label nil "Median Time to 80 Ev"]
                [:div.text-lg.font-bold.text-blue-600
                 (if (js/isNaN (:median-t80-months sim-result))
                   "N/A"
                   (str (.toFixed (:median-t80-months sim-result) 1)
                        "m"))]]
-              [gray-panel "p-3"
+              [card/gray-panel "p-3"
                [text-gray-label nil "Accepted / Futility Pass"]
                [:div.text-sm.font-semibold.text-gray-700
                 (str (:n-accepted sim-result) " / "

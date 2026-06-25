@@ -30,3 +30,9 @@
    (into
     [:div.flex.items-center.justify-center.p-4.md:p-6.w-full]
     children)])
+
+(defn card-panel [class-name & children]
+  (into [:div.bg-white.p-3.rounded-xl.shadow-sm.border {:class class-name}] children))
+
+(defn gray-panel [class-name & children]
+  (into [:div.bg-gray-50.p-2.rounded-lg.border {:class class-name}] children))
