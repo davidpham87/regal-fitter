@@ -482,7 +482,7 @@
   (let [expanded? (r/atom true)]
     (fn [sim-result medians active-family calc-params]
       (when sim-result
-        [:div.bg-white.p-6.rounded-xl.shadow-sm.border.mb-8
+        [card-panel "mb-8 p-6"
          [:div.flex.justify-between.items-center.cursor-pointer
           {:on-click #(swap! expanded? not)}
           [:h3.text-lg.font-bold.text-gray-800
@@ -533,26 +533,26 @@
              [:h4.text-sm.font-bold.text-gray-700.mb-3
               "Stochastic Trial Outcomes"]
              [:div.grid.grid-cols-2.gap-4
-              [:div.bg-gray-50.p-3.rounded-lg.border
+              [gray-panel "p-3"
                [:div.text-xs.text-gray-400.font-semibold
                 "Overall Trial Success"]
                [:div.text-lg.font-bold.text-green-600
                 (str (.toFixed (* 100 (:p-success-overall sim-result)) 1)
                      "%")]]
-              [:div.bg-gray-50.p-3.rounded-lg.border
+              [gray-panel "p-3"
                [:div.text-xs.text-gray-400.font-semibold
                 "Acceptance Rate (Stage 1 Pass)"]
                [:div.text-lg.font-bold.text-gray-700
                 (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1)
                      "%")]]
-              [:div.bg-gray-50.p-3.rounded-lg.border
+              [gray-panel "p-3"
                [:div.text-xs.text-gray-400.font-semibold
                 "Median Hazard Ratio"]
                [:div.text-lg.font-bold.text-blue-600
                 (if (js/isNaN (:median-hr-final sim-result))
                   "N/A"
                   (.toFixed (:median-hr-final sim-result) 3))]]
-              [:div.bg-gray-50.p-3.rounded-lg.border
+              [gray-panel "p-3"
                [:div.text-xs.text-gray-400.font-semibold
                 "Median Time to 80 Ev"]
                [:div.text-lg.font-bold.text-blue-600
@@ -560,7 +560,7 @@
                   "N/A"
                   (str (.toFixed (:median-t80-months sim-result) 1)
                        "m"))]]
-              [:div.bg-gray-50.p-3.rounded-lg.border
+              [gray-panel "p-3"
                [:div.text-xs.text-gray-400.font-semibold
                 "Accepted / Futility Pass"]
                [:div.text-sm.font-semibold.text-gray-700
