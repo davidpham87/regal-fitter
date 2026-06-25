@@ -18,11 +18,21 @@
 
 (defn- bat-events-variance
   "Expected events and variance for the BAT arm."
-  [params enroll-pts enroll-weights target-times n-per-arm n-total]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params enroll-pts enroll-weights target-times n-per-arm n-total]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
+        s-fn (case family
+               "cure" survival/cure-survival-probability
+               "leaky" survival/leaky-cure-survival-probability
+               survival/weibull-survival-probability)
+        args (case family
+               "cure" [cf scale shape]
+               "leaky" [cf scale shape leak]
+               [scale shape])]
     (enrollment/expected-arm-events-and-variance
-     survival/weibull-survival-probability
-     [scale shape]
+     s-fn
+     args
      enroll-pts enroll-weights target-times
      n-per-arm n-total)))
 
@@ -45,7 +55,7 @@
         n-total   (:n-total config)
 
         bat-res (bat-events-variance
-                 params enroll-pts enroll-weights
+                 family params enroll-pts enroll-weights
                  target-times n-per-arm n-total)
 
         gps-res (gps/gps-events-and-variance
