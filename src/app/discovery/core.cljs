@@ -16,6 +16,15 @@
 ;; UI Component Primitives (Inlined from discovery.ui)
 ;; ---------------------------------------------------------------------------
 
+(defn- card-panel [class-name & children]
+  (into [:div.bg-white.p-3.rounded-xl.shadow-sm.border {:class class-name}] children))
+
+(defn- gray-panel [class-name & children]
+  (into [:div.bg-gray-50.p-2.rounded-lg.border {:class class-name}] children))
+
+(defn- badge-pill [class-name text]
+  [:span.px-2.py-1.rounded-lg.text-xs.font-bold.uppercase {:class class-name} text])
+
 (defn- param-range-input
   [val min max step disabled? set-values on-change param-key]
   [:input.w-full.h-1.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
@@ -56,36 +65,25 @@
         set-values on-change param-key]]])))
 
 (defn- quality-fit-badge [res]
-  [:span.px-2.py-1.rounded-lg.text-xs.font-bold.uppercase
-   {:class (cond
-             (< res 2.0) "bg-green-100 text-green-800"
-             (< res 5.0) "bg-yellow-100 text-yellow-800"
-             :else "bg-red-100 text-red-800")}
-   (cond
-     (< res 2.0) "Excellent"
-     (< res 5.0) "Acceptable"
-     :else "Poor")])
+  (cond
+    (< res 2.0) [badge-pill "bg-green-100 text-green-800" "Excellent"]
+    (< res 5.0) [badge-pill "bg-yellow-100 text-yellow-800" "Acceptable"]
+    :else [badge-pill "bg-red-100 text-red-800" "Poor"]))
 
 (defn- stat-card [s]
   [:div.bg-white.p-2.rounded-lg.shadow-sm.border.text-xxs
    [:h5.font-bold.text-gray-400.uppercase (:label s)]
    [:div.mt-0.5.flex.items-baseline.gap-0.5
-    [:span.text-sm.font-bold.text-gray-800
-     (.toFixed (:expected s) 1)]
-    [:span.text-gray-400
-     (str " / " (:target s))]]
+    [:span.text-sm.font-bold.text-gray-800 (.toFixed (:expected s) 1)]
+    [:span.text-gray-400 (str " / " (:target s))]]
    [:div.mt-0.5.grid.grid-cols-2.gap-0.5
     [:div
-     [:div {:class "text-gray-400 uppercase" :style {:font-size "8px"}}
-      "SD"]
-     [:div.font-semibold
-      (.toFixed (:sd s) 2)]]
+     [:div {:class "text-gray-400 uppercase" :style {:font-size "8px"}} "SD"]
+     [:div.font-semibold (.toFixed (:sd s) 2)]]
     [:div
-     [:div {:class "text-gray-400 uppercase" :style {:font-size "8px"}}
-      "Std Dev"]
+     [:div {:class "text-gray-400 uppercase" :style {:font-size "8px"}} "Std Dev"]
      [:div.font-semibold
-      {:class (if (> (js/Math.abs (:std-dev s)) 2)
-                "text-red-600" "text-green-600")}
+      {:class (if (> (js/Math.abs (:std-dev s)) 2) "text-red-600" "text-green-600")}
       (.toFixed (:std-dev s) 2)]]]])
 
 (defn- calculate-residual [milestone-stats]
@@ -101,15 +99,11 @@
       (for [s stats]
         ^{:key (:label s)}
         [stat-card s])
-      [:div.bg-white.p-2.rounded-lg.shadow-sm.border.flex.flex-row
-       {:class "justify-between items-center col-span-1"}
+      [:div.bg-white.p-2.rounded-lg.shadow-sm.border.flex.flex-row.justify-between.items-center.col-span-1
        [:div
-        [:h5.font-bold.text-gray-400.uppercase {:style {:font-size "9px"}}
-         "Quality of Fit"]
-        [:div.text-xs.font-extrabold.text-gray-800
-         (.toFixed res 2) " residual"]]
-       [:div
-        [quality-fit-badge res]]]]]))
+        [:h5.font-bold.text-gray-400.uppercase {:style {:font-size "9px"}} "Quality of Fit"]
+        [:div.text-xs.font-extrabold.text-gray-800 (.toFixed res 2) " residual"]]
+       [:div [quality-fit-badge res]]]]]))
 
 ;; ---------------------------------------------------------------------------
 ;; Pure math helpers
@@ -341,11 +335,11 @@
 
         gps-cf-disabled? (or placebo? (= active-family "weibull"))
         gps-leak-disabled? (or placebo? (not (= active-family "leaky")))]
-    [:div.bg-white.p-3.rounded-xl.shadow-sm.border.mb-4
+    [card-panel "mb-4"
      ;; Single Row: BAT and GPS Arm Parameters side-by-side
      [:div.grid.grid-cols-1.lg:grid-cols-2.gap-4.mb-3
       ;; BAT Column
-      [:div.bg-gray-50.p-2.rounded-lg.border
+      [gray-panel nil
        [:div {:class row-sub-cls :style {:font-size "8.5px" :margin-bottom "4px"}}
         "BAT Arm (Baseline Alternative Treatment)"]
        [:div.grid.grid-cols-2.sm:grid-cols-4.gap-2
@@ -357,7 +351,7 @@
          0.0 0.1 0.01 bat-leak-disabled?]]]
 
       ;; GPS Column
-      [:div.bg-gray-50.p-2.rounded-lg.border
+      [gray-panel nil
        [:div {:class row-sub-cls :style {:font-size "8.5px" :margin-bottom "4px"}}
         "GPS Arm (Genomic Predictor Signature)"]
        [:div.grid.grid-cols-2.sm:grid-cols-4.gap-2
@@ -417,25 +411,25 @@
 
 (defn- chart-grid [curve-data h1-hazard-rates active-metric sim-result title]
   [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-   [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+   [card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Survival Curves")]
     [vega/discovery-survival-chart (:survival curve-data)]]
-   [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+   [card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Event Accrual")]
     [vega/discovery-accrual-chart (:accrual curve-data)
      (:stats curve-data)]]
-   [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+   [card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Patients Alive")]
     [vega/discovery-alive-chart (:alive curve-data)
      (:stats curve-data)]]
-   [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+   [card-panel nil
     [:h4.text-xs.font-bold.text-gray-700.mb-2
      (str title ": Estimated Hazard Ratios")]
     [vega/discovery-hr-chart (:hr curve-data)]]
-   [:div.bg-white.p-3.rounded-xl.shadow-sm.border
+   [card-panel nil
     [:div.flex.justify-between.items-center.mb-2
      [:h4.text-xs.font-bold.text-gray-700
       (str title ": " (if (= @active-metric :rate)
