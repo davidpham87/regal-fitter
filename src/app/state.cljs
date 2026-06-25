@@ -279,7 +279,7 @@
    :gps-mos-ref 12.0
    :alpha 0.025
    :power 0.9
-   :p-event 0.635  ;; 80/126
+   :p-event 1.0
    :bat-mos-range [6.0 20.0 1.0]  ;; [start stop step]
    :gps-mos-range [10.0 30.0 1.0]})
 

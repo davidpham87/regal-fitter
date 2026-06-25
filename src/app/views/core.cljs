@@ -297,7 +297,7 @@
   [{:keys [values handle-change]}]
   (let [alpha (safe-float (:alpha values) 0.025)
         power-val (safe-float (:power values) 0.9)
-        p-event (safe-float (:p-event values) 0.635)
+        p-event 1.0
         n-total (safe-int (:n-total values) 126)
         bat-ref (safe-float (:bat-mos-ref values) 8.0)
         gps-ref (safe-float (:gps-mos-ref values) 12.0)
@@ -316,7 +316,7 @@
       "Schoenfeld log-rank approximation under proportional hazards."]
 
      ;; Form Inputs
-     [:div.grid.grid-cols-1.md:grid-cols-4.gap-4.mb-6
+     [:div.grid.grid-cols-1.md:grid-cols-3.gap-4.mb-6
       [:div
        [:label.block.text-xs.font-semibold.text-gray-700
         "alpha (One-sided)"]
@@ -329,12 +329,6 @@
        [:input.border.w-full.p-1.rounded.text-sm.mt-1
         {:type "number" :step "0.05" :name "power"
          :value (:power values) :on-change handle-change}]]
-      [:div
-       [:label.block.text-xs.font-semibold.text-gray-700
-        "Event Probability"]
-       [:input.border.w-full.p-1.rounded.text-sm.mt-1
-        {:type "number" :step "0.01" :name "p-event"
-         :value (:p-event values) :on-change handle-change}]]
       [:div
        [:label.block.text-xs.font-semibold.text-gray-700
         "Reference Trial N"]
