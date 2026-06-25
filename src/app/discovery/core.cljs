@@ -571,26 +571,22 @@
         medians (assoc (dc/calculate-medians active-family calc-params config)
                        :bat-true-mos bat-true-mos)]
 
-    [:div.p-6.max-w-7xl.mx-auto
-     [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
-      "Discovery View"]
-     [:p.text-gray-600.mb-6
-      (str "Explore survival curves and event accrual "
-           "given parametric assumptions.")]
+     [:div.p-6.max-w-7xl.mx-auto
+      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
+       "Discovery View"]
+      [:p.text-gray-600.mb-6
+       (str "Explore survival curves and event accrual "
+            "given leaky cure parametric assumptions.")]
 
-     [family-tabs active-family]
-
-     (if (= active-family "r-repl")
-       [play/gs-design-playground]
-       [:<>
-        [controls-panel props active-family calc-params
-         state config bat-true-mos]
-        [simulation-results-panel sim-result medians active-family calc-params]
-        ^{:key (str params)}
-        [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
-         [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
-         [h0-section stats-h0 curve-data-h0 h0-hazard-rates
-          active-metric avg-med]]])]))
+      [:<>
+       [controls-panel props active-family calc-params
+        state config bat-true-mos]
+       [simulation-results-panel sim-result medians active-family calc-params]
+       ^{:key (str params)}
+       [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
+        [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
+        [h0-section stats-h0 curve-data-h0 h0-hazard-rates
+         active-metric avg-med]]]]))
 
 ;; ---------------------------------------------------------------------------
 ;; Public entry point

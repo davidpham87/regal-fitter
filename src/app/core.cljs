@@ -30,10 +30,12 @@
     {:name :power-analysis-state}]
    ["/discovery"
     {:name :discovery}]
-   ["/discovery/:subtab"
-    {:name :discovery-sub}]
-   ["/discovery/:subtab/:state"
-    {:name :discovery-sub-state}]])
+   ["/discovery/:state"
+    {:name :discovery-state}]
+   ["/r-repl"
+    {:name :r-repl}]
+   ["/r-repl/:state"
+    {:name :r-repl-state}]])
 
 (defn init-routes! []
   (rfe/start!

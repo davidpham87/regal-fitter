@@ -117,7 +117,10 @@
                   (#{:discovery :discovery-state} page)
                   (-> db
                       (assoc :active-page :discovery)
-                      (assoc-in [:discovery :active-family] "weibull"))
+                      (assoc-in [:discovery :active-family] "leaky"))
+
+                  (#{:r-repl :r-repl-state} page)
+                  (assoc db :active-page :r-repl)
 
                   (#{:placebo-stress :placebo-stress-state} page)
                   (assoc db :active-page :placebo-stress)
@@ -157,10 +160,11 @@
                          (#{:power-analysis :power-analysis-state} page)
                          [:power-analysis nil {:state b64}]
 
-                         (#{:discovery :discovery-sub :discovery-sub-state} page)
-                         [:discovery-sub
-                          {:subtab (or subtab "weibull")}
-                          {:state b64}]
+                         (#{:r-repl :r-repl-state} page)
+                         [:r-repl nil {:state b64}]
+
+                         (#{:discovery :discovery-state} page)
+                         [:discovery nil {:state b64}]
 
                          :else
                          [page path-params nil])]
