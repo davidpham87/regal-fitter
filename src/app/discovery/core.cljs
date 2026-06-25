@@ -25,6 +25,17 @@
 (defn- badge-pill [class-name text]
   [:span.px-2.py-1.rounded-lg.text-xs.font-bold.uppercase {:class class-name} text])
 
+(defn- text-gray-label [class-name text]
+  [:div.text-xs.text-gray-400.font-semibold {:class class-name} text])
+
+(defn- text-center-panel [label val-str val-class]
+  [:div.text-center
+   [text-gray-label nil label]
+   [:div.text-sm.font-semibold {:class (or val-class "text-gray-700")} val-str]])
+
+(defn- table-th [alignment text]
+  [:th.font-semibold.text-gray-600.pb-2 {:class (str "text-" (or alignment "left"))} text])
+
 (defn- param-range-input
   [val min max step disabled? set-values on-change param-key]
   [:input.w-full.h-1.bg-gray-200.rounded-lg.appearance-none.cursor-pointer
@@ -285,25 +296,10 @@
                   median-hr-final median-t80-months]}
           (:sim-result state)]
       [:<>
-       [:div.text-center
-        [:div.text-xs.text-gray-400.font-semibold "P(Success)"]
-        [:div.text-lg.font-bold.text-blue-600
-         (str (.toFixed (* 100 p-success-overall) 1) "%")]]
-       [:div.text-center
-        [:div.text-xs.text-gray-400.font-semibold "Acceptance Rate"]
-        [:div.text-sm.font-semibold.text-gray-700
-         (str (.toFixed (* 100 acceptance-rate) 1) "%")]]
-       [:div.text-center
-        [:div.text-xs.text-gray-400.font-semibold "Median HR"]
-        [:div.text-sm.font-semibold.text-gray-700
-         (if (js/isNaN median-hr-final)
-           "N/A" (.toFixed median-hr-final 3))]]
-       [:div.text-center
-        [:div.text-xs.text-gray-400.font-semibold "Median T80"]
-        [:div.text-sm.font-semibold.text-gray-700
-         (if (js/isNaN median-t80-months)
-           "N/A"
-           (str (.toFixed median-t80-months 1) "m"))]]])))
+       [text-center-panel "P(Success)" (str (.toFixed (* 100 p-success-overall) 1) "%") "text-lg text-blue-600 font-bold"]
+       [text-center-panel "Acceptance Rate" (str (.toFixed (* 100 acceptance-rate) 1) "%")]
+       [text-center-panel "Median HR" (if (js/isNaN median-hr-final) "N/A" (.toFixed median-hr-final 3))]
+       [text-center-panel "Median T80" (if (js/isNaN median-t80-months) "N/A" (str (.toFixed median-t80-months 1) "m"))]])))
 
 (def ^:private row-sub-cls
   "font-bold text-gray-400 uppercase tracking-wide mb-1.5")
@@ -377,10 +373,7 @@
        [sim-status-badge state config calc-params]]
 
       [:div.flex.items-center.gap-4
-       [:div.text-center
-        [:div.text-xs.text-gray-400.font-semibold "BAT True mOS"]
-        [:div.text-sm.font-bold.text-blue-600
-         (str (.toFixed bat-true-mos 2) "m")]]
+       [text-center-panel "BAT True mOS" (str (.toFixed bat-true-mos 2) "m") "text-blue-600 font-bold"]
        [sim-result-summary state]]]]))
 
 (defn- analytical-hazard-rates
@@ -497,10 +490,9 @@
              [:table.min-w-full.divide-y.divide-gray-200.text-sm
               [:thead
                [:tr
-                [:th.text-left.font-semibold.text-gray-600.pb-2 "Metric"]
-                [:th.text-right.font-semibold.text-gray-600.pb-2 "BAT"]
-                [:th.text-right.font-semibold.text-gray-600.pb-2
-                 "GPS (Active)"]]]
+                [table-th "left" "Metric"]
+                [table-th "right" "BAT"]
+                [table-th "right" "GPS (Active)"]]]
               [:tbody.divide-y.divide-gray-200
                [:tr
                 [:td.py-2.text-gray-600 "Input Observed mOS"]
