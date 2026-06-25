@@ -175,7 +175,7 @@
 
         ;; Off-canvas navigation drawer / panel (shown when menu is open)
         (when @menu-open?
-          [:div.fixed.inset-0.z-50.flex.justify-end
+          [:div.fixed.inset-0.z-50.flex.justify-start
            ;; Overlay backdrop
            [:div.fixed.inset-0.bg-black.bg-opacity-50.transition-opacity
             {:on-click #(reset! menu-open? false)}]
