@@ -13,8 +13,8 @@
 
 ;; --- Default Config ---
 (def default-config
-  (let [censor-factor 1.00]
-    {:prefilter-top-k 500
+  (let [censor-factor 1.10]
+    {:prefilter-top-k 2000
 
      :n-total 126
      :n-per-arm 63
@@ -39,8 +39,8 @@
      :use-pr3-anchor true
 
      :prefilter-tol-ia 1.5
-     :prefilter-tol-upd 2
-     :prefilter-tol-pr3 3
+     :prefilter-tol-upd 1.5
+     :prefilter-tol-pr3 1.5
 
      :tol-ia 4
      :tol-upd 2
@@ -82,13 +82,13 @@
      :cure-unc-shape-grid [0.6 1.6 0.2]
 
      :leaky-cure-frac-grid [0.0 0.9 0.1]
-     :leaky-unc-med-grid [10 60 5]
-     :leaky-unc-shape-grid [0.6 1.2 0.1]
-     :leak-grid [0.03 0.1 0.01]
+     :leaky-unc-med-grid [10 60 2.5]
+     :leaky-unc-shape-grid [0.8 1.0 0.05]
+     :leak-grid [0.03 0.09 0.02]
 
      :bat-leaky-cure-frac-grid [0.0 0.3 0.1]
      :bat-leaky-unc-med-grid [5 30 0.5]
-     :bat-leaky-unc-shape-grid [0.7 1.0 0.1]
+     :bat-leaky-unc-shape-grid [0.8 1.0 0.05]
      :bat-leak-grid [0.03 0.09 0.02]
 
      :families ["leaky"]
