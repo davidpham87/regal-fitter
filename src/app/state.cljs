@@ -13,7 +13,7 @@
 
 ;; --- Default Config ---
 (def default-config
-  (let [censor-factor 1.10]
+  (let [censor-factor 1.0]
     {:prefilter-top-k 2000
 
      :n-total 126
