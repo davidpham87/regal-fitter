@@ -349,27 +349,28 @@
   :leaky-unc-med :leaky-cure-frac] and for each group, keeps the combo with the
   smallest theoretical deviation (combo-residual)."
   [config combos]
-  (let [grouped (group-by (fn [m]
-                            [(or (:bat-unc-med m)
-                                 (:bat-med-grid m)
-                                 (:bat-med m))
-                             (or (:bat-shape m)
-                                 (:bat-unc-shape m))
-                             (or (:bat-leaky-cure-frac m)
-                                 (:bat-cure-frac m))
-                             (:bat-leak m)
-                             #_(or (:gps-med m)
-                                 (:unc-med m))
-                             #_(or (:gps-scale m)
-                                 (:unc-scale m))
-                             #_(or (:gps-shape m)
-                                 (:unc-shape m))
-                             #_(or (:leaky-cure-frac m)
-                                 (:cure-frac m))])
-                          combos)]
-    (mapv (fn [[_ group]]
-            (apply min-key #(combo-residual config %) group))
-          grouped)))
+  (let [bat-grouper (fn [m]
+                      [(or (:bat-unc-med m)
+                             (:bat-med-grid m)
+                             (:bat-med m))
+                         (or (:bat-shape m)
+                             (:bat-unc-shape m))
+                         (or (:bat-leaky-cure-frac m)
+                             (:bat-cure-frac m))
+                         (:bat-leak m)])
+        gps-grouper (fn [m] [(or (:gps-med m)
+                           (:unc-med m))
+                       (or (:gps-scale m)
+                           (:unc-scale m))
+                       (or (:gps-shape m)
+                           (:unc-shape m))
+                       (or (:leaky-cure-frac m)
+                           (:cure-frac m))])
+        grouped (concat (group-by bat-grouper combos)
+                          (group-by gps-grouper combos))]
+    (vec (distinct (mapv (fn [[_ group]]
+                         (apply min-key #(combo-residual config %) group))
+                       grouped)))))
 
 (defn rank-and-trim
   "Sorts accepted combos by analytical residual (best first) and

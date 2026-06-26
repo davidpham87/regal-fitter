@@ -1,2 +1,2 @@
 {:paths ["src"]
- :tasks {}}
+ :tasks {watch (shell "npx shadow-cljs watch app worker")}}

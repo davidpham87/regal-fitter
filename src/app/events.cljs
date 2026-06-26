@@ -5,6 +5,7 @@
    [app.db :as db]
    [app.regal-fit.prefilter :as prefilter]
    [app.worker-pool :as wp]
+   [app.simulator :as sim]
    [re-frame.core :as rf]
    [reitit.frontend.easy :as rfe]))
 
@@ -30,20 +31,44 @@
     :active-page :home
     :discovery {:active-family "leaky"
                 :params {:bat-med 10.0
+                         :bat-shape 0.85
+                         :bat-cure-frac 0.2
+                         :bat-leak-yr 0.07
+                         :gps-med 15.0
+                         :gps-shape 0.85
+                         :gps-cure-frac 0.2
+                         :gps-leak-yr 0.07
                          :weibull-k 0.85
                          :delay 3.0
-                         :gps-med 15
-                         :cure-frac 0.2
-                         :leak-yr 0.07
                          :placebo-mode? false
+                         :filter-paths? false
+                         :prefilter-check? false
+                         :prefilter-tol-ia 1.5
+                         :prefilter-tol-upd 1.5
+                         :prefilter-tol-pr3 1.5
+                         :tol-ia 4.0
+                         :tol-upd 4.0
+                         :tol-pr3 2.0
                          :n-sims 1000}
                 :calc-params {:bat-med 10.0
+                              :bat-shape 0.85
+                              :bat-cure-frac 0.2
+                              :bat-leak-yr 0.07
+                              :gps-med 15.0
+                              :gps-shape 0.85
+                              :gps-cure-frac 0.2
+                              :gps-leak-yr 0.07
                               :weibull-k 0.85
                               :delay 3.0
-                              :gps-med 15
-                              :cure-frac 0.2
-                              :leak-yr 0.07
                               :placebo-mode? false
+                              :filter-paths? false
+                              :prefilter-check? false
+                              :prefilter-tol-ia 1.5
+                              :prefilter-tol-upd 1.5
+                              :prefilter-tol-pr3 1.5
+                              :tol-ia 4.0
+                              :tol-upd 4.0
+                              :tol-pr3 2.0
                               :n-sims 1000}}}))
 
 (rf/reg-fx
@@ -92,7 +117,10 @@
                   (#{:discovery :discovery-state} page)
                   (-> db
                       (assoc :active-page :discovery)
-                      (assoc-in [:discovery :active-family] "weibull"))
+                      (assoc-in [:discovery :active-family] "leaky"))
+
+                  (#{:r-repl :r-repl-state} page)
+                  (assoc db :active-page :r-repl)
 
                   (#{:placebo-stress :placebo-stress-state} page)
                   (assoc db :active-page :placebo-stress)
@@ -132,10 +160,11 @@
                          (#{:power-analysis :power-analysis-state} page)
                          [:power-analysis nil {:state b64}]
 
-                         (#{:discovery :discovery-sub :discovery-sub-state} page)
-                         [:discovery-sub
-                          {:subtab (or subtab "weibull")}
-                          {:state b64}]
+                         (#{:r-repl :r-repl-state} page)
+                         [:r-repl nil {:state b64}]
+
+                         (#{:discovery :discovery-state} page)
+                         [:discovery nil {:state b64}]
 
                          :else
                          [page path-params nil])]
@@ -357,3 +386,60 @@
      (assoc-in db [:debug/prefilter family]
                {:count (count res)
                 :samples (take 5 res)}))))
+
+(rf/reg-fx
+ :push-state
+ (fn [[route-name path-params query-params]]
+   (rfe/push-state route-name path-params query-params)))
+
+(rf/reg-fx
+ :run-discovery-sim
+ (fn [{:keys [family params]}]
+   (sim/run-discovery-simulation! family params)))
+
+(rf/reg-event-fx
+ :export-to-discovery
+ (fn [{:keys [db]} [_ family item]]
+   (let [family-str (name family)
+         gps-med (or (:gps-med item) (:bat-med item))
+         gps-unc-med (or (:unc-med item) (:bat-med item))
+         gps-unc-shape (or (:unc-shape item) 1.0)
+         params {:bat-med (or (:bat-med item) (:bat-unc-med item) 10.0)
+                 :bat-shape (or (:bat-shape item)
+                                (:bat-unc-shape item)
+                                (:weibull-k item)
+                                1.0)
+                 :bat-cure-frac (or (:bat-cure-frac item)
+                                    (:bat-cf item)
+                                    0.0)
+                 :bat-leak-yr (or (:bat-leak-yr item) (:bat-leak item) 0.07)
+                 :gps-med gps-med
+                 :gps-shape (or (:gps-shape item)
+                                (:unc-shape item)
+                                (:weibull-k item)
+                                1.0)
+                 :gps-cure-frac (or (:gps-cure-frac item)
+                                    (:cure-frac item)
+                                    0.0)
+                 :gps-leak-yr (or (:gps-leak-yr item) (:leak-yr item) 0.07)
+                 :weibull-k (or (:weibull-k item) 1.0)
+                 :delay 3.0
+                 :placebo-mode? false
+                 :filter-paths? false
+                 :prefilter-check? false
+                 :prefilter-tol-ia 1.5
+                 :prefilter-tol-upd 1.5
+                 :prefilter-tol-pr3 1.5
+                 :tol-ia 4.0
+                 :tol-upd 4.0
+                 :tol-pr3 2.0
+                 :n-sims 1000}
+         new-db (-> db
+                    (assoc-in [:discovery :active-family] family-str)
+                    (assoc-in [:discovery :params] params)
+                    (assoc-in [:discovery :calc-params] params)
+                    (assoc-in [:discovery :sim-status] :running)
+                    (assoc-in [:discovery :sim-result] nil))]
+     {:db new-db
+      :push-state [:discovery nil]
+      :run-discovery-sim {:family family-str :params params}})))

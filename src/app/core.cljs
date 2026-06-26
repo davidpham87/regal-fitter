@@ -30,52 +30,25 @@
     {:name :power-analysis-state}]
    ["/discovery"
     {:name :discovery}]
-   ["/discovery/:subtab"
-    {:name :discovery-sub}]
-   ["/discovery/:subtab/:state"
-    {:name :discovery-sub-state}]])
+   ["/discovery/:state"
+    {:name :discovery-state}]
+   ["/r-repl"
+    {:name :r-repl}]
+   ["/r-repl/:state"
+    {:name :r-repl-state}]])
 
 (defn init-routes! []
   (rfe/start!
    (rf/router routes)
-   (fn [match]
-     (when match
-       (re-frame/dispatch [:navigate (:name (:data match)) (:path-params match) (:query-params match)])))
+   #(when % (re-frame/dispatch [:navigate (:name (:data %)) (:path-params %) (:query-params %)]))
    {:use-fragment true}))
 
 (defn ^:export init []
-  (js/console.log "App init")
   (wp/init-pool! nil)
   (sim/init!)
   (init-routes!)
   (re-frame/dispatch [:initialize-db])
-  ;; Open portal in the browser context
-  ;; (p/open)
-  ;; Initialize WebR on application boot (disabled on boot to avoid slow startup in testing)
-  #_(let [start-webr!
-        (fn []
-          (webr/init-webr!
-           (fn [webr] (js/console.log "WebR ready on boot!"))
-           (fn [err] (js/console.error "WebR boot initialization failed:" err))))]
-    (if (exists? js/WebR)
-      (start-webr!)
-      (.addEventListener js/window "webr-script-loaded" start-webr!)))
-  (rdom/render ^{:key (str (rand))}
-               [ui/main-view] (js/document.getElementById "app")))
+  (rdom/render ^{:key (str (rand))} [ui/main-view] (js/document.getElementById "app")))
 
-(defn reload-testing []
-  [:h1 "hello, shadow-cljs hot reloading is!"])
-
-(defn ^:export ^:dev/after-load reload!
-  "Reload hook for shadow-cljs. Re-mounts the application after code changes.
-
-  Returns:
-    nil: Re-renders the app."
-  []
-  (js/console.log "reload")
-  (rdom/render ^{:key (str (rand))} [ui/main-view]
-               (js/document.getElementById "app")))
-
-(comment
-  "hello"
-  (reload!))
+(defn ^:export ^:dev/after-load reload! []
+  (rdom/render ^{:key (str (rand))} [ui/main-view] (js/document.getElementById "app")))

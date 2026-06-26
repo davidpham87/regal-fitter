@@ -12,17 +12,27 @@
   "Returns {:scale … :shape …} for the BAT Weibull arm."
   [params]
   (let [med   (np/array #js [(:bat-med params)])
-        shape (np/array #js [(:weibull-k params)])
+        shape (np/array #js [(or (:bat-shape params) (:weibull-k params))])
         scale (survival/weibull-scale-from-median med shape)]
     {:scale scale :shape shape}))
 
 (defn- bat-events-variance
   "Expected events and variance for the BAT arm."
-  [params enroll-pts enroll-weights target-times n-per-arm n-total]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params enroll-pts enroll-weights target-times n-per-arm n-total]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
+        s-fn (case family
+               "cure" survival/cure-survival-probability
+               "leaky" survival/leaky-cure-survival-probability
+               survival/weibull-survival-probability)
+        args (case family
+               "cure" [cf scale shape]
+               "leaky" [cf scale shape leak]
+               [scale shape])]
     (enrollment/expected-arm-events-and-variance
-     survival/weibull-survival-probability
-     [scale shape]
+     s-fn
+     args
      enroll-pts enroll-weights target-times
      n-per-arm n-total)))
 
@@ -45,7 +55,7 @@
         n-total   (:n-total config)
 
         bat-res (bat-events-variance
-                 params enroll-pts enroll-weights
+                 family params enroll-pts enroll-weights
                  target-times n-per-arm n-total)
 
         gps-res (gps/gps-events-and-variance
@@ -88,18 +98,33 @@
 ;; ---------------------------------------------------------------------------
 
 (defn- bat-survival
-  "BAT Weibull survival array over t-pts."
-  [params t-pts]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
-    (survival/weibull-survival-probability t-pts scale shape)))
+  "BAT survival array over t-pts for the given family."
+  [family params t-pts]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])]
+    (case family
+      "cure" (survival/cure-survival-probability t-pts cf scale shape)
+      "leaky" (survival/leaky-cure-survival-probability t-pts cf scale shape leak)
+      (survival/weibull-survival-probability t-pts scale shape))))
 
 (defn- bat-events
   "Expected BAT arm event counts over t-pts."
-  [params enroll-pts enroll-weights t-pts n-per-arm n-total]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params enroll-pts enroll-weights t-pts n-per-arm n-total]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
+        s-fn (case family
+               "cure" survival/cure-survival-probability
+               "leaky" survival/leaky-cure-survival-probability
+               survival/weibull-survival-probability)
+        args (case family
+               "cure" [cf scale shape]
+               "leaky" [cf scale shape leak]
+               [scale shape])]
     (enrollment/expected-arm-events
-     survival/weibull-survival-probability
-     [scale shape]
+     s-fn
+     args
      enroll-pts enroll-weights t-pts
      n-per-arm n-total)))
 
@@ -199,13 +224,22 @@
 
 (defn- bat-point-fn
   "Returns a scalar survival function t->S for BAT arm."
-  [params]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        bat-cf    (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        bat-leak  (np/array #js [(or (:bat-leak-yr params) 0.0)])]
     (fn [t]
       (let [ta (np/array #js [t] "float64")]
         (first (np/nd-to-array
-                (survival/weibull-survival-probability
-                 ta scale shape)))))))
+                (case family
+                  "cure"
+                  (survival/cure-survival-probability
+                   ta bat-cf scale shape)
+                  "leaky"
+                  (survival/leaky-cure-survival-probability
+                   ta bat-cf scale shape bat-leak)
+                  (survival/weibull-survival-probability
+                   ta scale shape))))))))
 
 ;; ---------------------------------------------------------------------------
 ;; Milestone events arrays
@@ -213,11 +247,21 @@
 
 (defn- milestone-events
   "Returns np-array of expected arm events at milestone time-points."
-  [params enroll-pts enroll-weights t-milestones n-per-arm n-total]
-  (let [{:keys [scale shape]} (bat-weibull-params params)]
+  [family params enroll-pts enroll-weights t-milestones n-per-arm n-total]
+  (let [{:keys [scale shape]} (bat-weibull-params params)
+        cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
+        s-fn (case family
+               "cure" survival/cure-survival-probability
+               "leaky" survival/leaky-cure-survival-probability
+               survival/weibull-survival-probability)
+        args (case family
+               "cure" [cf scale shape]
+               "leaky" [cf scale shape leak]
+               [scale shape])]
     (enrollment/expected-arm-events
-     survival/weibull-survival-probability
-     [scale shape]
+     s-fn
+     args
      enroll-pts enroll-weights t-milestones
      n-per-arm n-total)))
 
@@ -237,8 +281,8 @@
         n-total   (:n-total config)
 
         ;; BAT arm arrays
-        survival-bat  (bat-survival  params t-pts)
-        events-bat (bat-events params enroll-pts enroll-weights
+        survival-bat  (bat-survival family params t-pts)
+        events-bat (bat-events family params enroll-pts enroll-weights
                                t-pts n-per-arm n-total)
 
         ;; GPS arm arrays (falls back to BAT when family unknown)
@@ -276,7 +320,7 @@
                                     (:t-pr3 config)]
                                "float64")
         ms-events-bat (milestone-events
-                       params enroll-pts enroll-weights
+                       family params enroll-pts enroll-weights
                        t-milestones n-per-arm n-total)
         ms-events-gps (gps/gps-events
                        family params enroll-pts enroll-weights
@@ -293,13 +337,13 @@
         t-ms-arr       (np/nd-to-array t-milestones)
 
         ;; Point functions for binary search
-        survival-bat-fn   (bat-point-fn  params)
+        survival-bat-fn   (bat-point-fn family params)
         survival-gps-fn   (gps-point-fn  family params)
         survival-pooled-fn  (fn [t] (* 0.5 (+ (survival-bat-fn t) (survival-gps-fn t))))
 
         ;; t=36 reference values
         t-36       (np/array #js [36] "float64")
-        survival-bat-36   (bat-survival params t-36)
+        survival-bat-36   (bat-survival family params t-36)
         survival-gps-36   (gps/gps-survival family params t-36 survival-bat-36)
         survival-pooled-36  (np/multiply (np/add survival-bat-36 survival-gps-36) 0.5)
 
@@ -488,30 +532,43 @@
         bat-true-scale-val (population-cr2-lambda (:bat-med params) delay k)
         gps-true-scale-val (population-cr2-lambda (:gps-med params) delay k)
 
-        gps-cf (np/array #js [(or (:cure-frac params) 0.0)])
-        gps-leak (np/array #js [(or (:leak-yr params) 0.0)])
+        gps-cf (np/array #js [(or (:gps-cure-frac params) (:cure-frac params) 0.0)])
+        gps-leak (np/array #js [(or (:gps-leak-yr params) (:leak-yr params) 0.0)])
+
+        bat-cf (np/array #js [(or (:bat-cure-frac params) 0.0)])
+        bat-leak (np/array #js [(or (:bat-leak-yr params) 0.0)])
 
         ;; survival functions (true scale)
         s-bat-true-fn
         (fn [t]
           (let [ta (np/array #js [t] "float64")]
             (first (np/nd-to-array
-                    (survival/weibull-survival-probability
-                     ta bat-true-scale-val k)))))
+                    (case family
+                      "cure" (survival/cure-survival-probability
+                              ta bat-cf bat-true-scale-val k)
+                      "leaky" (survival/leaky-cure-survival-probability
+                               ta bat-cf bat-true-scale-val k bat-leak)
+                      (survival/weibull-survival-probability
+                       ta bat-true-scale-val k))))))
 
         s-gps-true-fn
         (fn [t]
           (let [ta (np/array #js [t] "float64")]
             (first (np/nd-to-array
                     (case family
-                      "weibull" (survival/weibull-survival-probability ta gps-true-scale-val k)
-                      "cure" (survival/cure-survival-probability ta gps-cf gps-true-scale-val k)
-                      "leaky" (survival/leaky-cure-survival-probability ta gps-cf gps-true-scale-val k gps-leak)
-                      (survival/weibull-survival-probability ta gps-true-scale-val k))))))]
+                      "weibull" (survival/weibull-survival-probability
+                                 ta gps-true-scale-val k)
+                      "cure" (survival/cure-survival-probability
+                              ta gps-cf gps-true-scale-val k)
+                      "leaky" (survival/leaky-cure-survival-probability
+                               ta gps-cf gps-true-scale-val k gps-leak)
+                      (survival/weibull-survival-probability
+                       ta gps-true-scale-val k))))))]
     (let [gps-mos (find-true-mos s-gps-true-fn)
-          bat-true-mos (- (* bat-true-scale-val
-                             (js/Math.pow (js/Math.log 2.0) (/ 1.0 k)))
-                          delay)]
+          bat-mos (find-true-mos s-bat-true-fn)
+          bat-true-mos (if (= bat-mos js/Infinity)
+                         js/Infinity
+                         (- bat-mos delay))]
       {:bat-true-mos bat-true-mos
        :gps-true-mos (if (= gps-mos js/Infinity)
                        js/Infinity
@@ -520,8 +577,17 @@
        ;; Realized median month on trial timeline
        :bat-realized-month
        (find-realized-median-month
-        survival/weibull-survival-probability
-        [(np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+        (case family
+          "weibull" survival/weibull-survival-probability
+          "cure" survival/cure-survival-probability
+          "leaky" survival/leaky-cure-survival-probability
+          survival/weibull-survival-probability)
+        (case family
+          "weibull" [(np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+          "cure" [bat-cf (np/array #js [bat-trial-scale-val]) (np/array #js [k])]
+          "leaky" [bat-cf (np/array #js [bat-trial-scale-val])
+                   (np/array #js [k]) bat-leak]
+          [(np/array #js [bat-trial-scale-val]) (np/array #js [k])])
         enroll-pts enroll-weights n-per-arm n-total target-ev)
 
        :gps-realized-month
@@ -534,6 +600,7 @@
         (case family
           "weibull" [(np/array #js [gps-trial-scale-val]) (np/array #js [k])]
           "cure" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k])]
-          "leaky" [gps-cf (np/array #js [gps-trial-scale-val]) (np/array #js [k]) gps-leak]
+          "leaky" [gps-cf (np/array #js [gps-trial-scale-val])
+                   (np/array #js [k]) gps-leak]
           [(np/array #js [gps-trial-scale-val]) (np/array #js [k])])
         enroll-pts enroll-weights n-per-arm n-total target-ev)})))

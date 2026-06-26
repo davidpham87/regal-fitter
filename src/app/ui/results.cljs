@@ -134,6 +134,7 @@
             [:table.min-w-full.divide-y.divide-gray-200.text-sm
              [:thead.bg-gray-50
               [:tr
+               [:th.px-4.py-2.text-left.font-semibold.text-gray-600 "Actions"]
                (for [k keys-to-show]
                  (let [is-active-sort? (= @sort-col k)]
                    ^{:key k}
@@ -156,11 +157,18 @@
               (if (empty? paginated-items)
                 [:tr
                  [:td.px-4.py-8.text-center.text-gray-500
-                  {:col-span (count keys-to-show)}
+                  {:col-span (inc (count keys-to-show))}
                   "No matching combinations found."]]
                 (for [[idx item] (map-indexed vector paginated-items)]
                   ^{:key idx}
                   [:tr {:class (if (even? idx) "bg-white" "bg-gray-50")}
+                   [:td.px-4.py-2
+                    [:button.bg-blue-600.hover:bg-blue-700.text-white
+                     {:type "button"
+                      :class "text-xs font-bold px-2 py-1 rounded"
+                      :on-click #(rf/dispatch
+                                  [:export-to-discovery family item])}
+                     "Visualize"]]
                    (for [k keys-to-show]
                      ^{:key k}
                      [:td.px-4.py-2.text-gray-700
@@ -401,7 +409,7 @@
       (do
         (swap! resampled-data assoc state-key [])
         (swap! resampling-state assoc state-key nil))
-      (let [num-workers (js/Math.max 1 (count @wp/pool))
+      (let [num-workers (js/Math.min 4 (js/Math.max 1 (count @wp/pool)))
             total (count sampled)
             chunk-size (js/Math.max
                         25

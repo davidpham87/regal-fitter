@@ -125,52 +125,59 @@
   (rf/dispatch [:set-error "Aborted by user"]))
 
 (defn- build-discovery-rec [family params]
-  (let [bat-med-arr (np/array #js [(:bat-med params)])
-        bat-shape-arr (np/array #js [(:weibull-k params)])
+  (let [bat-shape (or (:bat-shape params) (:weibull-k params) 1.0)
+        bat-med-arr (np/array #js [(:bat-med params)])
+        bat-shape-arr (np/array #js [bat-shape])
         bat-scale (.item (survival/weibull-scale-from-median
                           bat-med-arr bat-shape-arr)
                          0)
-        bat-shape (:weibull-k params)
         rec {:family family
              :bat-scale bat-scale
-             :bat-shape bat-shape}]
+             :bat-shape bat-shape
+             :bat-unc-scale bat-scale
+             :bat-unc-shape bat-shape
+             :bat-cure-frac (or (:bat-cure-frac params) 0.0)
+             :bat-leak-yr (or (:bat-leak-yr params) 0.0)}]
     (cond
       (= family "weibull")
-      (let [gps-med-arr (np/array #js [(:gps-med params)])
-            gps-shape-arr (np/array #js [(:weibull-k params)])
+      (let [gps-shape (or (:gps-shape params) (:weibull-k params) 1.0)
+            gps-med-arr (np/array #js [(:gps-med params)])
+            gps-shape-arr (np/array #js [gps-shape])
             gps-scale (.item (survival/weibull-scale-from-median
                               gps-med-arr gps-shape-arr)
-                             0)
-            gps-shape (:weibull-k params)]
+                             0)]
         (assoc rec
                :gps-scale gps-scale
                :gps-shape gps-shape))
 
       (= family "cure")
-      (let [unc-med-arr (np/array #js [(:gps-med params)])
-            unc-shape-arr (np/array #js [(:weibull-k params)])
-            unc-scale (.item (survival/weibull-scale-from-median
-                              unc-med-arr unc-shape-arr)
-                             0)
-            unc-shape (:weibull-k params)]
-        (assoc rec
-               :cure-frac (:cure-frac params)
-               :unc-scale unc-scale
-               :unc-shape unc-shape))
-
-      (= family "leaky")
-      (let [unc-med   (or (:gps-unc-med params) (:gps-med params))
-            unc-shape (or (:gps-unc-shape params) (:weibull-k params))
-            unc-med-arr   (np/array #js [unc-med])
-            unc-shape-arr (np/array #js [unc-shape])
-            unc-scale (.item (survival/weibull-scale-from-median
-                              unc-med-arr unc-shape-arr)
+      (let [gps-shape (or (:gps-shape params) (:weibull-k params) 1.0)
+            gps-med-arr (np/array #js [(:gps-med params)])
+            gps-shape-arr (np/array #js [gps-shape])
+            gps-scale (.item (survival/weibull-scale-from-median
+                              gps-med-arr gps-shape-arr)
                              0)]
         (assoc rec
-               :cure-frac (:cure-frac params)
-               :unc-scale unc-scale
-               :unc-shape unc-shape
-               :leak-yr (:leak-yr params))))))
+               :cure-frac (or (:gps-cure-frac params) (:cure-frac params) 0.0)
+               :unc-scale gps-scale
+               :unc-shape gps-shape))
+
+      (= family "leaky")
+      (let [gps-shape (or (:gps-shape params) (:weibull-k params) 1.0)
+            gps-med-arr (np/array #js [(:gps-med params)])
+            gps-shape-arr (np/array #js [gps-shape])
+            gps-scale (.item (survival/weibull-scale-from-median
+                              gps-med-arr gps-shape-arr)
+                             0)]
+        (assoc rec
+               :cure-frac (or (:gps-cure-frac params) (:cure-frac params) 0.0)
+               :unc-scale gps-scale
+               :unc-shape gps-shape
+               :leak-yr (or (:gps-leak-yr params) (:leak-yr params) 0.0)
+               :gps-scale gps-scale
+               :gps-shape gps-shape
+               :gps-unc-med (or (:gps-unc-med params) (:gps-med params))
+               :gps-unc-shape (or (:gps-unc-shape params) (:weibull-k params) 1.0))))))
 
 (defn run-discovery-simulation! [family params]
   (let [config (:config @rf-db/app-db)
@@ -179,7 +186,17 @@
     (rf/dispatch [:set-discovery-sim-result nil])
     (cached-submit-job!
      {:rec rec
-      :cfg-dict (assoc config :ignore-prefilter? true)
+      :cfg-dict (assoc config
+                       :ignore-prefilter? (not (:prefilter-check? params))
+                       :prefilter-tol-ia (or (:prefilter-tol-ia params)
+                                             (:prefilter-tol-ia config))
+                       :prefilter-tol-upd (or (:prefilter-tol-upd params)
+                                              (:prefilter-tol-upd config))
+                       :prefilter-tol-pr3 (or (:prefilter-tol-pr3 params)
+                                              (:prefilter-tol-pr3 config))
+                       :tol-ia (or (:tol-ia params) (:tol-ia config))
+                       :tol-upd (or (:tol-upd params) (:tol-upd config))
+                       :tol-pr3 (or (:tol-pr3 params) (:tol-pr3 config)))
       :n-sims (or (:n-sims params) (:n-sims-per-combo config))
       :seed (:seed config)}
      (fn [{:keys [success? result error]}]

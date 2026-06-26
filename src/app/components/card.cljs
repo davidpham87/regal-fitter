@@ -17,18 +17,22 @@
 (defn chart-card
   [{:keys [title subtitle class]}
    & children]
-  [:div.flex.flex-col.rounded-xl.border.border-gray-100.shadow-sm
+  [:div.flex.flex-col.rounded-xl.border.border-gray-100.shadow-sm.w-full
    {:class
     (str "bg-white overflow-hidden transition-shadow "
          "hover:shadow-md "
-         (or class ""))
-    :style {:width "440px"
-            :min-width "440px"}}
+         (or class ""))}
    (when title
      [:div.px-4.pt-3.pb-1
       [:p.text-sm.font-semibold.text-gray-700.leading-tight title]
       (when subtitle
         [:p.text-xs.text-gray-400 subtitle])])
    (into
-    [:div.flex.items-center.justify-center.p-8]
+    [:div.flex.items-center.justify-center.p-4.md:p-6.w-full]
     children)])
+
+(defn card-panel [class-name & children]
+  (into [:div.bg-white.p-3.rounded-xl.shadow-sm.border {:class class-name}] children))
+
+(defn gray-panel [class-name & children]
+  (into [:div.bg-gray-50.p-2.rounded-lg.border {:class class-name}] children))

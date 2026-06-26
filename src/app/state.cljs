@@ -13,8 +13,8 @@
 
 ;; --- Default Config ---
 (def default-config
-  (let [censor-factor 1.00]
-    {:prefilter-top-k 20000
+  (let [censor-factor 1.10]
+    {:prefilter-top-k 2000
 
      :n-total 126
      :n-per-arm 63
@@ -43,15 +43,15 @@
      :prefilter-tol-pr3 1.5
 
      :tol-ia 4
-     :tol-upd 4
-     :tol-pr3 2
+     :tol-upd 2
+     :tol-pr3 4
 
      :tol-increment-ia-upd 3
      :tol-increment-upd-pr3 3
 
      :futility-hr-max 0.84
      :efficacy-hr-min 0.40
-     :bat-surv-36m-max 0.3
+     :bat-surv-36m-max 0.25
 
      :pool-mos-min-at-ia 12
      :median-fu-target 13.5
@@ -82,17 +82,17 @@
      :cure-unc-shape-grid [0.6 1.6 0.2]
 
      :leaky-cure-frac-grid [0.0 0.9 0.1]
-     :leaky-unc-med-grid [10 60 5]
-     :leaky-unc-shape-grid [0.6 1.2 0.1]
-     :leak-grid [0.03 0.1 0.01]
+     :leaky-unc-med-grid [10 60 2.5]
+     :leaky-unc-shape-grid [0.8 1.0 0.05]
+     :leak-grid [0.03 0.09 0.02]
 
      :bat-leaky-cure-frac-grid [0.0 0.3 0.1]
      :bat-leaky-unc-med-grid [5 30 0.5]
-     :bat-leaky-unc-shape-grid [0.7 1.0 0.1]
+     :bat-leaky-unc-shape-grid [0.8 1.0 0.05]
      :bat-leak-grid [0.03 0.09 0.02]
 
      :families ["leaky"]
-     :n-sims-aggregation 10000}))
+     :n-sims-aggregation 5000}))
 
 (def light-config
   (assoc default-config
@@ -279,7 +279,7 @@
    :gps-mos-ref 12.0
    :alpha 0.025
    :power 0.9
-   :p-event 0.635  ;; 80/126
+   :p-event 1.0
    :bat-mos-range [6.0 20.0 1.0]  ;; [start stop step]
    :gps-mos-range [10.0 30.0 1.0]})
 

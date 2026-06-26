@@ -153,24 +153,56 @@
           "Run Simulation"]]))))
 
 (defn- navigation-bar [active-page]
-  [:header.bg-gray-800.text-white.shadow-md.mb-6
-   [:div.container.mx-auto.px-4.py-3.flex.justify-between.items-center
-    [:a.flex.items-center.gap-2.cursor-pointer
-     {:href (rfe/href :home)}
-     [:span.text-xl.font-extrabold.tracking-tight "Regal Fitter"]]
-    [:nav.flex.gap-2
-     (for [[page label] [[:home "Home"]
-                         [:fitter "Fitter"]
-                         [:placebo-stress "Placebo Stress"]
-                         [:power-analysis "Power Simulation"]
-                         [:discovery "Discovery"]]]
-       ^{:key page}
-       [:a.px-3.py-2.rounded-lg.text-sm.font-medium.transition-colors
-        {:href (rfe/href page)
-         :class (if (= active-page page)
-                  "bg-gray-950 text-white"
-                  "text-gray-300 hover:bg-gray-700 hover:text-white")}
-        label])]]])
+  (let [menu-open? (r/atom false)]
+    (fn [active-page]
+      [:header.bg-gray-800.text-white.shadow-md.mb-6
+       [:div.container.mx-auto.px-4.py-3
+        [:div.flex.justify-between.items-center
+         ;; Desktop & Mobile Menu Trigger (transforming topbar as menu button with drawer, positioned left)
+         [:div.flex.items-center.gap-2
+          [:button.p-2.rounded-lg.bg-gray-700.hover:bg-gray-600.transition-colors.flex.items-center.gap-2
+           {:on-click #(swap! menu-open? not)
+            :aria-label "Toggle navigation menu"}
+           [:svg.w-6.h-6 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
+            (if @menu-open?
+              [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2" :d "M6 18L18 6M6 6l12 12"}]
+              [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2" :d "M4 6h16M4 12h16M4 18h16"}])]
+           [:span.text-sm.font-semibold.pr-1 "Menu"]]]
+
+         [:a.flex.items-center.gap-2.cursor-pointer
+          {:href (rfe/href :home)}
+          [:span.text-xl.font-extrabold.tracking-tight "Regal Fitter"]]]
+
+        ;; Off-canvas navigation drawer / panel (shown when menu is open)
+        (when @menu-open?
+          [:div.fixed.inset-0.z-50.flex.justify-start
+           ;; Overlay backdrop
+           [:div.fixed.inset-0.bg-black.bg-opacity-50.transition-opacity
+            {:on-click #(reset! menu-open? false)}]
+           ;; Drawer panel
+           [:div.relative.w-80.max-w-full.bg-gray-900.h-full.p-6.shadow-2xl.flex.flex-col.gap-6.z-10
+            [:div.flex.justify-between.items-center.border-b.border-gray-800.pb-4
+             [:span.text-lg.font-bold "Navigation"]
+             [:button.p-2.rounded-lg.text-gray-400.hover:text-white.hover:bg-gray-800
+              {:on-click #(reset! menu-open? false)
+               :aria-label "Close menu"}
+              [:svg.w-6.h-6 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
+               [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2" :d "M6 18L18 6M6 6l12 12"}]]]]
+            [:nav.flex.flex-col.gap-2
+             (for [[page label] [[:home "Home"]
+                                 [:fitter "Fitter"]
+                                 [:placebo-stress "Placebo Stress"]
+                                 [:power-analysis "Power Simulation"]
+                                 [:discovery "Discovery"]
+                                 [:r-repl "R REPL"]]]
+               ^{:key page}
+               [:a.px-4.py-3.rounded-lg.text-base.font-medium.transition-colors
+                {:href (rfe/href page)
+                 :on-click #(reset! menu-open? false)
+                 :class (if (= active-page page)
+                          "bg-blue-600 text-white"
+                          "text-gray-300 hover:bg-gray-800 hover:text-white")}
+                label])]]])]])))
 
 (defn fitter-page []
   (fn []
@@ -221,4 +253,5 @@
           :placebo-stress [views/placebo-stress-view]
           :power-analysis [views/power-analysis-view]
           :discovery [views/discovery-view]
+          :r-repl [app.discovery.playground/gs-design-playground]
           [views/home-view])]])))

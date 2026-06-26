@@ -297,7 +297,7 @@
   [{:keys [values handle-change]}]
   (let [alpha (safe-float (:alpha values) 0.025)
         power-val (safe-float (:power values) 0.9)
-        p-event (safe-float (:p-event values) 0.635)
+        p-event 1.0
         n-total (safe-int (:n-total values) 126)
         bat-ref (safe-float (:bat-mos-ref values) 8.0)
         gps-ref (safe-float (:gps-mos-ref values) 12.0)
@@ -316,7 +316,7 @@
       "Schoenfeld log-rank approximation under proportional hazards."]
 
      ;; Form Inputs
-     [:div.grid.grid-cols-1.md:grid-cols-4.gap-4.mb-6
+     [:div.grid.grid-cols-1.md:grid-cols-3.gap-4.mb-6
       [:div
        [:label.block.text-xs.font-semibold.text-gray-700
         "alpha (One-sided)"]
@@ -331,12 +331,6 @@
          :value (:power values) :on-change handle-change}]]
       [:div
        [:label.block.text-xs.font-semibold.text-gray-700
-        "Event Probability"]
-       [:input.border.w-full.p-1.rounded.text-sm.mt-1
-        {:type "number" :step "0.01" :name "p-event"
-         :value (:p-event values) :on-change handle-change}]]
-      [:div
-       [:label.block.text-xs.font-semibold.text-gray-700
         "Reference Trial N"]
        [:input.border.w-full.p-1.rounded.text-sm.mt-1
         {:type "number" :name "n-total"
@@ -344,13 +338,42 @@
 
      ;; Ranges and Implied probability Info
      [:div.bg-blue-50.p-4.rounded-lg.border.border-blue-100.mb-6
-      [:p.text-xs.text-blue-900.leading-relaxed
+      [:p.text-xs.text-blue-900.leading-relaxed.mb-2
        [:strong "Implied Baseline Event Probability: "]
        (str (.toFixed (* 100 implied-p) 1) "% ")
        "(Requires " (.toFixed (* n-total implied-p) 0)
        " events under standard Schoenfeld assumptions to achieve "
        (* 100 power-val) "% power at BAT=" bat-ref
-       " vs GPS=" gps-ref " months.)"]]
+       " vs GPS=" gps-ref " months.)"]
+      (let [c 0.5
+            hr (/ bat-ref gps-ref)
+            delta (* -1 c (js/Math.log hr))
+            qnorm-alpha (power/qnorm (- 1.0 alpha))
+            pnorm (fn [z]
+                    (let [t (/ 1.0 (+ 1.0 (* 0.2316419 (js/Math.abs z))))
+                          d 0.3989422804014327
+                          p-approx (- 1.0 (* d (js/Math.exp (* -0.5 z z))
+                                             (+ (* 0.319381530 t)
+                                                (* -0.356563782 t t)
+                                                (* 1.781477937 t t t)
+                                                (* -1.821255978 t t t t)
+                                                (* 1.330274429 t t t t t))))]
+                      (if (>= z 0) p-approx (- 1.0 p-approx))))
+            calc-power (fn [e]
+                         (if (<= e 0) 0.0
+                           (let [z-beta (- (* (js/Math.sqrt e) delta) qnorm-alpha)]
+                             (pnorm z-beta))))
+            power-80 (calc-power 80)
+            power-126 (calc-power 126)]
+        [:div.text-xs.text-blue-900.leading-relaxed.border-t.border-blue-200.pt-2.mt-2
+         [:p [:strong "Power Analysis for Event Counts at HR = " (.toFixed hr 3) ":"]]
+         [:ul.list-disc.pl-4.mt-1
+          [:li [:strong "80 events: "] "Achieved Power = " (.toFixed (* 100 power-80) 1) "%"
+           (if (< power-80 0.8) " (Underpowered! Standard target is >= 80%)" " (Sufficiently powered)")]
+          [:li [:strong "126 events: "] "Achieved Power = " (.toFixed (* 100 power-126) 1) "%"
+           (if (< power-126 0.8) " (Underpowered!)" " (Highly/Sufficiently powered)")]
+          [:li [:strong "Events needed for " (* 100 power-val) "% Power: "]
+           (.toFixed (power/schoenfeld-events hr alpha power-val) 1) " events"]]])]
 
      ;; Charts
      [:div.flex.flex-col.lg:flex-row.gap-6.mb-6
@@ -368,8 +391,7 @@
          [:th.px-4.py-2.text-left "GPS mOS"]
          [:th.px-4.py-2.text-left "HR"]
          [:th.px-4.py-2.text-left "Events Required"]
-         [:th.px-4.py-2.text-left "N Required"]
-         [:th.px-4.py-2.text-left "Sufficient (N=126)?"]]]
+         [:th.px-4.py-2.text-left "Sufficient Events (<= 80)?"]]]
        [:tbody.divide-y.divide-gray-200.bg-white
         (doall
          (for [scenario (filter #(contains? #{6.0 8.0 10.0 12.0} (:bat-mos %))
@@ -380,9 +402,8 @@
             [:td.px-4.py-2 (:gps-mos scenario)]
             [:td.px-4.py-2 (.toFixed (:hr scenario) 2)]
             [:td.px-4.py-2 (.toFixed (:events-required scenario) 1)]
-            [:td.px-4.py-2 (.toFixed (:n-required scenario) 0)]
             [:td.px-4.py-2
-             (if (<= (:n-required scenario) n-total)
+             (if (<= (:events-required scenario) 80)
                [:span.text-green-600.font-bold "Yes"]
                [:span.text-red-600.font-bold "No"])]]))]]]]))
 
