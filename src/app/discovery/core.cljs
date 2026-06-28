@@ -590,11 +590,12 @@
         h0-hazard-rates
         (analytical-hazard-rates curve-data-h0 config)
 
+        bat-shape (or (:bat-shape calc-params) (:weibull-k calc-params) 1.0)
         bat-lambda (population-cr2-lambda
                     (:bat-med calc-params)
                     (or (:delay calc-params) 3.0)
-                    (:bat-shape calc-params))
-        bat-true-mos (true-mos bat-lambda (:bat-shape calc-params))
+                    bat-shape)
+        bat-true-mos (true-mos bat-lambda bat-shape)
         medians (assoc (dc/calculate-medians active-family calc-params config)
                        :bat-true-mos bat-true-mos)]
 
