@@ -11,7 +11,8 @@
             [app.components.editor :refer [code-editor]]
             [app.components.card :refer [chart-card]]
             [app.components.tabs :refer [tab-bar]]
-            [app.discovery.core :as discovery]))
+            [app.discovery.core :as discovery]
+            [app.visualization.data :as vdata]))
 
 (defn- expected-success-probability [items config]
   (let [valid-items (filter #(and (:p-success-overall %)
@@ -463,46 +464,57 @@
       [:div.p-4.results-view-wrapper
        [:div.flex.justify-between.items-center.mb-4
         [:h2.text-xl.font-bold.results-charts-container "Results"]
-        [:div.flex.gap-2.items-center
-         (when (seq results)
+        (when (seq results)
+          [:div.flex.items-center.gap-2
            [:button.px-3.py-1.text-xs.font-bold.rounded.border.bg-white.hover:bg-gray-100.text-gray-700
             {:type "button"
              :on-click (fn []
-                         (let [json-str (js/JSON.stringify (clj->js results) nil 2)
+                         (let [limit (:n-sims-aggregation config 1000)
+                               fam-str (name (or @active-family (key (first results))))
+                               fam (keyword fam-str)
+                               raw-items (get results fam)
+                               items (mapv (fn [item]
+                                             (let [irm (:bat-med item)
+                                                   k (or (:bat-shape item) 1.0)
+                                                   d 3
+                                                   lambda (discovery/population-cr2-lambda irm d k)
+                                                   onset-mos (discovery/true-mos lambda k)]
+                                               (assoc item :onset-cr2-bat-mos onset-mos)))
+                                           raw-items)
+                               best-n (vdata/score-and-sort-items items config limit)
+                               strat (vdata/build-stratified-data best-n 1.0)
+                               tot-wt (reduce + (map :weight strat))
+                               vdata (vdata/calculate-vdata strat tot-wt)
+                               hr-data (vdata/build-hr-distribution-data best-n 0.025)
+                               km-ci (vdata/build-km-ci-data best-n config)
+                               [hr-paths t80-bins] (vdata/build-path-bins best-n config)
+                               alive-data (vdata/build-alive-scatter-data best-n)
+                               bat-alive-data (vdata/build-bat-alive-distribution-data best-n)
+                               aggregated-results {:family fam-str
+                                                   :sample-count (count best-n)
+                                                   :vdata vdata
+                                                   :hr-data hr-data
+                                                   :km-ci km-ci
+                                                   :hr-paths hr-paths
+                                                   :t80-bins t80-bins
+                                                   :alive-data alive-data
+                                                   :bat-alive-data bat-alive-data}
+                               json-str (js/JSON.stringify (clj->js aggregated-results) nil 2)
                                blob (js/Blob. #js [json-str] #js {:type "application/json"})
                                url (.createObjectURL js/URL blob)
                                a (js/document.createElement "a")]
                            (set! (.-href a) url)
-                           (set! (.-download a) "simulation_results.json")
+                           (set! (.-download a) (str fam-str "_aggregated_results.json"))
                            (.click a)
                            (.revokeObjectURL js/URL url)))}
-            "Export JSON"])
-         [:label.px-3.py-1.text-xs.font-bold.rounded.border.bg-white.hover:bg-gray-100.text-gray-700.cursor-pointer
-          "Import JSON"
-          [:input.hidden
-           {:type "file"
-            :accept ".json"
-            :on-change (fn [e]
-                         (let [file (aget (.. e -target -files) 0)]
-                           (when file
-                             (let [reader (js/FileReader.)]
-                               (set! (.-onload reader)
-                                     (fn [evt]
-                                       (try
-                                         (let [parsed (js/JSON.parse (.. evt -target -result))
-                                               results-map (js->clj parsed :keywordize-keys true)]
-                                           (rf/dispatch [:set-results results-map]))
-                                         (catch js/Error err
-                                           (js/alert (str "Failed to parse JSON file: " (.-message err)))))))
-                               (.readAsText reader file))))}]]
-         (when (seq results)
+            "Export Aggregated JSON"]
            [tab-bar
             {:active-tab @active-tab
              :tabs [[:charts "Result Charts"]
                     [:config "Config Distributions"]
                     [:table "Table"]
                     [:edn "EDN View"]]
-             :on-change #(reset! active-tab %)}])]]
+             :on-change #(reset! active-tab %)}]])]
        (cond
          (= status :running-stage2) [stage2-progress progress]
          (seq results)
