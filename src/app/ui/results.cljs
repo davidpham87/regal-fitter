@@ -463,14 +463,46 @@
       [:div.p-4.results-view-wrapper
        [:div.flex.justify-between.items-center.mb-4
         [:h2.text-xl.font-bold.results-charts-container "Results"]
-        (when (seq results)
-          [tab-bar
-           {:active-tab @active-tab
-            :tabs [[:charts "Result Charts"]
-                   [:config "Config Distributions"]
-                   [:table "Table"]
-                   [:edn "EDN View"]]
-            :on-change #(reset! active-tab %)}])]
+        [:div.flex.gap-2.items-center
+         (when (seq results)
+           [:button.px-3.py-1.text-xs.font-bold.rounded.border.bg-white.hover:bg-gray-100.text-gray-700
+            {:type "button"
+             :on-click (fn []
+                         (let [json-str (js/JSON.stringify (clj->js results) nil 2)
+                               blob (js/Blob. #js [json-str] #js {:type "application/json"})
+                               url (.createObjectURL js/URL blob)
+                               a (js/document.createElement "a")]
+                           (set! (.-href a) url)
+                           (set! (.-download a) "simulation_results.json")
+                           (.click a)
+                           (.revokeObjectURL js/URL url)))}
+            "Export JSON"])
+         [:label.px-3.py-1.text-xs.font-bold.rounded.border.bg-white.hover:bg-gray-100.text-gray-700.cursor-pointer
+          "Import JSON"
+          [:input.hidden
+           {:type "file"
+            :accept ".json"
+            :on-change (fn [e]
+                         (let [file (aget (.. e -target -files) 0)]
+                           (when file
+                             (let [reader (js/FileReader.)]
+                               (set! (.-onload reader)
+                                     (fn [evt]
+                                       (try
+                                         (let [parsed (js/JSON.parse (.. evt -target -result))
+                                               results-map (js->clj parsed :keywordize-keys true)]
+                                           (rf/dispatch [:set-results results-map]))
+                                         (catch js/Error err
+                                           (js/alert (str "Failed to parse JSON file: " (.-message err)))))))
+                               (.readAsText reader file))))}]]
+         (when (seq results)
+           [tab-bar
+            {:active-tab @active-tab
+             :tabs [[:charts "Result Charts"]
+                    [:config "Config Distributions"]
+                    [:table "Table"]
+                    [:edn "EDN View"]]
+             :on-change #(reset! active-tab %)}])]]
        (cond
          (= status :running-stage2) [stage2-progress progress]
          (seq results)
