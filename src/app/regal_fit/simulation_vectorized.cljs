@@ -211,6 +211,12 @@
             num-bat (- n-total n-per-arm)
             bat-draws (draw-bat-times-vectorized record num-bat random-gen)
             gps-draws (draw-gps-times-vectorized record num-gps random-gen)
+            ;; GPS ORR logic: we sample binary variables with probability gps-orr
+            gps-orr (double (or (:gps-orr config) 0.8))
+            gps-orr-flags (np/nd-to-array (np-random/random random-gen num-gps))
+            ;; Generate backup BAT draws for GPS responders that do not respond (fall back to BAT)
+            gps-fallback-bat-draws (np/nd-to-array (draw-bat-times-vectorized record num-gps random-gen))
+            
             survival (np-ts/zeros (clj->js [n-total]))
             survival-data (.-data survival)
             bat-data (np/nd-to-array bat-draws)
@@ -221,8 +227,12 @@
             (if (== (aget arms-arr i) 0)
               (do (aset survival-data i (aget bat-data b))
                   (recur (inc i) (inc b) g))
-              (do (aset survival-data i (aget gps-data g))
-                  (recur (inc i) b (inc g))))))
+              (let [has-orr? (< (aget gps-orr-flags g) gps-orr)
+                    val (if has-orr?
+                          (aget gps-data g)
+                          (aget gps-fallback-bat-draws g))]
+                (aset survival-data i val)
+                (recur (inc i) b (inc g))))))
         {:enroll-times enroll :arms-array arms :survival-times survival}))))
 
 (defn- count-events-at-times-vectorized

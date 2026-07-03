@@ -63,6 +63,7 @@
      :bat-strat-bin 0.5
 
      :hr-threshold 0.636
+     :gps-orr 0.8
 
      :n-sims-per-combo 1024
      :n-sims-screen 256
@@ -145,6 +146,7 @@
 
    :bat-strat-bin 1.0
    :hr-threshold 0.636
+   :gps-orr 0.8
    :n-sims-per-combo 1000
    :n-sims-screen 250
    :n-screen-min-pass 1
@@ -215,6 +217,7 @@
    [:bat-strat-bin :number]
 
    [:hr-threshold :number]
+   [:gps-orr :number]
 
    [:n-sims-per-combo :int]
    [:n-sims-screen :int]

@@ -52,6 +52,7 @@
    :median-fu-target "Median Follow-up Target (months)"
    :median-fu-tol "Median Follow-up Tolerance"
    :hr-threshold "HR Significance Threshold"
+   :gps-orr "GPS Objective Response Rate (ORR)"
    :seed "Random Seed"
    :families "Model Families"
    :n-sims-aggregation "Sims to Aggregate (N)"
@@ -143,6 +144,7 @@
         "Set to 0 to disable.")
    :median-fu-tol "Tolerance for median follow-up target in months."
    :hr-threshold "Hazard ratio threshold for significance per SAP (0.636)."
+   :gps-orr "Probability that a patient in the GPS arm follows the GPS survival curve. Otherwise, the patient follows the BAT curve."
    :seed "Random seed for reproducibility."
    :families "Enabled model distribution families."
    :n-sims-aggregation

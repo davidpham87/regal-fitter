@@ -322,8 +322,21 @@
     (let [num-gps n-per-arm
           num-bat (- n-total n-per-arm)
           bat-draws (rnd/draw-bat-times record num-bat random-gen)
-          gps-draws (rnd/draw-gps-times record num-gps random-gen)]
-      (populate-survival-times n-total arms bat-draws gps-draws survival)
+          gps-draws (rnd/draw-gps-times record num-gps random-gen)
+          gps-orr (double (or (:gps-orr config) 0.8))
+          gps-orr-flags (np/nd-to-array (np-random/random random-gen num-gps))
+          gps-fallback-bat-draws (rnd/draw-bat-times record num-gps random-gen)]
+      (loop [i 0 b 0 g 0]
+        (when (< i n-total)
+          (if (== (aget arms i) 0)
+            (do (aset survival i (aget bat-draws b))
+                (recur (inc i) (inc b) g))
+            (let [has-orr? (< (aget gps-orr-flags g) gps-orr)
+                  val (if has-orr?
+                        (aget gps-draws g)
+                        (aget gps-fallback-bat-draws g))]
+              (aset survival i val)
+              (recur (inc i) b (inc g))))))
       {:enroll-times enroll :arms-array arms :survival-times survival})))
 
 (defn- simulate-one-trial
