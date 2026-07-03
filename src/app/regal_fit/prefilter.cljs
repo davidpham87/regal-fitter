@@ -49,21 +49,13 @@
   "Helper function to validate a specific combination of BAT and GPS curves.
   Enforces that gps-med / unc-med is higher or equal to bat-med / bat-unc-med."
   [bat-idx gps-idx total-events-arr bat-survival-arr gps-survival-arr
-   bat-S-36m apply-pool apply-pr3 config bat-params gps-params]
+   bat-S-36m apply-pool apply-pr3 config bat-med-arr gps-med-arr]
   (let [expected-ia (aget total-events-arr bat-idx gps-idx 0)
         expected-upd (aget total-events-arr bat-idx gps-idx 1)
         expected-pr3 (when apply-pr3
                        (aget total-events-arr bat-idx gps-idx 2))
-        ;; Convert ndarrays to raw JS arrays for direct aget lookup
-        bat-med-arr (or (some-> (:bat-med bat-params) np/nd-to-array)
-                        (some-> (:bat-unc-med bat-params) np/nd-to-array)
-                        (some-> (:med bat-params) np/nd-to-array))
-        gps-med-arr (some-> (:gps-med gps-params) np/nd-to-array)
-        gps-unc-med-arr (some-> (:unc-med gps-params) np/nd-to-array)
         bat-med (or (and bat-med-arr (aget bat-med-arr bat-idx)) 0.0)
-        gps-med (or (and gps-med-arr (aget gps-med-arr gps-idx))
-                    (and gps-unc-med-arr (aget gps-unc-med-arr gps-idx))
-                    0.0)]
+        gps-med (or (and gps-med-arr (aget gps-med-arr gps-idx)) 0.0)]
     (when (and (>= gps-med bat-med)
                (pass-events-gate? expected-ia expected-upd config)
                (pass-pr3-gate? expected-upd expected-pr3 config apply-pr3)
@@ -104,13 +96,20 @@
         gps-survival (when apply-pool (np/nd-to-array gps-S-T))
         bat-S-36m-slice (when bat-S-36m
                           (np/nd-to-array
-                           (np/slice bat-S-36m start-idx end-idx)))]
+                           (np/slice bat-S-36m start-idx end-idx)))
+        ;; Convert parameter ndarrays to raw JS arrays once per chunk instead of inside the loops
+        bat-med-arr (or (some-> (:bat-med bat-params) np/nd-to-array)
+                        (some-> (:bat-unc-med bat-params) np/nd-to-array)
+                        (some-> (:med bat-params) np/nd-to-array))
+        gps-med-arr (or (some-> (:gps-med gps-params) np/nd-to-array)
+                        (some-> (:unc-med gps-params) np/nd-to-array))
+        slice-bat-med-arr (when bat-med-arr (.slice bat-med-arr start-idx end-idx))]
     (keep (fn [pair]
             (let [local-bat (first pair) global-gps (second pair)]
               (when-let [res (validate-scenario
                               local-bat global-gps total-events
                               bat-survival gps-survival bat-S-36m-slice
-                              apply-pool apply-pr3 config bat-params gps-params)]
+                              apply-pool apply-pr3 config slice-bat-med-arr gps-med-arr)]
                 (build-result-record (+ start-idx local-bat) global-gps
                                      res family bat-params gps-params))))
           (for [b (range (- end-idx start-idx)) g (range grid-gps)] [b g]))))
