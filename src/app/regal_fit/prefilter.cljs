@@ -56,7 +56,8 @@
                        (aget total-events-arr bat-idx gps-idx 2))
         ;; Convert ndarrays to raw JS arrays for direct aget lookup
         bat-med-arr (or (some-> (:bat-med bat-params) np/nd-to-array)
-                        (some-> (:bat-unc-med bat-params) np/nd-to-array))
+                        (some-> (:bat-unc-med bat-params) np/nd-to-array)
+                        (some-> (:med bat-params) np/nd-to-array))
         gps-med-arr (some-> (:gps-med gps-params) np/nd-to-array)
         gps-unc-med-arr (some-> (:unc-med gps-params) np/nd-to-array)
         bat-med (or (and bat-med-arr (aget bat-med-arr bat-idx)) 0.0)
