@@ -464,8 +464,8 @@
                                fam (keyword fam-str)
                                raw-items (get results fam)
                                items (mapv (fn [item]
-                                             (let [irm (:bat-med item)
-                                                   k (or (:bat-shape item) 1.0)
+                                             (let [irm (or (:bat-med item) (:bat-unc-med item))
+                                                   k (or (:bat-shape item) (:bat-unc-shape item) 1.0)
                                                    d 3
                                                    lambda (discovery/population-cr2-lambda irm d k)
                                                    onset-mos (discovery/true-mos lambda k)]
