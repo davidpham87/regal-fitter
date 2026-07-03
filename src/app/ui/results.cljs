@@ -402,7 +402,12 @@
                         (js/Math.min
                          500
                          (js/Math.ceil (/ total num-workers))))
-            chunks (partition-all chunk-size sampled)
+            ;; Retain only necessary keys to speed up clj->js serialization
+            required-keys #{:family :acceptance-rate :p-success-overall :bat-med :bat-shape :gps-med :gps-shape
+                            :cure-frac :unc-med :unc-shape :leak-yr :bat-cure-frac :bat-unc-med :gps-orr
+                            :bat-unc-shape :bat-leak-yr :bat-scale :bat-unc-scale :gps-scale :unc-scale}
+            pruned-sampled (mapv #(select-keys % required-keys) sampled)
+            chunks (partition-all chunk-size pruned-sampled)
             total-chunks (count chunks)
             completed-chunks (atom 0)
             all-results (js/Array.)]
