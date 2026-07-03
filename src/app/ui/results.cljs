@@ -563,16 +563,21 @@
                       resampled-data resampling-state))
                    (cond
                      loading
-                     [:div.p-8.text-center.border.rounded.bg-gray-50.my-4
-                      [:div.text-lg.font-bold.text-blue-600.mb-2
-                       "Resampling Across Web Workers..."]
-                      [:div.text-sm.text-gray-500.mb-2
+                     [:div.p-8.text-center.border.rounded-2xl.bg-gradient-to-b.from-white.to-gray-50.border-gray-100.shadow-sm.my-4
+                      [:div.flex.items-center.justify-center.gap-3.mb-3
+                       [:svg.animate-spin.h-6.w-6.text-indigo-600
+                        {:xmlns "http://www.w3.org/2000/svg" :fill "none" :viewBox "0 0 24 24"}
+                        [:circle.opacity-25 {:cx "12" :cy "12" :r "10" :stroke "currentColor" :stroke-width "4"}]
+                        [:path.opacity-75 {:fill "currentColor" :d "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"}]]
+                       [:div.text-lg.font-bold.text-indigo-900.tracking-tight
+                        "Resampling Across Web Workers..."]]
+                      [:div.text-sm.text-gray-500.mb-4
                        (str "Processing batch: "
                             (:completed loading) " of " (:total loading)
                             " chunks completed")]
-                      [:div.w-full.bg-gray-200.rounded-full.h-2.5.mx-auto
-                       {:class "max-w-md"}
-                       [:div.bg-blue-600.h-2.5.rounded-full
+                      [:div.w-full.bg-gray-100.rounded-full.h-2.mx-auto
+                       {:class "max-w-md border border-gray-200/50"}
+                       [:div.bg-indigo-600.h-2.rounded-full.transition-all.duration-300
                         {:style {:width (str (if (pos? (:total loading))
                                                (* 100 (/ (:completed loading)
                                                          (:total loading)))
@@ -583,7 +588,12 @@
                      [vega/render-charts-panel (name fam) res-data 50 config]
 
                      :else
-                     [:div.p-4.text-gray-500 "Initializing resampling..."])))])
+                     [:div.p-8.text-center.border.rounded-2xl.bg-gray-50.my-4.flex.items-center.justify-center.gap-3
+                      [:svg.animate-spin.h-5.w-5.text-gray-400
+                       {:xmlns "http://www.w3.org/2000/svg" :fill "none" :viewBox "0 0 24 24"}
+                       [:circle.opacity-25 {:cx "12" :cy "12" :r "10" :stroke "currentColor" :stroke-width "4"}]
+                       [:path.opacity-75 {:fill "currentColor" :d "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"}]]
+                      [:span.text-sm.text-gray-500 "Initializing resampling..."]])))])
 
             :table
             (let [fam @active-family
