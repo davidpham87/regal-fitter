@@ -30,6 +30,10 @@
     {:name :power-analysis-state}]
    ["/discovery"
     {:name :discovery}]
+   ["/discovery-family/:subtab"
+    {:name :discovery-sub}]
+   ["/discovery-family/:subtab/:state"
+    {:name :discovery-sub-state}]
    ["/discovery/:state"
     {:name :discovery-state}]
    ["/r-repl"

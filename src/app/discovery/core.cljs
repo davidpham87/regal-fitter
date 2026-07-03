@@ -627,10 +627,12 @@
              params (merge (:calc-params disc) (:params disc))]
          (sim/run-discovery-simulation! fam params))]
     (fn []
-      (let [state @(rf/subscribe [:discovery])]
+      (let [state @(rf/subscribe [:discovery])
+            params (:params state)]
+        ^{:key (hash params)}
         [fork/form
          {:path [:form :discovery]
-          :initial-values (:params state)
+          :initial-values params
           :keywordize-keys true
           :on-change
           (fn [{:keys [values]}]
