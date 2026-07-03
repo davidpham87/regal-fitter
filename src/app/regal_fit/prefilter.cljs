@@ -55,10 +55,11 @@
         expected-pr3 (when apply-pr3
                        (aget total-events-arr bat-idx gps-idx 2))
         ;; Convert ndarrays to raw JS arrays for direct aget lookup
-        bat-med-arr (np/nd-to-array (:med bat-params))
+        bat-med-arr (or (some-> (:bat-med bat-params) np/nd-to-array)
+                        (some-> (:bat-unc-med bat-params) np/nd-to-array))
         gps-med-arr (some-> (:gps-med gps-params) np/nd-to-array)
         gps-unc-med-arr (some-> (:unc-med gps-params) np/nd-to-array)
-        bat-med (or (aget bat-med-arr bat-idx) 0.0)
+        bat-med (or (and bat-med-arr (aget bat-med-arr bat-idx)) 0.0)
         gps-med (or (and gps-med-arr (aget gps-med-arr gps-idx))
                     (and gps-unc-med-arr (aget gps-unc-med-arr gps-idx))
                     0.0)]
