@@ -207,32 +207,108 @@
                 (dotimes [i (- n-total idx)]
                   (aset arms-data (+ idx i) (if (pos? g-left) 1.0 0.0)))
                 nil)))))
-      (let [num-gps n-per-arm
-            num-bat (- n-total n-per-arm)
-            bat-draws (draw-bat-times-vectorized record num-bat random-gen)
-            gps-draws (draw-gps-times-vectorized record num-gps random-gen)
-            ;; GPS ORR logic: we sample binary variables with probability gps-orr
-            gps-orr (double (or (:gps-orr config) 0.8))
-            gps-orr-flags (np/nd-to-array (np-random/random random-gen num-gps))
-            ;; Generate backup BAT draws for GPS responders that do not respond (fall back to BAT)
-            gps-fallback-bat-draws (np/nd-to-array (draw-bat-times-vectorized record num-gps random-gen))
+      (let [gps-orr (double (or (:gps-orr config) 0.8))
+            r-weib-vals (np/nd-to-array (np-random/random random-gen n-total))
+            r-cure-vals (np/nd-to-array (np-random/random random-gen n-total))
+            r-leak-vals (np/nd-to-array (np-random/random random-gen n-total))
+            gps-orr-flags (np/nd-to-array (np-random/random random-gen n-total))
             
             survival (np-ts/zeros (clj->js [n-total]))
             survival-data (.-data survival)
-            bat-data (np/nd-to-array bat-draws)
-            gps-data (np/nd-to-array gps-draws)
             arms-arr (np/nd-to-array arms)]
-        (loop [i 0 b 0 g 0]
-          (when (< i n-total)
-            (if (== (aget arms-arr i) 0)
-              (do (aset survival-data i (aget bat-data b))
-                  (recur (inc i) (inc b) g))
-              (let [has-orr? (< (aget gps-orr-flags g) gps-orr)
+        (dotimes [i n-total]
+          (let [arm (aget arms-arr i)
+                r-weib (aget r-weib-vals i)
+                r-cure (aget r-cure-vals i)
+                r-leak (aget r-leak-vals i)]
+            (if (zero? arm)
+              ;; BAT patient
+              (let [bat-scale (double (:bat-scale record))
+                    bat-shape (double (:bat-shape record))
+                    family (some-> (:family record) name)
+                    val (cond
+                          (= family "leaky")
+                          (let [cf (double (:bat-cure-frac record))
+                                sc (double (:bat-unc-scale record))
+                                sh (double (:bat-unc-shape record))
+                                leak-yr (double (:bat-leak-yr record))
+                                leak-rate-monthly (/ leak-yr 12.0)]
+                            (if (< r-cure cf)
+                              (if (> leak-rate-monthly 0)
+                                (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+                                js/Infinity)
+                              (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+                          
+                          (= family "cure")
+                          (let [cf (double (:bat-cure-frac record))
+                                sc (double (:bat-unc-scale record))
+                                sh (double (:bat-unc-shape record))]
+                            (if (< r-cure cf)
+                              js/Infinity
+                              (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+                          
+                          :else
+                          (* bat-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 bat-shape))))]
+                (aset survival-data i val))
+              ;; GPS patient
+              (let [has-orr? (< (aget gps-orr-flags i) gps-orr)
                     val (if has-orr?
-                          (aget gps-data g)
-                          (aget gps-fallback-bat-draws g))]
-                (aset survival-data i val)
-                (recur (inc i) b (inc g))))))
+                          ;; GPS survival
+                          (let [family (some-> (:family record) name)]
+                            (cond
+                              (= family "weibull")
+                              (let [gps-scale (double (:gps-scale record))
+                                    gps-shape (double (:gps-shape record))]
+                                (* gps-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 gps-shape))))
+                              
+                              (= family "cure")
+                              (let [cf (double (:cure-frac record))
+                                    sc (double (:unc-scale record))
+                                    sh (double (:unc-shape record))]
+                                (if (< r-cure cf)
+                                  js/Infinity
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+                              
+                              (= family "leaky")
+                              (let [cf (double (:cure-frac record))
+                                    sc (double (:unc-scale record))
+                                    sh (double (:unc-shape record))
+                                    leak-yr (double (:leak-yr record))
+                                    leak-rate-monthly (/ leak-yr 12.0)]
+                                (if (< r-cure cf)
+                                  (if (> leak-rate-monthly 0)
+                                    (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+                                    js/Infinity)
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+                              :else 0.0))
+                          ;; Fallback to BAT survival (using the same random uniform variables)
+                          (let [bat-scale (double (:bat-scale record))
+                                bat-shape (double (:bat-shape record))
+                                family (some-> (:family record) name)]
+                            (cond
+                              (= family "leaky")
+                              (let [cf (double (:bat-cure-frac record))
+                                    sc (double (:bat-unc-scale record))
+                                    sh (double (:bat-unc-shape record))
+                                    leak-yr (double (:bat-leak-yr record))
+                                    leak-rate-monthly (/ leak-yr 12.0)]
+                                (if (< r-cure cf)
+                                  (if (> leak-rate-monthly 0)
+                                    (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+                                    js/Infinity)
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+                              
+                              (= family "cure")
+                              (let [cf (double (:bat-cure-frac record))
+                                    sc (double (:bat-unc-scale record))
+                                    sh (double (:bat-unc-shape record))]
+                                (if (< r-cure cf)
+                                  js/Infinity
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+                              
+                              :else
+                              (* bat-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 bat-shape))))))]
+                (aset survival-data i val)))))
         {:enroll-times enroll :arms-array arms :survival-times survival}))))
 
 (defn- count-events-at-times-vectorized
