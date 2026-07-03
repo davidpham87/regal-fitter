@@ -54,10 +54,13 @@
         expected-upd (aget total-events-arr bat-idx gps-idx 1)
         expected-pr3 (when apply-pr3
                        (aget total-events-arr bat-idx gps-idx 2))
-        ;; Retrieve medians for comparison
-        bat-med (or (aget (:med bat-params) bat-idx) 0.0)
-        gps-med (or (aget (:gps-med gps-params) gps-idx)
-                    (aget (:unc-med gps-params) gps-idx)
+        ;; Convert ndarrays to raw JS arrays for direct aget lookup
+        bat-med-arr (np/nd-to-array (:med bat-params))
+        gps-med-arr (some-> (:gps-med gps-params) np/nd-to-array)
+        gps-unc-med-arr (some-> (:unc-med gps-params) np/nd-to-array)
+        bat-med (or (aget bat-med-arr bat-idx) 0.0)
+        gps-med (or (and gps-med-arr (aget gps-med-arr gps-idx))
+                    (and gps-unc-med-arr (aget gps-unc-med-arr gps-idx))
                     0.0)]
     (when (and (>= gps-med bat-med)
                (pass-events-gate? expected-ia expected-upd config)
