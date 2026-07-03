@@ -77,11 +77,14 @@
  (fn [{:keys [db]} [_ fam result]]
    (let [new-results (assoc (:prefilter-results db) (keyword fam) result)
          new-db (assoc db :prefilter-results new-results)
-         families (:families (:config db))]
-     (if (= (count new-results) (count families))
-       {:db new-db
+         families (:families (:config db))
+         total-fams (count families)
+         completed-fams (count new-results)
+         updated-db (assoc-in new-db [:progress] {:completed completed-fams :total total-fams})]
+     (if (= completed-fams total-fams)
+       {:db updated-db
         :dispatch [:start-stage2]}
-       {:db new-db}))))
+       {:db updated-db}))))
 
 (rf/reg-event-fx
  :start-stage2
@@ -97,8 +100,10 @@
 
 (defn start-simulation! []
   (let [config (:config @rf-db/app-db)
-        families (:families config)]
+        families (:families config)
+        total-fams (count families)]
     (rf/dispatch [:set-status :running-stage1])
+    (rf/dispatch [:set-progress total-fams 0])
     (rf/dispatch [:set-results {}])
     (rf/dispatch [:set-error nil])
     (rf/dispatch [:clear-prefilter-results])
