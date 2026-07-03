@@ -46,14 +46,21 @@
       (<= (aget bat-S-36m bat-idx) max-threshold))))
 
 (defn validate-scenario
-  "Helper function to validate a specific combination of BAT and GPS curves."
+  "Helper function to validate a specific combination of BAT and GPS curves.
+  Enforces that gps-med / unc-med is higher or equal to bat-med / bat-unc-med."
   [bat-idx gps-idx total-events-arr bat-survival-arr gps-survival-arr
-   bat-S-36m apply-pool apply-pr3 config]
+   bat-S-36m apply-pool apply-pr3 config bat-params gps-params]
   (let [expected-ia (aget total-events-arr bat-idx gps-idx 0)
         expected-upd (aget total-events-arr bat-idx gps-idx 1)
         expected-pr3 (when apply-pr3
-                       (aget total-events-arr bat-idx gps-idx 2))]
-    (when (and (pass-events-gate? expected-ia expected-upd config)
+                       (aget total-events-arr bat-idx gps-idx 2))
+        ;; Retrieve medians for comparison
+        bat-med (or (aget (:med bat-params) bat-idx) 0.0)
+        gps-med (or (aget (:gps-med gps-params) gps-idx)
+                    (aget (:unc-med gps-params) gps-idx)
+                    0.0)]
+    (when (and (>= gps-med bat-med)
+               (pass-events-gate? expected-ia expected-upd config)
                (pass-pr3-gate? expected-upd expected-pr3 config apply-pr3)
                (pass-pool-gate? bat-idx gps-idx bat-survival-arr
                                 gps-survival-arr apply-pool)
@@ -98,7 +105,7 @@
               (when-let [res (validate-scenario
                               local-bat global-gps total-events
                               bat-survival gps-survival bat-S-36m-slice
-                              apply-pool apply-pr3 config)]
+                              apply-pool apply-pr3 config bat-params gps-params)]
                 (build-result-record (+ start-idx local-bat) global-gps
                                      res family bat-params gps-params))))
           (for [b (range (- end-idx start-idx)) g (range grid-gps)] [b g]))))
