@@ -295,36 +295,21 @@
   (let [params (find-varying-params items)
         all-keys (keys (first items))
         other-keys (sort (remove (set params) all-keys))]
-    [:div.mt-4
-     [:div.flex.items-center.gap-2.mb-3
-      [:label.text-sm.font-bold.text-gray-700 (str label ":")]
-      [:input.border.rounded.p-1.text-sm.w-64
-       {:type "text"
-        :value @active-atom
-        :on-change #(reset! active-atom (.. % -target -value))}]]
-     [:div.mt-2
-      [:span.text-xs.font-semibold.text-gray-500.block.mb-1
-       "Varying Parameters:"]
-      [:div.flex.flex-wrap.gap-1.5.mb-3
-       (for [p params]
-         ^{:key p}
-         [:button
-          {:class (str "text-xs px-2 py-0.5 rounded bg-indigo-50 "
-                       "text-indigo-700 hover:bg-indigo-100 "
-                       "transition-colors")
-           :on-click #(reset! active-atom (name p))}
-          (get-param-label p)])]
-      [:span.text-xs.font-semibold.text-gray-500.block.mb-1
-       "Other Simulation Outputs:"]
-      [:div.flex.flex-wrap.gap-1.5
-       (for [p other-keys]
-         ^{:key p}
-         [:button
-          {:class (str "text-xs px-2 py-0.5 rounded bg-gray-100 "
-                       "text-gray-700 hover:bg-gray-200 "
-                       "transition-colors")
-           :on-click #(reset! active-atom (name p))}
-          (get-param-label p)])]]]))
+    [:div.mt-4.flex.items-center.gap-3
+     [:label.text-sm.font-bold.text-gray-700 (str label ":")]
+     [:select.border.rounded.p-1.text-sm.bg-white.shadow-sm.focus:outline-none.focus:ring-2.focus:ring-indigo-500
+      {:value @active-atom
+       :on-change #(reset! active-atom (.. % -target -value))}
+      (when (seq params)
+        [:optgroup {:label "Varying Parameters"}
+         (for [p params]
+           ^{:key p}
+           [:option {:value (name p)} (get-param-label p)])])
+      (when (seq other-keys)
+        [:optgroup {:label "Other Simulation Outputs"}
+         (for [p other-keys]
+           ^{:key p}
+           [:option {:value (name p)} (get-param-label p)])])]]))
 
 (defn- posterior-distributions [items-raw]
   (let [items (add-onset-cr2-bat-mos items-raw)
