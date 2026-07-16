@@ -1,5 +1,6 @@
 (ns app.discovery.playground
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [webr.core :as webr]
             [portal.web :as p]
             [app.state :as state]
@@ -140,88 +141,92 @@
   (let [presets (get-preset-scripts)]
     (r/with-let [code-atom (r/atom (:code (first presets)))
                  running? (r/atom false)
-                 active-view (r/atom :editor)
                  selected-script-id (r/atom (:id (first presets)))]
-      [:div.mt-6.space-y-6
-       [:div.bg-gradient-to-r.from-blue-50.to-indigo-50.p-4.rounded-xl
-        {:class "border border-blue-100"}
-        [:h3.font-extrabold.text-blue-900.mb-1
-         "R REPL & Interactive Portal"]
-        [:p.text-xs.text-blue-950
-         (str "Choose a script template from the library or edit R code. "
-              "Evaluating automatically publishes results to Portal.")]]
+      (let [active-view @(rf/subscribe [:tabs/active-tab :playground-view :editor])]
+        [:div.mt-6.space-y-6
+         [:div.bg-gradient-to-r.from-blue-50.to-indigo-50.p-4.rounded-xl
+          {:class "border border-blue-100"}
+          [:h3.font-extrabold.text-blue-900.mb-1
+           "R REPL & Interactive Portal"]
+          [:p.text-xs.text-blue-950
+           (str "Choose a script template from the library or edit R code. "
+                "Evaluating automatically publishes results to Portal.")]]
 
-       [:div.flex.flex-col.lg:flex-row.gap-6
-        ;; 1/5 View: List of scripts
-        [:div.w-full.bg-white.p-4.rounded-xl.border.flex.flex-col.gap-3
-         {:class "lg:w-1/5"}
-         [:h4.font-extrabold.text-gray-800.text-sm.border-b.pb-2
-          "Script Library"]
-         [:div.space-y-2.overflow-y-auto {:style {:max-height "450px"}}
-          (for [script presets]
-            ^{:key (:id script)}
-            [:div.p-3.rounded-lg.border.cursor-pointer.transition-all
-             {:class (if (= @selected-script-id (:id script))
-                       "border-blue-500 bg-blue-50/50 shadow-sm"
-                       "border-gray-200 hover:bg-gray-50")
-              :on-click (fn []
-                          (reset! selected-script-id (:id script))
-                          (reset! code-atom (:code script)))}
-             [:div.font-bold.text-xs.text-gray-800 (:title script)]
-             [:div.text-xxs.text-gray-500.mt-1.leading-snug
-              (:desc script)]])]]
+         [:div.flex.flex-col.lg:flex-row.gap-6
+          ;; 1/5 View: List of scripts
+          [:div.w-full.bg-white.p-4.rounded-xl.border.flex.flex-col.gap-3
+           {:class "lg:w-1/5"}
+           [:h4.font-extrabold.text-gray-800.text-sm.border-b.pb-2
+            "Script Library"]
+           [:div.space-y-2.overflow-y-auto {:style {:max-height "450px"}}
+            (for [script presets]
+              ^{:key (:id script)}
+              [:div.p-3.rounded-lg.border.cursor-pointer.transition-all
+               {:class (if (= @selected-script-id (:id script))
+                         "border-blue-500 bg-blue-50/50 shadow-sm"
+                         "border-gray-200 hover:bg-gray-50")
+                :on-click (fn []
+                            (reset! selected-script-id (:id script))
+                            (reset! code-atom (:code script)))}
+               [:div.font-bold.text-xs.text-gray-800 (:title script)]
+               [:div.text-xxs.text-gray-500.mt-1.leading-snug
+                (:desc script)]])]]
 
-        ;; 4/5 View: Card containing Tabbed Editor/Portal
-        [:div.w-full.bg-white.rounded-xl.border.shadow-sm.flex.flex-col
-         {:class "lg:w-4/5 overflow-hidden"}
+          ;; 4/5 View: Card containing Tabbed Editor/Portal
+          [:div.w-full.bg-white.rounded-xl.border.shadow-sm.flex.flex-col
+           {:class "lg:w-4/5 overflow-hidden"}
 
-         [:div.bg-gray-50.border-b.px-6.py-3.flex.justify-between.flex-wrap
-          {:class "items-center gap-4"}
-          [tab-bar
-           {:active-tab @active-view
-            :tabs [[:editor "Code Editor"]
-                   [:portal "Portal Viewer"]]
-            :on-change #(reset! active-view %)
-            :button-class (str "bg-white shadow border border-gray-200 "
-                               "text-gray-800 font-bold")}]
+           [:div.bg-gray-50.border-b.px-6.py-3.flex.justify-between.flex-wrap
+            {:class "items-center gap-4"}
+            [tab-bar
+             {:id :playground-view
+              :default-tab :editor
+              :tabs [[:editor "Code Editor"]
+                     [:portal "Portal Viewer"]]
+              :button-class (str "bg-white shadow border border-gray-200 "
+                                 "text-gray-800 font-bold")}]
 
-          ;; Execution controls
-          [:div.flex.items-center.gap-3
-           (when (= @active-view :editor)
-             [:button.px-4.py-2.text-white.text-xs.font-bold.rounded-lg
-              {:type "button"
-               :class (str "bg-blue-600 hover:bg-blue-700 "
-                           "transition-colors shadow-md")
-               :disabled @running?
-               :on-click (fn []
-                           (reset! running? true)
-                           (webr/eval-r-code!
-                            @code-atom
-                            {:on-done* (fn [_output result]
-                                         (reset! running? false)
-                                         (p/submit result)
-                                         (reset! active-view :portal))
-                             :on-error* (fn [err]
-                                          (reset! running? false)
-                                          (p/submit err)
-                                          (reset! active-view :portal))}))}
-              (if @running? "Evaluating..." "Run R Script")])
-           (when (= @active-view :portal)
-             [:button.text-xs.text-red-500.hover:underline
-              {:type "button"
-               :on-click #(p/clear)}
-              "Clear Portal"])]]
+            ;; Execution controls
+            [:div.flex.items-center.gap-3
+             (when (= active-view :editor)
+               [:button.px-4.py-2.text-white.text-xs.font-bold.rounded-lg
+                {:type "button"
+                 :class (str "bg-blue-600 hover:bg-blue-700 "
+                             "transition-colors shadow-md")
+                 :disabled @running?
+                 :on-click (fn []
+                             (reset! running? true)
+                             (webr/eval-r-code!
+                              @code-atom
+                              {:on-done* (fn [_output result]
+                                           (reset! running? false)
+                                           (p/submit result)
+                                           (rf/dispatch
+                                            [:tabs/set-active-tab
+                                             :playground-view :portal]))
+                               :on-error* (fn [err]
+                                            (reset! running? false)
+                                            (p/submit err)
+                                            (rf/dispatch
+                                             [:tabs/set-active-tab
+                                              :playground-view :portal]))}))}
+                (if @running? "Evaluating..." "Run R Script")])
+             (when (= active-view :portal)
+               [:button.text-xs.text-red-500.hover:underline
+                {:type "button"
+                 :on-click #(p/clear)}
+                "Clear Portal"])]]
 
-         ;; Body area toggling between editor and portal
-         [:div.p-6
-          (case @active-view
-            :editor
-            [code-editor
-             {:value @code-atom
-              :language "r"
-              :height "450px"
-              :theme "vs-light"
-              :on-change #(reset! code-atom %)}]
+           ;; Body area toggling between editor and portal
+           [:div.p-6
+            (case active-view
+              :editor
+              [code-editor
+               {:value @code-atom
+                :language "r"
+                :height "450px"
+                :theme "vs-light"
+                :on-change #(reset! code-atom %)}]
 
-            :portal
-            [portal-frame])]]]])))
+              :portal
+              [portal-frame])]]]]))))

@@ -436,10 +436,13 @@
   (let [results @(rf/subscribe [:results])
         progress @(rf/subscribe [:progress])
         status @(rf/subscribe [:status])
-        config @(rf/subscribe [:config])]
-   (r/with-let [active-tab (r/atom :charts)
-                 active-family (r/atom nil)
-                 input-n-sims (r/atom (:n-sims-aggregation config 1000))
+        config @(rf/subscribe [:config])
+        active-tab @(rf/subscribe
+                     [:tabs/active-tab :results-view-tab :charts])
+        active-family @(rf/subscribe
+                        [:tabs/active-tab :results-view-family
+                         (some-> results first key)])]
+    (r/with-let [input-n-sims (r/atom (:n-sims-aggregation config 1000))
                  committed-n-sims (r/atom (:n-sims-aggregation config 1000))
                  resample-trigger (r/atom 0)
                  resampled-data (r/atom {})
@@ -449,8 +452,6 @@
         (reset! results-tracker results)
         (reset! resampled-data {})
         (reset! resampling-state {}))
-      (when (and (nil? @active-family) (seq results))
-        (reset! active-family (key (first results))))
       [:div.p-4.results-view-wrapper
        [:div.flex.justify-between.items-center.mb-4
         [:h2.text-xl.font-bold.results-charts-container "Results"]
@@ -460,7 +461,7 @@
             {:type "button"
              :on-click (fn []
                          (let [limit (:n-sims-aggregation config 1000)
-                               fam-str (name (or @active-family (key (first results))))
+                               fam-str (name (or active-family (key (first results))))
                                fam (keyword fam-str)
                                raw-items (get results fam)
                                items (mapv (fn [item]
@@ -499,12 +500,12 @@
                            (.revokeObjectURL js/URL url)))}
             "Export Aggregated JSON"]
            [tab-bar
-            {:active-tab @active-tab
+            {:id :results-view-tab
+             :default-tab :charts
              :tabs [[:charts "Result Charts"]
                     [:config "Config Distributions"]
                     [:table "Table"]
-                    [:edn "EDN View"]]
-             :on-change #(reset! active-tab %)}]])]
+                    [:edn "EDN View"]]}]])]
        (cond
           (= status :running-stage1)
           [:div.p-12.text-center.border.rounded-2xl.bg-gradient-to-b.from-white.to-gray-50.border-gray-100.shadow-sm.my-8
@@ -525,31 +526,31 @@
          (seq results)
          [:div
           [summary-banner results config]
-          (case @active-tab
+          (case active-tab
             :config
-            (let [fam @active-family
+            (let [fam (or active-family (some-> results first key))
                   items (get-items results fam)]
               [:div
                [:div.flex.items-center.gap-2.mb-4
                 [:span.text-sm.font-semibold.text-gray-500 "Family:"]
                 [tab-bar
-                 {:active-tab fam
+                 {:id :results-view-family
+                  :default-tab (some-> results first key)
                   :tabs (mapv (fn [f] [f (str/capitalize (name f))])
-                              (keys results))
-                  :on-change #(reset! active-family %)}]]
+                              (keys results))}]]
                [posterior-distributions items]])
             :charts
-            (let [fam @active-family
+            (let [fam (or active-family (some-> results first key))
                   items (get-items results fam)]
               [:div
                [:div.mb-4.flex.flex-col.gap-2
                 [:div.flex.items-center.gap-2
                  [:span.text-sm.font-semibold.text-gray-500 "Family:"]
                  [tab-bar
-                  {:active-tab fam
+                  {:id :results-view-family
+                   :default-tab (some-> results first key)
                    :tabs (mapv (fn [f] [f (str/capitalize (name f))])
-                               (keys results))
-                   :on-change #(reset! active-family %)}]]
+                               (keys results))}]]
                 [:div.flex.flex-wrap.items-center.gap-4.mt-2
                  [:div.flex.items-center.gap-2
                   [:span.text-sm.font-semibold.text-gray-500
@@ -616,16 +617,16 @@
                       [:span.text-sm.text-gray-500 "Initializing resampling..."]])))])
 
             :table
-            (let [fam @active-family
+            (let [fam (or active-family (some-> results first key))
                   items (get-items results fam)]
               [:div
                [:div.mb-4.flex.items-center.gap-2
                 [:span.text-sm.font-semibold.text-gray-500 "Family:"]
                 [tab-bar
-                 {:active-tab fam
+                 {:id :results-view-family
+                  :default-tab (some-> results first key)
                   :tabs (mapv (fn [f] [f (str/capitalize (name f))])
-                              (keys results))
-                  :on-change #(reset! active-family %)}]]
+                              (keys results))}]]
                (when (and fam items)
                  ^{:key fam} [results-table fam items])])
 
