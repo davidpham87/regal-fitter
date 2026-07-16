@@ -311,6 +311,17 @@
            ^{:key p}
            [:option {:value (name p)} (get-param-label p)])])]]))
 
+(defn- posterior-plot-column
+  [items active-p label kw valid?]
+  [:div.border.p-6.rounded.bg-white
+   [parameter-helper items active-p label]
+   (when valid?
+     [:div.flex.flex-col.gap-8.py-6
+      [vega/chart-posterior-histogram
+       items kw (get-param-label kw)]
+      [vega/chart-posterior-cdf
+       items kw (get-param-label kw)]])])
+
 (defn- posterior-distributions [items-raw]
   (let [items (add-onset-cr2-bat-mos items-raw)
         family (some-> (:family (first items)) name)
@@ -339,23 +350,10 @@
                p2-valid? (contains? valid-keys p2-kw)]
            [:div
             [:div.grid.grid-cols-1.gap-8.mb-8
-             [:div.border.p-6.rounded.bg-white
-              [parameter-helper items active-p1 "Parameter 1"]
-              (when p1-valid?
-                [:div.flex.flex-col.gap-8.py-6
-                 [vega/chart-posterior-histogram
-                  items p1-kw (get-param-label p1-kw)]
-                 [vega/chart-posterior-cdf
-                  items p1-kw (get-param-label p1-kw)]])]
-
-             [:div.border.p-6.rounded.bg-white
-              [parameter-helper items active-p2 "Parameter 2"]
-              (when p2-valid?
-                [:div.flex.flex-col.gap-8.py-6
-                 [vega/chart-posterior-histogram
-                  items p2-kw (get-param-label p2-kw)]
-                 [vega/chart-posterior-cdf
-                  items p2-kw (get-param-label p2-kw)]])]]
+             [posterior-plot-column
+              items active-p1 "Parameter 1" p1-kw p1-valid?]
+             [posterior-plot-column
+              items active-p2 "Parameter 2" p2-kw p2-valid?]]
 
             (when (and p1-valid? p2-valid? (not= p1-kw p2-kw))
               [:div.border.p-4.rounded.bg-white.mb-8
