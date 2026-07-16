@@ -349,28 +349,28 @@
                p1-valid? (contains? valid-keys p1-kw)
                p2-valid? (contains? valid-keys p2-kw)]
            [:div
-            [:div.grid.grid-cols-1.gap-8.mb-8
+            [:div.grid.grid-cols-1.lg:grid-cols-2.gap-8.mb-8
              [posterior-plot-column
               items active-p1 "Parameter 1" p1-kw p1-valid?]
              [posterior-plot-column
               items active-p2 "Parameter 2" p2-kw p2-valid?]]
 
-            (when (and p1-valid? p2-valid? (not= p1-kw p2-kw))
-              [:div.border.p-4.rounded.bg-white.mb-8
-               [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
-               [vega/chart-pairwise-scatter
-                items
-                p1-kw p2-kw
-                (get-param-label p1-kw)
-                (get-param-label p2-kw)]])
-
-            [:div.border.p-6.rounded.bg-white.mb-8
-             [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
-             [:div.flex.flex-col.gap-8.py-4
-              [vega/chart-posterior-histogram
-               items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]
-              [vega/chart-posterior-cdf
-               items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]
+            [:div.grid.grid-cols-1.lg:grid-cols-2.gap-8.mb-8
+             (when (and p1-valid? p2-valid? (not= p1-kw p2-kw))
+               [:div.border.p-4.rounded.bg-white
+                [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
+                [vega/chart-pairwise-scatter
+                 items
+                 p1-kw p2-kw
+                 (get-param-label p1-kw)
+                 (get-param-label p2-kw)]])
+             [:div.border.p-6.rounded.bg-white
+              [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
+              [:div.flex.flex-col.gap-8.py-4
+               [vega/chart-posterior-histogram
+                items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]
+               [vega/chart-posterior-cdf
+                items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]]
 
             [:div.mt-8.pt-6.border-t
              [:h3.text-xl.font-bold.mb-4 "Key Parameter Relationships"]
