@@ -188,15 +188,17 @@
                                        family true])))
                                  (rf/dispatch
                                   [:results-table/set-curr-page family 0]))}
-                    [:div.flex.flex-col
-                     [:span.flex.items-center.gap-1
-                      (get inputs/key->label k (name k))
+                    [:div.flex.items-center.justify-between.gap-2
+                     [:div.flex.flex-col.min-w-0
+                      [:span.truncate (get inputs/key->label k (name k))]
+                      [:span.font-mono.text-gray-400.font-normal.mt-0.5
+                       {:class "text-[10px]"}
+                       (str k)]]
+                     [:span.text-gray-400.flex-shrink-0
                       (cond
                         (not is-active-sort?) "↕"
                         sort-asc? "▲"
-                        :else "▼")]
-                     [:span.text-xs.font-normal.text-gray-400.font-mono
-                      (str k)]]]))]]
+                        :else "▼")]]]))]]
              [:tbody.divide-y.divide-gray-200.bg-white
               (if (empty? paginated-items)
                 [:tr
