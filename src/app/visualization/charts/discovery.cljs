@@ -337,4 +337,5 @@
         [{:mark {:type "rule" :color "#ef4444" :strokeDash [4 4] :strokeWidth 2}}
          {:mark {:type "text" :align "right" :dx -5 :dy -100 :color "#ef4444"
                  :text "Success Threshold"}}]}]
+      :resolve {:scale {:y "independent"}}
       :config {:view {:stroke "transparent"}}}]))
