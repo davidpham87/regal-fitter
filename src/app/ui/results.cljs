@@ -188,12 +188,15 @@
                                        family true])))
                                  (rf/dispatch
                                   [:results-table/set-curr-page family 0]))}
-                    [:span.flex.items-center.gap-1
-                     (get inputs/key->label k (name k))
-                     (cond
-                       (not is-active-sort?) "↕"
-                       sort-asc? "▲"
-                       :else "▼")]]))]]
+                    [:div.flex.flex-col
+                     [:span.flex.items-center.gap-1
+                      (get inputs/key->label k (name k))
+                      (cond
+                        (not is-active-sort?) "↕"
+                        sort-asc? "▲"
+                        :else "▼")]
+                     [:span.text-xs.font-normal.text-gray-400.font-mono
+                      (str k)]]]))]]
              [:tbody.divide-y.divide-gray-200.bg-white
               (if (empty? paginated-items)
                 [:tr

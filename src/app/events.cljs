@@ -404,7 +404,7 @@
          gps-med (or (:unc-med item) (:gps-med item) (:bat-med item))
          gps-unc-med (or (:unc-med item) (:bat-med item))
          gps-unc-shape (or (:unc-shape item) 1.0)
-         params {:bat-med (or (:bat-med item) (:bat-unc-med item) 10.0)
+         params {:bat-med (or (:bat-unc-med item) (:bat-med item) 10.0)
                  :bat-shape (or (:bat-shape item)
                                 (:bat-unc-shape item)
                                 (:weibull-k item)
