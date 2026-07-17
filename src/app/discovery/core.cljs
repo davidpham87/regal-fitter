@@ -181,8 +181,6 @@
    :prefilter-tol-pr3 1.5
    :n-sims        1000})
 
-
-
 (defn- settings-checkboxes [{:keys [values set-values]}]
   [:div.bg-gray-50.p-2.rounded-xl.border.flex.items-center.gap-4.col-span-3.h-12
    ;; Placebo Mode
@@ -207,7 +205,7 @@
     [:input {:type "checkbox"
              :checked (:filter-paths? values)
              :on-change #(set-values
-                          {:filter-paths? (.. % -target -checked)})} ]
+                          {:filter-paths? (.. % -target -checked)})}]
     "Filter Paths"]
    ;; Prefilter Check
    [:label.flex.items-center.gap-1.5.text-xs.font-bold.text-gray-700
@@ -215,7 +213,7 @@
     [:input {:type "checkbox"
              :checked (:prefilter-check? values)
              :on-change #(set-values
-                          {:prefilter-check? (.. % -target -checked)})} ]
+                          {:prefilter-check? (.. % -target -checked)})}]
     "Prefilter Check"]])
 
 (defn- tolerance-params [props]
@@ -514,7 +512,31 @@
                 [table-td "right" "font-medium text-green-600"
                  (if (= (:gps-realized-month medians) js/Infinity)
                    "N/A"
-                   (str (.toFixed (:gps-realized-month medians) 2) "m"))]]]]]
+                   (str (.toFixed (:gps-realized-month medians) 2) "m"))]]
+               (let [bat-ia (:mean-med-interim-analysis-bat sim-result)
+                     gps-ia (:mean-med-interim-analysis-gps sim-result)]
+                 [:tr
+                  [table-td "Simulation Realized mOS (at IA)"]
+                  [table-td "right" "font-medium text-purple-600"
+                   (if (and bat-ia (not (js/isNaN bat-ia)))
+                     (str (.toFixed bat-ia 2) "m")
+                     "N/A")]
+                  [table-td "right" "font-medium text-purple-600"
+                   (if (and gps-ia (not (js/isNaN gps-ia)))
+                     (str (.toFixed gps-ia 2) "m")
+                     "N/A")]])
+               (let [bat-upd (:mean-med-update-bat sim-result)
+                     gps-upd (:mean-med-update-gps sim-result)]
+                 [:tr
+                  [table-td "Simulation Realized mOS (at UPD)"]
+                  [table-td "right" "font-medium text-purple-600"
+                   (if (and bat-upd (not (js/isNaN bat-upd)))
+                     (str (.toFixed bat-upd 2) "m")
+                     "N/A")]
+                  [table-td "right" "font-medium text-purple-600"
+                   (if (and gps-upd (not (js/isNaN gps-upd)))
+                     (str (.toFixed gps-upd 2) "m")
+                     "N/A")]])]]]
             [:div
              [:h4.text-sm.font-bold.text-gray-700.mb-3
               "Stochastic Trial Outcomes"]
@@ -599,22 +621,22 @@
         medians (assoc (dc/calculate-medians active-family calc-params config)
                        :bat-true-mos bat-true-mos)]
 
-     [:div.p-6.max-w-7xl.mx-auto
-      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
-       "Discovery View"]
-      [:p.text-gray-600.mb-6
-       (str "Explore survival curves and event accrual "
-            "given leaky cure parametric assumptions.")]
+    [:div.p-6.max-w-7xl.mx-auto
+     [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
+      "Discovery View"]
+     [:p.text-gray-600.mb-6
+      (str "Explore survival curves and event accrual "
+           "given leaky cure parametric assumptions.")]
 
-      [:<>
-       [controls-panel props active-family calc-params
-        state config bat-true-mos]
-       [simulation-results-panel sim-result medians active-family calc-params]
-       ^{:key (str params)}
-       [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
-        [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
-        [h0-section stats-h0 curve-data-h0 h0-hazard-rates
-         active-metric avg-med]]]]))
+     [:<>
+      [controls-panel props active-family calc-params
+       state config bat-true-mos]
+      [simulation-results-panel sim-result medians active-family calc-params]
+      ^{:key (str params)}
+      [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
+       [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
+       [h0-section stats-h0 curve-data-h0 h0-hazard-rates
+        active-metric avg-med]]]]))
 
 ;; ---------------------------------------------------------------------------
 ;; Public entry point
