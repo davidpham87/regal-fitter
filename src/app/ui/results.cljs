@@ -122,7 +122,8 @@
               page-size 20
               keys-to-show (->> (mapcat keys items)
                                 distinct
-                                (remove #(= % :family))
+                                (remove
+                                 #(or (= % :family) (= % :hr-final-arr)))
                                 (sort-by name))
               q (str/lower-case (str/trim @filter-text))
               filtered-items (if (str/blank? q)
