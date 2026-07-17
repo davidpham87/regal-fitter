@@ -528,6 +528,33 @@
           {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin
            :bat-alive-final bat-alive :gps-alive-final gps-alive})))))
 
+(defn- calculate-empirical-survival-points [survival arms n-total]
+  (let [surv-arr (np/nd-to-array survival)
+        arms-arr (np/nd-to-array arms)
+        t-pts [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80]
+        bat-total (volatile! 0)
+        gps-total (volatile! 0)]
+    (dotimes [i n-total]
+      (if (== (aget arms-arr i) 0)
+        (vswap! bat-total inc)
+        (vswap! gps-total inc)))
+    (let [n-bat @bat-total
+          n-gps @gps-total]
+      (mapv (fn [t]
+              (let [c-bat (volatile! 0)
+                    c-gps (volatile! 0)]
+                (dotimes [i n-total]
+                  (let [s (aget surv-arr i)
+                        arm (aget arms-arr i)]
+                    (when (> s t)
+                      (if (== arm 0)
+                        (vswap! c-bat inc)
+                        (vswap! c-gps inc)))))
+                {:time t
+                 :bat-surv (if (pos? n-bat) (/ @c-bat n-bat) 0.0)
+                 :gps-surv (if (pos? n-gps) (/ @c-gps n-gps) 0.0)}))
+            t-pts))))
+
 (defn- calculate-trial-stats-vectorized
   "Computes all statistics for a successfully screened trial."
   [config enroll survival arms]
@@ -549,16 +576,16 @@
                       :gps-alive-upd (:alive-gps interim-res)
                       :bat-alive-final (:bat-alive-final final-res)
                       :gps-alive-final (:gps-alive-final final-res)
-                      ;; Per-arm cumulative event counts
                       :n-interim-analysis-bat  (:n-interim-analysis-bat counts)
                       :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
                       :n-update-bat  (:n-update-bat counts)
                       :n-update-gps  (:n-update-gps counts)
                       :n-press-release-3-bat (:n-press-release-3-bat counts)
-                      :n-press-release-3-gps (:n-press-release-3-gps counts)}
+                      :n-press-release-3-gps (:n-press-release-3-gps counts)
+                      :empirical-survival (calculate-empirical-survival-points
+                                           survival arms (:n-total config))}
                      (when (:use-pr3-anchor config)
                        {:n-ev-pr3 (:n-press-release-3 counts)})
-                     ;; Per-arm median survival times per interval
                      (compute-interval-medians-vectorized
                       config enroll survival arms)))))))))
 
@@ -741,7 +768,29 @@
             :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
             :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
             :mean-med-press-release-3-pool
-            (mean-field all-stats :mean-med-press-release-3-pool)})))
+            (mean-field all-stats :mean-med-press-release-3-pool)
+            :sim-survival-curves
+            (let [t-pts [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80]
+                  empirical-curves (map :empirical-survival all-stats)
+                  n-trials (count empirical-curves)]
+              (if (zero? n-trials)
+                []
+                (mapv (fn [idx t]
+                        (let [b-sum (reduce
+                                     +
+                                     (map
+                                      #(get-in % [idx :bat-surv] 0.0)
+                                      empirical-curves))
+                              g-sum (reduce
+                                     +
+                                     (map
+                                      #(get-in % [idx :gps-surv] 0.0)
+                                      empirical-curves))]
+                          {:time t
+                           :bat-survival (/ b-sum n-trials)
+                           :gps-survival (/ g-sum n-trials)}))
+                      (range)
+                      t-pts)))})))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."

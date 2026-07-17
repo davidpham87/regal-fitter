@@ -13,12 +13,12 @@
                   :scale {:domain [0 1]}}
               :color {:field "group"
                       :type "nominal"
-                      :scale {:domain ["Pooled" "GPS" "BAT"]
-                              :range ["#4488cc" "#55bb88" "#ee6677"]}}
+                      :scale {:domain ["Pooled" "GPS" "BAT" "GPS (sim)" "BAT (sim)"]
+                              :range ["#4488cc" "#55bb88" "#ee6677" "#55bb88" "#ee6677"]}}
               :strokeDash {:field "group"
                            :type "nominal"
-                           :scale {:domain ["Pooled" "GPS" "BAT"]
-                                   :range [[] [4 4] [2 2]]}}}})
+                           :scale {:domain ["Pooled" "GPS" "BAT" "GPS (sim)" "BAT (sim)"]
+                                   :range [[] [] [] [4 4] [4 4]]}}}})
 
 (def discovery-survival-layer-hover
   {:params [{:name "hover"

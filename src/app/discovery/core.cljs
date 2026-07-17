@@ -401,49 +401,62 @@
 ;; ---------------------------------------------------------------------------
 
 (defn- chart-grid [curve-data h1-hazard-rates active-metric sim-result title]
-  [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Survival Curves")]
-    [vega/discovery-survival-chart (:survival curve-data)]]
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Event Accrual")]
-    [vega/discovery-accrual-chart (:accrual curve-data)
-     (:stats curve-data)]]
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Patients Alive")]
-    [vega/discovery-alive-chart (:alive curve-data)
-     (:stats curve-data)]]
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Estimated Hazard Ratios")]
-    [vega/discovery-hr-chart (:hr curve-data)]]
-   [card/card-panel nil
-    [:div.flex.justify-between.items-center.mb-2
-     [:h4.text-xs.font-bold.text-gray-700
-      (str title ": " (if (= @active-metric :rate)
-                        "Annualized Hazard Rates"
-                        "Median Overall Survival")
-           (when sim-result " (sim)"))]
-     [:div.flex.gap-1.bg-gray-100.p-0.5.rounded-md.text-xxs
-      [:button.px-2.py-0.5.rounded.font-bold
-       {:type "button"
-        :class (if (= @active-metric :rate)
-                 "bg-white text-gray-800 shadow-sm"
-                 "text-gray-500 hover:text-gray-800")
-        :on-click #(reset! active-metric :rate)}
-       "Hazard Rate"]
-      [:button.px-2.py-0.5.rounded.font-bold
-       {:type "button"
-        :class (if (= @active-metric :median)
-                 "bg-white text-gray-800 shadow-sm"
-                 "text-gray-500 hover:text-gray-800")
-        :on-click #(reset! active-metric :median)}
-       "Median OS"]]]
-    ^{:key (str title "-" @active-metric)}
-    [vega/discovery-hazard-rates-chart h1-hazard-rates @active-metric]]])
+  (let [survival-data (let [analytical (:survival curve-data)]
+                        (if-let [sim-curves (:sim-survival-curves sim-result)]
+                          (let [sim-formatted (mapcat
+                                               (fn [pt]
+                                                 [{:time (:time pt)
+                                                   :survival (:bat-survival pt)
+                                                   :group "BAT (sim)"}
+                                                  {:time (:time pt)
+                                                   :survival (:gps-survival pt)
+                                                   :group "GPS (sim)"}])
+                                               sim-curves)]
+                            (vec (concat analytical sim-formatted)))
+                          analytical))]
+    [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Survival Curves")]
+      [vega/discovery-survival-chart survival-data]]
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Event Accrual")]
+      [vega/discovery-accrual-chart (:accrual curve-data)
+       (:stats curve-data)]]
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Patients Alive")]
+      [vega/discovery-alive-chart (:alive curve-data)
+       (:stats curve-data)]]
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Estimated Hazard Ratios")]
+      [vega/discovery-hr-chart (:hr curve-data)]]
+     [card/card-panel nil
+      [:div.flex.justify-between.items-center.mb-2
+       [:h4.text-xs.font-bold.text-gray-700
+        (str title ": " (if (= @active-metric :rate)
+                          "Annualized Hazard Rates"
+                          "Median Overall Survival")
+             (when sim-result " (sim)"))]
+       [:div.flex.gap-1.bg-gray-100.p-0.5.rounded-md.text-xxs
+        [:button.px-2.py-0.5.rounded.font-bold
+         {:type "button"
+          :class (if (= @active-metric :rate)
+                   "bg-white text-gray-800 shadow-sm"
+                   "text-gray-500 hover:text-gray-800")
+          :on-click #(reset! active-metric :rate)}
+         "Hazard Rate"]
+        [:button.px-2.py-0.5.rounded.font-bold
+         {:type "button"
+          :class (if (= @active-metric :median)
+                   "bg-white text-gray-800 shadow-sm"
+                   "text-gray-500 hover:text-gray-800")
+          :on-click #(reset! active-metric :median)}
+         "Median OS"]]]
+      ^{:key (str title "-" @active-metric)}
+      [vega/discovery-hazard-rates-chart h1-hazard-rates @active-metric]]]))
 
 ;; ---------------------------------------------------------------------------
 ;; H1 / H0 sections
