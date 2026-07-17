@@ -346,9 +346,9 @@
   by build-result-record, so this is O(1) per combo."
   [config rec]
   (let [r-ia  (js/Math.abs
-                (- (:exp-ev-ia  rec) (:n-ev-ia  config)))
+               (- (:exp-ev-ia  rec) (:n-ev-ia  config)))
         r-upd (js/Math.abs
-                (- (:exp-ev-upd rec) (:n-ev-upd config)))
+               (- (:exp-ev-upd rec) (:n-ev-upd config)))
         r-pr3 (if (and (:use-pr3-anchor config) (:exp-ev-pr3 rec))
                 (js/Math.abs
                  (- (:exp-ev-pr3 rec) (:n-ev-pr3 config)))
@@ -362,26 +362,27 @@
   [config combos]
   (let [bat-grouper (fn [m]
                       [(or (:bat-unc-med m)
-                             (:bat-med-grid m)
-                             (:bat-med m))
-                         (or (:bat-shape m)
-                             (:bat-unc-shape m))
-                         (or (:bat-leaky-cure-frac m)
-                             (:bat-cure-frac m))
-                         (:bat-leak m)])
-        gps-grouper (fn [m] [(or (:gps-med m)
-                           (:unc-med m))
-                       (or (:gps-scale m)
-                           (:unc-scale m))
-                       (or (:gps-shape m)
-                           (:unc-shape m))
-                       (or (:leaky-cure-frac m)
-                           (:cure-frac m))])
-        grouped (concat (group-by bat-grouper combos)
-                          (group-by gps-grouper combos))]
+                           (:bat-med-grid m)
+                           (:bat-med m))
+                       (or (:bat-shape m)
+                           (:bat-unc-shape m))
+                       (or (:bat-leaky-cure-frac m)
+                           (:bat-cure-frac m))
+                       (:bat-leak m)])
+        #_#_gps-grouper (fn [m] [(or (:gps-med m)
+                                 (:unc-med m))
+                             (or (:gps-scale m)
+                                 (:unc-scale m))
+                             (or (:gps-shape m)
+                                 (:unc-shape m))
+                             (or (:leaky-cure-frac m)
+                                 (:cure-frac m))])
+        grouped (group-by bat-grouper combos)
+        #_(concat (group-by bat-grouper combos)
+                  (group-by gps-grouper combos))]
     (vec (distinct (mapv (fn [[_ group]]
-                         (apply min-key #(combo-residual config %) group))
-                       grouped)))))
+                           (apply min-key #(combo-residual config %) group))
+                         grouped)))))
 
 (defn rank-and-trim
   "Sorts accepted combos by analytical residual (best first) and

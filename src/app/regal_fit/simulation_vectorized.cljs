@@ -212,7 +212,7 @@
             r-cure-vals (np/nd-to-array (np-random/random random-gen n-total))
             r-leak-vals (np/nd-to-array (np-random/random random-gen n-total))
             gps-orr-flags (np/nd-to-array (np-random/random random-gen n-total))
-            
+
             survival (np-ts/zeros (clj->js [n-total]))
             survival-data (.-data survival)
             arms-arr (np/nd-to-array arms)]
@@ -238,7 +238,7 @@
                                 (/ (- (js/Math.log r-leak)) leak-rate-monthly)
                                 js/Infinity)
                               (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
-                          
+
                           (= family "cure")
                           (let [cf (double (:bat-cure-frac record))
                                 sc (double (:bat-unc-scale record))
@@ -246,7 +246,7 @@
                             (if (< r-cure cf)
                               js/Infinity
                               (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
-                          
+
                           :else
                           (* bat-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 bat-shape))))]
                 (aset survival-data i val))
@@ -260,7 +260,7 @@
                               (let [gps-scale (double (:gps-scale record))
                                     gps-shape (double (:gps-shape record))]
                                 (* gps-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 gps-shape))))
-                              
+
                               (= family "cure")
                               (let [cf (double (:cure-frac record))
                                     sc (double (:unc-scale record))
@@ -268,7 +268,7 @@
                                 (if (< r-cure cf)
                                   js/Infinity
                                   (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
-                              
+
                               (= family "leaky")
                               (let [cf (double (:cure-frac record))
                                     sc (double (:unc-scale record))
@@ -297,7 +297,7 @@
                                     (/ (- (js/Math.log r-leak)) leak-rate-monthly)
                                     js/Infinity)
                                   (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
-                              
+
                               (= family "cure")
                               (let [cf (double (:bat-cure-frac record))
                                     sc (double (:bat-unc-scale record))
@@ -305,7 +305,7 @@
                                 (if (< r-cure cf)
                                   js/Infinity
                                   (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
-                              
+
                               :else
                               (* bat-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 bat-shape))))))]
                 (aset survival-data i val)))))
@@ -1001,4 +1001,3 @@
   "Simulates multiple trials for a scenario combination using 2D chunked vectorized operations."
   [args]
   (simulate-one-combo-2d args))
-

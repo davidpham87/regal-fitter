@@ -56,3 +56,7 @@
 
 (defn ^:export ^:dev/after-load reload! []
   (rdom/render ^{:key (str (rand))} [ui/main-view] (js/document.getElementById "app")))
+
+(comment
+  (reload!)
+  )

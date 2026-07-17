@@ -14,38 +14,6 @@
             [app.discovery.core :as discovery]
             [app.visualization.data :as vdata]))
 
-;; --- Re-frame Subscriptions and Events for Results Table ---
-
-(rf/reg-sub
- :results-table/sort-col
- (fn [db [_ family]]
-   (get-in db [:results-table family :sort-col] nil)))
-
-(rf/reg-sub
- :results-table/sort-asc?
- (fn [db [_ family]]
-   (get-in db [:results-table family :sort-asc?] true)))
-
-(rf/reg-sub
- :results-table/curr-page
- (fn [db [_ family]]
-   (get-in db [:results-table family :curr-page] 0)))
-
-(rf/reg-event-db
- :results-table/set-sort-col
- (fn [db [_ family col]]
-   (assoc-in db [:results-table family :sort-col] col)))
-
-(rf/reg-event-db
- :results-table/set-sort-asc?
- (fn [db [_ family asc?]]
-   (assoc-in db [:results-table family :sort-asc?] asc?)))
-
-(rf/reg-event-db
- :results-table/set-curr-page
- (fn [db [_ family page]]
-   (assoc-in db [:results-table family :curr-page] page)))
-
 (defn- expected-success-probability [items config]
   (let [valid-items (filter #(and (:p-success-overall %)
                                   (:acceptance-rate %)
@@ -113,19 +81,16 @@
     :else data))
 
 (defn- results-table [family items]
-  (let [filter-text (r/atom "")]
+  (let [sort-col (r/atom nil)
+        sort-asc? (r/atom true)
+        filter-text (r/atom "")
+        page-size 20
+        curr-page (r/atom 0)]
     (fn [family items]
       (when (seq items)
-        (let [sort-col @(rf/subscribe [:results-table/sort-col family])
-              sort-asc? @(rf/subscribe [:results-table/sort-asc? family])
-              curr-page @(rf/subscribe [:results-table/curr-page family])
-              page-size 20
-              keys-to-show (->> (mapcat keys items)
+        (let [keys-to-show (->> (mapcat keys items)
                                 distinct
-                                (remove
-                                 #(or (= % :family)
-                                      (= % :hr-final-arr)
-                                      (= % :sim-survival-curves)))
+                                (remove #(= % :family))
                                 (sort-by name))
               q (str/lower-case (str/trim @filter-text))
               filtered-items (if (str/blank? q)
@@ -139,21 +104,20 @@
                                              q)))
                                         keys-to-show))
                                 items))
-              sorted-items (if-let [col sort-col]
+              sorted-items (if-let [col @sort-col]
                              (sort-by (fn [item]
                                         (let [val (get item col)]
                                           (if (string? val)
                                             (str/lower-case val)
                                             val)))
-                                      (if sort-asc? compare #(compare %2 %1))
+                                      (if @sort-asc? compare #(compare %2 %1))
                                       filtered-items)
                              filtered-items)
               total-items (count sorted-items)
               max-page (js/Math.max 0 (js/Math.ceil (/ total-items page-size)))
-              _ (when (>= curr-page max-page)
-                  (rf/dispatch [:results-table/set-curr-page family 0]))
+              _ (when (>= @curr-page max-page) (reset! curr-page 0))
               paginated-items (->> sorted-items
-                                   (drop (* curr-page page-size))
+                                   (drop (* @curr-page page-size))
                                    (take page-size))]
           [:div.mb-8
            [:div.flex.flex-col.sm:flex-row.gap-2.mb-3
@@ -166,42 +130,30 @@
                :placeholder "Filter rows..."
                :value @filter-text
                :on-change #(do (reset! filter-text (.. % -target -value))
-                               (rf/dispatch
-                                [:results-table/set-curr-page family 0]))}]]]
+                               (reset! curr-page 0))}]]]
            [:div.overflow-x-auto.border.rounded-lg.shadow-sm
             [:table.min-w-full.divide-y.divide-gray-200.text-sm
              [:thead.bg-gray-50
               [:tr
                [:th.px-4.py-2.text-left.font-semibold.text-gray-600 "Actions"]
                (for [k keys-to-show]
-                 (let [is-active-sort? (= sort-col k)]
+                 (let [is-active-sort? (= @sort-col k)]
                    ^{:key k}
                    [:th.px-4.py-2.text-left.font-semibold.text-gray-600
                     {:class "cursor-pointer select-none hover:bg-gray-100"
                      :on-click (fn []
                                  (if is-active-sort?
-                                   (rf/dispatch
-                                    [:results-table/set-sort-asc?
-                                     family (not sort-asc?)])
+                                   (swap! sort-asc? not)
                                    (do
-                                     (rf/dispatch
-                                      [:results-table/set-sort-col family k])
-                                     (rf/dispatch
-                                      [:results-table/set-sort-asc?
-                                       family true])))
-                                 (rf/dispatch
-                                  [:results-table/set-curr-page family 0]))}
-                    [:div.flex.items-center.justify-between.gap-2
-                     [:div.flex.flex-col.min-w-0
-                      [:span.truncate (get inputs/key->label k (name k))]
-                      [:span.font-mono.text-gray-400.font-normal.mt-0.5
-                       {:class "text-[10px]"}
-                       (str k)]]
-                     [:span.text-gray-400.flex-shrink-0
-                      (cond
-                        (not is-active-sort?) "↕"
-                        sort-asc? "▲"
-                        :else "▼")]]]))]]
+                                     (reset! sort-col k)
+                                     (reset! sort-asc? true)))
+                                 (reset! curr-page 0))}
+                    [:span.flex.items-center.gap-1
+                     (get inputs/key->label k (name k))
+                     (cond
+                       (not is-active-sort?) "↕"
+                       @sort-asc? "▲"
+                       :else "▼")]]))]]
              [:tbody.divide-y.divide-gray-200.bg-white
               (if (empty? paginated-items)
                 [:tr
@@ -228,27 +180,20 @@
            (when (> max-page 1)
              [:div.mt-4.flex.justify-between.items-center.text-sm
               [:span.text-gray-600
-               (str "Showing " (inc (* curr-page page-size))
-                    " to " (js/Math.min total-items
-                                        (* (inc curr-page) page-size))
+               (str "Showing " (inc (* @curr-page page-size))
+                    " to " (js/Math.min total-items (* (inc @curr-page) page-size))
                     " of " total-items " entries")]
               [:div.flex.gap-2
                [:button.px-3.py-1.border.rounded.bg-white
-                {:disabled (<= curr-page 0)
-                 :class (when (<= curr-page 0)
-                          "opacity-50 cursor-not-allowed")
-                 :on-click #(rf/dispatch
-                             [:results-table/set-curr-page
-                              family (dec curr-page)])}
+                {:disabled (<= @curr-page 0)
+                 :class (when (<= @curr-page 0) "opacity-50 cursor-not-allowed")
+                 :on-click #(swap! curr-page dec)}
                 "Previous"]
-               [:span.px-3.py-1 (str (inc curr-page) " / " max-page)]
+               [:span.px-3.py-1 (str (inc @curr-page) " / " max-page)]
                [:button.px-3.py-1.border.rounded.bg-white
-                {:disabled (>= (inc curr-page) max-page)
-                 :class (when (>= (inc curr-page) max-page)
-                          "opacity-50 cursor-not-allowed")
-                 :on-click #(rf/dispatch
-                             [:results-table/set-curr-page
-                              family (inc curr-page)])}
+                {:disabled (>= (inc @curr-page) max-page)
+                 :class (when (>= (inc @curr-page) max-page) "opacity-50 cursor-not-allowed")
+                 :on-click #(swap! curr-page inc)}
                 "Next"]]])])))))
 
 (defn- results-edn-view [results]
@@ -366,17 +311,6 @@
            ^{:key p}
            [:option {:value (name p)} (get-param-label p)])])]]))
 
-(defn- posterior-plot-column
-  [items active-p label kw valid?]
-  [:div.border.p-6.rounded.bg-white
-   [parameter-helper items active-p label]
-   (when valid?
-     [:div.flex.flex-col.gap-8.py-6
-      [vega/chart-posterior-histogram
-       items kw (get-param-label kw)]
-      [vega/chart-posterior-cdf
-       items kw (get-param-label kw)]])])
-
 (defn- posterior-distributions [items-raw]
   (let [items (add-onset-cr2-bat-mos items-raw)
         family (some-> (:family (first items)) name)
@@ -404,28 +338,41 @@
                p1-valid? (contains? valid-keys p1-kw)
                p2-valid? (contains? valid-keys p2-kw)]
            [:div
-            [:div.grid.grid-cols-1.lg:grid-cols-2.gap-8.mb-8
-             [posterior-plot-column
-              items active-p1 "Parameter 1" p1-kw p1-valid?]
-             [posterior-plot-column
-              items active-p2 "Parameter 2" p2-kw p2-valid?]]
-
-            [:div.grid.grid-cols-1.lg:grid-cols-2.gap-8.mb-8
-             (when (and p1-valid? p2-valid? (not= p1-kw p2-kw))
-               [:div.border.p-4.rounded.bg-white
-                [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
-                [vega/chart-pairwise-scatter
-                 items
-                 p1-kw p2-kw
-                 (get-param-label p1-kw)
-                 (get-param-label p2-kw)]])
+            [:div.grid.grid-cols-1.gap-8.mb-8
              [:div.border.p-6.rounded.bg-white
-              [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
-              [:div.flex.flex-col.gap-8.py-4
-               [vega/chart-posterior-histogram
-                items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]
-               [vega/chart-posterior-cdf
-                items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]]
+              [parameter-helper items active-p1 "Parameter 1"]
+              (when p1-valid?
+                [:div.flex.flex-col.gap-8.py-6
+                 [vega/chart-posterior-histogram
+                  items p1-kw (get-param-label p1-kw)]
+                 [vega/chart-posterior-cdf
+                  items p1-kw (get-param-label p1-kw)]])]
+
+             [:div.border.p-6.rounded.bg-white
+              [parameter-helper items active-p2 "Parameter 2"]
+              (when p2-valid?
+                [:div.flex.flex-col.gap-8.py-6
+                 [vega/chart-posterior-histogram
+                  items p2-kw (get-param-label p2-kw)]
+                 [vega/chart-posterior-cdf
+                  items p2-kw (get-param-label p2-kw)]])]]
+
+            (when (and p1-valid? p2-valid? (not= p1-kw p2-kw))
+              [:div.border.p-4.rounded.bg-white.mb-8
+               [:h3.text-lg.font-bold.mb-2 "Pairwise Scatter (Jittered)"]
+               [vega/chart-pairwise-scatter
+                items
+                p1-kw p2-kw
+                (get-param-label p1-kw)
+                (get-param-label p2-kw)]])
+
+            [:div.border.p-6.rounded.bg-white.mb-8
+             [:h3.text-lg.font-bold.mb-4 "Onset CR2 BAT mOS Posterior"]
+             [:div.flex.flex-col.gap-8.py-4
+              [vega/chart-posterior-histogram
+               items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]
+              [vega/chart-posterior-cdf
+               items :onset-cr2-bat-mos "Onset CR2 BAT mOS"]]]
 
             [:div.mt-8.pt-6.border-t
              [:h3.text-xl.font-bold.mb-4 "Key Parameter Relationships"]
@@ -484,23 +431,17 @@
                      scored (vega/score-sampled-combos raw-res config)]
                  (swap! resampled-data assoc state-key scored)
                  (swap! resampling-state assoc state-key nil))))))))))
-
 (defn results-view []
   (let [results @(rf/subscribe [:results])
         progress @(rf/subscribe [:progress])
         status @(rf/subscribe [:status])
         config @(rf/subscribe [:config])
-        active-tab @(rf/subscribe
-                     [:tabs/active-tab :results-view-tab :charts])
-        active-family @(rf/subscribe
-                        [:tabs/active-tab :results-view-family
-                         (some-> results first key)])]
-    (r/with-let [input-n-sims (r/atom (:n-sims-aggregation config 1000))
-                 committed-n-sims (r/atom (:n-sims-aggregation config 1000))
-                 resample-trigger (r/atom 0)
-                 resampled-data (r/atom {})
-                 resampling-state (r/atom {})
-                 results-tracker (r/atom results)]
+        active-family @(rf/subscribe [:tabs/active-tab :results-view-family (some-> results first key)])
+        input-n-sims (r/atom (:n-sims-aggregation config 1000))
+        committed-n-sims (r/atom (:n-sims-aggregation config 1000))
+        resampled-data (r/atom {})
+        resampling-state (r/atom {})
+        results-tracker (r/atom results)]
       (when-not (= results @results-tracker)
         (reset! results-tracker results)
         (reset! resampled-data {})
@@ -514,7 +455,12 @@
             {:type "button"
              :on-click (fn []
                          (let [limit (:n-sims-aggregation config 1000)
-                               fam-str (name (or active-family (key (first results))))
+                               active-fam @(rf/subscribe
+                                            [:tabs/active-tab
+                                             :results-view-family
+                                             (some-> results first key)])
+                               fam-str (name (or active-fam
+                                                 (key (first results))))
                                fam (keyword fam-str)
                                raw-items (get results fam)
                                items (mapv (fn [item]
@@ -560,28 +506,32 @@
                     [:table "Table"]
                     [:edn "EDN View"]]}]])]
        (cond
-         (= status :running-stage1)
-         [:div.p-12.text-center.border.rounded-2xl.bg-gradient-to-b.from-white.to-gray-50.border-gray-100.shadow-sm.my-8
-          [:div.flex.items-center.justify-center.gap-3.mb-3
-           [:svg.animate-spin.h-8.w-8.text-indigo-600
-            {:xmlns "http://www.w3.org/2000/svg" :fill "none" :viewBox "0 0 24 24"}
-            [:circle.opacity-25 {:cx "12" :cy "12" :r "10" :stroke "currentColor" :stroke-width "4"}]
-            [:path.opacity-75 {:fill "currentColor" :d "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"}]]
-           [:div.text-xl.font-bold.text-indigo-900.tracking-tight
-            "Executing Analytical Pre-Filter..."]]
-          [:div.text-sm.text-gray-500
-           "Screening combinations against analytical constraints at Interim & Updated Analysis milestones"]
-          (when (and progress (pos? (:total progress)))
-            [:div.text-xs.font-semibold.text-indigo-600.mt-2
-             (str "Processing family: " (:completed progress) " of " (:total progress) " completed")])]
+          (= status :running-stage1)
+          [:div.p-12.text-center.border.rounded-2xl.bg-gradient-to-b.from-white.to-gray-50.border-gray-100.shadow-sm.my-8
+           [:div.flex.items-center.justify-center.gap-3.mb-3
+            [:svg.animate-spin.h-8.w-8.text-indigo-600
+             {:xmlns "http://www.w3.org/2000/svg" :fill "none" :viewBox "0 0 24 24"}
+             [:circle.opacity-25 {:cx "12" :cy "12" :r "10" :stroke "currentColor" :stroke-width "4"}]
+             [:path.opacity-75 {:fill "currentColor" :d "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"}]]
+            [:div.text-xl.font-bold.text-indigo-900.tracking-tight
+             "Executing Analytical Pre-Filter..."]]
+           [:div.text-sm.text-gray-500
+            "Screening combinations against analytical constraints at Interim & Updated Analysis milestones"]
+           (when (and progress (pos? (:total progress)))
+             [:div.text-xs.font-semibold.text-indigo-600.mt-2
+              (str "Processing family: " (:completed progress) " of " (:total progress) " completed")])]
 
-         (= status :running-stage2) [stage2-progress progress]
+          (= status :running-stage2) [stage2-progress progress]
          (seq results)
          [:div
           [summary-banner results config]
-          (case active-tab
+          (case @(rf/subscribe [:tabs/active-tab :results-view-tab :charts])
             :config
-            (let [fam (or active-family (some-> results first key))
+            (let [active-fam @(rf/subscribe
+                               [:tabs/active-tab
+                                :results-view-family
+                                (some-> results first key)])
+                  fam (or active-fam (some-> results first key))
                   items (get-items results fam)]
               [:div
                [:div.flex.items-center.gap-2.mb-4
@@ -593,7 +543,11 @@
                               (keys results))}]]
                [posterior-distributions items]])
             :charts
-            (let [fam (or active-family (some-> results first key))
+            (let [active-fam @(rf/subscribe
+                               [:tabs/active-tab
+                                :results-view-family
+                                (some-> results first key)])
+                  fam (or active-fam (some-> results first key))
                   items (get-items results fam)]
               [:div
                [:div.mb-4.flex.flex-col.gap-2
@@ -670,7 +624,11 @@
                       [:span.text-sm.text-gray-500 "Initializing resampling..."]])))])
 
             :table
-            (let [fam (or active-family (some-> results first key))
+            (let [active-fam @(rf/subscribe
+                               [:tabs/active-tab
+                                :results-view-family
+                                (some-> results first key)])
+                  fam (or active-fam (some-> results first key))
                   items (get-items results fam)]
               [:div
                [:div.mb-4.flex.items-center.gap-2
@@ -684,4 +642,4 @@
                  ^{:key fam} [results-table fam items])])
 
             :edn [results-edn-view results])]
-         :else [:div.text-gray-500 "Run a simulation to see results."])])))
+         :else [:div.text-gray-500 "Run a simulation to see results."])]))

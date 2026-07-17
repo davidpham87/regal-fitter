@@ -38,16 +38,16 @@
      :n-ev-final (* 80 censor-factor)
      :use-pr3-anchor true
 
-     :prefilter-tol-ia 1.5
-     :prefilter-tol-upd 1.5
-     :prefilter-tol-pr3 1.5
+     :prefilter-tol-ia 4
+     :prefilter-tol-upd 4
+     :prefilter-tol-pr3 4
 
-     :tol-ia 4
-     :tol-upd 2
-     :tol-pr3 4
+     :tol-ia 8
+     :tol-upd 8
+     :tol-pr3 8
 
-     :tol-increment-ia-upd 3
-     :tol-increment-upd-pr3 3
+     :tol-increment-ia-upd 5
+     :tol-increment-upd-pr3 5
 
      :futility-hr-max 0.84
      :efficacy-hr-min 0.40
@@ -82,18 +82,18 @@
      :cure-unc-med-grid [10 58 4]
      :cure-unc-shape-grid [0.6 1.6 0.2]
 
-     :leaky-cure-frac-grid [0.0 0.9 0.1]
-     :leaky-unc-med-grid [10 60 2.5]
-     :leaky-unc-shape-grid [0.8 1.0 0.05]
-     :leak-grid [0.03 0.09 0.02]
+     :leaky-cure-frac-grid [0.0 0.5 0.1]
+     :leaky-unc-med-grid [10 80 5]
+     :leaky-unc-shape-grid [0.5 1.0 0.05]
+     :leak-grid [0.01 0.06 0.01]
 
      :bat-leaky-cure-frac-grid [0.0 0.3 0.1]
      :bat-leaky-unc-med-grid [5 30 0.5]
-     :bat-leaky-unc-shape-grid [0.8 1.0 0.05]
-     :bat-leak-grid [0.03 0.09 0.02]
+     :bat-leaky-unc-shape-grid [0.6 1.0 0.05]
+     :bat-leak-grid [0.01 0.06 0.01]
 
      :families ["leaky"]
-     :n-sims-aggregation 5000}))
+     :n-sims-aggregation 5120}))
 
 (def light-config
   (assoc default-config
