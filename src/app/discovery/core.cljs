@@ -536,6 +536,18 @@
                   [table-td "right" "font-medium text-purple-600"
                    (if (and gps-upd (not (js/isNaN gps-upd)))
                      (str (.toFixed gps-upd 2) "m")
+                     "N/A")]])
+               (let [bat-80 (:mean-med-press-release-3-bat sim-result)
+                     gps-80 (:mean-med-press-release-3-gps sim-result)]
+                 [:tr
+                  [table-td "Simulation Realized mOS (at 80 events)"]
+                  [table-td "right" "font-medium text-purple-600"
+                   (if (and bat-80 (not (js/isNaN bat-80)))
+                     (str (.toFixed bat-80 2) "m")
+                     "N/A")]
+                  [table-td "right" "font-medium text-purple-600"
+                   (if (and gps-80 (not (js/isNaN gps-80)))
+                     (str (.toFixed gps-80 2) "m")
                      "N/A")]])]]]
             [:div
              [:h4.text-sm.font-bold.text-gray-700.mb-3
