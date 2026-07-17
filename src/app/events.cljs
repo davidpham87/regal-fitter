@@ -41,8 +41,8 @@
                          :weibull-k 0.85
                          :delay 3.0
                          :placebo-mode? false
-                         :filter-paths? false
-                         :prefilter-check? false
+                         :filter-paths? true
+                         :prefilter-check? true
                          :prefilter-tol-ia 1.5
                          :prefilter-tol-upd 1.5
                          :prefilter-tol-pr3 1.5
@@ -61,8 +61,8 @@
                               :weibull-k 0.85
                               :delay 3.0
                               :placebo-mode? false
-                              :filter-paths? false
-                              :prefilter-check? false
+                              :filter-paths? true
+                              :prefilter-check? true
                               :prefilter-tol-ia 1.5
                               :prefilter-tol-upd 1.5
                               :prefilter-tol-pr3 1.5
@@ -425,8 +425,8 @@
                  :weibull-k (or (:weibull-k item) 1.0)
                  :delay 3.0
                  :placebo-mode? false
-                 :filter-paths? false
-                 :prefilter-check? false
+                 :filter-paths? true
+                 :prefilter-check? true
                  :prefilter-tol-ia 1.5
                  :prefilter-tol-upd 1.5
                  :prefilter-tol-pr3 1.5

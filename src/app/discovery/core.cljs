@@ -171,11 +171,11 @@
    :weibull-k     1.0
    :delay         3.0
    :placebo-mode? false
-   :filter-paths? false
+   :filter-paths? true
    :tol-ia        4.0
    :tol-upd       4.0
    :tol-pr3       2.0
-   :prefilter-check? false
+   :prefilter-check? true
    :prefilter-tol-ia 1.5
    :prefilter-tol-upd 1.5
    :prefilter-tol-pr3 1.5
