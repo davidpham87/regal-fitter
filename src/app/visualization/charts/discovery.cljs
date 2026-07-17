@@ -285,3 +285,56 @@
                                     x-enc grp-enc)]
       :config {:view {:stroke "transparent"}
                :legend {:orient "bottom"}}}]))
+
+(defn- prepare-hr-distribution-data [hr-arr success-threshold]
+  (let [n (count hr-arr)
+        valid-hrs (filter number? hr-arr)]
+    (if (zero? (count valid-hrs))
+      []
+      (let [min-val (apply min valid-hrs)
+            max-val (apply max valid-hrs)
+            ;; Add a small padding to include max element in the last bin
+            max-val (+ max-val 1e-9)
+            num-bins 20
+            span (- max-val min-val)
+            bin-width (if (zero? span) 0.05 (/ span num-bins))
+            bins (for [i (range num-bins)]
+                   (let [bin-min (+ min-val (* i bin-width))
+                         bin-max (+ bin-min bin-width)
+                         bin-mid (+ bin-min (/ bin-width 2.0))
+                         in-bin (filter
+                                 #(and (>= % bin-min) (< % bin-max))
+                                 valid-hrs)
+                         c (count in-bin)
+                         cum-c (count (filter #(< % bin-max) valid-hrs))]
+                     {:bin-mid bin-mid
+                      :count c
+                      :cumulative-prob (/ cum-c n)}))]
+        (vec bins)))))
+
+(defn discovery-hr-distribution-chart [hr-arr success-threshold]
+  (let [chart-data (prepare-hr-distribution-data hr-arr success-threshold)]
+    [vega-lite
+     {:width 500 :height 300
+      :title "Stochastic Hazard Ratio Distribution & Cumulative Success"
+      :data {:values chart-data}
+      :encoding {:x {:field "bin-mid" :type "quantitative" :title "Hazard Ratio"}}
+      :layer
+      [;; 1. Histogram Bars (Y axis left)
+       {:mark {:type "bar" :opacity 0.6 :color "#4f46e5"}
+        :encoding {:y {:field "count" :type "quantitative" :title "Count"}}}
+       ;; 2. Cumulative Line (Y axis right)
+       {:mark {:type "line" :color "#10b981" :strokeWidth 2}
+        :encoding {:y {:field "cumulative-prob" :type "quantitative"
+                       :axis {:title "Cumulative Probability"
+                              :orient "right"
+                              :format "%"}
+                       :scale {:domain [0.0 1.0]}}}}
+       ;; 3. Threshold vertical rule at 0.636
+       {:data {:values [{:threshold success-threshold}]}
+        :encoding {:x {:field "threshold" :type "quantitative"}}
+        :layer
+        [{:mark {:type "rule" :color "#ef4444" :strokeDash [4 4] :strokeWidth 2}}
+         {:mark {:type "text" :align "right" :dx -5 :dy -100 :color "#ef4444"
+                 :text "Success Threshold"}}]}]
+      :config {:view {:stroke "transparent"}}}]))

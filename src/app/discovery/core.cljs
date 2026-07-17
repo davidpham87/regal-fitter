@@ -472,115 +472,134 @@
 (defn- simulation-results-panel []
   (let [expanded? (r/atom true)]
     (fn [sim-result medians active-family calc-params]
-      (when sim-result
-        [card/card-panel "mb-8 p-6"
-         [:div.flex.justify-between.items-center.cursor-pointer
-          {:on-click #(swap! expanded? not)}
-          [:h3.text-lg.font-bold.text-gray-800
-           "Simulation Detailed Results & Milestones"]
-          [:span.text-xs.font-semibold.text-blue-600.hover:text-blue-800
-           (if @expanded? "▲ Collapse" "▼ Expand")]]
-         (when @expanded?
-           [:div.grid.grid-cols-1.md:grid-cols-2.gap-8.mt-4
-            [:div
-             [:h4.text-sm.font-bold.text-gray-700.mb-3
-              "Population Medians & Realized Months"]
-             [:table.min-w-full.divide-y.divide-gray-200.text-sm
-              [:thead
-               [:tr
-                [table-th "left" "Metric"]
-                [table-th "right" "BAT"]
-                [table-th "right" "GPS (Active)"]]]
-              [:tbody.divide-y.divide-gray-200
-               [:tr
-                [table-td "Input Observed mOS"]
-                [table-td "right" "font-medium" (str (:bat-med calc-params) "m")]
-                [table-td "right" "font-medium" (str (:gps-med calc-params) "m")]]
-               [:tr
-                [table-td "True Population mOS (with delay/cure)"]
-                [table-td "right" "font-medium text-blue-600" (str (.toFixed (:bat-true-mos medians) 2) "m")]
-                [table-td "right" "font-medium text-blue-600"
-                 (if (= (:gps-true-mos medians) js/Infinity)
-                   "Infinity"
-                   (str (.toFixed (:gps-true-mos medians) 2) "m"))]]
-               [:tr
-                [table-td "Trial Timeline realized mOS (50% events)"]
-                [table-td "right" "font-medium text-green-600"
-                 (if (= (:bat-realized-month medians) js/Infinity)
-                   "N/A"
-                   (str (.toFixed (:bat-realized-month medians) 2) "m"))]
-                [table-td "right" "font-medium text-green-600"
-                 (if (= (:gps-realized-month medians) js/Infinity)
-                   "N/A"
-                   (str (.toFixed (:gps-realized-month medians) 2) "m"))]]
-               (let [bat-ia (:mean-med-interim-analysis-bat sim-result)
-                     gps-ia (:mean-med-interim-analysis-gps sim-result)]
-                 [:tr
-                  [table-td "Simulation Realized mOS (at IA)"]
-                  [table-td "right" "font-medium text-purple-600"
-                   (if (and bat-ia (not (js/isNaN bat-ia)))
-                     (str (.toFixed bat-ia 2) "m")
-                     "N/A")]
-                  [table-td "right" "font-medium text-purple-600"
-                   (if (and gps-ia (not (js/isNaN gps-ia)))
-                     (str (.toFixed gps-ia 2) "m")
-                     "N/A")]])
-               (let [bat-upd (:mean-med-update-bat sim-result)
-                     gps-upd (:mean-med-update-gps sim-result)]
-                 [:tr
-                  [table-td "Simulation Realized mOS (at UPD)"]
-                  [table-td "right" "font-medium text-purple-600"
-                   (if (and bat-upd (not (js/isNaN bat-upd)))
-                     (str (.toFixed bat-upd 2) "m")
-                     "N/A")]
-                  [table-td "right" "font-medium text-purple-600"
-                   (if (and gps-upd (not (js/isNaN gps-upd)))
-                     (str (.toFixed gps-upd 2) "m")
-                     "N/A")]])
-               (let [bat-80 (:mean-med-press-release-3-bat sim-result)
-                     gps-80 (:mean-med-press-release-3-gps sim-result)]
-                 [:tr
-                  [table-td "Simulation Realized mOS (at 80 events)"]
-                  [table-td "right" "font-medium text-purple-600"
-                   (if (and bat-80 (not (js/isNaN bat-80)))
-                     (str (.toFixed bat-80 2) "m")
-                     "N/A")]
-                  [table-td "right" "font-medium text-purple-600"
-                   (if (and gps-80 (not (js/isNaN gps-80)))
-                     (str (.toFixed gps-80 2) "m")
-                     "N/A")]])]]]
-            [:div
-             [:h4.text-sm.font-bold.text-gray-700.mb-3
-              "Stochastic Trial Outcomes"]
-             [:div.grid.grid-cols-2.gap-4
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Overall Trial Success"]
-               [:div.text-lg.font-bold.text-green-600
-                (str (.toFixed (* 100 (:p-success-overall sim-result)) 1)
-                     "%")]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Acceptance Rate (Stage 1 Pass)"]
-               [:div.text-lg.font-bold.text-gray-700
-                (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1)
-                     "%")]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Median Hazard Ratio"]
-               [:div.text-lg.font-bold.text-blue-600
-                (if (js/isNaN (:median-hr-final sim-result))
-                  "N/A"
-                  (.toFixed (:median-hr-final sim-result) 3))]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Median Time to 80 Ev"]
-               [:div.text-lg.font-bold.text-blue-600
-                (if (js/isNaN (:median-t80-months sim-result))
-                  "N/A"
-                  (str (.toFixed (:median-t80-months sim-result) 1)
-                       "m"))]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Accepted / Futility Pass"]
-               [:div.text-sm.font-semibold.text-gray-700
-                (str (:n-accepted sim-result) " / "
-                     (:n-pass-events sim-result))]]]]])]))))
+      (let [config @(rf/subscribe [:config])]
+        (when sim-result
+          [card/card-panel "mb-8 p-6"
+           [:div.flex.justify-between.items-center.cursor-pointer
+            {:on-click #(swap! expanded? not)}
+            [:h3.text-lg.font-bold.text-gray-800
+             "Simulation Detailed Results & Milestones"]
+            [:span.text-xs.font-semibold.text-blue-600.hover:text-blue-800
+             (if @expanded? "▲ Collapse" "▼ Expand")]]
+           (when @expanded?
+             [:<>
+              [:div.grid.grid-cols-1.md:grid-cols-2.gap-8.mt-4
+               [:div
+                [:h4.text-sm.font-bold.text-gray-700.mb-3
+                 "Population Medians & Realized Months"]
+                [:table.min-w-full.divide-y.divide-gray-200.text-sm
+                 [:thead
+                  [:tr
+                   [table-th "left" "Metric"]
+                   [table-th "right" "BAT"]
+                   [table-th "right" "GPS (Active)"]]]
+                 [:tbody.divide-y.divide-gray-200
+                  [:tr
+                   [table-td "Input Observed mOS"]
+                   [table-td "right" "font-medium" (str (:bat-med calc-params) "m")]
+                   [table-td "right" "font-medium" (str (:gps-med calc-params) "m")]]
+                  [:tr
+                   [table-td "True Population mOS (with delay/cure)"]
+                   [table-td "right" "font-medium text-blue-600" (str (.toFixed (:bat-true-mos medians) 2) "m")]
+                   [table-td "right" "font-medium text-blue-600"
+                    (if (= (:gps-true-mos medians) js/Infinity)
+                      "Infinity"
+                      (str (.toFixed (:gps-true-mos medians) 2) "m"))]]
+                  [:tr
+                   [table-td "Trial Timeline realized mOS (50% events)"]
+                   [table-td "right" "font-medium text-green-600"
+                    (if (= (:bat-realized-month medians) js/Infinity)
+                      "N/A"
+                      (str (.toFixed (:bat-realized-month medians) 2) "m"))]
+                   [table-td "right" "font-medium text-green-600"
+                    (if (= (:gps-realized-month medians) js/Infinity)
+                      "N/A"
+                      (str (.toFixed (:gps-realized-month medians) 2) "m"))]]
+                  (let [bat-ia (:mean-med-interim-analysis-bat sim-result)
+                        gps-ia (:mean-med-interim-analysis-gps sim-result)]
+                    [:tr
+                     [table-td "Simulation Realized mOS (at IA)"]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and bat-ia (not (js/isNaN bat-ia)))
+                        (str (.toFixed bat-ia 2) "m")
+                        "N/A")]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and gps-ia (not (js/isNaN gps-ia)))
+                        (str (.toFixed gps-ia 2) "m")
+                        "N/A")]])
+                  (let [bat-upd (:mean-med-update-bat sim-result)
+                        gps-upd (:mean-med-update-gps sim-result)]
+                    [:tr
+                     [table-td "Simulation Realized mOS (at UPD)"]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and bat-upd (not (js/isNaN bat-upd)))
+                        (str (.toFixed bat-upd 2) "m")
+                        "N/A")]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and gps-upd (not (js/isNaN gps-upd)))
+                        (str (.toFixed gps-upd 2) "m")
+                        "N/A")]])
+                  (let [bat-80 (:mean-med-press-release-3-bat sim-result)
+                        gps-80 (:mean-med-press-release-3-gps sim-result)]
+                    [:tr
+                     [table-td "Simulation Realized mOS (at 80 events)"]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and bat-80 (not (js/isNaN bat-80)))
+                        (str (.toFixed bat-80 2) "m")
+                        "N/A")]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and gps-80 (not (js/isNaN gps-80)))
+                        (str (.toFixed gps-80 2) "m")
+                        "N/A")]])]]]
+               [:div
+                [:h4.text-sm.font-bold.text-gray-700.mb-3
+                 "Stochastic Trial Outcomes"]
+                [:div.grid.grid-cols-2.gap-4
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Overall Trial Success"]
+                  [:div.text-lg.font-bold.text-green-600
+                   (str (.toFixed (* 100 (:p-success-overall sim-result)) 1)
+                        "%")]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Acceptance Rate (Stage 1 Pass)"]
+                  [:div.text-lg.font-bold.text-gray-700
+                   (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1)
+                        "%")]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Median Hazard Ratio"]
+                  [:div.text-lg.font-bold.text-blue-600
+                   (if (js/isNaN (:median-hr-final sim-result))
+                     "N/A"
+                     (.toFixed (:median-hr-final sim-result) 3))]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Simulation Final HR 95% CI"]
+                  [:div.text-lg.font-bold.text-blue-600
+                   (if (or (js/isNaN (:hr-final-low sim-result))
+                           (js/isNaN (:hr-final-high sim-result)))
+                     "N/A"
+                     (str "[" (.toFixed (:hr-final-low sim-result) 3)
+                          ", " (.toFixed (:hr-final-high sim-result) 3)
+                          "]"))]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Median Time to 80 Ev"]
+                  [:div.text-lg.font-bold.text-blue-600
+                   (if (js/isNaN (:median-t80-months sim-result))
+                     "N/A"
+                     (str (.toFixed (:median-t80-months sim-result) 1)
+                          "m"))]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Accepted / Futility Pass"]
+                  [:div.text-sm.font-semibold.text-gray-700
+                   (str (:n-accepted sim-result) " / "
+                        (:n-pass-events sim-result))]]]]]
+              [:div.mt-6.flex.justify-center
+               [card/card-panel
+                "p-4 border bg-gray-50 flex flex-col items-center"
+                [:h4.text-sm.font-bold.text-gray-700.mb-3
+                 "Stochastic Hazard Ratio Distribution & Cumulative Success"]
+                [vega/discovery-hr-distribution-chart
+                 (:hr-final-arr sim-result)
+                 (or (:hr-threshold config) 0.636)]]]])])))))
 
 ;; ---------------------------------------------------------------------------
 ;; discovery-view-content

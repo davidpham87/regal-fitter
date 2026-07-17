@@ -12,6 +12,8 @@
 (def discovery-hr-chart charts/discovery-hr-chart)
 (def discovery-hazard-rates-chart
   charts/discovery-hazard-rates-chart)
+(def discovery-hr-distribution-chart
+  charts/discovery-hr-distribution-chart)
 
 ;; Re-export components for enrollment
 (def enrollment-chart charts/enrollment-chart)

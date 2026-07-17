@@ -482,6 +482,7 @@
             (/ (count (filter #(< % 0.636) hr-final-arr))
                (count hr-final-arr)))
           :p-success-overall (/ num-success num-accepted)
+          :hr-final-arr (vec hr-final-arr)
           :median-t80-months
           (if (empty? finite-t80)
             js/NaN
