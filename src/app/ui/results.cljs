@@ -123,7 +123,9 @@
               keys-to-show (->> (mapcat keys items)
                                 distinct
                                 (remove
-                                 #(or (= % :family) (= % :hr-final-arr)))
+                                 #(or (= % :family)
+                                      (= % :hr-final-arr)
+                                      (= % :sim-survival-curves)))
                                 (sort-by name))
               q (str/lower-case (str/trim @filter-text))
               filtered-items (if (str/blank? q)
