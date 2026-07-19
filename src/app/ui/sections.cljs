@@ -167,6 +167,9 @@
        [inputs/field-wrapper :hr-threshold
         [inputs/num-input props :hr-threshold
          inputs/parse-double-safe] props]
+       [inputs/field-wrapper :gps-orr
+        [inputs/num-input props :gps-orr
+         inputs/parse-double-safe] props]
        [inputs/field-wrapper :seed
         [inputs/num-input props :seed inputs/parse-int] props]
        [inputs/field-wrapper :n-sims-aggregation

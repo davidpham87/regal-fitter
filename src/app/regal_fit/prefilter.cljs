@@ -46,14 +46,18 @@
       (<= (aget bat-S-36m bat-idx) max-threshold))))
 
 (defn validate-scenario
-  "Helper function to validate a specific combination of BAT and GPS curves."
+  "Helper function to validate a specific combination of BAT and GPS curves.
+  Enforces that gps-med / unc-med is higher or equal to bat-med / bat-unc-med."
   [bat-idx gps-idx total-events-arr bat-survival-arr gps-survival-arr
-   bat-S-36m apply-pool apply-pr3 config]
+   bat-S-36m apply-pool apply-pr3 config bat-med-arr gps-med-arr]
   (let [expected-ia (aget total-events-arr bat-idx gps-idx 0)
         expected-upd (aget total-events-arr bat-idx gps-idx 1)
         expected-pr3 (when apply-pr3
-                       (aget total-events-arr bat-idx gps-idx 2))]
-    (when (and (pass-events-gate? expected-ia expected-upd config)
+                       (aget total-events-arr bat-idx gps-idx 2))
+        bat-med (or (and bat-med-arr (aget bat-med-arr bat-idx)) 0.0)
+        gps-med (or (and gps-med-arr (aget gps-med-arr gps-idx)) 0.0)]
+    (when (and (>= gps-med bat-med)
+               (pass-events-gate? expected-ia expected-upd config)
                (pass-pr3-gate? expected-upd expected-pr3 config apply-pr3)
                (pass-pool-gate? bat-idx gps-idx bat-survival-arr
                                 gps-survival-arr apply-pool)
@@ -92,13 +96,20 @@
         gps-survival (when apply-pool (np/nd-to-array gps-S-T))
         bat-S-36m-slice (when bat-S-36m
                           (np/nd-to-array
-                           (np/slice bat-S-36m start-idx end-idx)))]
+                           (np/slice bat-S-36m start-idx end-idx)))
+        ;; Convert parameter ndarrays to raw JS arrays once per chunk instead of inside the loops
+        bat-med-arr (or (some-> (:bat-med bat-params) np/nd-to-array)
+                        (some-> (:bat-unc-med bat-params) np/nd-to-array)
+                        (some-> (:med bat-params) np/nd-to-array))
+        gps-med-arr (or (some-> (:gps-med gps-params) np/nd-to-array)
+                        (some-> (:unc-med gps-params) np/nd-to-array))
+        slice-bat-med-arr (when bat-med-arr (.slice bat-med-arr start-idx end-idx))]
     (keep (fn [pair]
             (let [local-bat (first pair) global-gps (second pair)]
               (when-let [res (validate-scenario
                               local-bat global-gps total-events
                               bat-survival gps-survival bat-S-36m-slice
-                              apply-pool apply-pr3 config)]
+                              apply-pool apply-pr3 config slice-bat-med-arr gps-med-arr)]
                 (build-result-record (+ start-idx local-bat) global-gps
                                      res family bat-params gps-params))))
           (for [b (range (- end-idx start-idx)) g (range grid-gps)] [b g]))))
@@ -335,9 +346,9 @@
   by build-result-record, so this is O(1) per combo."
   [config rec]
   (let [r-ia  (js/Math.abs
-                (- (:exp-ev-ia  rec) (:n-ev-ia  config)))
+               (- (:exp-ev-ia  rec) (:n-ev-ia  config)))
         r-upd (js/Math.abs
-                (- (:exp-ev-upd rec) (:n-ev-upd config)))
+               (- (:exp-ev-upd rec) (:n-ev-upd config)))
         r-pr3 (if (and (:use-pr3-anchor config) (:exp-ev-pr3 rec))
                 (js/Math.abs
                  (- (:exp-ev-pr3 rec) (:n-ev-pr3 config)))
@@ -351,26 +362,27 @@
   [config combos]
   (let [bat-grouper (fn [m]
                       [(or (:bat-unc-med m)
-                             (:bat-med-grid m)
-                             (:bat-med m))
-                         (or (:bat-shape m)
-                             (:bat-unc-shape m))
-                         (or (:bat-leaky-cure-frac m)
-                             (:bat-cure-frac m))
-                         (:bat-leak m)])
-        gps-grouper (fn [m] [(or (:gps-med m)
-                           (:unc-med m))
-                       (or (:gps-scale m)
-                           (:unc-scale m))
-                       (or (:gps-shape m)
-                           (:unc-shape m))
-                       (or (:leaky-cure-frac m)
-                           (:cure-frac m))])
-        grouped (concat (group-by bat-grouper combos)
-                          (group-by gps-grouper combos))]
+                           (:bat-med-grid m)
+                           (:bat-med m))
+                       (or (:bat-shape m)
+                           (:bat-unc-shape m))
+                       (or (:bat-leaky-cure-frac m)
+                           (:bat-cure-frac m))
+                       (:bat-leak m)])
+        #_#_gps-grouper (fn [m] [(or (:gps-med m)
+                                 (:unc-med m))
+                             (or (:gps-scale m)
+                                 (:unc-scale m))
+                             (or (:gps-shape m)
+                                 (:unc-shape m))
+                             (or (:leaky-cure-frac m)
+                                 (:cure-frac m))])
+        grouped (group-by bat-grouper combos)
+        #_(concat (group-by bat-grouper combos)
+                  (group-by gps-grouper combos))]
     (vec (distinct (mapv (fn [[_ group]]
-                         (apply min-key #(combo-residual config %) group))
-                       grouped)))))
+                           (apply min-key #(combo-residual config %) group))
+                         grouped)))))
 
 (defn rank-and-trim
   "Sorts accepted combos by analytical residual (best first) and

@@ -30,6 +30,10 @@
     {:name :power-analysis-state}]
    ["/discovery"
     {:name :discovery}]
+   ["/discovery-family/:subtab"
+    {:name :discovery-sub}]
+   ["/discovery-family/:subtab/:state"
+    {:name :discovery-sub-state}]
    ["/discovery/:state"
     {:name :discovery-state}]
    ["/r-repl"
@@ -52,3 +56,7 @@
 
 (defn ^:export ^:dev/after-load reload! []
   (rdom/render ^{:key (str (rand))} [ui/main-view] (js/document.getElementById "app")))
+
+(comment
+  (reload!)
+  )

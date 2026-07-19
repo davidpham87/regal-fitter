@@ -41,8 +41,8 @@
                          :weibull-k 0.85
                          :delay 3.0
                          :placebo-mode? false
-                         :filter-paths? false
-                         :prefilter-check? false
+                         :filter-paths? true
+                         :prefilter-check? true
                          :prefilter-tol-ia 1.5
                          :prefilter-tol-upd 1.5
                          :prefilter-tol-pr3 1.5
@@ -61,8 +61,8 @@
                               :weibull-k 0.85
                               :delay 3.0
                               :placebo-mode? false
-                              :filter-paths? false
-                              :prefilter-check? false
+                              :filter-paths? true
+                              :prefilter-check? true
                               :prefilter-tol-ia 1.5
                               :prefilter-tol-upd 1.5
                               :prefilter-tol-pr3 1.5
@@ -401,10 +401,10 @@
  :export-to-discovery
  (fn [{:keys [db]} [_ family item]]
    (let [family-str (name family)
-         gps-med (or (:gps-med item) (:bat-med item))
+         gps-med (or (:unc-med item) (:gps-med item) (:bat-med item))
          gps-unc-med (or (:unc-med item) (:bat-med item))
          gps-unc-shape (or (:unc-shape item) 1.0)
-         params {:bat-med (or (:bat-med item) (:bat-unc-med item) 10.0)
+         params {:bat-med (or (:bat-unc-med item) (:bat-med item) 10.0)
                  :bat-shape (or (:bat-shape item)
                                 (:bat-unc-shape item)
                                 (:weibull-k item)
@@ -425,8 +425,8 @@
                  :weibull-k (or (:weibull-k item) 1.0)
                  :delay 3.0
                  :placebo-mode? false
-                 :filter-paths? false
-                 :prefilter-check? false
+                 :filter-paths? true
+                 :prefilter-check? true
                  :prefilter-tol-ia 1.5
                  :prefilter-tol-upd 1.5
                  :prefilter-tol-pr3 1.5

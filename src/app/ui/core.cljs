@@ -189,17 +189,22 @@
               [:svg.w-6.h-6 {:fill "none" :stroke "currentColor" :viewBox "0 0 24 24"}
                [:path {:stroke-linecap "round" :stroke-linejoin "round" :stroke-width "2" :d "M6 18L18 6M6 6l12 12"}]]]]
             [:nav.flex.flex-col.gap-2
-             (for [[page label] [[:home "Home"]
-                                 [:fitter "Fitter"]
-                                 [:placebo-stress "Placebo Stress"]
-                                 [:power-analysis "Power Simulation"]
-                                 [:discovery "Discovery"]
-                                 [:r-repl "R REPL"]]]
-               ^{:key page}
+             (for [[page label subtab] [[:home "Home" nil]
+                                        [:fitter "Fitter" nil]
+                                        [:fitter-sub "Results" "results"]
+                                        [:placebo-stress "Placebo Stress" nil]
+                                        [:power-analysis "Power Simulation" nil]
+                                        [:discovery "Discovery" nil]
+                                        [:r-repl "R REPL" nil]]]
+               ^{:key (str page "-" subtab)}
                [:a.px-4.py-3.rounded-lg.text-base.font-medium.transition-colors
-                {:href (rfe/href page)
+                {:href (if subtab
+                         (rfe/href page {:subtab subtab})
+                         (rfe/href page))
                  :on-click #(reset! menu-open? false)
-                 :class (if (= active-page page)
+                 :class (if (or (and subtab (= active-page :fitter) (= @(rf/subscribe [:view]) (keyword subtab)))
+                                (and (nil? subtab) (= active-page page)
+                                     (or (not= page :fitter) (not= @(rf/subscribe [:view]) :results))))
                           "bg-blue-600 text-white"
                           "text-gray-300 hover:bg-gray-800 hover:text-white")}
                 label])]]])]])))

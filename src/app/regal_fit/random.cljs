@@ -1,87 +1,52 @@
 (ns app.regal-fit.random
   "Random drawing functions for survival times.
-  Provides generation of event times based on mathematical models (Weibull, Cure, Leaky Cure)."
-  (:require [cljs.numpy :as np]
-            [cljs.numpy-random :as np-random]))
+  Provides generation of event times based on mathematical models (Weibull, Cure, Leaky Cure)
+  using explicit random uniform variables to allow perfect quantile alignment across arms.")
 
-(defn draw-weibull-samples
-  "Draws random survival times from a standard Weibull distribution."
-  {:malli/schema [:=> [:cat :int any? :number :number] any?]}
-  [n-samples random-gen scale shape]
-  (let [random-values (np/nd-to-array (np-random/random random-gen n-samples))
-        out (js/Float64Array. n-samples)
-        inv-shape (/ 1.0 shape)]
-    (dotimes [i n-samples]
-      (let [u (aget random-values i)]
-        (aset out i (* scale (js/Math.pow (- (js/Math.log u)) inv-shape)))))
-    out))
+;; Inverse CDF transforms utilizing explicit random uniform variables (r-weib, r-cure, r-leak)
+(defn transform-weibull [r-weib scale shape]
+  (let [inv-shape (/ 1.0 (double shape))]
+    (* (double scale) (js/Math.pow (- (js/Math.log r-weib)) inv-shape))))
 
-(defn- draw-cure-samples
-  "Draws random survival times based on a cure model."
-  [{:keys [cure-frac unc-scale unc-shape]} n-samples random-gen]
-  (let [random-cure-flags (np/nd-to-array
-                           (np-random/random random-gen n-samples))
-        uncured-times (draw-weibull-samples n-samples random-gen
-                                            unc-scale unc-shape)
-        out (js/Float64Array. n-samples)]
-    (dotimes [i n-samples]
-      (let [r (aget random-cure-flags i)
-            u (aget uncured-times i)]
-        (aset out i (if (< r cure-frac) js/Infinity u))))
-    out))
+(defn transform-cure [r-weib r-cure cure-frac unc-scale unc-shape]
+  (if (< r-cure (double cure-frac))
+    js/Infinity
+    (transform-weibull r-weib unc-scale unc-shape)))
 
-(defn- draw-leaky-samples
-  "Draws random survival times based on a leaky cure model."
-  [{:keys [cure-frac unc-scale unc-shape leak-yr]} n-samples random-gen]
-  (let [random-cure-flags (np/nd-to-array
-                           (np-random/random random-gen n-samples))
-        uncured-times (draw-weibull-samples n-samples random-gen
-                                            unc-scale unc-shape)
-        leak-rate-monthly (/ leak-yr 12.0)
-        random-leak-vals (np/nd-to-array
-                          (np-random/random random-gen n-samples))
-        out (js/Float64Array. n-samples)]
-    (dotimes [i n-samples]
-      (let [r (aget random-cure-flags i)
-            u (aget uncured-times i)
-            l (aget random-leak-vals i)]
-        (aset out i (if (< r cure-frac)
-                      (if (> leak-rate-monthly 0)
-                        (/ (- (js/Math.log l)) leak-rate-monthly)
-                        js/Infinity)
-                      u))))
-    out))
+(defn transform-leaky [r-weib r-cure r-leak cure-frac unc-scale unc-shape leak-yr]
+  (let [cf (double cure-frac)
+        leak-rate-monthly (/ (double leak-yr) 12.0)]
+    (if (< r-cure cf)
+      (if (> leak-rate-monthly 0)
+        (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+        js/Infinity)
+      (transform-weibull r-weib unc-scale unc-shape))))
 
-(defn draw-bat-times
-  "Draws random survival times for the BAT arm."
-  [config n-samples random-gen]
+(defn draw-bat-time-single
+  "Transforms a set of uniform draws into a BAT survival time."
+  [config r-weib r-cure r-leak]
   (cond
     (= (:family config) "leaky")
-    (draw-leaky-samples
-     {:cure-frac (:bat-cure-frac config)
-      :unc-scale (:bat-unc-scale config)
-      :unc-shape (:bat-unc-shape config)
-      :leak-yr (:bat-leak-yr config)}
-     n-samples random-gen)
+    (transform-leaky r-weib r-cure r-leak
+                     (:bat-cure-frac config)
+                     (:bat-unc-scale config)
+                     (:bat-unc-shape config)
+                     (:bat-leak-yr config))
 
     (= (:family config) "cure")
-    (draw-cure-samples
-     {:cure-frac (:bat-cure-frac config)
-      :unc-scale (:bat-unc-scale config)
-      :unc-shape (:bat-unc-shape config)}
-     n-samples random-gen)
+    (transform-cure r-weib r-cure
+                    (:bat-cure-frac config)
+                    (:bat-unc-scale config)
+                    (:bat-unc-shape config))
 
     :else
-    (draw-weibull-samples n-samples random-gen
-                          (:bat-scale config) (:bat-shape config))))
+    (transform-weibull r-weib (:bat-scale config) (:bat-shape config))))
 
-(defn draw-gps-times
-  "Draws random survival times for the GPS arm based on the specified model family."
-  {:malli/schema [:=> [:cat [:map [:family :string]] :int any?] any?]}
-  [record n-samples random-gen]
+(defn draw-gps-time-single
+  "Transforms a set of uniform draws into a GPS survival time."
+  [record r-weib r-cure r-leak]
   (case (:family record)
-    "weibull" (draw-weibull-samples n-samples random-gen
-                                    (:gps-scale record) (:gps-shape record))
-    "cure"    (draw-cure-samples record n-samples random-gen)
-    "leaky"   (draw-leaky-samples record n-samples random-gen)
-    nil))
+    "weibull" (transform-weibull r-weib (:gps-scale record) (:gps-shape record))
+    "cure"    (transform-cure r-weib r-cure (:cure-frac record) (:unc-scale record) (:unc-shape record))
+    "leaky"   (transform-leaky r-weib r-cure r-leak (:cure-frac record) (:unc-scale record) (:unc-shape record) (:leak-yr record))
+    0.0))

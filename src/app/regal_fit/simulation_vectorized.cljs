@@ -207,22 +207,108 @@
                 (dotimes [i (- n-total idx)]
                   (aset arms-data (+ idx i) (if (pos? g-left) 1.0 0.0)))
                 nil)))))
-      (let [num-gps n-per-arm
-            num-bat (- n-total n-per-arm)
-            bat-draws (draw-bat-times-vectorized record num-bat random-gen)
-            gps-draws (draw-gps-times-vectorized record num-gps random-gen)
+      (let [gps-orr (double (or (:gps-orr config) 0.8))
+            r-weib-vals (np/nd-to-array (np-random/random random-gen n-total))
+            r-cure-vals (np/nd-to-array (np-random/random random-gen n-total))
+            r-leak-vals (np/nd-to-array (np-random/random random-gen n-total))
+            gps-orr-flags (np/nd-to-array (np-random/random random-gen n-total))
+
             survival (np-ts/zeros (clj->js [n-total]))
             survival-data (.-data survival)
-            bat-data (np/nd-to-array bat-draws)
-            gps-data (np/nd-to-array gps-draws)
             arms-arr (np/nd-to-array arms)]
-        (loop [i 0 b 0 g 0]
-          (when (< i n-total)
-            (if (== (aget arms-arr i) 0)
-              (do (aset survival-data i (aget bat-data b))
-                  (recur (inc i) (inc b) g))
-              (do (aset survival-data i (aget gps-data g))
-                  (recur (inc i) b (inc g))))))
+        (dotimes [i n-total]
+          (let [arm (aget arms-arr i)
+                r-weib (aget r-weib-vals i)
+                r-cure (aget r-cure-vals i)
+                r-leak (aget r-leak-vals i)]
+            (if (zero? arm)
+              ;; BAT patient
+              (let [bat-scale (double (:bat-scale record))
+                    bat-shape (double (:bat-shape record))
+                    family (some-> (:family record) name)
+                    val (cond
+                          (= family "leaky")
+                          (let [cf (double (:bat-cure-frac record))
+                                sc (double (:bat-unc-scale record))
+                                sh (double (:bat-unc-shape record))
+                                leak-yr (double (:bat-leak-yr record))
+                                leak-rate-monthly (/ leak-yr 12.0)]
+                            (if (< r-cure cf)
+                              (if (> leak-rate-monthly 0)
+                                (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+                                js/Infinity)
+                              (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+
+                          (= family "cure")
+                          (let [cf (double (:bat-cure-frac record))
+                                sc (double (:bat-unc-scale record))
+                                sh (double (:bat-unc-shape record))]
+                            (if (< r-cure cf)
+                              js/Infinity
+                              (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+
+                          :else
+                          (* bat-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 bat-shape))))]
+                (aset survival-data i val))
+              ;; GPS patient
+              (let [has-orr? (< (aget gps-orr-flags i) gps-orr)
+                    val (if has-orr?
+                          ;; GPS survival
+                          (let [family (some-> (:family record) name)]
+                            (cond
+                              (= family "weibull")
+                              (let [gps-scale (double (:gps-scale record))
+                                    gps-shape (double (:gps-shape record))]
+                                (* gps-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 gps-shape))))
+
+                              (= family "cure")
+                              (let [cf (double (:cure-frac record))
+                                    sc (double (:unc-scale record))
+                                    sh (double (:unc-shape record))]
+                                (if (< r-cure cf)
+                                  js/Infinity
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+
+                              (= family "leaky")
+                              (let [cf (double (:cure-frac record))
+                                    sc (double (:unc-scale record))
+                                    sh (double (:unc-shape record))
+                                    leak-yr (double (:leak-yr record))
+                                    leak-rate-monthly (/ leak-yr 12.0)]
+                                (if (< r-cure cf)
+                                  (if (> leak-rate-monthly 0)
+                                    (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+                                    js/Infinity)
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+                              :else 0.0))
+                          ;; Fallback to BAT survival (using the same random uniform variables)
+                          (let [bat-scale (double (:bat-scale record))
+                                bat-shape (double (:bat-shape record))
+                                family (some-> (:family record) name)]
+                            (cond
+                              (= family "leaky")
+                              (let [cf (double (:bat-cure-frac record))
+                                    sc (double (:bat-unc-scale record))
+                                    sh (double (:bat-unc-shape record))
+                                    leak-yr (double (:bat-leak-yr record))
+                                    leak-rate-monthly (/ leak-yr 12.0)]
+                                (if (< r-cure cf)
+                                  (if (> leak-rate-monthly 0)
+                                    (/ (- (js/Math.log r-leak)) leak-rate-monthly)
+                                    js/Infinity)
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+
+                              (= family "cure")
+                              (let [cf (double (:bat-cure-frac record))
+                                    sc (double (:bat-unc-scale record))
+                                    sh (double (:bat-unc-shape record))]
+                                (if (< r-cure cf)
+                                  js/Infinity
+                                  (* sc (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 sh)))))
+
+                              :else
+                              (* bat-scale (js/Math.pow (- (js/Math.log r-weib)) (/ 1.0 bat-shape))))))]
+                (aset survival-data i val)))))
         {:enroll-times enroll :arms-array arms :survival-times survival}))))
 
 (defn- count-events-at-times-vectorized
@@ -442,6 +528,33 @@
           {:reached true :t80 t80 :hr-final hr-fin :z-final z-fin
            :bat-alive-final bat-alive :gps-alive-final gps-alive})))))
 
+(defn- calculate-empirical-survival-points [survival arms n-total]
+  (let [surv-arr (np/nd-to-array survival)
+        arms-arr (np/nd-to-array arms)
+        t-pts [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80]
+        bat-total (volatile! 0)
+        gps-total (volatile! 0)]
+    (dotimes [i n-total]
+      (if (== (aget arms-arr i) 0)
+        (vswap! bat-total inc)
+        (vswap! gps-total inc)))
+    (let [n-bat @bat-total
+          n-gps @gps-total]
+      (mapv (fn [t]
+              (let [c-bat (volatile! 0)
+                    c-gps (volatile! 0)]
+                (dotimes [i n-total]
+                  (let [s (aget surv-arr i)
+                        arm (aget arms-arr i)]
+                    (when (> s t)
+                      (if (== arm 0)
+                        (vswap! c-bat inc)
+                        (vswap! c-gps inc)))))
+                {:time t
+                 :bat-surv (if (pos? n-bat) (/ @c-bat n-bat) 0.0)
+                 :gps-surv (if (pos? n-gps) (/ @c-gps n-gps) 0.0)}))
+            t-pts))))
+
 (defn- calculate-trial-stats-vectorized
   "Computes all statistics for a successfully screened trial."
   [config enroll survival arms]
@@ -463,16 +576,16 @@
                       :gps-alive-upd (:alive-gps interim-res)
                       :bat-alive-final (:bat-alive-final final-res)
                       :gps-alive-final (:gps-alive-final final-res)
-                      ;; Per-arm cumulative event counts
                       :n-interim-analysis-bat  (:n-interim-analysis-bat counts)
                       :n-interim-analysis-gps  (:n-interim-analysis-gps counts)
                       :n-update-bat  (:n-update-bat counts)
                       :n-update-gps  (:n-update-gps counts)
                       :n-press-release-3-bat (:n-press-release-3-bat counts)
-                      :n-press-release-3-gps (:n-press-release-3-gps counts)}
+                      :n-press-release-3-gps (:n-press-release-3-gps counts)
+                      :empirical-survival (calculate-empirical-survival-points
+                                           survival arms (:n-total config))}
                      (when (:use-pr3-anchor config)
                        {:n-ev-pr3 (:n-press-release-3 counts)})
-                     ;; Per-arm median survival times per interval
                      (compute-interval-medians-vectorized
                       config enroll survival arms)))))))))
 
@@ -623,6 +736,7 @@
               (/ (count (filter #(< % 0.636) hr-final-arr))
                  (count hr-final-arr)))
             :p-success-overall (/ num-success num-accepted)
+            :hr-final-arr (vec hr-final-arr)
             :median-t80-months
             (if (empty? finite-t80)
               js/NaN
@@ -654,7 +768,29 @@
             :mean-med-press-release-3-bat  (mean-field all-stats :med-press-release-3-bat)
             :mean-med-press-release-3-gps  (mean-field all-stats :med-press-release-3-gps)
             :mean-med-press-release-3-pool
-            (mean-field all-stats :mean-med-press-release-3-pool)})))
+            (mean-field all-stats :mean-med-press-release-3-pool)
+            :sim-survival-curves
+            (let [t-pts [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80]
+                  empirical-curves (map :empirical-survival all-stats)
+                  n-trials (count empirical-curves)]
+              (if (zero? n-trials)
+                []
+                (mapv (fn [idx t]
+                        (let [b-sum (reduce
+                                     +
+                                     (map
+                                      #(get-in % [idx :bat-surv] 0.0)
+                                      empirical-curves))
+                              g-sum (reduce
+                                     +
+                                     (map
+                                      #(get-in % [idx :gps-surv] 0.0)
+                                      empirical-curves))]
+                          {:time t
+                           :bat-survival (/ b-sum n-trials)
+                           :gps-survival (/ g-sum n-trials)}))
+                      (range)
+                      t-pts)))})))
 
 (defn- summarize-results
   "Aggregates statistics across all accepted simulations for a combo."
@@ -865,4 +1001,3 @@
   "Simulates multiple trials for a scenario combination using 2D chunked vectorized operations."
   [args]
   (simulate-one-combo-2d args))
-

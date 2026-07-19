@@ -319,11 +319,25 @@
         (if (< i n-per-arm)
           (aset arms (aget indices i) 1)
           (aset arms (aget indices i) 0))))
-    (let [num-gps n-per-arm
-          num-bat (- n-total n-per-arm)
-          bat-draws (rnd/draw-bat-times record num-bat random-gen)
-          gps-draws (rnd/draw-gps-times record num-gps random-gen)]
-      (populate-survival-times n-total arms bat-draws gps-draws survival)
+    (let [r-weib-vals (np/nd-to-array (np-random/random random-gen n-total))
+          r-cure-vals (np/nd-to-array (np-random/random random-gen n-total))
+          r-leak-vals (np/nd-to-array (np-random/random random-gen n-total))
+          gps-orr (double (or (:gps-orr config) 0.8))
+          gps-orr-flags (np/nd-to-array (np-random/random random-gen n-total))]
+      (dotimes [i n-total]
+        (let [arm (aget arms i)
+              r-weib (aget r-weib-vals i)
+              r-cure (aget r-cure-vals i)
+              r-leak (aget r-leak-vals i)]
+          (if (zero? arm)
+            ;; BAT patient
+            (aset survival i (rnd/draw-bat-time-single record r-weib r-cure r-leak))
+            ;; GPS patient: check if they follow GPS survival curve, otherwise fall back to BAT
+            (let [has-orr? (< (aget gps-orr-flags i) gps-orr)
+                  val (if has-orr?
+                        (rnd/draw-gps-time-single record r-weib r-cure r-leak)
+                        (rnd/draw-bat-time-single record r-weib r-cure r-leak))]
+              (aset survival i val)))))
       {:enroll-times enroll :arms-array arms :survival-times survival})))
 
 (defn- simulate-one-trial
@@ -468,6 +482,7 @@
             (/ (count (filter #(< % 0.636) hr-final-arr))
                (count hr-final-arr)))
           :p-success-overall (/ num-success num-accepted)
+          :hr-final-arr (vec hr-final-arr)
           :median-t80-months
           (if (empty? finite-t80)
             js/NaN

@@ -123,4 +123,9 @@
    :main app.regal-fit.run-prefilter-test/main
    :output-to "out/run_prefilter_test.js"
    :js-options {:resolve {"node:fs"          false
-                          "node:fs/promises" false}}}}}
+                          "node:fs/promises" false}}}
+
+  :evaluate-configs
+  {:target :node-script
+   :main app.regal-fit.evaluate-configs/-main
+   :output-to "out/evaluate_configs.js"}}}

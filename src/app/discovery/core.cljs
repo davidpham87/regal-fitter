@@ -171,17 +171,15 @@
    :weibull-k     1.0
    :delay         3.0
    :placebo-mode? false
-   :filter-paths? false
+   :filter-paths? true
    :tol-ia        4.0
    :tol-upd       4.0
    :tol-pr3       2.0
-   :prefilter-check? false
+   :prefilter-check? true
    :prefilter-tol-ia 1.5
    :prefilter-tol-upd 1.5
    :prefilter-tol-pr3 1.5
    :n-sims        1000})
-
-
 
 (defn- settings-checkboxes [{:keys [values set-values]}]
   [:div.bg-gray-50.p-2.rounded-xl.border.flex.items-center.gap-4.col-span-3.h-12
@@ -207,7 +205,7 @@
     [:input {:type "checkbox"
              :checked (:filter-paths? values)
              :on-change #(set-values
-                          {:filter-paths? (.. % -target -checked)})} ]
+                          {:filter-paths? (.. % -target -checked)})}]
     "Filter Paths"]
    ;; Prefilter Check
    [:label.flex.items-center.gap-1.5.text-xs.font-bold.text-gray-700
@@ -215,7 +213,7 @@
     [:input {:type "checkbox"
              :checked (:prefilter-check? values)
              :on-change #(set-values
-                          {:prefilter-check? (.. % -target -checked)})} ]
+                          {:prefilter-check? (.. % -target -checked)})}]
     "Prefilter Check"]])
 
 (defn- tolerance-params [props]
@@ -403,49 +401,62 @@
 ;; ---------------------------------------------------------------------------
 
 (defn- chart-grid [curve-data h1-hazard-rates active-metric sim-result title]
-  [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Survival Curves")]
-    [vega/discovery-survival-chart (:survival curve-data)]]
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Event Accrual")]
-    [vega/discovery-accrual-chart (:accrual curve-data)
-     (:stats curve-data)]]
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Patients Alive")]
-    [vega/discovery-alive-chart (:alive curve-data)
-     (:stats curve-data)]]
-   [card/card-panel nil
-    [:h4.text-xs.font-bold.text-gray-700.mb-2
-     (str title ": Estimated Hazard Ratios")]
-    [vega/discovery-hr-chart (:hr curve-data)]]
-   [card/card-panel nil
-    [:div.flex.justify-between.items-center.mb-2
-     [:h4.text-xs.font-bold.text-gray-700
-      (str title ": " (if (= @active-metric :rate)
-                        "Annualized Hazard Rates"
-                        "Median Overall Survival")
-           (when sim-result " (sim)"))]
-     [:div.flex.gap-1.bg-gray-100.p-0.5.rounded-md.text-xxs
-      [:button.px-2.py-0.5.rounded.font-bold
-       {:type "button"
-        :class (if (= @active-metric :rate)
-                 "bg-white text-gray-800 shadow-sm"
-                 "text-gray-500 hover:text-gray-800")
-        :on-click #(reset! active-metric :rate)}
-       "Hazard Rate"]
-      [:button.px-2.py-0.5.rounded.font-bold
-       {:type "button"
-        :class (if (= @active-metric :median)
-                 "bg-white text-gray-800 shadow-sm"
-                 "text-gray-500 hover:text-gray-800")
-        :on-click #(reset! active-metric :median)}
-       "Median OS"]]]
-    ^{:key (str title "-" @active-metric)}
-    [vega/discovery-hazard-rates-chart h1-hazard-rates @active-metric]]])
+  (let [survival-data (let [analytical (:survival curve-data)]
+                        (if-let [sim-curves (:sim-survival-curves sim-result)]
+                          (let [sim-formatted (mapcat
+                                               (fn [pt]
+                                                 [{:time (:time pt)
+                                                   :survival (:bat-survival pt)
+                                                   :group "BAT (sim)"}
+                                                  {:time (:time pt)
+                                                   :survival (:gps-survival pt)
+                                                   :group "GPS (sim)"}])
+                                               sim-curves)]
+                            (vec (concat analytical sim-formatted)))
+                          analytical))]
+    [:div.grid.grid-cols-1.md:grid-cols-2.gap-4
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Survival Curves")]
+      [vega/discovery-survival-chart survival-data]]
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Event Accrual")]
+      [vega/discovery-accrual-chart (:accrual curve-data)
+       (:stats curve-data)]]
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Patients Alive")]
+      [vega/discovery-alive-chart (:alive curve-data)
+       (:stats curve-data)]]
+     [card/card-panel nil
+      [:h4.text-xs.font-bold.text-gray-700.mb-2
+       (str title ": Estimated Hazard Ratios")]
+      [vega/discovery-hr-chart (:hr curve-data)]]
+     [card/card-panel nil
+      [:div.flex.justify-between.items-center.mb-2
+       [:h4.text-xs.font-bold.text-gray-700
+        (str title ": " (if (= @active-metric :rate)
+                          "Annualized Hazard Rates"
+                          "Median Overall Survival")
+             (when sim-result " (sim)"))]
+       [:div.flex.gap-1.bg-gray-100.p-0.5.rounded-md.text-xxs
+        [:button.px-2.py-0.5.rounded.font-bold
+         {:type "button"
+          :class (if (= @active-metric :rate)
+                   "bg-white text-gray-800 shadow-sm"
+                   "text-gray-500 hover:text-gray-800")
+          :on-click #(reset! active-metric :rate)}
+         "Hazard Rate"]
+        [:button.px-2.py-0.5.rounded.font-bold
+         {:type "button"
+          :class (if (= @active-metric :median)
+                   "bg-white text-gray-800 shadow-sm"
+                   "text-gray-500 hover:text-gray-800")
+          :on-click #(reset! active-metric :median)}
+         "Median OS"]]]
+      ^{:key (str title "-" @active-metric)}
+      [vega/discovery-hazard-rates-chart h1-hazard-rates @active-metric]]]))
 
 ;; ---------------------------------------------------------------------------
 ;; H1 / H0 sections
@@ -474,79 +485,134 @@
 (defn- simulation-results-panel []
   (let [expanded? (r/atom true)]
     (fn [sim-result medians active-family calc-params]
-      (when sim-result
-        [card/card-panel "mb-8 p-6"
-         [:div.flex.justify-between.items-center.cursor-pointer
-          {:on-click #(swap! expanded? not)}
-          [:h3.text-lg.font-bold.text-gray-800
-           "Simulation Detailed Results & Milestones"]
-          [:span.text-xs.font-semibold.text-blue-600.hover:text-blue-800
-           (if @expanded? "▲ Collapse" "▼ Expand")]]
-         (when @expanded?
-           [:div.grid.grid-cols-1.md:grid-cols-2.gap-8.mt-4
-            [:div
-             [:h4.text-sm.font-bold.text-gray-700.mb-3
-              "Population Medians & Realized Months"]
-             [:table.min-w-full.divide-y.divide-gray-200.text-sm
-              [:thead
-               [:tr
-                [table-th "left" "Metric"]
-                [table-th "right" "BAT"]
-                [table-th "right" "GPS (Active)"]]]
-              [:tbody.divide-y.divide-gray-200
-               [:tr
-                [table-td "Input Observed mOS"]
-                [table-td "right" "font-medium" (str (:bat-med calc-params) "m")]
-                [table-td "right" "font-medium" (str (:gps-med calc-params) "m")]]
-               [:tr
-                [table-td "True Population mOS (with delay/cure)"]
-                [table-td "right" "font-medium text-blue-600" (str (.toFixed (:bat-true-mos medians) 2) "m")]
-                [table-td "right" "font-medium text-blue-600"
-                 (if (= (:gps-true-mos medians) js/Infinity)
-                   "Infinity"
-                   (str (.toFixed (:gps-true-mos medians) 2) "m"))]]
-               [:tr
-                [table-td "Trial Timeline realized mOS (50% events)"]
-                [table-td "right" "font-medium text-green-600"
-                 (if (= (:bat-realized-month medians) js/Infinity)
-                   "N/A"
-                   (str (.toFixed (:bat-realized-month medians) 2) "m"))]
-                [table-td "right" "font-medium text-green-600"
-                 (if (= (:gps-realized-month medians) js/Infinity)
-                   "N/A"
-                   (str (.toFixed (:gps-realized-month medians) 2) "m"))]]]]]
-            [:div
-             [:h4.text-sm.font-bold.text-gray-700.mb-3
-              "Stochastic Trial Outcomes"]
-             [:div.grid.grid-cols-2.gap-4
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Overall Trial Success"]
-               [:div.text-lg.font-bold.text-green-600
-                (str (.toFixed (* 100 (:p-success-overall sim-result)) 1)
-                     "%")]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Acceptance Rate (Stage 1 Pass)"]
-               [:div.text-lg.font-bold.text-gray-700
-                (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1)
-                     "%")]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Median Hazard Ratio"]
-               [:div.text-lg.font-bold.text-blue-600
-                (if (js/isNaN (:median-hr-final sim-result))
-                  "N/A"
-                  (.toFixed (:median-hr-final sim-result) 3))]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Median Time to 80 Ev"]
-               [:div.text-lg.font-bold.text-blue-600
-                (if (js/isNaN (:median-t80-months sim-result))
-                  "N/A"
-                  (str (.toFixed (:median-t80-months sim-result) 1)
-                       "m"))]]
-              [card/gray-panel "p-3"
-               [text-gray-label nil "Accepted / Futility Pass"]
-               [:div.text-sm.font-semibold.text-gray-700
-                (str (:n-accepted sim-result) " / "
-                     (:n-pass-events sim-result))]]]]])]))))
+      (let [config @(rf/subscribe [:config])]
+        (when sim-result
+          [card/card-panel "mb-8 p-6"
+           [:div.flex.justify-between.items-center.cursor-pointer
+            {:on-click #(swap! expanded? not)}
+            [:h3.text-lg.font-bold.text-gray-800
+             "Simulation Detailed Results & Milestones"]
+            [:span.text-xs.font-semibold.text-blue-600.hover:text-blue-800
+             (if @expanded? "▲ Collapse" "▼ Expand")]]
+           (when @expanded?
+             [:<>
+              [:div.grid.grid-cols-1.md:grid-cols-2.gap-8.mt-4
+               [:div
+                [:h4.text-sm.font-bold.text-gray-700.mb-3
+                 "Population Medians & Realized Months"]
+                [:table.min-w-full.divide-y.divide-gray-200.text-sm
+                 [:thead
+                  [:tr
+                   [table-th "left" "Metric"]
+                   [table-th "right" "BAT"]
+                   [table-th "right" "GPS (Active)"]]]
+                 [:tbody.divide-y.divide-gray-200
+                  [:tr
+                   [table-td "Input Observed mOS"]
+                   [table-td "right" "font-medium" (str (:bat-med calc-params) "m")]
+                   [table-td "right" "font-medium" (str (:gps-med calc-params) "m")]]
+                  [:tr
+                   [table-td "True Population mOS (with delay/cure)"]
+                   [table-td "right" "font-medium text-blue-600" (str (.toFixed (:bat-true-mos medians) 2) "m")]
+                   [table-td "right" "font-medium text-blue-600"
+                    (if (= (:gps-true-mos medians) js/Infinity)
+                      "Infinity"
+                      (str (.toFixed (:gps-true-mos medians) 2) "m"))]]
+                  [:tr
+                   [table-td "Trial Timeline realized mOS (50% events)"]
+                   [table-td "right" "font-medium text-green-600"
+                    (if (= (:bat-realized-month medians) js/Infinity)
+                      "N/A"
+                      (str (.toFixed (:bat-realized-month medians) 2) "m"))]
+                   [table-td "right" "font-medium text-green-600"
+                    (if (= (:gps-realized-month medians) js/Infinity)
+                      "N/A"
+                      (str (.toFixed (:gps-realized-month medians) 2) "m"))]]
+                  (let [bat-ia (:mean-med-interim-analysis-bat sim-result)
+                        gps-ia (:mean-med-interim-analysis-gps sim-result)]
+                    [:tr
+                     [table-td "Simulation Realized mOS (at IA)"]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and bat-ia (not (js/isNaN bat-ia)))
+                        (str (.toFixed bat-ia 2) "m")
+                        "N/A")]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and gps-ia (not (js/isNaN gps-ia)))
+                        (str (.toFixed gps-ia 2) "m")
+                        "N/A")]])
+                  (let [bat-upd (:mean-med-update-bat sim-result)
+                        gps-upd (:mean-med-update-gps sim-result)]
+                    [:tr
+                     [table-td "Simulation Realized mOS (at UPD)"]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and bat-upd (not (js/isNaN bat-upd)))
+                        (str (.toFixed bat-upd 2) "m")
+                        "N/A")]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and gps-upd (not (js/isNaN gps-upd)))
+                        (str (.toFixed gps-upd 2) "m")
+                        "N/A")]])
+                  (let [bat-80 (:mean-med-press-release-3-bat sim-result)
+                        gps-80 (:mean-med-press-release-3-gps sim-result)]
+                    [:tr
+                     [table-td "Simulation Realized mOS (at 80 events)"]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and bat-80 (not (js/isNaN bat-80)))
+                        (str (.toFixed bat-80 2) "m")
+                        "N/A")]
+                     [table-td "right" "font-medium text-purple-600"
+                      (if (and gps-80 (not (js/isNaN gps-80)))
+                        (str (.toFixed gps-80 2) "m")
+                        "N/A")]])]]]
+               [:div
+                [:h4.text-sm.font-bold.text-gray-700.mb-3
+                 "Stochastic Trial Outcomes"]
+                [:div.grid.grid-cols-2.gap-4
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Overall Trial Success"]
+                  [:div.text-lg.font-bold.text-green-600
+                   (str (.toFixed (* 100 (:p-success-overall sim-result)) 1)
+                        "%")]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Acceptance Rate (Stage 1 Pass)"]
+                  [:div.text-lg.font-bold.text-gray-700
+                   (str (.toFixed (* 100 (:acceptance-rate sim-result)) 1)
+                        "%")]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Median Hazard Ratio"]
+                  [:div.text-lg.font-bold.text-blue-600
+                   (if (js/isNaN (:median-hr-final sim-result))
+                     "N/A"
+                     (.toFixed (:median-hr-final sim-result) 3))]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Simulation Final HR 95% CI"]
+                  [:div.text-lg.font-bold.text-blue-600
+                   (if (or (js/isNaN (:hr-final-low sim-result))
+                           (js/isNaN (:hr-final-high sim-result)))
+                     "N/A"
+                     (str "[" (.toFixed (:hr-final-low sim-result) 3)
+                          ", " (.toFixed (:hr-final-high sim-result) 3)
+                          "]"))]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Median Time to 80 Ev"]
+                  [:div.text-lg.font-bold.text-blue-600
+                   (if (js/isNaN (:median-t80-months sim-result))
+                     "N/A"
+                     (str (.toFixed (:median-t80-months sim-result) 1)
+                          "m"))]]
+                 [card/gray-panel "p-3"
+                  [text-gray-label nil "Accepted / Futility Pass"]
+                  [:div.text-sm.font-semibold.text-gray-700
+                   (str (:n-accepted sim-result) " / "
+                        (:n-pass-events sim-result))]]]]]
+              [:div.mt-6.flex.justify-center
+               [card/card-panel
+                "p-4 border bg-gray-50 flex flex-col items-center"
+                [:h4.text-sm.font-bold.text-gray-700.mb-3
+                 "Stochastic Hazard Ratio Distribution & Cumulative Success"]
+                [vega/discovery-hr-distribution-chart
+                 (:hr-final-arr sim-result)
+                 (or (:hr-threshold config) 0.636)]]]])])))))
 
 ;; ---------------------------------------------------------------------------
 ;; discovery-view-content
@@ -590,30 +656,31 @@
         h0-hazard-rates
         (analytical-hazard-rates curve-data-h0 config)
 
+        bat-shape (or (:bat-shape calc-params) (:weibull-k calc-params) 1.0)
         bat-lambda (population-cr2-lambda
                     (:bat-med calc-params)
                     (or (:delay calc-params) 3.0)
-                    (:bat-shape calc-params))
-        bat-true-mos (true-mos bat-lambda (:bat-shape calc-params))
+                    bat-shape)
+        bat-true-mos (true-mos bat-lambda bat-shape)
         medians (assoc (dc/calculate-medians active-family calc-params config)
                        :bat-true-mos bat-true-mos)]
 
-     [:div.p-6.max-w-7xl.mx-auto
-      [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
-       "Discovery View"]
-      [:p.text-gray-600.mb-6
-       (str "Explore survival curves and event accrual "
-            "given leaky cure parametric assumptions.")]
+    [:div.p-6.max-w-7xl.mx-auto
+     [:h1.text-3xl.font-extrabold.text-gray-800.mb-2
+      "Discovery View"]
+     [:p.text-gray-600.mb-6
+      (str "Explore survival curves and event accrual "
+           "given leaky cure parametric assumptions.")]
 
-      [:<>
-       [controls-panel props active-family calc-params
-        state config bat-true-mos]
-       [simulation-results-panel sim-result medians active-family calc-params]
-       ^{:key (str params)}
-       [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
-        [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
-        [h0-section stats-h0 curve-data-h0 h0-hazard-rates
-         active-metric avg-med]]]]))
+     [:<>
+      [controls-panel props active-family calc-params
+       state config bat-true-mos]
+      [simulation-results-panel sim-result medians active-family calc-params]
+      ^{:key (str params)}
+      [:div.grid.grid-cols-1.lg:grid-cols-1.gap-8
+       [h1-section stats curve-data h1-hazard-rates active-metric sim-result]
+       [h0-section stats-h0 curve-data-h0 h0-hazard-rates
+        active-metric avg-med]]]]))
 
 ;; ---------------------------------------------------------------------------
 ;; Public entry point
@@ -626,10 +693,12 @@
              params (merge (:calc-params disc) (:params disc))]
          (sim/run-discovery-simulation! fam params))]
     (fn []
-      (let [state @(rf/subscribe [:discovery])]
+      (let [state @(rf/subscribe [:discovery])
+            params (:params state)]
+        ^{:key (hash params)}
         [fork/form
          {:path [:form :discovery]
-          :initial-values (:params state)
+          :initial-values params
           :keywordize-keys true
           :on-change
           (fn [{:keys [values]}]

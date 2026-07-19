@@ -26,6 +26,7 @@
 (def discovery-alive-chart disc/discovery-alive-chart)
 (def discovery-hr-chart disc/discovery-hr-chart)
 (def discovery-hazard-rates-chart disc/discovery-hazard-rates-chart)
+(def discovery-hr-distribution-chart disc/discovery-hr-distribution-chart)
 
 ;; Power & Planning charts
 (def stress-test-charts pow/stress-test-charts)
