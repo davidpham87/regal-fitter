@@ -16,8 +16,6 @@
 (defn init! []
   (log "Simulator init. Pyodide removed. Ready."))
 
-
-
 (defn- cached-submit-job! [data callback]
   (go
     (let [k (<! (db/hash-key data))
@@ -98,6 +96,30 @@
       :dispatch-n [[:set-status :running-stage2]
                    [:set-progress total-combos 0]]})))
 
+(defn- partition-grid-config [family config n-chunks]
+  (let [grid-key (case family
+                   "weibull" :bat-med-grid
+                   "cure"    :bat-cure-frac-grid
+                   "leaky"   :bat-leaky-cure-frac-grid
+                   nil)]
+    (if-let [grid (and grid-key (get config grid-key))]
+      (let [[start stop step] grid
+            vals (loop [curr start
+                        acc []]
+                   (if (>= curr (- stop 1e-9))
+                     acc
+                     (recur (+ curr step) (conj acc curr))))]
+        (if (and (seq vals) (> n-chunks 1))
+          (let [chunk-size (js/Math.ceil (/ (count vals) n-chunks))
+                sub-seqs (partition-all chunk-size vals)]
+            (mapv (fn [sub-seq]
+                    (let [chunk-start (first sub-seq)
+                          chunk-stop (+ (last sub-seq) step)]
+                      (assoc config grid-key [chunk-start chunk-stop step])))
+                  sub-seqs))
+          [config]))
+      [config])))
+
 (defn start-simulation! []
   (let [config (:config @rf-db/app-db)
         families (:families config)
@@ -109,20 +131,31 @@
     (rf/dispatch [:clear-prefilter-results])
     (doseq [fam families]
       (log (str "Submitting Stage 1 for " fam))
-      (cached-submit-job!
-       {:type    "RUN_PREFILTER"
-        :version 3
-        :family  fam
-        :top-k   (:prefilter-top-k config)
-        :config  config}
-       (fn [{:keys [success? result error]}]
-         (if success?
-           (do
-             (log (str fam " accepted: " (count result)))
-             (rf/dispatch [:prefilter-done fam result]))
-           (do
-             (js/console.error "Prefilter error for" fam error)
-             (rf/dispatch [:prefilter-done fam []]))))))))
+      (let [n-workers (js/Math.max 1 (count @wp/pool))
+            chunked-configs (partition-grid-config fam config n-workers)
+            n-chunks (count chunked-configs)
+            results-atom (atom [])
+            pending-atom (atom n-chunks)]
+        (log (str fam " partitioned into " n-chunks " chunks"))
+        (doseq [[idx chunk-config] (map-indexed vector chunked-configs)]
+          (cached-submit-job!
+           {:type    "RUN_PREFILTER"
+            :version 3
+            :family  fam
+            :top-k   (:prefilter-top-k config)
+            :config  chunk-config}
+           (fn [{:keys [success? result error]}]
+             (if success?
+               (swap! results-atom concat result)
+               (js/console.error "Prefilter chunk error for" fam error))
+             (let [p (swap! pending-atom dec)]
+               (when (zero? p)
+                 (let [merged @results-atom
+                       trimmed (prefilter/rank-and-trim
+                                config merged (:prefilter-top-k config))]
+                   (log (str fam " merged prefilter: " (count merged)
+                             " trimmed to " (count trimmed)))
+                   (rf/dispatch [:prefilter-done fam trimmed])))))))))))
 
 (defn abort-simulation! []
   (wp/abort-pool!)
