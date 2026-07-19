@@ -54,8 +54,12 @@
 
 (defn init-pool! [size]
   (let [actual-size (if (and size (> size 0))
-                      (js/Math.min 16 size)
-                      (js/Math.max 1 (js/Math.min 16 (- (.-hardwareConcurrency js/navigator) 1))))]
+                      (js/Math.min 32 size)
+                      (js/Math.max
+                       1
+                       (js/Math.min
+                        32
+                        (.-hardwareConcurrency js/navigator))))]
     (js/console.log "Initializing worker pool of size:" actual-size)
     (reset! pool (into [] (repeatedly actual-size create-worker!)))))
 
