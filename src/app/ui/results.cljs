@@ -12,7 +12,37 @@
             [app.components.card :refer [chart-card]]
             [app.components.tabs :refer [tab-bar]]
             [app.discovery.core :as discovery]
-            [app.visualization.data :as vdata]))
+            [app.visualization.data :as vdata]));; --- Re-frame Subscriptions and Events for Results Table ---
+
+(rf/reg-sub
+ :results-table/sort-col
+ (fn [db [_ family]]
+   (get-in db [:results-table family :sort-col] nil)))
+
+(rf/reg-sub
+ :results-table/sort-asc?
+ (fn [db [_ family]]
+   (get-in db [:results-table family :sort-asc?] true)))
+
+(rf/reg-sub
+ :results-table/curr-page
+ (fn [db [_ family]]
+   (get-in db [:results-table family :curr-page] 0)))
+
+(rf/reg-event-db
+ :results-table/set-sort-col
+ (fn [db [_ family col]]
+   (assoc-in db [:results-table family :sort-col] col)))
+
+(rf/reg-event-db
+ :results-table/set-sort-asc?
+ (fn [db [_ family asc?]]
+   (assoc-in db [:results-table family :sort-asc?] asc?)))
+
+(rf/reg-event-db
+ :results-table/set-curr-page
+ (fn [db [_ family page]]
+   (assoc-in db [:results-table family :curr-page] page)))
 
 (defn- expected-success-probability [items config]
   (let [valid-items (filter #(and (:p-success-overall %)
@@ -81,16 +111,19 @@
     :else data))
 
 (defn- results-table [family items]
-  (let [sort-col (r/atom nil)
-        sort-asc? (r/atom true)
-        filter-text (r/atom "")
-        page-size 20
-        curr-page (r/atom 0)]
+  (let [filter-text (r/atom "")]
     (fn [family items]
       (when (seq items)
-        (let [keys-to-show (->> (mapcat keys items)
+        (let [sort-col @(rf/subscribe [:results-table/sort-col family])
+              sort-asc? @(rf/subscribe [:results-table/sort-asc? family])
+              curr-page @(rf/subscribe [:results-table/curr-page family])
+              page-size 20
+              keys-to-show (->> (mapcat keys items)
                                 distinct
-                                (remove #(= % :family))
+                                (remove
+                                 #(or (= % :family)
+                                      (= % :hr-final-arr)
+                                      (= % :sim-survival-curves)))
                                 (sort-by name))
               q (str/lower-case (str/trim @filter-text))
               filtered-items (if (str/blank? q)
@@ -104,20 +137,21 @@
                                              q)))
                                         keys-to-show))
                                 items))
-              sorted-items (if-let [col @sort-col]
+              sorted-items (if-let [col sort-col]
                              (sort-by (fn [item]
                                         (let [val (get item col)]
                                           (if (string? val)
                                             (str/lower-case val)
                                             val)))
-                                      (if @sort-asc? compare #(compare %2 %1))
+                                      (if sort-asc? compare #(compare %2 %1))
                                       filtered-items)
                              filtered-items)
               total-items (count sorted-items)
               max-page (js/Math.max 0 (js/Math.ceil (/ total-items page-size)))
-              _ (when (>= @curr-page max-page) (reset! curr-page 0))
+              _ (when (>= curr-page max-page)
+                  (rf/dispatch [:results-table/set-curr-page family 0]))
               paginated-items (->> sorted-items
-                                   (drop (* @curr-page page-size))
+                                   (drop (* curr-page page-size))
                                    (take page-size))]
           [:div.mb-8
            [:div.flex.flex-col.sm:flex-row.gap-2.mb-3
@@ -130,30 +164,42 @@
                :placeholder "Filter rows..."
                :value @filter-text
                :on-change #(do (reset! filter-text (.. % -target -value))
-                               (reset! curr-page 0))}]]]
+                               (rf/dispatch
+                                [:results-table/set-curr-page family 0]))}]]]
            [:div.overflow-x-auto.border.rounded-lg.shadow-sm
             [:table.min-w-full.divide-y.divide-gray-200.text-sm
              [:thead.bg-gray-50
               [:tr
                [:th.px-4.py-2.text-left.font-semibold.text-gray-600 "Actions"]
                (for [k keys-to-show]
-                 (let [is-active-sort? (= @sort-col k)]
+                 (let [is-active-sort? (= sort-col k)]
                    ^{:key k}
                    [:th.px-4.py-2.text-left.font-semibold.text-gray-600
                     {:class "cursor-pointer select-none hover:bg-gray-100"
                      :on-click (fn []
                                  (if is-active-sort?
-                                   (swap! sort-asc? not)
+                                   (rf/dispatch
+                                    [:results-table/set-sort-asc?
+                                     family (not sort-asc?)])
                                    (do
-                                     (reset! sort-col k)
-                                     (reset! sort-asc? true)))
-                                 (reset! curr-page 0))}
-                    [:span.flex.items-center.gap-1
-                     (get inputs/key->label k (name k))
-                     (cond
-                       (not is-active-sort?) "↕"
-                       @sort-asc? "▲"
-                       :else "▼")]]))]]
+                                     (rf/dispatch
+                                      [:results-table/set-sort-col family k])
+                                     (rf/dispatch
+                                      [:results-table/set-sort-asc?
+                                       family true])))
+                                 (rf/dispatch
+                                  [:results-table/set-curr-page family 0]))}
+                    [:div.flex.flex-col
+                     [:div.flex.items-center.gap-1
+                      [:span.text-xs.font-extrabold.text-gray-700
+                       (if (= k :bat-med)
+                         "BAT effective mOS"
+                         (get inputs/key->label k (name k)))]
+                      (cond
+                        (not is-active-sort?) "↕"
+                        sort-asc? "▲"
+                        :else "▼")]
+                     [:span.text-xxs.font-normal.text-gray-400 (str k)]]]))]]
              [:tbody.divide-y.divide-gray-200.bg-white
               (if (empty? paginated-items)
                 [:tr
@@ -180,20 +226,27 @@
            (when (> max-page 1)
              [:div.mt-4.flex.justify-between.items-center.text-sm
               [:span.text-gray-600
-               (str "Showing " (inc (* @curr-page page-size))
-                    " to " (js/Math.min total-items (* (inc @curr-page) page-size))
+               (str "Showing " (inc (* curr-page page-size))
+                    " to " (js/Math.min total-items
+                                        (* (inc curr-page) page-size))
                     " of " total-items " entries")]
               [:div.flex.gap-2
                [:button.px-3.py-1.border.rounded.bg-white
-                {:disabled (<= @curr-page 0)
-                 :class (when (<= @curr-page 0) "opacity-50 cursor-not-allowed")
-                 :on-click #(swap! curr-page dec)}
+                {:disabled (<= curr-page 0)
+                 :class (when (<= curr-page 0)
+                          "opacity-50 cursor-not-allowed")
+                 :on-click #(rf/dispatch
+                             [:results-table/set-curr-page
+                              family (dec curr-page)])}
                 "Previous"]
-               [:span.px-3.py-1 (str (inc @curr-page) " / " max-page)]
+               [:span.px-3.py-1 (str (inc curr-page) " / " max-page)]
                [:button.px-3.py-1.border.rounded.bg-white
-                {:disabled (>= (inc @curr-page) max-page)
-                 :class (when (>= (inc @curr-page) max-page) "opacity-50 cursor-not-allowed")
-                 :on-click #(swap! curr-page inc)}
+                {:disabled (>= (inc curr-page) max-page)
+                 :class (when (>= (inc curr-page) max-page)
+                          "opacity-50 cursor-not-allowed")
+                 :on-click #(rf/dispatch
+                             [:results-table/set-curr-page
+                              family (inc curr-page)])}
                 "Next"]]])])))))
 
 (defn- results-edn-view [results]
