@@ -436,12 +436,16 @@
         progress @(rf/subscribe [:progress])
         status @(rf/subscribe [:status])
         config @(rf/subscribe [:config])
-        active-family @(rf/subscribe [:tabs/active-tab :results-view-family (some-> results first key)])
-        input-n-sims (r/atom (:n-sims-aggregation config 1000))
-        committed-n-sims (r/atom (:n-sims-aggregation config 1000))
-        resampled-data (r/atom {})
-        resampling-state (r/atom {})
-        results-tracker (r/atom results)]
+        active-family @(rf/subscribe
+                        [:tabs/active-tab
+                         :results-view-family
+                         (some-> results first key)])]
+    (r/with-let [input-n-sims (r/atom (:n-sims-aggregation config 1000))
+                 committed-n-sims (r/atom (:n-sims-aggregation config 1000))
+                 resample-trigger (r/atom 0)
+                 resampled-data (r/atom {})
+                 resampling-state (r/atom {})
+                 results-tracker (r/atom results)]
       (when-not (= results @results-tracker)
         (reset! results-tracker results)
         (reset! resampled-data {})
@@ -506,22 +510,22 @@
                     [:table "Table"]
                     [:edn "EDN View"]]}]])]
        (cond
-          (= status :running-stage1)
-          [:div.p-12.text-center.border.rounded-2xl.bg-gradient-to-b.from-white.to-gray-50.border-gray-100.shadow-sm.my-8
-           [:div.flex.items-center.justify-center.gap-3.mb-3
-            [:svg.animate-spin.h-8.w-8.text-indigo-600
-             {:xmlns "http://www.w3.org/2000/svg" :fill "none" :viewBox "0 0 24 24"}
-             [:circle.opacity-25 {:cx "12" :cy "12" :r "10" :stroke "currentColor" :stroke-width "4"}]
-             [:path.opacity-75 {:fill "currentColor" :d "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"}]]
-            [:div.text-xl.font-bold.text-indigo-900.tracking-tight
-             "Executing Analytical Pre-Filter..."]]
-           [:div.text-sm.text-gray-500
-            "Screening combinations against analytical constraints at Interim & Updated Analysis milestones"]
-           (when (and progress (pos? (:total progress)))
-             [:div.text-xs.font-semibold.text-indigo-600.mt-2
-              (str "Processing family: " (:completed progress) " of " (:total progress) " completed")])]
+         (= status :running-stage1)
+         [:div.p-12.text-center.border.rounded-2xl.bg-gradient-to-b.from-white.to-gray-50.border-gray-100.shadow-sm.my-8
+          [:div.flex.items-center.justify-center.gap-3.mb-3
+           [:svg.animate-spin.h-8.w-8.text-indigo-600
+            {:xmlns "http://www.w3.org/2000/svg" :fill "none" :viewBox "0 0 24 24"}
+            [:circle.opacity-25 {:cx "12" :cy "12" :r "10" :stroke "currentColor" :stroke-width "4"}]
+            [:path.opacity-75 {:fill "currentColor" :d "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"}]]
+           [:div.text-xl.font-bold.text-indigo-900.tracking-tight
+            "Executing Analytical Pre-Filter..."]]
+          [:div.text-sm.text-gray-500
+           "Screening combinations against analytical constraints at Interim & Updated Analysis milestones"]
+          (when (and progress (pos? (:total progress)))
+            [:div.text-xs.font-semibold.text-indigo-600.mt-2
+             (str "Processing family: " (:completed progress) " of " (:total progress) " completed")])]
 
-          (= status :running-stage2) [stage2-progress progress]
+         (= status :running-stage2) [stage2-progress progress]
          (seq results)
          [:div
           [summary-banner results config]
@@ -642,4 +646,4 @@
                  ^{:key fam} [results-table fam items])])
 
             :edn [results-edn-view results])]
-         :else [:div.text-gray-500 "Run a simulation to see results."])]))
+         :else [:div.text-gray-500 "Run a simulation to see results."])])))
