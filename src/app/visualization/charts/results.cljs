@@ -38,7 +38,7 @@
          :encoding
          {:x {:field (name param-name)
               :type "quantitative"
-              :bin {:maxbins 30}
+              :bin {:step 0.5}
               :title label}
           :y {:aggregate "sum"
               :field "wt"
@@ -139,7 +139,7 @@
            :encoding
            {:x {:field (name param-name)
                 :type "quantitative"
-                :bin {:maxbins 30}}
+                :bin {:step 0.5}}
             :y {:aggregate "sum"
                 :field "wt"
                 :type "quantitative"
