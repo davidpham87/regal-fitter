@@ -132,7 +132,7 @@
     (doseq [fam families]
       (log (str "Submitting Stage 1 for " fam))
       (let [n-workers (js/Math.max 1 (count @wp/pool))
-            chunked-configs (partition-grid-config fam config n-workers)
+            chunked-configs (partition-grid-config fam config (* 2 n-workers))
             n-chunks (count chunked-configs)
             results-atom (atom [])
             pending-atom (atom n-chunks)]
