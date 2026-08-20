@@ -74,7 +74,7 @@
                                                            (assoc item :onset-cr2-bat-mos onset-mos)))
                                                        raw-items)
                                            best-n (vdata/score-and-sort-items items config limit)
-                                           strat (vdata/build-stratified-data best-n 1.0)
+                                           strat (vdata/build-stratified-data best-n 0.5)
                                            tot-wt (reduce + (map :weight strat))
                                            vdata-res (vdata/calculate-vdata strat tot-wt)
                                            hr-data (vdata/build-hr-distribution-data best-n 0.025)

@@ -80,7 +80,7 @@
                           (let [combos (:combos args)
                                 config (:config args)
                                 strat  (vdata/build-stratified-data
-                                         combos 1.0)
+                                         combos 0.5)
                                 tot-wt (reduce + (map :weight strat))
                                 vd     (vdata/calculate-vdata strat tot-wt)
                                 hr-d   (vdata/build-hr-distribution-data
