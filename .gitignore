@@ -24,3 +24,7 @@ public/test/js/
 py_5000.json
 target/    
 scratch/
+*.png
+aggregated_results.json
+config.json
+results.json

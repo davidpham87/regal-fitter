@@ -50,8 +50,8 @@
      :tol-increment-upd-pr3 5
 
      :futility-hr-max 0.84
-     :efficacy-hr-min 0.40
-     :bat-surv-36m-max 0.25
+     :efficacy-hr-min 0.55
+     :bat-surv-36m-max 0.3
 
      :pool-mos-min-at-ia 12
      :median-fu-target 13.5
@@ -82,15 +82,15 @@
      :cure-unc-med-grid [10 58 4]
      :cure-unc-shape-grid [0.6 1.6 0.2]
 
-     :leaky-cure-frac-grid [0.0 0.5 0.1]
-     :leaky-unc-med-grid [10 80 5]
+     :leaky-cure-frac-grid [0.0 0.8 0.1]
+     :leaky-unc-med-grid [20 90 2.5]
      :leaky-unc-shape-grid [0.5 1.0 0.05]
-     :leak-grid [0.01 0.06 0.01]
+     :leak-grid [0.02 0.05 0.01]
 
-     :bat-leaky-cure-frac-grid [0.0 0.3 0.1]
-     :bat-leaky-unc-med-grid [5 30 0.5]
+     :bat-leaky-cure-frac-grid [0.0 0.15 0.025]
+     :bat-leaky-unc-med-grid [14 22 0.25]
      :bat-leaky-unc-shape-grid [0.6 1.0 0.05]
-     :bat-leak-grid [0.01 0.06 0.01]
+     :bat-leak-grid [0.02 0.05 0.01]
 
      :families ["leaky"]
      :n-sims-aggregation 5120}))
