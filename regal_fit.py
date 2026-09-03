@@ -250,7 +250,7 @@ class Config:
     hr_threshold: float = 0.636      # per SAP
 
     # ----- compute -----
-    n_sims_per_combo: int = 1000     # post-filter simulation depth
+    n_sims_per_combo: int = 500      # post-filter simulation depth
     # Early-stop: do an initial screening pass; if zero sims pass the
     # event/futility filters, drop the combo before running full n_sims.
     n_sims_screen: int = 250
@@ -1905,6 +1905,29 @@ def write_report(cfg, all_results, out_path):
 # =============================================================================
 
 def main(argv=None):
+    db_path = Path("regal_results.db")
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS simulation_cache (
+            config_hash TEXT PRIMARY KEY,
+            family TEXT,
+            config JSON,
+            results JSON
+        )
+    """)
+    conn.commit()
+
+    def _hash_config(family_label, cfg):
+        """Hash the config, ignoring ephemeral output/runtime params."""
+        d = asdict(cfg)
+        for k in ["out_pdf", "out_dir", "n_threads"]:
+            d.pop(k, None)
+        d["_family"] = family_label
+        # Serialize deterministically
+        s = json.dumps(d, sort_keys=True)
+        return hashlib.md5(s.encode("utf-8")).hexdigest()
+
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--threads", type=int, default=50)
@@ -2061,6 +2084,14 @@ def main(argv=None):
         """Dump per-family results to disk so a Ctrl-C doesn't lose progress."""
         if not results:
             return
+
+        conf_hash = _hash_config(label, cfg)
+        cursor.execute("""
+            INSERT OR REPLACE INTO simulation_cache (config_hash, family, config, results)
+            VALUES (?, ?, ?, ?)
+        """, (conf_hash, label, json.dumps(asdict(cfg)), json.dumps(results, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))))
+        conn.commit()
+
         safe = label.replace("/", "-").replace(" ", "_")
         ckpt = Path(f"{base}_{safe}{ckpt_tag}.json")
         with open(ckpt, "w") as f:
@@ -2079,13 +2110,29 @@ def main(argv=None):
     def _try_resume(label):
         """Look for an existing per-family JSON and load if present.
         Only loads checkpoints with a matching constraint signature."""
+        conf_hash = _hash_config(label, cfg)
+        cursor.execute("SELECT results FROM simulation_cache WHERE config_hash = ?", (conf_hash,))
+        row = cursor.fetchone()
+        if row and not args.no_resume:
+            results = json.loads(row[0])
+            print(f"  RESUMING from SQLite DB (hash={conf_hash[:8]}...): {len(results):,} combos loaded")
+            return results
+
         safe = label.replace("/", "-").replace(" ", "_")
         ckpt = Path(f"{base}_{safe}{ckpt_tag}.json")
         if ckpt.exists() and not args.no_resume:
             with open(ckpt) as f:
                 results = json.load(f)
             print(f"  RESUMING from {ckpt.name}: {len(results):,} combos loaded")
+
+            # cache the result from json
+            cursor.execute("""
+                INSERT OR REPLACE INTO simulation_cache (config_hash, family, config, results)
+                VALUES (?, ?, ?, ?)
+            """, (conf_hash, label, json.dumps(asdict(cfg)), json.dumps(results, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))))
+            conn.commit()
             return results
+
         # Older-style checkpoint (no constraint tag) -- ignore but warn
         legacy = Path(f"{base}_{safe}.json")
         if legacy.exists() and not args.no_resume:
